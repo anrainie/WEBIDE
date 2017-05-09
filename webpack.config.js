@@ -1,3 +1,5 @@
+const path = require('path');
+const webpack = require('webpack');
 module.exports = {
     // 入口文件
     entry: './src/main.js',
@@ -22,10 +24,30 @@ module.exports = {
             test: /\.js$/,
             exclude: /node_modules/,
             loader: 'babel'
+        }, {
+            test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
+            loader: 'file-loader'
+        }, {
+            test: /\.(png|jpg|gif|svg)$/,
+            loader: 'file-loader',
+            options: {
+                name: '[name].[ext]?[hash]'
+            }
         }]
+    },
+    resolve: {
+        alias: {
+            assets: path.resolve(__dirname, 'src/asset')
+        }
     },
     babel: {
         presets: ['es2015', 'stage-0'],
         plugins: ['transform-runtime']
-    }
-}
+    },
+    plugins: [
+        new webpack.ProvidePlugin({
+            $: "jquery",
+            jQuery: "jquery"
+        })
+    ]
+};
