@@ -9,7 +9,7 @@
             </div>
             <!--<editor></editor>-->
         </div>
-        <div class="bottom">这里是bottom</div>
+        <div class="bottom">这里是bottom1</div>
     </div>
 </template>
 <style>
