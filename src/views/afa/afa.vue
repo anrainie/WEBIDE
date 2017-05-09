@@ -1,18 +1,59 @@
 <template>
-    <div>
-        <div class="top">{{pageName.length}}
-            <input type="text" v-model="pageName"/>
+<div>
+    <!-- Fixed navbar -->
+    <nav class="navbar navbar-default navbar-fixed-top">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">AFAIDE</a>
         </div>
-        <div class="mid">
-            <div class="navi">
-                <navigator :model="naviModel"></navigator>
-            </div>
-            <!--<editor></editor>-->
+        <div id="navbar" class="navbar-collapse collapse">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#contact">Contact</a></li>
+            <li class="dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+              <ul class="dropdown-menu">
+                <li><a href="#">Action</a></li>
+                <li><a href="#">Another action</a></li>
+                <li><a href="#">Something else here</a></li>
+                <li role="separator" class="divider"></li>
+                <li class="dropdown-header">Nav header</li>
+                <li><a href="#">Separated link</a></li>
+                <li><a href="#">One more separated link</a></li>
+              </ul>
+            </li>
+          </ul>
+          <ul class="nav navbar-nav navbar-right">
+            <li><a href="../navbar/">Default</a></li>
+            <li><a href="../navbar-static-top/">Static top</a></li>
+            <li class="active"><a href="./">Fixed top <span class="sr-only">(current)</span></a></li>
+          </ul>
         </div>
-        <div class="bottom">这里是bottom</div>
+      </div>
+    </nav>
+    
+    <div class="container-fluid">
+      <div class="row">
+        <navigator :navModel="naviModel"></navigator>
+        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+        </div>
+      </div>
     </div>
+
+</div>
 </template>
 <style>
+    @import "~bootstrap/dist/css/bootstrap.css";
+    @import "~assets/style/dashboard.css";
+    @import "~ztree/css/zTreeStyle/zTreeStyle.css";
     .top {
         position: relative;
         padding:0px 40px ;
@@ -48,6 +89,9 @@
     }
 </style>
 <script>
+    import "jquery";
+    import "bootstrap";
+    import "ztree";
     import navi from "../components/znavi.vue";
 
     export default{
