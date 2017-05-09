@@ -7,6 +7,7 @@
             <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
             </div>
         </div>
+        <button @click="test">test</button>
     </div>
 </template>
 <style>
@@ -31,6 +32,10 @@
 //            $.fn.zTree.init($("#navigator"), {}, treeNodes);
         },
         computed: {},
-        methods: {}
+        methods: {
+            test(){
+                console.log('test', this.naviModel, this.open);
+            }
+        }
     }
 </script>

@@ -5,7 +5,7 @@
         </div>
         <div class="mid">
             <div class="navi">
-                <navigator :model="naviModel" v-model="naviModel"></navigator>
+                <navigator :model="naviModel"></navigator>
             </div>
             <!--<editor></editor>-->
         </div>
@@ -937,9 +937,6 @@
                     "type": "IWorkspaceRoot"
                 }
             }
-        },
-        mounted(){
-            console.log(this.naviModel);
         },
         methods: {
         },
