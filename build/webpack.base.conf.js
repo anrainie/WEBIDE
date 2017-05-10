@@ -1,17 +1,22 @@
-const path = require('path');
-const webpack = require('webpack');
+/**
+ * Created by zcn on 2017/5/10.
+ */
+var path = require('path');
+var webpack = require('webpack');
+function resolve (dir) {
+    return path.join(__dirname, '..', dir)
+}
+
 module.exports = {
-    // 入口文件
-    entry: './src/main.js',
-    // 编译输出的文件路径
-    output: {
-        //`dist`文件夹
-        path: './dist',
-        // 文件 `build.js` 即 dist/build.js
-        filename: 'build.js',
+    entry: {
+        app: './src/main.js'
     },
-    //加载器
-    module: {
+    output:{
+        path:resolve(__dirname, '../dist'),
+        filename:'[name].js',
+        publicPath: '/'
+    },
+    module:{
         loaders: [{
             test: /\.vue$/,
             exclude: /node_modules/,
@@ -35,9 +40,10 @@ module.exports = {
             }
         }]
     },
-    resolve: {
+    resolve:{
         alias: {
-            assets: path.resolve(__dirname, 'src/asset')
+            'jquery': 'jquery',
+            assets: resolve('src/asset')
         }
     },
     babel: {
@@ -50,4 +56,4 @@ module.exports = {
             jQuery: "jquery"
         })
     ]
-};
+}

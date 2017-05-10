@@ -7,7 +7,7 @@
     
     <div class="container-fluid">
       <div class="row">
-        <navigator :navModel="naviModel"></navigator>
+        <navigator :model="naviModel"></navigator>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 
         </div>
@@ -59,7 +59,7 @@
     import "bootstrap";
     import "ztree";
     import menu from "../components/menu.vue";
-    import navi from "../components/znavi.vue";
+    import navi from "../components/navigator.vue";
     
 
     export default{

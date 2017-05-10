@@ -14,19 +14,19 @@
     import "ztree";
 
     export default {
-        props: ['navModel'],
+        props: ['model'],
         data() {
             return {
                 open: false
             }
         },
         mounted(){
-            $.fn.zTree.init($("#navigator"), {}, this.navModel);
+            $.fn.zTree.init($("#navigator"), {}, this.model);
         },
         computed: {},
         methods: {
             test(){
-                console.log('test', this.naviModel, this.open);
+                console.log('test', this.model, this.open);
             }
         }
     }

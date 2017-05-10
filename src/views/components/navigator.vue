@@ -2,11 +2,11 @@
     <li>
         <div class="item">
             <!--isFolder判断是否存在子级改变图标-->
-            <i v-if='!isFolder' class="fa fa-file-text"></i> {{model.data.menuName}}
+            <i v-if='!isFolder' class="fa fa-file-text"></i> {{model.name}}
             <i v-if='isFolder' class="fa" @click='toggle' :class="[open?'fa-folder-open':'fa-folder']">[{{open?'-':'+'}}]</i>
         </div>
         <ul v-show="open" v-if='isFolder'>
-            <items v-for='cel in model.childTreeNode' :model='cel'></items>
+            <items v-for='cel in model.children' :model='cel'></items>
         </ul>
     </li>
 </template>
@@ -22,7 +22,7 @@
         },
         computed: {
             isFolder: function () {
-                return this.model.childTreeNode && this.model.childTreeNode.length
+                return this.model.children && this.model.children.length
             }
         },
         methods: {
