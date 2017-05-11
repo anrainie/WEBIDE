@@ -28,13 +28,21 @@
         margin-left: 20px;
         border-radius:10px;
         opacity:0.7;
+        text-decoration: none;
     }
+
+    .entry:hover{
+        opacity:1.0;
+    }
+
     .entry p{
         position: relative;
-        top: 35%;
+        top: 10%;
         color: black;
         text-decoration: none;
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 300;
+        font-size: 50px;
     }
 </style>
 <script>
