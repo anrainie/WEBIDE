@@ -14,6 +14,8 @@
         height: 100%;
         text-align: center;
         background-image: url("~assets/image/center-bg.png");
+        background-size: 100% 100%;
+        background-repeat:no-repeat;
     }
     .entry{
         position: relative;
@@ -22,9 +24,10 @@
         height: 200px;
         text-align: center;
         top:20%;
-        background-color: gray;
+        background-color: rgb(158,168,181);
         margin-left: 20px;
         border-radius:10px;
+        opacity:0.7;
     }
     .entry p{
         position: relative;
