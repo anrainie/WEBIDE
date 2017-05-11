@@ -6,12 +6,20 @@ service = function (handle) {
     io.on();
 
     return {
-        handle: function(data,callback){
-            var md5;
-            data.event=md5;
-            io.emit(data.name,data.data);
+        handle: function (data) {
+            //成功或者失败由报文data决定
+            /**
+             * data:{
+             *  name:'delete'
+             *  data:{
+             *      url:''
+             *  },
+             *  event:'aasdad13daf31'
+             * }
+             */
+            io.emit(data.name, data);
 
-            io.once(md5,function(data){
+            io.once(data.event, function (data) {
                 callback(data);
             });
         }
@@ -21,12 +29,12 @@ service = function (handle) {
 
 module.exports = function () {
     return {
-        init(handle){
-            return new service(handle);
+        init(config){
+            return new service(config);
         }
     }
 };
 
 var service = require('service');
 
-var afaService = service.init(ip,port);
+var afaService = service.init({ip: '192.168.0.4', port: 3300});

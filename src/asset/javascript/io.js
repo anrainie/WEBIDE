@@ -6,17 +6,23 @@ connector.open(session.ip);
 
 module.exports = function () {
     return {
-        send(config, callback){
+        send(config){
             let event = md5Util.make();
 
             connector.emit(config.type, {
                 name: config.name,
                 data: config.data,
-                event: event
+                event
             });
 
-            if (callback) {
-                connector.once(event, callback);
+            if (config.success || config.fail) {
+                connector.once(event, function (data) {
+                    if (data.errmsg) {
+                        config.fail(data);
+                    } else {
+                        config.success(data);
+                    }
+                });
             }
         },
         on: server.on

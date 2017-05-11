@@ -1,40 +1,41 @@
 <template>
-<div>
-    <input type="text" v-model="naviModel.name" style="position:fixed;top:130px;left:400px;"/>
-    <!-- Fixed navbar -->
-    <nav class="navbar navbar-default navbar-fixed-top">
-        <menubar></menubar>
-    </nav>
-    
-    <div class="container-fluid">
-      <div class="row">
-        <navigator :model="naviModel"></navigator>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+    <div>
+        <input type="text" v-model="naviModel.name" style="position:fixed;top:130px;left:400px;"/>
+        <!-- Fixed navbar -->
+        <nav class="navbar navbar-default navbar-fixed-top">
+            <menubar></menubar>
+        </nav>
 
+        <div class="container-fluid">
+            <div class="row">
+                <navigator :model="naviModel"></navigator>
+                <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
 
-</div>
+    </div>
 </template>
 <style>
     @import "~bootstrap/dist/css/bootstrap.css";
     @import "~assets/style/dashboard.css";
     @import "~ztree/css/zTreeStyle/zTreeStyle.css";
+
     .top {
         position: relative;
-        padding:0px 40px ;
-        width:100%;
-        height:80px;
+        padding: 0px 40px;
+        width: 100%;
+        height: 80px;
         background-color: #57A;
     }
 
     .mid {
         position: absolute;
         padding: 2px 10px;
-        bottom:40px;
-        top:84px;
-        width:100%;
+        bottom: 40px;
+        top: 84px;
+        width: 100%;
         background-color: #AAA;
     }
 
@@ -43,15 +44,16 @@
         width: 180px;
         margin: 0 0 0 0;
         padding: 10px;
-        height:100%;
+        height: 100%;
         border: 1px solid #999;
         background-color: #FFF;
     }
-    .bottom{
-        position:absolute;
-        width:100%;
-        height:40px;
-        bottom:0px;
+
+    .bottom {
+        position: absolute;
+        width: 100%;
+        height: 40px;
+        bottom: 0px;
         background-color: #0C7;
     }
 </style>
@@ -59,14 +61,15 @@
     import "jquery";
     import "bootstrap";
     import "ztree";
+    import Vue from 'vue/dist/vue.js';
     import menu from "../components/menu.vue";
     import navi from "../components/navigator.vue";
-    
+
 
     export default{
         data(){
             return {
-                pageName:"pageName",
+                pageName: "pageName",
                 naviModel: {
                     "children": [
                         {
@@ -951,8 +954,7 @@
                 }
             }
         },
-        methods: {
-        },
+        methods: {},
         created(){
 //
 ////            this.naviModel;
@@ -966,6 +968,17 @@
 //            IDE.on('',function(){
 //
 //            });
+        },
+        mounted(){
+            var afa = Vue.prototype.afa = {};
+
+//            afa.imageRegistry=???
+
+            //ImagetRegistry初始化，异步加载图片
+            //ActionRegistry初始化
+            //Workbench初始化
+
+//            Vue.afa.imagetRegistry.get('');
         },
         components: {
             navigator: navi,

@@ -11,6 +11,8 @@
                 message: 'Hello Vue.js!'
             }
         },
+        mounted(){
+        },
         methods: {
             reverseMessage: function () {
                 this.message = this.message.split('').reverse().join('')
