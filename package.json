@@ -42,7 +42,8 @@
     "opn": "^4.0.2",
     "http-proxy-middleware": "^0.17.3",
     "vuex":"^2.2.1",
-    "vue-hot-reload-api": "^1.2.1"
+    "vue-hot-reload-api": "^1.2.1",
+    "express-session": "1.15.1"
   },
   "devDependencies": {
     "extract-text-webpack-plugin": "^2.1.0"
