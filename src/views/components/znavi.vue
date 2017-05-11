@@ -1,5 +1,6 @@
 <template>
             <div class="col-sm-3 col-md-2 sidebar">
+                <h1>{{navModel.name}}</h1>
                 <ul id="navigator" class="nav nav-sidebar ztree"></ul>
             </div>
 </template>

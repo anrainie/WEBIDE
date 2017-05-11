@@ -1,7 +1,10 @@
 <template>
     <div>
-        <router-link :to="'afa'">AFA</router-link>
+        <input type="text" v-model="message"/>
+
+        <router-link :to="'afa'">{{message}}</router-link>
         <router-link :to="'aweb'">AWEB</router-link>
+
     </div>
 </template>
 
