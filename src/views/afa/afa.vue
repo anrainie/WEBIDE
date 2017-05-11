@@ -1,5 +1,6 @@
 <template>
 <div>
+    <input type="text" v-model="naviModel.name" style="position:fixed;top:130px;left:400px;"/>
     <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
         <menubar></menubar>
@@ -951,6 +952,20 @@
             }
         },
         methods: {
+        },
+        created(){
+//
+////            this.naviModel;
+//            IDE.get('naviInit',function(data){
+//                this.naviModel=data;
+//            });
+//
+//
+//            IDE.get('proposal',{},callback);
+//
+//            IDE.on('',function(){
+//
+//            });
         },
         components: {
             navigator: navi,

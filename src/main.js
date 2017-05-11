@@ -20,7 +20,7 @@ const routes = [
         require(['./views/afa/afa.vue'], resolve)
     }, name: 'afa'
     },
-    {path: '/aweb', component: aweb, name: 'aweb'},
+    {path: '/aweb', component: aweb, name: 'aweb'}
 ];
 
 const router = new VueRouter({
