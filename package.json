@@ -26,6 +26,7 @@
     "serve-favicon": "~2.4.2",
     "socket.io": "^2.0.1",
     "style-loader": "^0.13.0",
+    "url-loader":"^0.5.7",
     "vue": "^2.3.2",
     "vue-html-loader": "^1.2.3",
     "vue-loader": "^7.3.0",
@@ -42,7 +43,8 @@
     "opn": "^4.0.2",
     "http-proxy-middleware": "^0.17.3",
     "vuex":"^2.2.1",
-    "vue-hot-reload-api": "^1.2.1"
+    "vue-hot-reload-api": "^1.2.1",
+    "express-session": "1.15.1"
   },
   "devDependencies": {
     "extract-text-webpack-plugin": "^2.1.0"

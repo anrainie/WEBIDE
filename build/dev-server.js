@@ -3,12 +3,10 @@
  */
 var opn = require('opn');
 var path = require('path');
-var express = require('express');
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.dev.conf');
+var app = require('../server/server');
 
-var app = express();
-var port = 8080;
 var compiler = webpack(webpackConfig);
 
 var devMiddleware = require('webpack-dev-middleware')(compiler, {
@@ -38,11 +36,13 @@ app.use(devMiddleware)
 // compilation error display
 app.use(hotMiddleware)
 
-var uri = 'http://localhost:' + port;
-
 devMiddleware.waitUntilValid(function () {
     console.log('> Listening at ' + uri + '\n')
 })
+
+var port = 8080;
+
+var uri = 'http://localhost:' + port;
 
 module.exports = app.listen(port, function (err) {
     if (err) {

@@ -33,8 +33,8 @@ module.exports = {
             test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
             loader: 'file-loader'
         }, {
-            test: /\.(png|jpg|gif|svg)$/,
-            loader: 'file-loader',
+            test: /\.(png|jpg|gif)$/,
+            loader: 'url-loader',
             options: {
                 name: '[name].[ext]?[hash]'
             }
