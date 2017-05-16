@@ -7,7 +7,7 @@
     
     <div class="container-fluid">
       <div class="row">
-        <navigator :model="naviModel" :config="naviConfig" style="width: 350px"></navigator>
+        <navigator :model="naviModel" :config="naviConfig" style="width: 300px"></navigator>
         <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
 
         </div>
@@ -75,8 +75,14 @@
                         delete: function () {
                             console.info("delete callback");
                         },
-                        rightClick:function (event,model) {
-                            console.info("right click:" + model.path);
+                        click:function (item) {
+                          console.info("click:" + item.model.path);
+                        },
+                        dblclick:function (item) {
+                            console.info("dbclick:" + item.model.path);
+                        },
+                        rightClick:function (event,item) {
+                            console.info("right click:" + item.model.path);
                         }
                     }
                 },

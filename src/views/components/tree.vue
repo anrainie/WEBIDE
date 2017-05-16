@@ -1,16 +1,9 @@
 <template>
-    <div>
+    <div class="tree">
         <item v-for='child in model.children' :model='child,config' :key="child.path"
-              v-on:setSelected="setSelection">
+              v-on:setSelected="setSelection"
+              v-on:removeSelection="removeSelection">
         </item>
-        <div id="tree-rightMenu" class="tree-rightMenu">
-            <li>
-                <ul id="r_addFolder"><li>增加文件夹</li></ul>
-                <ul id="r_addNode"><li>增加节点</li></ul>
-                <ul id="r_updateNode"><li>修改名称</li></ul>
-                <ul id="r_deleteNode"><li>删除节点</li></ul>
-            </li>
-        </div>
     </div>
 </template>
 <script type="text/javascript">
@@ -29,26 +22,67 @@
         computed: {
         },
         methods: {
-            setSelection:function (item) {
-                //TODO 多选
-                var isSelected = false;
-                if(this.selections.length < 1){
-                    isSelected = true;
-                }else{
-                    if(this.selections[0] != item){
-                        isSelected = true;
-                        var oldSelected = this.selections.pop();
-                        oldSelected.selected = false;
+            setSelection:function (item,event) {
+                var added = false;
+              /* 按住ctrl时无法拿到event参数
+               if(event.ctrlKey){
+                    var exist = false;
+                    for(var i = 0 ;i < this.selections.length ; i++){
+                        var selected = this.selections[i];
+                        if(selected.model.path === item.model.path){
+                            var oldSelected = this.selections[i];
+                            this.selections.splice(i,1);
+                            oldSelected.selected = false;
+                            exist = true;
+                            break;
+                        }
                     }
+                    if(!exist){
+                        added = true;
+                    }
+                }else */
+
+                if(this.selections.length > 1){
+                    for(var i = 0 ;i < this.selections.length ; i++){
+                        this.selections[i].selected = false;
+                    }
+                    this.selections.splice(0,this.selections.length);
+                    added = true;
+                }else if(this.selections.length == 1){
+                    if(!this.isSelected(item.model.path)){
+                        var old = this.selections.pop();
+                        old.selected = false;
+                        added = true;
+                    }
+                }else if(this.selections.length == 0){
+                    added = true;
                 }
 
-                if(isSelected){
+                if(added){
                     this.selections.push(item);
-                    if(this.config.clickListener) {
-                        this.config.click(this.model);
+                    if(this.config.callback.click){
+                        this.config.callback.click(item);
                     }
                 }
 
+            },
+            removeSelection:function (item) {
+                for(var i = 0 ;i < this.selections.length ; i++){
+                    var selected = this.selections[i];
+                    if(selected.model.path === item.model.path){
+                        this.selections.splice(i,1);
+                        break;
+                    }
+                }
+            },
+            isSelected:function (path) {
+                for(var i = 0 ;i < this.selections.length ; i++){
+                    var selected = this.selections[i];
+                    if(selected.path === path){
+                        return true;
+                    }
+                }
+                return false;
             },
             getParentNode:function (item) {
                 
@@ -59,13 +93,16 @@
             getNode:function (path) {
                 
             }
+        },
+        created: function () {
+            this.config.callback = this.config.callback || {};
         }
     }
 </script>
 
 <style>
-    .tree-rightMenu{
-        display:none;
+    .tree{
+        padding-left: 10px;
     }
 </style>
 
