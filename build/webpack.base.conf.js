@@ -3,6 +3,7 @@
  */
 var path = require('path');
 var webpack = require('webpack');
+var CopyWebpackPlugin = require('copy-webpack-plugin')
 function resolve (dir) {
     return path.join(__dirname, '..', dir)
 }
@@ -54,6 +55,13 @@ module.exports = {
         new webpack.ProvidePlugin({
             $: "jquery",
             jQuery: "jquery"
-        })
+        }),
+        new CopyWebpackPlugin([
+            {
+                from: path.resolve(__dirname, '../src/asset/image'),
+                to: "assets/image",
+                ignore: ['.*']
+            }
+        ])
     ]
 }
