@@ -10,7 +10,7 @@
             <div class="item-button nav-delete" @click="deleteSelf"></div>
         </div>
         <div class="item-children" v-show="open" v-if='isFolder' >
-            <item v-for='child in model.children' :model='child,config' :key="child.path"
+            <item v-for='child in model.children' :model='child,config' :key="child.path" :ref="child.name"
                    v-on:deleteSelf="deleteChild"
                    v-on:setSelected="parentSetSelected">
             </item>
@@ -39,6 +39,26 @@
             }
         },
         methods: {
+            getParent:function(){
+                return this.$parent;
+            },
+
+            getChildren:function(){
+                return this.$children;
+            },
+            getChild:function (name) {
+                var childrefs =  this.$refs[name];
+                if(childrefs){
+                    if(childrefs.length > 1){
+                        console.error("find multi node :" + this.model.path + "/" + name);
+                        return null;
+                    }else if(childrefs.length == 1){
+                        return childrefs[0];
+                    }
+                    return null;
+                }
+                return null;
+            },
             toggle: function () {
                 var self = this;
                 var asyncConfig = this.config.async;

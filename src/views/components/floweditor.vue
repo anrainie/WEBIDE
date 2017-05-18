@@ -1,6 +1,18 @@
 <template>
-
+    <p>input : {{input}}</p>
 </template>
-<script>
+<script type="text/javascript">
+    export default {
+        name: 'flowEditor',
+        props: ['input'],
+        data:function () {
+            return {
 
+            }
+        }
+    }
 </script>
+
+<style>
+</style>
+

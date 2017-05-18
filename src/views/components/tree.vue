@@ -1,6 +1,6 @@
 <template>
     <div class="tree">
-        <item v-for='child in model.children' :model='child,config' :key="child.path"
+        <item v-for='child in model.children' :model='child,config' :key="child.path" :ref="child.name"
               v-on:setSelected="setSelection"
               v-on:removeSelection="removeSelection">
         </item>
@@ -41,7 +41,6 @@
                         added = true;
                     }
                 }else */
-
                 if(this.selections.length > 1){
                     for(var i = 0 ;i < this.selections.length ; i++){
                         this.selections[i].selected = false;
@@ -84,18 +83,32 @@
                 }
                 return false;
             },
-            getParentNode:function (item) {
-                
-            },
-            getNextNode:function (item) {
-                
-            },
             getNode:function (path) {
-                
+                //   path:/hello/heii/aaaa/flow/flowConfig.fc
+                var paths = path.split("/");
+                var targetNode = this;
+                for(var i = 1 ; i < paths.length ; i++){
+                    var child = targetNode.$refs[paths[i]];
+                    if(child){
+                        if(child.length > 1){
+                            console.error("find multi node :" + targetNode.model.path + "/" + paths[i]);
+                            return null;
+                        }else if(child.length == 1) {
+                            targetNode = child[0];
+                        }else{
+                            return null;
+                        }
+                    }else{
+                        return null;
+                    }
+                }
+                return targetNode;
             }
         },
         created: function () {
             this.config.callback = this.config.callback || {};
+        },
+        mounted:function () {
         }
     }
 </script>

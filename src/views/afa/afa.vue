@@ -1,56 +1,30 @@
 <template>
 <div>
-    <!-- Fixed navbar -->
     <nav class="navbar navbar-default navbar-fixed-top">
-        <menubar></menubar>
+        <menubar id="ide_menu" ref="ide_menu"></menubar>
     </nav>
-    
-    <div class="container-fluid">
-      <div class="row">
-        <navigator :model="naviModel" :config="naviConfig" style="width: 300px"></navigator>
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-
-        </div>
-      </div>
+    <div id="ide_workbench" class="container-fluid">
+        <navigator id="ide_navigator" ref="ide_navigator" :model="naviModel" :config="naviConfig"
+                   class="col-sm-2 col-md-3 col-xs-3" draggable="true"></navigator>
+        <workbenchPage id="ide_workbenchPage" ref="ide_workbenchPage" class="col-sm-10 col-md-9 col-xs-9">
+        </workbenchPage>
     </div>
 
 </div>
 </template>
 <style>
     @import "~bootstrap/dist/css/bootstrap.css";
-    @import "~assets/style/dashboard.css";
-    .top {
-        position: relative;
-        padding:0px 40px ;
-        width:100%;
-        height:80px;
-        background-color: #57A;
+    #ide_workbench{
+        padding: 0px;
+    }
+    #ide_navigator{
+        border: 1px solid gray;
+        height: 100%;
     }
 
-    .mid {
-        position: absolute;
-        padding: 2px 10px;
-        bottom:40px;
-        top:84px;
-        width:100%;
-        background-color: #AAA;
-    }
-
-    .navi {
-        position: relative;
-        width: 180px;
-        margin: 0 0 0 0;
-        padding: 10px;
-        height:100%;
-        border: 1px solid #999;
-        background-color: #FFF;
-    }
-    .bottom{
-        position:absolute;
-        width:100%;
-        height:40px;
-        bottom:0px;
-        background-color: #0C7;
+    #ide_workbenchPage{
+        border: 1px solid gray;
+        height: 100%;
     }
 </style>
 <script>
@@ -59,7 +33,7 @@
     import "ztree";
     import menu from "../components/menu.vue";
     import navi from "../components/tree.vue";
-
+    import workbenchPage from "../components/workbenchPage.vue";
 
     export default{
         data(){
@@ -73,16 +47,15 @@
                     },
                     callback: {
                         delete: function () {
-                            console.info("delete callback");
                         },
                         click:function (item) {
-                          console.info("click:" + item.model.path);
                         },
                         dblclick:function (item) {
-                            console.info("dbclick:" + item.model.path);
+                            if(item.model.isFile) {
+                                WORKBENCHPAGE.openEditor(item);
+                            }
                         },
                         rightClick:function (event,item) {
-                            console.info("right click:" + item.model.path);
                         }
                     }
                 },
@@ -386,6 +359,7 @@
                                                             "name": "sf.sf",
                                                             "path": "/flowModule/platform/commonTechnologyTemplate/flowInit/sf.sf",
                                                             "resId": "sf",
+                                                            "isFile":true
 
                                                         }
                                                     ],
@@ -686,6 +660,7 @@
                                                                     "name": "sql.sql",
                                                                     "path": "/hello/heii/aaaa/config/dataConfig/sql.sql",
                                                                     "resId": "sql",
+                                                                    "isFile":true
 
                                                                 }
                                                             ],
@@ -893,6 +868,11 @@
                             "path": "/publicService",
                             "resId": "publicService",
                             "isFolder":true
+                        },{
+                            "name": "file1.txt",
+                            "path": "/file1",
+                            "resId": "txt",
+                            "isFile":true
                         }
                     ],
                     "name": "AFAIDE",
@@ -904,9 +884,12 @@
         },
         methods: {
         },
-        created(){
-//
-////            this.naviModel;
+        mounted(){
+              window.Menu = this.$refs.ide_menu;
+              window.NAVI = this.$refs.ide_navigator;
+              window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
+
+//            this.naviModel;
 //            IDE.get('naviInit',function(data){
 //                this.naviModel=data;
 //            });
@@ -920,7 +903,8 @@
         },
         components: {
             navigator: navi,
-            menubar: menu
+            menubar: menu,
+            workbenchPage:workbenchPage
         }
     }
 </script>
