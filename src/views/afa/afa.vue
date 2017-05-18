@@ -46,7 +46,19 @@
                         autoParam:["path","resId"]
                     },
                     callback: {
-                        delete: function () {
+                        beforeDelete:function (item) {
+                            var editor = WORKBENCHPAGE.getEditor(item);
+                            if(editor && editor.isDirty()){
+                                alert("编辑器脏，无法delete资源");
+                                return false;
+                            }
+                            return true;
+                        },
+                        delete: function (item) {
+                            var editor = WORKBENCHPAGE.getEditor(item);
+                            if(editor){
+                                WORKBENCHPAGE.closeEditor(item);
+                            }
                         },
                         click:function (item) {
                         },

@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div >
         <ul id="workbenchPage-indicate" class="nav nav-tabs">
         </ul>
         <div id="workbenchPage-content" class="tab-content">
@@ -13,7 +13,9 @@
         name:'workbenchPage',
         data(){
             return {
-                editors : {}
+                msgHub : new Vue(),
+                editors : {},
+                activeEditor:null
             }
         },
         computed(){
@@ -25,23 +27,60 @@
             },
 
             closeEditor:function (item) {
-                console.info("closeEditor")
                var editor =  this.getEditor(item);
                if(editor){
+                   if(editor.isDirty()) {
+                       if (!confirm("编辑器未保存，先保存再关闭？")){
+                           return;
+                       }
+                       editor.save();
+                       if(editor.isDirty()){
+                           //TODO 保存失败
+                           return;
+                       }
+                   }
+                   if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path)){
+                       this.activeEditor = null;
+                   }
                    var path = this.revisePath(item.model.path);
                    $("#" + path).remove();
                    $("[href='#"+ path + "']").parent().remove();
                    delete this.editors[item.model.path];
+                   editor.$destroy();
                }
             },
 
-            openEditor:function (item) {
+            showEditor:function (item) {
+                if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path) ){
+                    return;
+                }
                 var oldEditor = this.getEditor(item);
                 if(oldEditor){
                     var path = this.revisePath(item.model.path);
                     var $a = $("[href='#"+ path + "']");
                     $a.tab('show');
-                    return;
+                }
+            },
+            saveEditor:function (item) {
+                var editor = this.getEditor(item);
+                if(editor){
+                    editor.save();
+                }
+            },
+            saveActiveEditor:function () {
+                var activeEditor = this.getActiveEditor();
+                if(activeEditor){
+                    activeEditor.save();
+                }
+            },
+            getActiveEditor:function () {
+              return this.activeEditor;
+            },
+            openEditor:function (item) {
+                var oldEditor = this.getEditor(item);
+                if(oldEditor){
+                   this.showEditor(item);
+                   return;
                 }
                 this.loadFileContent(item);
             },
@@ -76,6 +115,12 @@
                 $a.attr("class","active");
                 $a.text(item.model.name);
                 $li.append($a);
+                $a.on('shown.bs.tab',(function (item,self) {
+                    return function (e) {
+                        self.activeEditor = self.getEditor(item);
+                        self.activeEditor.focus();
+                    }
+                })(item,this));
 
                 var $close = $("<span>x</span>");
                 $close.css('padding-left','10px');
@@ -104,6 +149,8 @@
 
                 var vm = new Vue(flowEditor);
                 vm.$props.input = content;
+                vm.$props.file = item;
+                vm.$props.msgHub = this.msgHub;
                 vm.$mount('#' + path + " #editor");
 
                 this.editors[item.model.path] = vm;
@@ -121,13 +168,16 @@
         mounted(){
             this.PAGE_INDICATE = $("#workbenchPage-indicate");
             this.PAGE_CONTENT = $("#workbenchPage-content");
+            this.msgHub.$on('dirtyStateChange',function (item,dirtyState) {
+                console.info(item.model.path + " dirty change, dirtyState:" + dirtyState );
+            });
+        },
+        beforeDestory:function () {
+            this.msgHub.$destroy();
         }
     }
 </script>
 
 <style>
-    .nav_tabs{
-        width: 30px;
-    }
 </style>
 

@@ -2,7 +2,8 @@
     <div class="tree">
         <item v-for='child in model.children' :model='child,config' :key="child.path" :ref="child.name"
               v-on:setSelected="setSelection"
-              v-on:removeSelection="removeSelection">
+              v-on:removeSelection="removeSelection"
+              v-on:deleteSelf="deleteChild">
         </item>
     </div>
 </template>
@@ -103,6 +104,32 @@
                     }
                 }
                 return targetNode;
+            },
+
+            //TODO 与tree-item.vue的方法重复，想办法统一
+            deleteSelf:function () {
+                this.$emit('deleteSelf', this);
+            },
+            //TODO 与tree-item.vue的方法重复，想办法统一
+            deleteChild:function (item) {
+                for(var i = 0; i < this.model.children.length ; i++){
+                    var child = this.model.children[i];
+                    if(child.name === item.model.name){
+                        if(this.config.callback.beforeDelete){
+                            if(!this.config.callback.beforeDelete(item)){
+                                return;
+                            }
+                        }
+                        this.model.children.splice(i, 1);
+                        if(item.selected){
+                            this.$emit('removeSelection', item);
+                        }
+                        if(this.config.callback.delete){
+                            this.config.callback.delete(item);
+                        }
+                        break;
+                    }
+                }
             }
         },
         created: function () {

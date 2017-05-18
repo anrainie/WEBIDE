@@ -102,12 +102,17 @@
                 for(var i = 0; i < this.model.children.length ; i++){
                     var child = this.model.children[i];
                     if(child.name === item.model.name){
+                        if(this.config.callback.beforeDelete){
+                            if(!this.config.callback.beforeDelete(item)){
+                                return;
+                            }
+                        }
                         this.model.children.splice(i, 1);
                         if(item.selected){
                             this.$emit('removeSelection', item);
                         }
                         if(this.config.callback.delete){
-                            this.config.callback.delete(item.model);
+                            this.config.callback.delete(item);
                         }
                         break;
                     }
