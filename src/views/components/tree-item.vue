@@ -7,12 +7,10 @@
             <div v-show="!isFolder" class="none-arrow"></div>
             <img class="item-image" v-bind:src="itemImageSrc">
             <span class="item-title">{{model.name}}</span>
-            <div class="item-button nav-delete" @click="deleteSelf"></div>
+            <div class="item-button nav-delete" @click="deleteItem"></div>
         </div>
         <div class="item-children" v-show="open" v-if='isFolder' >
-            <item v-for='child in model.children' :model='child,config' :key="child.path" :ref="child.name"
-                   v-on:deleteSelf="deleteChild"
-                   v-on:setSelected="parentSetSelected">
+            <item v-for='child in model.children' :model='child,config,msgHub' :key="child.path" :ref="child.name">
             </item>
         </div>
     </div>
@@ -20,7 +18,7 @@
 <script type="text/javascript">
     export default {
         name: 'item',
-        props: ['model','config'],
+        props: ['model','config','msgHub'],
         components: {},
         data() {
             return {
@@ -42,7 +40,6 @@
             getParent:function(){
                 return this.$parent;
             },
-
             getChildren:function(){
                 return this.$children;
             },
@@ -95,28 +92,8 @@
                 }
 
             },
-            deleteSelf:function () {
-                this.$emit('deleteSelf', this);
-            },
-            deleteChild:function (item) {
-                for(var i = 0; i < this.model.children.length ; i++){
-                    var child = this.model.children[i];
-                    if(child.name === item.model.name){
-                        if(this.config.callback.beforeDelete){
-                            if(!this.config.callback.beforeDelete(item)){
-                                return;
-                            }
-                        }
-                        this.model.children.splice(i, 1);
-                        if(item.selected){
-                            this.$emit('removeSelection', item);
-                        }
-                        if(this.config.callback.delete){
-                            this.config.callback.delete(item);
-                        }
-                        break;
-                    }
-                }
+            deleteItem:function () {
+                this.msgHub.$emit('deleteItem', this);
             },
             addChild:function (data) {
                 if(!this.model.children){
@@ -125,14 +102,10 @@
                 this.model.children.push(data);
             },
             handleClick:function (event) {
-                console.info("event:" + event);
                 if(!this.selected) {
                     this.selected = !this.selected;
-                    this.$emit('setSelected', this, event);
+                    this.msgHub.$emit('setSelected', this, event);
                 }
-            },
-            parentSetSelected:function (item,event) {
-                this.$emit('setSelected',item,event);
             },
             handleDbClick:function () {
                 if(this.config.callback.dblclick){

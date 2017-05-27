@@ -67,12 +67,6 @@
                     editor.save();
                 }
             },
-            saveActiveEditor:function () {
-                var activeEditor = this.getActiveEditor();
-                if(activeEditor){
-                    activeEditor.save();
-                }
-            },
             getActiveEditor:function () {
               return this.activeEditor;
             },
