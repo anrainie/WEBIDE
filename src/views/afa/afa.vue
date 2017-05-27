@@ -40,6 +40,7 @@
             return {
                 pageName:"pageName",
                 naviConfig :{
+                    check:true,
                     async: {
                         enable: true,
                         url:"/TestZTree/test",
@@ -63,6 +64,7 @@
                         click:function (item) {
                         },
                         dblclick:function (item) {
+                            console.info(NAVI.getCheckedItems());
                             if(item.model.isFile) {
                                 WORKBENCHPAGE.openEditor(item);
                             }

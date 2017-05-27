@@ -1,10 +1,13 @@
 <template>
     <div class="item">
+        <div v-show="!isFolder" class="none-arrow"></div>
         <div v-show="isFolder" @click='toggle' :class="[open?'down-arrow':'right-arrow']"></div>
-        <div class="item-body" @dblclick.prevent="handleDbClick" @click.prevent="handleClick($event)"
-            :class="[selected?'item-selected':'']"
+        <input v-show="config.check" type="checkbox" v-model="checked" class="item-checkbox" @click="setCheck(true)">
+        <div class="item-body"
+             :class="[selected?'item-selected':'']"
+             @dblclick.prevent="handleDbClick"
+             @click.prevent="handleClick($event)"
              @contextmenu.prevent="handleContextmenu($event)">
-            <div v-show="!isFolder" class="none-arrow"></div>
             <img class="item-image" v-bind:src="itemImageSrc">
             <span class="item-title">{{model.name}}</span>
             <div class="item-button nav-delete" @click="deleteItem"></div>
@@ -25,6 +28,7 @@
                 open: false,
                 selected:false,
                 loaded:false,
+                checked:false,
                 itemImageSrc:"assets/image/nav-folder.png"
             }
         },
@@ -95,6 +99,56 @@
             deleteItem:function () {
                 this.msgHub.$emit('deleteItem', this);
             },
+            setCheck:function (forward) {
+               var children =  this.getChildren();
+               for(var i = 0 ; i < children.length ; i++){
+                   var child = children[i];
+                   child.checked = this.checked;
+                   child.setCheck(false);
+               }
+               if(forward) {
+                   var parent = this.getParent();
+                   //TODO  判断有问题，需改成判断parent是否是tree-item.vue
+                   if (parent.changeCheckState) {
+                       parent.changeCheckState(this.checked);
+                   }
+               }
+            },
+            changeCheckState:function (checked) {
+                var parent = this.getParent();
+                if(!checked) {
+                    var children = this.getChildren();
+                    var shouldCheck = false;
+                    for (var i = 0; i < children.length; i++) {
+                        var child = children[i];
+                        if (child.checked) {
+                            shouldCheck = true;
+                            break;
+                        }
+                    }
+                    this.checked = shouldCheck;
+                }else{
+                    this.checked = true;
+                }
+                //TODO  判断有问题，需改成判断parent是否是tree-item.vue
+                if(parent.changeCheckState) {
+                    parent.changeCheckState(this.checked);
+                }
+            },
+            getCheckedItems:function () {
+                var checkedItems = [];
+                if(this.config.check){
+                    var children = this.getChildren();
+                    for (var i = 0; i < children.length; i++) {
+                        var child = children[i];
+                        if (child.checked) {
+                            checkedItems.push(child);
+                            checkedItems = checkedItems.concat(child.getCheckedItems());
+                        }
+                    }
+                }
+                return checkedItems;
+            },
             addChild:function (data) {
                 if(!this.model.children){
                     this.model.children = new Array();
@@ -131,6 +185,10 @@
         border-radius: 5px;
     }
 
+    .item-checkbox{
+        float: left;
+    }
+
     .item-body{
         overflow:hidden;
     }
@@ -147,8 +205,8 @@
 
     .item-image {
         display: inline-block;
-        width: 15px;
-        height: 15px;
+        margin-top: -7px;
+        margin-left: 4px;
     }
 
     .item-button{
@@ -167,7 +225,12 @@
     .item-children{
         padding-left: 13px;
     }
-
+    .none-arrow{
+        display: inline-block;
+        float:left;
+        margin-top: 5px;
+        width: 11px;
+    }
     .right-arrow{
         display: inline-block;
         width: 0;
@@ -176,8 +239,8 @@
         border-bottom: 4px solid transparent;
         border-left: 8px solid black;
         float:left;
-        margin-top: 7px;
-        margin-right: 4px;
+        margin-top: 5px;
+        margin-right: 3px;
     }
 
     .down-arrow{
@@ -188,14 +251,8 @@
         border-right: 4px solid transparent;
         border-top: 8px solid black;
         float:left;
-        margin-top: 7px;
-        margin-right: 4px;
-    }
-
-    .none-arrow{
-        display: inline-block;
-        width: 8px;
-        height: 5px;
+        margin-top: 5px;
+        margin-right: 3px;
     }
 
     .nav-delete{

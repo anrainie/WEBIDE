@@ -104,6 +104,20 @@
                 }
                 return targetNode;
             },
+            getCheckedItems:function(){
+                var checkedItems = [];
+                if(this.config.check){
+                    var children = this.$children;
+                    for (var i = 0; i < children.length; i++) {
+                        var child = children[i];
+                        if (child.checked) {
+                            checkedItems.push(child);
+                            checkedItems = checkedItems.concat(child.getCheckedItems());
+                        }
+                    }
+                }
+                return checkedItems;
+            },
             deleteItem:function (item) {
                 var self = this;
                 var parent = item.getParent();
