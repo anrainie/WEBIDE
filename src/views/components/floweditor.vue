@@ -25,7 +25,6 @@
                 this.msgHub.$emit('dirtyStateChange',this.file,this.dirtyState);
             },
             focus(){
-                console.info("focus");
             }
         }
     }

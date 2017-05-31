@@ -86,15 +86,18 @@
             getItem:function (path) {
                 //   path:/hello/heii/aaaa/flow/flowConfig.fc
                 var paths = path.split("/");
-                var targetNode = this;
+                var reachedNode = this;
                 for(var i = 1 ; i < paths.length ; i++){
-                    var child = targetNode.$refs[paths[i]];
+                    var child = reachedNode.$refs[paths[i]];
                     if(child){
                         if(child.length > 1){
-                            console.error("find multi node :" + targetNode.model.path + "/" + paths[i]);
+                            console.error("find multi node :" + reachedNode.model.path + "/" + paths[i]);
                             return null;
                         }else if(child.length == 1) {
-                            targetNode = child[0];
+                            reachedNode = child[0];
+                            if(i === paths.length -1){
+                                return reachedNode;
+                            }
                         }else{
                             return null;
                         }
@@ -102,7 +105,6 @@
                         return null;
                     }
                 }
-                return targetNode;
             },
             getCheckedItems:function(){
                 var checkedItems = [];
@@ -124,11 +126,6 @@
                 for(var i = 0; i < parent.model.children.length ; i++){
                     var child = parent.model.children[i];
                     if(child.name === item.model.name){
-                        if(this.config.callback.beforeDelete){
-                            if(!this.config.callback.beforeDelete(item)){
-                                return false;
-                            }
-                        }
                         parent.model.children.splice(i, 1);
                         if(item.selected){
                             self.removeSelection(item);

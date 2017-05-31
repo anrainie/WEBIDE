@@ -14,7 +14,8 @@
         data(){
             return {
                 msgHub : new Vue(),
-                editors : {},
+                //TODO 使用栈
+                editors : [],
                 activeEditor:null
             }
         },
@@ -23,9 +24,23 @@
         },
         methods:{
             getEditor:function (item) {
-               return this.editors[item.model.path];
+                for(var i = 0 ; i < this.editors.length ; i ++){
+                    var editor = this.editors[i];
+                    if(item.model.path === editor.file.model.path){
+                        return editor;
+                    }
+                }
+                return null;
             },
-
+            _deleteEditor:function (item) {
+                for(var i = 0 ; i < this.editors.length ; i ++){
+                    var editor = this.editors[i];
+                    if(item.model.path === editor.file.model.path){
+                        this.editors.splice(i,1);
+                        break;
+                    }
+                }
+            },
             closeEditor:function (item) {
                var editor =  this.getEditor(item);
                if(editor){
@@ -45,20 +60,24 @@
                    var path = this.revisePath(item.model.path);
                    $("#" + path).remove();
                    $("[href='#"+ path + "']").parent().remove();
-                   delete this.editors[item.model.path];
+                   this._deleteEditor(item);
                    editor.$destroy();
+                   if(this.editors.length > 0){
+                       this.showEditor(this.editors[0].file);
+                   }
                }
             },
-
             showEditor:function (item) {
                 if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path) ){
                     return;
                 }
                 var oldEditor = this.getEditor(item);
                 if(oldEditor){
-                    var path = this.revisePath(item.model.path);
-                    var $a = $("[href='#"+ path + "']");
+                    var new_path = this.revisePath(item.model.path);
+                    var $a = $("[href='#"+ new_path + "']");
                     $a.tab('show');
+                    this._deleteEditor(item);
+                    this.editors.unshift(oldEditor);
                 }
             },
             saveEditor:function (item) {
@@ -78,7 +97,6 @@
                 }
                 this.loadFileContent(item);
             },
-
             loadFileContent:function (item) {
                 var self = this;
                 this.doOpenEditor(item,"test");
@@ -96,15 +114,19 @@
                  }
                  );*/
             },
-
             doOpenEditor:function (item,content) {
-                var path = this.revisePath(item.model.path);
+                var new_path = this.revisePath(item.model.path);
+
+               // <li draggable="true" class="active">
+                //    <a href="#aaa" data-toggle="tab">
+                //    </a>
+                // </li>
 
                 var $li = $("<li></li>");
                 $li.attr("draggable",true);
 
                 var $a = $("<a></a>");
-                $a.attr("href","#" + path);
+                $a.attr("href","#" + new_path);
                 $a.attr("data-toggle","tab");
                 $a.attr("class","active");
                 $a.text(item.model.name);
@@ -129,7 +151,7 @@
                 this.PAGE_INDICATE.append($li);
 
                 var $div = $("<div></div>");
-                $div.attr("id",path);
+                $div.attr("id",new_path);
                 $div.attr("class","tab-pane fade");
 
                 $div.append($("<div :input='input' id='editor'></div>"));
@@ -141,17 +163,15 @@
                     return;
                 }
 
-                var vm = new Vue(flowEditor);
-                vm.$props.input = content;
-                vm.$props.file = item;
-                vm.$props.msgHub = this.msgHub;
-                vm.$mount('#' + path + " #editor");
+                var newEditor = new Vue(flowEditor);
+                newEditor.$props.input = content;
+                newEditor.$props.file = item;
+                newEditor.$props.msgHub = this.msgHub;
+                newEditor.$mount('#' + new_path + " #editor");
 
-                this.editors[item.model.path] = vm;
+                this.editors.unshift(newEditor);
                 $a.tab('show');
-
             },
-
             getEditorDecorator:function (resId) {
                 return flowEditor;
             },

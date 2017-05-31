@@ -106,6 +106,7 @@
                    child.checked = this.checked;
                    child.setCheck(false);
                }
+
                if(forward) {
                    var parent = this.getParent();
                    //TODO  判断有问题，需改成判断parent是否是tree-item.vue
