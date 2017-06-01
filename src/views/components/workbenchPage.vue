@@ -105,7 +105,7 @@
                  dataType : "json",
                  data : data,
                  success : function(result,status,xhr){
-                 this.doOpenEditor(item,result);
+                 self.doOpenEditor(item,result);
                  },
                  error : function(xhr,status,error){
                  //TODO
@@ -154,7 +154,7 @@
                 $div.attr("id",new_path);
                 $div.attr("class","tab-pane fade");
 
-                $div.append($("<div :input='input' id='editor'></div>"));
+                $div.append($("<div id='editor'></div>"));
                 this.PAGE_CONTENT.append($div);
 
                 var editorDecorator = this.getEditorDecorator(item.model.resId);

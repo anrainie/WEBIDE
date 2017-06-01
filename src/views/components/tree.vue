@@ -1,6 +1,6 @@
 <template>
     <div class="tree">
-        <item v-for='child in model.children' :model='child,config,msgHub' :key="child.path" :ref="child.name">
+        <item v-for='child in model' :model='child,config,msgHub' :key="child.path" :ref="child.name">
         </item>
     </div>
 </template>
@@ -143,6 +143,7 @@
         },
         created: function () {
             var self = this;
+            this.config = this.config || {};
             this.config.callback = this.config.callback || {};
             this.msgHub.$on("deleteItem",function (item) {
                 self.deleteItem(item);
