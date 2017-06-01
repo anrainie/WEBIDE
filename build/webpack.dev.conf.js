@@ -7,7 +7,6 @@ var baseWebpackConfig = require('./webpack.base.conf')
 var HtmlWebpackPlugin = require('html-webpack-plugin')
 var FriendlyErrorsPlugin = require('friendly-errors-webpack-plugin')
 
-
 module.exports = merge(baseWebpackConfig, {
     // cheap-module-eval-source-map is faster for development
     devtool: '#cheap-module-eval-source-map',
@@ -18,6 +17,6 @@ module.exports = merge(baseWebpackConfig, {
             filename: 'index.html',
             template: 'index.html',
             inject: true
-        }),
+        })
     ]
 })

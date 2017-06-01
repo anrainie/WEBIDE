@@ -41,7 +41,9 @@
     @import "~ztree/css/zTreeStyle/zTreeStyle.css";
 </style>
 <script>
-    import "jquery";
-    import "bootstrap";
-    import "ztree";
+    export default {
+        data() {
+            return {}
+        }
+    }
 </script>
