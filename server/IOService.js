@@ -1,32 +1,31 @@
 /**
- * Created by Hasee on 2017/5/10.
+ * SocketIO服务
+ *
+ * Created by pang on 2017/6/1.
  */
-service = function (handle) {
+const SocketPool = require('./SocketPool');
 
-    io.on();
+const service = function () {
+    this.handle = function (eventStr, data, callback) {
+        const username = data.user;
+        const idename = data.type;
+        SocketPool.getConnection(username, idename, function (err, client) {
+            if (err) {
+                callback(err, null);
+            } else {
+                client.on('connect', function (socket) {
+                    console.log('connect 9090 successfully!');
 
-    return {
-        handle: function(data,callback){
-            var md5;
-            data.event=md5;
-            io.emit(data.name,data.data);
+                });
+                client.emit(eventStr, data, function (rspData) {
+                    callback(null, rspData);
+                });
+            }
 
-            io.once(md5,function(data){
-                callback(data);
-            });
-        }
+        });
     }
-};
 
 
-module.exports = function () {
-    return {
-        init(handle){
-            return new service(handle);
-        }
-    }
-};
+}
 
-var service = require('service');
-
-var afaService = service.init(ip,port);
+module.exports = service;
