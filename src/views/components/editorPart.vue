@@ -7,10 +7,10 @@
     </div>
 </template>
 <script type="text/javascript">
-    import flowEditor from "../components/floweditor.vue";
     import Vue from 'vue/dist/vue.js'
     export default {
         name:'workbenchPage',
+        props: ['config'],
         data(){
             return {
                 msgHub : new Vue(),
@@ -115,6 +115,12 @@
                  );*/
             },
             doOpenEditor:function (item,content) {
+                var editorDecorator = this.getEditorDecorator(item.model.resId);
+                if(!editorDecorator){
+                    console.error("can not found editorDecorator with : " + item.model.resId);
+                    return;
+                }
+
                 var new_path = this.revisePath(item.model.path);
 
                // <li draggable="true" class="active">
@@ -157,13 +163,7 @@
                 $div.append($("<div id='editor'></div>"));
                 this.PAGE_CONTENT.append($div);
 
-                var editorDecorator = this.getEditorDecorator(item.model.resId);
-                if(!editorDecorator){
-                    console.error("can not found editorDecorator with :" + item.model.resId);
-                    return;
-                }
-
-                var newEditor = new Vue(flowEditor);
+                var newEditor = new Vue(editorDecorator);
                 newEditor.$props.input = content;
                 newEditor.$props.file = item;
                 newEditor.$props.msgHub = this.msgHub;
@@ -173,7 +173,8 @@
                 $a.tab('show');
             },
             getEditorDecorator:function (resId) {
-                return flowEditor;
+                var editorRef = this.config.editorRefs[resId];
+                return editorRef;
             },
             revisePath:function (path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/,"-");
