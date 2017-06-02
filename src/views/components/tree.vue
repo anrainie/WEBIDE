@@ -1,14 +1,12 @@
 <template>
     <div class="tree">
-        <item v-for='child in model.children' :model='child,config' :key="child.path" :ref="child.name"
-              v-on:setSelected="setSelection"
-              v-on:removeSelection="removeSelection"
-              v-on:deleteSelf="deleteChild">
+        <item v-for='child in model' :model='child,config,msgHub' :key="child.path" :ref="child.name">
         </item>
     </div>
 </template>
 <script type="text/javascript">
     import item from "../components/tree-item.vue";
+    import Vue from 'vue/dist/vue.js'
     export default {
         name: 'tree',
         props: ['model','config'],
@@ -17,7 +15,8 @@
         },
         data() {
             return {
-                selections:[]
+                selections:[],
+                msgHub :  new Vue()
             }
         },
         computed: {
@@ -84,18 +83,21 @@
                 }
                 return false;
             },
-            getNode:function (path) {
+            getItem:function (path) {
                 //   path:/hello/heii/aaaa/flow/flowConfig.fc
                 var paths = path.split("/");
-                var targetNode = this;
+                var reachedNode = this;
                 for(var i = 1 ; i < paths.length ; i++){
-                    var child = targetNode.$refs[paths[i]];
+                    var child = reachedNode.$refs[paths[i]];
                     if(child){
                         if(child.length > 1){
-                            console.error("find multi node :" + targetNode.model.path + "/" + paths[i]);
+                            console.error("find multi node :" + reachedNode.model.path + "/" + paths[i]);
                             return null;
                         }else if(child.length == 1) {
-                            targetNode = child[0];
+                            reachedNode = child[0];
+                            if(i === paths.length -1){
+                                return reachedNode;
+                            }
                         }else{
                             return null;
                         }
@@ -103,39 +105,55 @@
                         return null;
                     }
                 }
-                return targetNode;
             },
-
-            //TODO 与tree-item.vue的方法重复，想办法统一
-            deleteSelf:function () {
-                this.$emit('deleteSelf', this);
-            },
-            //TODO 与tree-item.vue的方法重复，想办法统一
-            deleteChild:function (item) {
-                for(var i = 0; i < this.model.children.length ; i++){
-                    var child = this.model.children[i];
-                    if(child.name === item.model.name){
-                        if(this.config.callback.beforeDelete){
-                            if(!this.config.callback.beforeDelete(item)){
-                                return;
-                            }
+            getCheckedItems:function(){
+                var checkedItems = [];
+                if(this.config.check){
+                    var children = this.$children;
+                    for (var i = 0; i < children.length; i++) {
+                        var child = children[i];
+                        if (child.checked) {
+                            checkedItems.push(child);
+                            checkedItems = checkedItems.concat(child.getCheckedItems());
                         }
-                        this.model.children.splice(i, 1);
+                    }
+                }
+                return checkedItems;
+            },
+            deleteItem:function (item) {
+                var self = this;
+                var parent = item.getParent();
+                for(var i = 0; i < parent.model.children.length ; i++){
+                    var child = parent.model.children[i];
+                    if(child.name === item.model.name){
+                        parent.model.children.splice(i, 1);
                         if(item.selected){
-                            this.$emit('removeSelection', item);
+                            self.removeSelection(item);
                         }
                         if(this.config.callback.delete){
                             this.config.callback.delete(item);
                         }
-                        break;
+                        return true;
                     }
                 }
+                return false;
             }
         },
-        created: function () {
-            this.config.callback = this.config.callback || {};
-        },
         mounted:function () {
+        },
+        created: function () {
+            var self = this;
+            this.config = this.config || {};
+            this.config.callback = this.config.callback || {};
+            this.msgHub.$on("deleteItem",function (item) {
+                self.deleteItem(item);
+            });
+            this.msgHub.$on("setSelected",function (item,event) {
+                self.setSelection(item,event);
+            });
+        },
+        beforeDestory:function () {
+            this.msgHub.$destroy();
         }
     }
 </script>

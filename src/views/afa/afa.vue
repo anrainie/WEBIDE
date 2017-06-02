@@ -40,20 +40,13 @@
             return {
                 pageName:"pageName",
                 naviConfig :{
+                    check:false,
                     async: {
                         enable: true,
                         url:"/TestZTree/test",
                         autoParam:["path","resId"]
                     },
                     callback: {
-                        beforeDelete:function (item) {
-                            var editor = WORKBENCHPAGE.getEditor(item);
-                            if(editor && editor.isDirty()){
-                                alert("编辑器脏，无法delete资源");
-                                return false;
-                            }
-                            return true;
-                        },
                         delete: function (item) {
                             var editor = WORKBENCHPAGE.getEditor(item);
                             if(editor){
@@ -63,7 +56,8 @@
                         click:function (item) {
                         },
                         dblclick:function (item) {
-                            if(item.model.isFile) {
+
+                            if(!item.model.isParent) {
                                 WORKBENCHPAGE.openEditor(item);
                             }
                         },
@@ -71,8 +65,7 @@
                         }
                     }
                 },
-                naviModel: {
-                    "children": [
+                naviModel: [
                         {
                             "children": [
                                 {
@@ -83,25 +76,25 @@
                                                     "name": "documentInterface",
                                                     "path": "/dataModule/dataInterface/bank/documentInterface",
                                                     "resId": "documentInterface",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "messageInterface",
                                                     "path": "/dataModule/dataInterface/bank/messageInterface",
                                                     "resId": "messageInterface",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "bank",
                                             "path": "/dataModule/dataInterface/bank",
                                             "resId": "bank",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "output",
                                             "path": "/dataModule/dataInterface/output",
                                             "resId": "output",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "children": [
@@ -113,43 +106,43 @@
                                                                     "name": "documentInterface",
                                                                     "path": "/dataModule/dataInterface/projects/hello/heii/documentInterface",
                                                                     "resId": "documentInterface",
-                                                                    "isFolder":true
+                                                                    "isParent":true
                                                                 },
                                                                 {
                                                                     "name": "messageInterface",
                                                                     "path": "/dataModule/dataInterface/projects/hello/heii/messageInterface",
                                                                     "resId": "messageInterface",
-                                                                    "isFolder":true
+                                                                    "isParent":true
                                                                 }
                                                             ],
                                                             "name": "heii",
                                                             "path": "/dataModule/dataInterface/projects/hello/heii",
                                                             "resId": "application",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "hello",
                                                     "path": "/dataModule/dataInterface/projects/hello",
                                                     "resId": "project",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "projects",
                                             "path": "/dataModule/dataInterface/projects",
                                             "resId": "projects",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "solutions",
                                             "path": "/dataModule/dataInterface/solutions",
                                             "resId": "solutions",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "dataInterface",
                                     "path": "/dataModule/dataInterface",
                                     "resId": "dataInterface",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "children": [
@@ -159,25 +152,25 @@
                                                     "name": "dataEntities",
                                                     "path": "/dataModule/dataObject/bank/dataEntities",
                                                     "resId": "dataEntities",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "srcFolder",
                                                     "path": "/dataModule/dataObject/bank/srcFolder",
                                                     "resId": "srcFolder",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "bank",
                                             "path": "/dataModule/dataObject/bank",
                                             "resId": "bank",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "output",
                                             "path": "/dataModule/dataObject/output",
                                             "resId": "output",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "children": [
@@ -189,43 +182,43 @@
                                                                     "name": "dataEntities",
                                                                     "path": "/dataModule/dataObject/projects/hello/heii/dataEntities",
                                                                     "resId": "dataEntities",
-                                                                    "isFolder":true
+                                                                    "isParent":true
                                                                 },
                                                                 {
                                                                     "name": "srcFolder",
                                                                     "path": "/dataModule/dataObject/projects/hello/heii/srcFolder",
                                                                     "resId": "srcFolder",
-                                                                    "isFolder":true
+                                                                    "isParent":true
                                                                 }
                                                             ],
                                                             "name": "heii",
                                                             "path": "/dataModule/dataObject/projects/hello/heii",
                                                             "resId": "application",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "hello",
                                                     "path": "/dataModule/dataObject/projects/hello",
                                                     "resId": "project",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "projects",
                                             "path": "/dataModule/dataObject/projects",
                                             "resId": "projects",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "solutions",
                                             "path": "/dataModule/dataObject/solutions",
                                             "resId": "solutions",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "dataObject",
                                     "path": "/dataModule/dataObject",
                                     "resId": "dataObject",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "children": [
@@ -239,38 +232,38 @@
                                                                     "name": "databaseModule",
                                                                     "path": "/dataModule/databaseTable/projects/hello/heii/databaseModule",
                                                                     "resId": "databaseModule",
-                                                                    "isFolder":true
+                                                                    "isParent":true
                                                                 }
                                                             ],
                                                             "name": "heii",
                                                             "path": "/dataModule/databaseTable/projects/hello/heii",
                                                             "resId": "application",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "hello",
                                                     "path": "/dataModule/databaseTable/projects/hello",
                                                     "resId": "project",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "projects",
                                             "path": "/dataModule/databaseTable/projects",
                                             "resId": "projects",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "children": [],
                                             "name": "solutions",
                                             "path": "/dataModule/databaseTable/solutions",
                                             "resId": "solutions",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "databaseTable",
                                     "path": "/dataModule/databaseTable",
                                     "resId": "databaseTable",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "children": [
@@ -278,13 +271,13 @@
                                             "name": "bank",
                                             "path": "/dataModule/datadict/bank",
                                             "resId": "bank",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "platform",
                                             "path": "/dataModule/datadict/platform",
                                             "resId": "platform",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "children": [
@@ -294,37 +287,37 @@
                                                             "name": "heii",
                                                             "path": "/dataModule/datadict/projects/hello/heii",
                                                             "resId": "application",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "hello",
                                                     "path": "/dataModule/datadict/projects/hello",
                                                     "resId": "project",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "projects",
                                             "path": "/dataModule/datadict/projects",
                                             "resId": "projects",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "solutions",
                                             "path": "/dataModule/datadict/solutions",
                                             "resId": "solutions",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "datadict",
                                     "path": "/dataModule/datadict",
                                     "resId": "datadict",
-                                    "isFolder":true
+                                    "isParent":true
                                 }
                             ],
                             "name": "dataModule",
                             "path": "/dataModule",
                             "resId": "dataModule",
-                            "isFolder":true
+                            "isParent":true
                         },
                         {
                             "children": [
@@ -334,25 +327,25 @@
                                             "name": "commonBusinessTemplate",
                                             "path": "/flowModule/bank/commonBusinessTemplate",
                                             "resId": "businessTemplate",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "commonTechnologyTemplate",
                                             "path": "/flowModule/bank/commonTechnologyTemplate",
                                             "resId": "technologyTemplate",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "commonTradeTemplate",
                                             "path": "/flowModule/bank/commonTradeTemplate",
                                             "resId": "tradeTemplate",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "bank",
                                     "path": "/flowModule/bank",
                                     "resId": "bank",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "children": [
@@ -360,7 +353,7 @@
                                             "name": "commonBusinessTemplate",
                                             "path": "/flowModule/platform/commonBusinessTemplate",
                                             "resId": "businessTemplate",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "children": [
@@ -370,33 +363,32 @@
                                                             "children": null,
                                                             "name": "sf.sf",
                                                             "path": "/flowModule/platform/commonTechnologyTemplate/flowInit/sf.sf",
-                                                            "resId": "sf",
-                                                            "isFile":true
+                                                            "resId": "sf"
 
                                                         }
                                                     ],
                                                     "name": "flowInit",
                                                     "path": "/flowModule/platform/commonTechnologyTemplate/flowInit",
                                                     "resId": "flowInit",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "commonTechnologyTemplate",
                                             "path": "/flowModule/platform/commonTechnologyTemplate",
                                             "resId": "technologyTemplate",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "commonTradeTemplate",
                                             "path": "/flowModule/platform/commonTradeTemplate",
                                             "resId": "tradeTemplate",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "platform",
                                     "path": "/flowModule/platform",
                                     "resId": "platform",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "children": [
@@ -406,19 +398,19 @@
                                                     "name": "commonBusinessTemplate",
                                                     "path": "/flowModule/projects/hello/commonBusinessTemplate",
                                                     "resId": "businessTemplate",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "commonTechnologyTemplate",
                                                     "path": "/flowModule/projects/hello/commonTechnologyTemplate",
                                                     "resId": "technologyTemplate",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "commonTradeTemplate",
                                                     "path": "/flowModule/projects/hello/commonTradeTemplate",
                                                     "resId": "tradeTemplate",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "children": [
@@ -426,49 +418,49 @@
                                                             "name": "privateBusinessTemplate",
                                                             "path": "/flowModule/projects/hello/heii/privateBusinessTemplate",
                                                             "resId": "businessTemplate",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         },
                                                         {
                                                             "name": "privateTechnologyTemplate",
                                                             "path": "/flowModule/projects/hello/heii/privateTechnologyTemplate",
                                                             "resId": "technologyTemplate",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         },
                                                         {
                                                             "name": "privateTradeTemplate",
                                                             "path": "/flowModule/projects/hello/heii/privateTradeTemplate",
                                                             "resId": "tradeTemplate",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "heii",
                                                     "path": "/flowModule/projects/hello/heii",
                                                     "resId": "application",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "hello",
                                             "path": "/flowModule/projects/hello",
                                             "resId": "project",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "projects",
                                     "path": "/flowModule/projects",
                                     "resId": "projects",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "name": "solutions",
                                     "path": "/flowModule/solutions",
                                     "resId": "solutions",
-                                    "isFolder":true
+                                    "isParent":true
                                 }
                             ],
                             "name": "flowModule",
                             "path": "/flowModule",
                             "resId": "flowModule",
-                            "isFolder":true
+                            "isParent":true
                         },
                         {
                             "children": [
@@ -478,7 +470,7 @@
                                             "name": "bank",
                                             "path": "/functionModule/businessComponent/bank",
                                             "resId": "bank",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "children": [
@@ -488,31 +480,31 @@
                                                             "name": "heii",
                                                             "path": "/functionModule/businessComponent/projects/hello/heii",
                                                             "resId": "application",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "hello",
                                                     "path": "/functionModule/businessComponent/projects/hello",
                                                     "resId": "project",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "projects",
                                             "path": "/functionModule/businessComponent/projects",
                                             "resId": "projects",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "solutions",
                                             "path": "/functionModule/businessComponent/solutions",
                                             "resId": "solutions",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "businessComponent",
                                     "path": "/functionModule/businessComponent",
                                     "resId": "businessComponent",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "children": [
@@ -522,37 +514,37 @@
                                                     "name": "componentSourceCode",
                                                     "path": "/functionModule/technologyComponent/bank/componentSourceCode",
                                                     "resId": "componentSourceCode",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "dependencies",
                                                     "path": "/functionModule/technologyComponent/bank/dependencies",
                                                     "resId": "dependencies",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "lib",
                                                     "path": "/functionModule/technologyComponent/bank/lib",
                                                     "resId": "lib",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "registerInfo",
                                                     "path": "/functionModule/technologyComponent/bank/registerInfo",
                                                     "resId": "registerInfo",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "bank",
                                             "path": "/functionModule/technologyComponent/bank",
                                             "resId": "bank",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "output",
                                             "path": "/functionModule/technologyComponent/output",
                                             "resId": "output",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "children": [
@@ -560,31 +552,31 @@
                                                     "name": "componentSourceCode",
                                                     "path": "/functionModule/technologyComponent/platform/componentSourceCode",
                                                     "resId": "componentSourceCode",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "dependencies",
                                                     "path": "/functionModule/technologyComponent/platform/dependencies",
                                                     "resId": "dependencies",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "lib",
                                                     "path": "/functionModule/technologyComponent/platform/lib",
                                                     "resId": "lib",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "name": "registerInfo",
                                                     "path": "/functionModule/technologyComponent/platform/registerInfo",
                                                     "resId": "registerInfo",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "platform",
                                             "path": "/functionModule/technologyComponent/platform",
                                             "resId": "platform",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "children": [
@@ -596,61 +588,61 @@
                                                                     "name": "componentSourceCode",
                                                                     "path": "/functionModule/technologyComponent/projects/hello/heii/componentSourceCode",
                                                                     "resId": "componentSourceCode",
-                                                                    "isFolder":true
+                                                                    "isParent":true
                                                                 },
                                                                 {
                                                                     "name": "dependencies",
                                                                     "path": "/functionModule/technologyComponent/projects/hello/heii/dependencies",
                                                                     "resId": "dependencies",
-                                                                    "isFolder":true
+                                                                    "isParent":true
                                                                 },
                                                                 {
                                                                     "name": "lib",
                                                                     "path": "/functionModule/technologyComponent/projects/hello/heii/lib",
                                                                     "resId": "lib",
-                                                                    "isFolder":true
+                                                                    "isParent":true
                                                                 },
                                                                 {
                                                                     "name": "registerInfo",
                                                                     "path": "/functionModule/technologyComponent/projects/hello/heii/registerInfo",
                                                                     "resId": "registerInfo",
-                                                                    "isFolder":true
+                                                                    "isParent":true
                                                                 }
                                                             ],
                                                             "name": "heii",
                                                             "path": "/functionModule/technologyComponent/projects/hello/heii",
                                                             "resId": "application",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "hello",
                                                     "path": "/functionModule/technologyComponent/projects/hello",
                                                     "resId": "project",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "projects",
                                             "path": "/functionModule/technologyComponent/projects",
                                             "resId": "projects",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "solutions",
                                             "path": "/functionModule/technologyComponent/solutions",
                                             "resId": "solutions",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "technologyComponent",
                                     "path": "/functionModule/technologyComponent",
                                     "resId": "technologyComponent",
-                                    "isFolder":true
+                                    "isParent":true
                                 }
                             ],
                             "name": "functionModule",
                             "path": "/functionModule",
                             "resId": "functionModule",
-                            "isFolder":true
+                            "isParent":true
                         },
                         {
                             "children": [
@@ -658,7 +650,7 @@
                                     "name": "extService",
                                     "path": "/hello/extService",
                                     "resId": "extService",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "children": [
@@ -671,27 +663,26 @@
                                                                 {
                                                                     "name": "sql.sql",
                                                                     "path": "/hello/heii/aaaa/config/dataConfig/sql.sql",
-                                                                    "resId": "sql",
-                                                                    "isFile":true
+                                                                    "resId": "sql"
 
                                                                 }
                                                             ],
                                                             "name": "dataConfig",
                                                             "path": "/hello/heii/aaaa/config/dataConfig",
                                                             "resId": "dataConfig",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         },
                                                         {
                                                             "name": "documentConfig",
                                                             "path": "/hello/heii/aaaa/config/documentConfig",
                                                             "resId": "documentConfig",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "config",
                                                     "path": "/hello/heii/aaaa/config",
                                                     "resId": "config",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "children": [
@@ -699,31 +690,31 @@
                                                             "name": "checkout",
                                                             "path": "/hello/heii/aaaa/document/checkout",
                                                             "resId": "checkout",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         },
                                                         {
                                                             "name": "design",
                                                             "path": "/hello/heii/aaaa/document/design",
                                                             "resId": "design",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         },
                                                         {
                                                             "name": "operation",
                                                             "path": "/hello/heii/aaaa/document/operation",
                                                             "resId": "operation",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         },
                                                         {
                                                             "name": "requirement",
                                                             "path": "/hello/heii/aaaa/document/requirement",
                                                             "resId": "requirement",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "document",
                                                     "path": "/hello/heii/aaaa/document",
                                                     "resId": "document",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "children": [
@@ -751,7 +742,7 @@
                                                             "name": "compileResult",
                                                             "path": "/hello/heii/aaaa/flow/compileResult",
                                                             "resId": "compileResult",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         },
                                                         {
                                                             "name": "dfc.dfc",
@@ -775,7 +766,7 @@
                                                     "name": "flow",
                                                     "path": "/hello/heii/aaaa/flow",
                                                     "resId": "flow",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "children": [
@@ -783,13 +774,13 @@
                                                             "name": "executableProgram",
                                                             "path": "/hello/heii/aaaa/run/executableProgram",
                                                             "resId": "executableProgram",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "run",
                                                     "path": "/hello/heii/aaaa/run",
                                                     "resId": "run",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 },
                                                 {
                                                     "children": [
@@ -797,49 +788,49 @@
                                                             "name": "functionTest",
                                                             "path": "/hello/heii/aaaa/test/functionTest",
                                                             "resId": "functionTest",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         },
                                                         {
                                                             "name": "performanceTest",
                                                             "path": "/hello/heii/aaaa/test/performanceTest",
                                                             "resId": "performanceTest",
-                                                            "isFolder":true
+                                                            "isParent":true
                                                         }
                                                     ],
                                                     "name": "test",
                                                     "path": "/hello/heii/aaaa/test",
                                                     "resId": "test",
-                                                    "isFolder":true
+                                                    "isParent":true
                                                 }
                                             ],
                                             "name": "aaaa",
                                             "path": "/hello/heii/aaaa",
                                             "resId": "service",
-                                            "isFolder":true
+                                            "isParent":true
                                         },
                                         {
                                             "name": "servicePublish",
                                             "path": "/hello/heii/servicePublish",
                                             "resId": "servicePublish",
-                                            "isFolder":true
+                                            "isParent":true
                                         }
                                     ],
                                     "name": "heii",
                                     "path": "/hello/heii",
                                     "resId": "application",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "name": "servicePublish",
                                     "path": "/hello/servicePublish",
                                     "resId": "servicePublish",
-                                    "isFolder":true
+                                    "isParent":true
                                 }
                             ],
                             "name": "hello",
                             "path": "/hello",
                             "resId": "project",
-                            "isFolder":true
+                            "isParent":true
                         },
                         {
                             "children": [
@@ -847,19 +838,19 @@
                                     "name": "projects",
                                     "path": "/publicPrototype/projects",
                                     "resId": "projects",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "name": "solutions",
                                     "path": "/publicPrototype/solutions",
                                     "resId": "solutions",
-                                    "isFolder":true
+                                    "isParent":true
                                 }
                             ],
                             "name": "publicPrototype",
                             "path": "/publicPrototype",
                             "resId": "publicPrototype",
-                            "isFolder":true
+                            "isParent":true
                         },
                         {
                             "children": [
@@ -867,32 +858,26 @@
                                     "name": "extService",
                                     "path": "/publicService/extService",
                                     "resId": "extService",
-                                    "isFolder":true
+                                    "isParent":true
                                 },
                                 {
                                     "name": "servicePublish",
                                     "path": "/publicService/servicePublish",
                                     "resId": "servicePublish",
-                                    "isFolder":true
+                                    "isParent":true
                                 }
                             ],
                             "name": "publicService",
                             "path": "/publicService",
                             "resId": "publicService",
-                            "isFolder":true
+                            "isParent":true
                         },{
                             "name": "file1.txt",
                             "path": "/file1",
-                            "resId": "txt",
-                            "isFile":true
+                            "resId": "txt"
                         }
-                    ],
-                    "name": "AFAIDE",
-                    "path": "/",
-                    "resId": "AFAIDE",
-                    "type": "IWorkspaceRoot"
+                    ]
                 }
-            }
         },
         methods: {
         },

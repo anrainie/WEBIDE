@@ -47,7 +47,8 @@
 </style>
 <script>
     export default{
-        data(){
+        data :function () {
+            return {}
         },
         methods: {
         }
