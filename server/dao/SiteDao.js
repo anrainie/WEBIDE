@@ -1,4 +1,4 @@
-var util = require('util');
+const util = require('util');
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
