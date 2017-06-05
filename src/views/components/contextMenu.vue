@@ -85,20 +85,52 @@
 </style>
 <script type="text/javascript">
     import Vue from 'vue/dist/vue.js'
-
-    var  __contextMenus__ = __contextMenus__ || {};
-
     export default {
         name : "contextMenu",
-        props: ['items'],
+        props: ['items','config'],
         data :function () {
             return {
                 level:1,
-                subMenus:{},
+                subMenus:null,
+                msgHub:null,
             }
         },
         mounted(){
             this.vueTemplete = require('../components/contextMenu.vue');
+            this.config = this.config || {};
+
+            this.$el.onclick = function(e){
+                if (e.stopPropagation)
+                    e.stopPropagation();
+                else
+                    e.cancelBubble = true;
+            };
+
+            /**
+             * 给等级为1的的菜单设置初始的 msgHub、subMenus。
+             * 其他等级的菜单会在_createSubMenu中设置进去。保证在所有菜单中msgHub、subMenus 只有唯一一份
+             */
+            if(this.level === 1 ) {
+                this.subMenus = {};
+                this.msgHub = new Vue();
+                this.msgHub.$on("hide",(function (vueComp) {
+                    return function () {
+                        vueComp.hide();
+                    }
+                })(this));
+
+                this.msgHub.$on("deleteSubMenuByLevel", (function (vueComp) {
+                    return function (level) {
+                            for(var key in vueComp.subMenus){
+                                var subMenu = vueComp.subMenus[key];
+                                if(subMenu.level === level) {
+                                    vueComp.delSubMenu(subMenu);
+                                    delete vueComp.subMenus[key];
+                                }
+                            }
+                    };
+                })(this));
+            }
         },
         methods:{
             getName (item) {
@@ -121,20 +153,13 @@
                 return "";
             },
             toggleSubMenu ($event,item) {
-                this.clearSubMenu();
+                this.msgHub.$emit("deleteSubMenuByLevel",this.level + 1);
                 this.seledtedItem = item;
                 if(item.type == 'group'){
                     var children = item.children;
-                    if(children && children.length > 0 && !this.subMenus[item.id]){
-                        this._newMenu($event,item);
-                    }
-                }
-            },
-            clearSubMenu(){
-                if(__contextMenus__[this.level + 1]){
-                    for(var i = 0 ; i < __contextMenus__[this.level + 1].length ; i ++){
-                        this.delSubMenu(__contextMenus__[this.level + 1][i]);
-                        __contextMenus__[this.level + 1].splice(i,1);
+                    if(children && children.length > 0 ){
+                        var newSubMenu = this._createSubMenu($event,item);
+                        this.subMenus[item.id] = newSubMenu;
                     }
                 }
             },
@@ -143,7 +168,7 @@
                 subMenuEle.parentNode.removeChild(subMenuEle);
                 submenu.$destroy();
             },
-            _newMenu ($event,parent) {
+            _createSubMenu ($event,parent) {
                 var target = $event.target;
                 var menu = document.createElement("ul");
 
@@ -152,17 +177,19 @@
 
                 var newMenu = new Vue(this.vueTemplete);
                 newMenu.$data.level = this.level + 1;
+                newMenu.$data.subMenus = this.subMenus;
+                newMenu.$data.msgHub = this.msgHub;
+
                 newMenu.$props.items = parent.children;
+                newMenu.$props.config = this.config;
+
                 newMenu.$mount(menu);
 
                 newMenu.$el.className = "subMenu context-menu";
                 newMenu.$el.style.top = target.offsetTop -2 +  "px";
                 newMenu.$el.style.left = target.offsetLeft + target.clientWidth + "px";
 
-                if(!__contextMenus__[this.level + 1]){
-                    __contextMenus__[this.level + 1] = [];
-                }
-                __contextMenus__[this.level + 1].push(newMenu);
+                return newMenu;
             },
             isActive(){
                 return this.$el.style.display != "none";
@@ -173,18 +200,19 @@
                 this.$el.style.left = x + "px";
             },
             hide () {
-                for(var key in __contextMenus__){
-                    var submenus = __contextMenus__[key];
-                    for(var i = 0; i < submenus.length;i ++){
-                        this.delSubMenu(submenus[i]);
-                        submenus.splice(i,1);
-                    }
-                }
                 this.$el.style.display = "none";
+                for(var key in this.subMenus){
+                    var subMenu = this.subMenus[key];
+                    this.delSubMenu(subMenu);
+                    delete this.subMenus[key];
+                }
             },
             click (item) {
                 if(item.type === 'item'){
-
+                    if(this.config.callback || this.config.callback.onClick){
+                        this.msgHub.$emit("hide");
+                        this.config.callback.onClick(item.id);
+                    }
                 }
             }
         }

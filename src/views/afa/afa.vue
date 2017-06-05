@@ -10,7 +10,10 @@
                        class="col-sm-10 col-md-9 col-xs-9">
         </workbenchPage>
     </div>
-    <contextMenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu" :items="naviContextMenuItems"></contextMenu>
+    <contextMenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
+                 :items="naviContextMenuItems"
+                 :config="contextMenuConfig"
+    ></contextMenu>
 </div>
 </template>
 <style>
@@ -978,8 +981,15 @@
                             shortcutKey:"ctrl+l",
                             type:'item',
                         },
-                    ]
+                    ],
+                contextMenuConfig:{
+                    callback:{
+                        onClick:function (id) {
+                            console.info("contextmenu onclick : " + id);
+                        }
+                    }
                 }
+            }
         },
         methods: {
             openContextMenu:function (event,item) {
@@ -999,12 +1009,6 @@
                 CONTEXTMENU.hide();
             });
 
-            $('#contextMenu').bind('click',function(e){
-                if (e.stopPropagation)
-                    e.stopPropagation();
-                else
-                    e.cancelBubble = true;
-            });
 
 //            this.naviModel;
 //            IDE.get('naviInit',function(data){
