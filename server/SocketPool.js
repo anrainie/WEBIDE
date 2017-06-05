@@ -13,9 +13,10 @@ exports.getConnection = function (username, idename, callback) {
     if (!pool.has(key) || pool.get(key) == null || pool.get(key) == undefined) {
         exports.regist(username, idename, function (err, client) {
             if (err) {
-                console.log(err);
+                callback(err, null);
+            }else{
+                callback(null, client);
             }
-            callback(null, client);
         });
     } else {
         const client = pool.get(key);
@@ -24,7 +25,7 @@ exports.getConnection = function (username, idename, callback) {
         // }
         callback(null, client);
     }
-}
+};
 
 
 const regist = exports.regist = function (username, idename, callback) {

@@ -13,19 +13,26 @@ const service = function () {
             if (err) {
                 callback(err, null);
             } else {
-                client.on('connect', function (socket) {
-                    console.log('connect 9090 successfully!');
+                client.on('connect', function () {
+                    console.log('====' + username + ' connect ' + idename + ' successfully!');
+
+                    client.emit(eventStr, data, function (rspData) {
+                        callback(null, rspData);
+                    });
 
                 });
-                client.emit(eventStr, data, function (rspData) {
-                    callback(null, rspData);
+
+                client.on('connect_error',function(){
+                    callback(username + ' connect ' + idename + ' fail !');
                 });
+
+
             }
 
         });
     }
 
 
-}
+};
 
 module.exports = service;
