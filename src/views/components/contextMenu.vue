@@ -1,0 +1,220 @@
+<template>
+    <ul class="context-menu">
+        <li v-for='item in items'
+            :class="{  'context-menu-item':item.type ==='item' || item.type === 'group',
+                        item :item.type ==='item',
+                        group:item.type === 'group',
+                        separator:item.type ==='separator'}"
+            @click="click(item)"
+            @mouseenter="toggleSubMenu($event,item)"
+        >
+            <img class="context-menu-item-img" v-show="item.img" v-bind:src="item.img">
+
+            <span v-show="item.type === 'item' || item.type === 'group' "
+                  class="context-menu-name"
+            >{{getName(item)}}
+            </span>
+
+            <span v-show="item.type === 'item' && item.shortcutKey " class="context-menu-shortcutKey">{{item.shortcutKey}}</span>
+
+            <div v-show="item.type === 'group'" class="menu-right-arrow"></div>
+        </li>
+    </ul>
+</template>
+<style>
+    .context-menu {
+        border: 1px solid;
+        width:250px;
+        padding:5px 0;
+        list-style: none;
+        display: inline-block;
+        background-color: white;
+    }
+    .context-menu-item{
+        height: 22px;
+        position: relative;
+    }
+    .context-menu-name{
+        position: relative;
+        left:30px;
+    }
+    .context-menu-item-img{
+        position: absolute;
+        left:5px;
+        margin-bottom: 5px;
+    }
+    .context-menu-shortcutKey{
+        float: right;
+        color: rgba(212, 212, 212,0.9);
+        margin-right: 15px;
+    }
+    .context-menu-item:hover{
+        background: rgba(23, 43, 255, 0.8);
+        color:white;
+    }
+
+    .disabled{
+         color:#999;
+    }
+
+    .separator{
+        border-top:1px solid #ccc;
+        margin:5px;
+    }
+
+    .list-item {
+        cursor: default;
+        color: #333;
+        padding: 0 10px;
+    }
+
+    .menu-right-arrow{
+        display: inline-block;
+        width: 0;
+        height: 0;
+        border-top: 4px solid transparent;
+        border-bottom: 4px solid transparent;
+        border-left: 8px solid black;
+        float:right;
+        margin-top: 6px;
+        margin-right: 3px;
+    }
+    .subMenu{
+        position: absolute;
+    }
+</style>
+<script type="text/javascript">
+    import Vue from 'vue/dist/vue.js'
+    export default {
+        name : "contextMenu",
+        props: ['items','config'],
+        data :function () {
+            return {
+                level:1,
+                subMenus:null,
+                msgHub:null,
+            }
+        },
+        mounted(){
+            this.vueTemplete = require('../components/contextMenu.vue');
+            this.config = this.config || {};
+
+            this.$el.onclick = function(e){
+                if (e.stopPropagation)
+                    e.stopPropagation();
+                else
+                    e.cancelBubble = true;
+            };
+
+            /**
+             * 给等级为1的的菜单设置初始的 msgHub、subMenus。
+             * 其他等级的菜单会在_createSubMenu中设置进去。保证在所有菜单中msgHub、subMenus 只有唯一一份
+             */
+            if(this.level === 1 ) {
+                this.subMenus = {};
+                this.msgHub = new Vue();
+                this.msgHub.$on("hide",(function (vueComp) {
+                    return function () {
+                        vueComp.hide();
+                    }
+                })(this));
+
+                this.msgHub.$on("deleteSubMenuByLevel", (function (vueComp) {
+                    return function (level) {
+                            for(var key in vueComp.subMenus){
+                                var subMenu = vueComp.subMenus[key];
+                                if(subMenu.level === level) {
+                                    vueComp.delSubMenu(subMenu);
+                                    delete vueComp.subMenus[key];
+                                }
+                            }
+                    };
+                })(this));
+            }
+        },
+        methods:{
+            getName (item) {
+                if (item.type === 'item' || item.type === 'group') {
+                    var name = item.name;
+                    var length = 0;
+                    for (var i = 0; i < name.length; i++) {
+                        var c = name.charCodeAt(i);
+                        if (c >= 0 && c <= 128)
+                            length += 1;
+                        else
+                            length += 2;
+                    }
+                    if(length > 13){
+                        name = name.substring(0,13);
+                        name += "...";
+                    }
+                    return name;
+                }
+                return "";
+            },
+            toggleSubMenu ($event,item) {
+                this.msgHub.$emit("deleteSubMenuByLevel",this.level + 1);
+                this.seledtedItem = item;
+                if(item.type == 'group'){
+                    var children = item.children;
+                    if(children && children.length > 0 ){
+                        var newSubMenu = this._createSubMenu($event,item);
+                        this.subMenus[item.id] = newSubMenu;
+                    }
+                }
+            },
+            delSubMenu (submenu) {
+                var subMenuEle = submenu.$el;
+                subMenuEle.parentNode.removeChild(subMenuEle);
+                submenu.$destroy();
+            },
+            _createSubMenu ($event,parent) {
+                var target = $event.target;
+                var menu = document.createElement("ul");
+
+                var parentEle = this.$el;
+                parentEle.appendChild(menu);
+
+                var newMenu = new Vue(this.vueTemplete);
+                newMenu.$data.level = this.level + 1;
+                newMenu.$data.subMenus = this.subMenus;
+                newMenu.$data.msgHub = this.msgHub;
+
+                newMenu.$props.items = parent.children;
+                newMenu.$props.config = this.config;
+
+                newMenu.$mount(menu);
+
+                newMenu.$el.className = "subMenu context-menu";
+                newMenu.$el.style.top = target.offsetTop -2 +  "px";
+                newMenu.$el.style.left = target.offsetLeft + target.clientWidth + "px";
+
+                return newMenu;
+            },
+            isActive(){
+                return this.$el.style.display != "none";
+            },
+            show (x,y) {
+                this.$el.style.display = "";
+                this.$el.style.top = y + "px";
+                this.$el.style.left = x + "px";
+            },
+            hide () {
+                this.$el.style.display = "none";
+                for(var key in this.subMenus){
+                    var subMenu = this.subMenus[key];
+                    this.delSubMenu(subMenu);
+                    delete this.subMenus[key];
+                }
+            },
+            click (item) {
+                if(item.type === 'item'){
+                    if(this.config.callback || this.config.callback.onClick){
+                        this.msgHub.$emit("hide");
+                        this.config.callback.onClick(item.id);
+                    }
+                }
+            }
+        }
+    }
+</script>

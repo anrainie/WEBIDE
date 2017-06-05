@@ -6,10 +6,14 @@
     <div id="ide_workbench" class="container-fluid">
         <navigator id="ide_navigator" ref="ide_navigator" :model="naviModel" :config="naviConfig"
                    class="col-sm-2 col-md-3 col-xs-3" draggable="true"></navigator>
-        <workbenchPage id="ide_workbenchPage" ref="ide_workbenchPage" class="col-sm-10 col-md-9 col-xs-9">
+        <workbenchPage id="ide_workbenchPage" :config="editorPartConfig" ref="ide_workbenchPage"
+                       class="col-sm-10 col-md-9 col-xs-9">
         </workbenchPage>
     </div>
-
+    <contextMenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
+                 :items="naviContextMenuItems"
+                 :config="contextMenuConfig"
+    ></contextMenu>
 </div>
 </template>
 <style>
@@ -33,12 +37,20 @@
     import "ztree";
     import menu from "../components/menu.vue";
     import navi from "../components/tree.vue";
-    import workbenchPage from "../components/workbenchPage.vue";
+    import workbenchPage from "../components/editorPart.vue";
+    import flowEditor from "../components/floweditor.vue";
+    import contextMenu from "../components/contextMenu.vue";
 
     export default{
         data(){
+            var self = this;
             return {
                 pageName:"pageName",
+                editorPartConfig:{
+                    editorRefs:{
+                        txt:flowEditor
+                    }
+                },
                 naviConfig :{
                     check:false,
                     async: {
@@ -56,12 +68,12 @@
                         click:function (item) {
                         },
                         dblclick:function (item) {
-
                             if(!item.model.isParent) {
                                 WORKBENCHPAGE.openEditor(item);
                             }
                         },
                         rightClick:function (event,item) {
+                            self.openContextMenu(event,item);
                         }
                     }
                 },
@@ -876,15 +888,127 @@
                             "path": "/file1",
                             "resId": "txt"
                         }
-                    ]
+                    ],
+                naviContextMenuItems:[
+                        {
+                            id:"01",
+                            name:"01都是负担0000我们的长长长长长长",
+                            img:"assets/image/nav-folder.png",
+                            shortcutKey:"01",
+                            type:'group',
+                            children:[
+                                {
+                                    id:"011",
+                                    name:"011",
+                                    img:"",
+                                    shortcutKey:"011",
+                                    type:'item',
+                                },{
+                                    id:"012",
+                                    name:"012",
+                                    img:"",
+                                    shortcutKey:"",
+                                    type:'group',
+                                    children:[{
+                                        id:"0121",
+                                        name:"0121",
+                                        img:"",
+                                        shortcutKey:"",
+                                        type:'item'
+                                    }]
+                                }
+                            ]
+                        },{
+                            id:"02",
+                            name:"02",
+                            img:"",
+                            shortcutKey:"ctrl+r",
+                            type:'item',
+                            disabled:false
+                        },{
+                            type:"separator"
+                        },{
+                            id:"03",
+                            name:"03",
+                            img:"",
+                            shortcutKey:"ctrl+l",
+                            type:'item',
+                        },
+                        {
+                            id:"03",
+                            name:"01都是负担0000我们的长长长长长长",
+                            img:"assets/image/nav-folder.png",
+                            shortcutKey:"01",
+                            type:'group',
+                            children:[
+                                {
+                                    id:"031",
+                                    name:"011",
+                                    img:"",
+                                    shortcutKey:"011",
+                                    type:'item',
+                                },{
+                                    id:"032",
+                                    name:"032",
+                                    img:"",
+                                    shortcutKey:"",
+                                    type:'group',
+                                    children:[{
+                                        id:"0321",
+                                        name:"0321",
+                                        img:"",
+                                        shortcutKey:"",
+                                        type:'item'
+                                    }]
+                                }
+                            ]
+                        },{
+                            id:"04",
+                            name:"04",
+                            img:"",
+                            shortcutKey:"ctrl+l",
+                            type:'item',
+                        },{
+                            id:"05",
+                            name:"05",
+                            img:"",
+                            shortcutKey:"ctrl+l",
+                            type:'item',
+                        },{
+                            id:"06",
+                            name:"06",
+                            img:"",
+                            shortcutKey:"ctrl+l",
+                            type:'item',
+                        },
+                    ],
+                contextMenuConfig:{
+                    callback:{
+                        onClick:function (id) {
+                            console.info("contextmenu onclick : " + id);
+                        }
+                    }
                 }
+            }
         },
         methods: {
+            openContextMenu:function (event,item) {
+                if(CONTEXTMENU.isActive()){
+                    CONTEXTMENU.hide();
+                }
+                CONTEXTMENU.show(event.x,event.y);
+            }
         },
         mounted(){
-              window.Menu = this.$refs.ide_menu;
-              window.NAVI = this.$refs.ide_navigator;
-              window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
+            window.Menu = this.$refs.ide_menu;
+            window.NAVI = this.$refs.ide_navigator;
+            window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
+            window.CONTEXTMENU = this.$refs.ide_contextMenu;
+
+            $(document).bind('click',function(){
+                CONTEXTMENU.hide();
+            });
+
 
 //            this.naviModel;
 //            IDE.get('naviInit',function(data){
@@ -901,7 +1025,8 @@
         components: {
             navigator: navi,
             menubar: menu,
-            workbenchPage:workbenchPage
+            workbenchPage:workbenchPage,
+            contextMenu:contextMenu
         }
     }
 </script>
