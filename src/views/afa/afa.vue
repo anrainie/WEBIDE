@@ -14,6 +14,8 @@
                  :items="naviContextMenuItems"
                  :config="contextMenuConfig"
     ></contextMenu>
+
+    <shade ref="ide_shade"></shade>
 </div>
 </template>
 <style>
@@ -40,6 +42,7 @@
     import workbenchPage from "../components/editorPart.vue";
     import flowEditor from "../components/floweditor.vue";
     import contextMenu from "../components/contextMenu.vue";
+    import shade from "../components/shade.vue";
 
     export default{
         data(){
@@ -48,7 +51,8 @@
                 pageName:"pageName",
                 editorPartConfig:{
                     editorRefs:{
-                        txt:flowEditor
+                        txt:flowEditor,
+                        sql:flowEditor
                     }
                 },
                 naviConfig :{
@@ -924,7 +928,7 @@
                             img:"",
                             shortcutKey:"ctrl+r",
                             type:'item',
-                            disabled:false
+                            disable:true
                         },{
                             type:"separator"
                         },{
@@ -1004,6 +1008,7 @@
             window.NAVI = this.$refs.ide_navigator;
             window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
             window.CONTEXTMENU = this.$refs.ide_contextMenu;
+            window.SHADE = this.$refs.ide_shade;
 
             $(document).bind('click',function(){
                 CONTEXTMENU.hide();
@@ -1026,7 +1031,8 @@
             navigator: navi,
             menubar: menu,
             workbenchPage:workbenchPage,
-            contextMenu:contextMenu
+            contextMenu:contextMenu,
+            shade:shade
         }
     }
 </script>

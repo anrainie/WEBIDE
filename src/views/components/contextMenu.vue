@@ -12,6 +12,7 @@
 
             <span v-show="item.type === 'item' || item.type === 'group' "
                   class="context-menu-name"
+                  :class="{'context-menu-item-disable' : item.disable === true}"
             >{{getName(item)}}
             </span>
 
@@ -34,6 +35,11 @@
         height: 22px;
         position: relative;
     }
+
+    .context-menu-item-disable{
+        color: rgba(212, 212, 212,0.9);
+    }
+
     .context-menu-name{
         position: relative;
         left:30px;
@@ -185,11 +191,59 @@
 
                 newMenu.$mount(menu);
 
+                var top = 0;
                 newMenu.$el.className = "subMenu context-menu";
-                newMenu.$el.style.top = target.offsetTop -2 +  "px";
-                newMenu.$el.style.left = target.offsetLeft + target.clientWidth + "px";
+
+                var parentAbsoluteTop = this.getAbsoluteTop(target.parentNode);
+                var itemAbsoluteTop = this.getAbsoluteTop(target);
+                if(itemAbsoluteTop + newMenu.$el.clientHeight > document.body.clientHeight){
+                    //如果子菜单超出页面底部，修正子菜单使子菜单底部和页面底部重合。
+                    top = (document.body.clientHeight - parentAbsoluteTop) - newMenu.$el.clientHeight;
+
+                    //如果修正后子菜单顶部超出页面顶部，修正子菜单使子菜单顶部与页面顶部重合。
+                    if( (parentAbsoluteTop + top) < 0 ){
+                       top = document.body.clientHeight - parentAbsoluteTop;
+                    }
+                }else{
+                    top = target.offsetTop;
+                }
+
+                var left = 0;
+                var parentAbsoluteLeft = this.getAbsoluteLeft(target.parentNode);
+                if( (parentAbsoluteLeft + target.parentNode.clientWidth + newMenu.$el.clientWidth) > document.body.clientWidth){
+                    //如果子菜单超出页面右边距，使子菜单向左展开
+                    left =  - newMenu.$el.clientWidth;
+
+                    //如果子菜单超出页面左边距，使子菜单向右展开
+                    if( parentAbsoluteLeft + left < 0){
+                        left = target.offsetLeft + target.clientWidth;
+                    }
+                }else{
+                    left = target.offsetLeft + target.clientWidth;
+                }
+
+                newMenu.$el.style.top = top +  "px";
+                newMenu.$el.style.left = left + "px";
 
                 return newMenu;
+            },
+            getAbsoluteTop(element){
+                var top = element.offsetTop;
+                var parent = element.offsetParent;
+                while (parent !== null) {
+                    top += parent.offsetTop;
+                    parent = parent.offsetParent;
+                }
+                return top;
+            },
+            getAbsoluteLeft(element){
+                var left = element.offsetLeft;
+                var parent = element.offsetParent;
+                while(parent !== null){
+                    left += parent.offsetLeft;
+                    parent = parent.offsetParent;
+                }
+                return left;
             },
             isActive(){
                 return this.$el.style.display != "none";
@@ -208,7 +262,7 @@
                 }
             },
             click (item) {
-                if(item.type === 'item'){
+                if(item.type === 'item' || item.disabled != true){
                     if(this.config.callback || this.config.callback.onClick){
                         this.msgHub.$emit("hide");
                         this.config.callback.onClick(item.id);
