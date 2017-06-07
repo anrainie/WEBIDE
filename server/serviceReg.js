@@ -1,39 +1,28 @@
 /**
  * 服务注册器
  *
- * Created by Hasee on 2017/5/10.
+ * Created by pang on 2017/5/10.
  */
-import mongo from 'mongodb';
-
-var all = mongo.db.user;
-
-/**
- *
- * {
- *  'afa':{
- *      a:'192.168.1.1',
- *      b:'192.168.1.2'
- *      },
- *  'aweb':{
- *   }
- * }
- *
- *
- * @returns {{regist: (function(*)), unregist: (function()), all: (function())}}
- */
-
-module.exports = function () {
-
-    return {
-        regist(service){
-
-        },
-        unregist(){
-
-        },
-        all(){
-            return all;
+const ServiceReg = function () {
+    this.servicePool = new Map();
+    this.regist = function (eventName, service) {
+        if (!this.servicePool.has(eventName) || this.servicePool.get(eventName) == null || this.servicePool.get(eventName) == undefined) {
+            this.servicePool.set(eventName, service);
+        } else {
+            console.log('service regist fail! type ==> ' + eventName);
         }
     }
-};
+    this.unregist = function (eventName) {
+        if (!this.servicePool.has(eventName) || this.servicePool.get(eventName) == null || this.servicePool.get(eventName) == undefined) {
+            console.log('service unregist fail! type ==> ' + eventName);
+        } else {
+            this.servicePool.delete(eventName);
+        }
+    }
+    this.getServiceByEventName = function (eventName) {
+        return this.servicePool.get(eventName);
+    }
+}
+module.exports = ServiceReg;
+
 
