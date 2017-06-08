@@ -105,13 +105,6 @@
             this.vueTemplete = require('../components/contextMenu.vue');
             this.config = this.config || {};
 
-            this.$el.onclick = function(e){
-                if (e.stopPropagation)
-                    e.stopPropagation();
-                else
-                    e.cancelBubble = true;
-            };
-
             /**
              * 给等级为1的的菜单设置初始的 msgHub、subMenus。
              * 其他等级的菜单会在_createSubMenu中设置进去。保证在所有菜单中msgHub、subMenus 只有唯一一份
@@ -125,20 +118,30 @@
                     }
                 })(this));
 
-                this.msgHub.$on("deleteSubMenuByLevel", (function (vueComp) {
+                this.msgHub.$on("deleteSubMenuByLevel", (function (self) {
                     return function (level) {
-                            for(var key in vueComp.subMenus){
-                                var subMenu = vueComp.subMenus[key];
+                            for(var key in self.subMenus){
+                                var subMenu = self.subMenus[key];
                                 if(subMenu.level === level) {
-                                    vueComp.delSubMenu(subMenu);
-                                    delete vueComp.subMenus[key];
+                                    self.delSubMenu(subMenu);
+                                    delete self.subMenus[key];
                                 }
                             }
                     };
                 })(this));
+
             }
         },
         methods:{
+            setItems(newItems){
+                this.items.splice(0,this.items.length);
+                for(let i = 0 ; i < newItems.length ; i ++){
+                    this.items.push(newItems[i]);
+                }
+            },
+            setCallback(callback){
+                this.config.callback = callback;
+            },
             getName (item) {
                 if (item.type === 'item' || item.type === 'group') {
                     var name = item.name;
@@ -249,9 +252,10 @@
                 return this.$el.style.display != "none";
             },
             show (x,y) {
-                this.$el.style.display = "";
+                this.$el.style.display = "block";
                 this.$el.style.top = y + "px";
                 this.$el.style.left = x + "px";
+                $('html').one('click.contextmenu.data-api', $.proxy(this.hide, this));
             },
             hide () {
                 this.$el.style.display = "none";
@@ -265,7 +269,7 @@
                 if(item.type === 'item' || item.disabled != true){
                     if(this.config.callback || this.config.callback.onClick){
                         this.msgHub.$emit("hide");
-                        this.config.callback.onClick(item.id);
+                        this.config.callback.onClick(item);
                     }
                 }
             }

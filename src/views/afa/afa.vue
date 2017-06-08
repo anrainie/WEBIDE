@@ -889,103 +889,51 @@
                             "isParent":true
                         },{
                             "name": "file1.txt",
-                            "path": "/file1",
+                            "path": "/file1.txt",
                             "resId": "txt"
-                        }
+                        },{
+                        "name": "file11.txt",
+                        "path": "/file11.txt",
+                        "resId": "txt"
+                    },{
+                        "name": "file10.txt",
+                        "path": "/file10.txt",
+                        "resId": "txt"
+                    },{
+                        "name": "file91wfdsf我们沙发舒服的撒eeee.txt",
+                        "path": "/file91wfdsf我们沙发舒服的撒eeee.txt",
+                        "resId": "txt"
+                    },{
+                        "name": "fi.txt",
+                        "path": "/fi.txt",
+                        "resId": "txt"
+                    },{
+                        "name": "file7.txt",
+                        "path": "/file7.txt",
+                        "resId": "txt"
+                    },{
+                        "name": "file6.txt",
+                        "path": "/file6.txt",
+                        "resId": "txt"
+                    },{
+                        "name": "file5.txt",
+                        "path": "/file5.txt",
+                        "resId": "txt"
+                    },{
+                        "name": "file4.txt",
+                        "path": "/file4.txt",
+                        "resId": "txt"
+                    },{
+                        "name": "file3.txt",
+                        "path": "/file3.txt",
+                        "resId": "txt"
+                    },{
+                        "name": "file2.txt",
+                        "path": "/file2.txt",
+                        "resId": "txt"
+                    }
                     ],
-                naviContextMenuItems:[
-                        {
-                            id:"01",
-                            name:"01都是负担0000我们的长长长长长长",
-                            img:"assets/image/nav-folder.png",
-                            shortcutKey:"01",
-                            type:'group',
-                            children:[
-                                {
-                                    id:"011",
-                                    name:"011",
-                                    img:"",
-                                    shortcutKey:"011",
-                                    type:'item',
-                                },{
-                                    id:"012",
-                                    name:"012",
-                                    img:"",
-                                    shortcutKey:"",
-                                    type:'group',
-                                    children:[{
-                                        id:"0121",
-                                        name:"0121",
-                                        img:"",
-                                        shortcutKey:"",
-                                        type:'item'
-                                    }]
-                                }
-                            ]
-                        },{
-                            id:"02",
-                            name:"02",
-                            img:"",
-                            shortcutKey:"ctrl+r",
-                            type:'item',
-                            disable:true
-                        },{
-                            type:"separator"
-                        },{
-                            id:"03",
-                            name:"03",
-                            img:"",
-                            shortcutKey:"ctrl+l",
-                            type:'item',
-                        },
-                        {
-                            id:"03",
-                            name:"01都是负担0000我们的长长长长长长",
-                            img:"assets/image/nav-folder.png",
-                            shortcutKey:"01",
-                            type:'group',
-                            children:[
-                                {
-                                    id:"031",
-                                    name:"011",
-                                    img:"",
-                                    shortcutKey:"011",
-                                    type:'item',
-                                },{
-                                    id:"032",
-                                    name:"032",
-                                    img:"",
-                                    shortcutKey:"",
-                                    type:'group',
-                                    children:[{
-                                        id:"0321",
-                                        name:"0321",
-                                        img:"",
-                                        shortcutKey:"",
-                                        type:'item'
-                                    }]
-                                }
-                            ]
-                        },{
-                            id:"04",
-                            name:"04",
-                            img:"",
-                            shortcutKey:"ctrl+l",
-                            type:'item',
-                        },{
-                            id:"05",
-                            name:"05",
-                            img:"",
-                            shortcutKey:"ctrl+l",
-                            type:'item',
-                        },{
-                            id:"06",
-                            name:"06",
-                            img:"",
-                            shortcutKey:"ctrl+l",
-                            type:'item',
-                        },
-                    ],
+                naviContextMenuItems:[],
                 contextMenuConfig:{
                     callback:{
                         onClick:function (id) {
@@ -1009,11 +957,6 @@
             window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
             window.CONTEXTMENU = this.$refs.ide_contextMenu;
             window.SHADE = this.$refs.ide_shade;
-
-            $(document).bind('click',function(){
-                CONTEXTMENU.hide();
-            });
-
 
 //            this.naviModel;
 //            IDE.get('naviInit',function(data){
