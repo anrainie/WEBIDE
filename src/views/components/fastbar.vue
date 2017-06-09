@@ -7,8 +7,8 @@
 
     .ft_item {
         position: relative;
-        background: #AAD;
-        border: 1px solid #103;
+        background: #CCC;
+        border: 1px solid #AAA;
     }
 
     .ft_item_v {
@@ -30,7 +30,7 @@
     }
 
     .ft_text_h {
-        float: left;
+        float: right;
         width: 70px;
         height: 1em;
     }
@@ -39,18 +39,16 @@
     }
 
     .ft_img_h {
-        float: right;
+        float: left;
     }
 
     .ft_active {
-        background: #789;
+        background: #FFF;
     }
 </style>
 <script>
     export default{
-        methods: {
-
-        },
+        methods: {},
         data(){
             return {}
         },
@@ -61,7 +59,7 @@
         components: {
             item: {
                 props: ['model', 'horizontal'],
-                methods:{
+                methods: {
                     show(){
                         window.__Workbench.showView(this);
                     }
@@ -73,7 +71,8 @@
                             'ft_item_v': !this.horizontal,
                             'ft_item_h': this.horizontal,
                             ft_left: this.direction,
-                            ft_right: !this.direction
+                            ft_right: !this.direction,
+                            ft_active: this.model.active,
                         }
                     },
                     textClass() {
@@ -92,7 +91,7 @@
                         return window.viewRegistry[this.model.id];
                     }
                 },
-                template: '<div :class="itemClass"  @click="show"><span :class="textClass">{{config.name}}</span><img :class="imageClass" :src="config.image" width="25" height="25"/></div>'
+                template: '<div :class="itemClass"  @click="show"><img :class="imageClass" :src="config.image" width="23" height="23"/><span :class="textClass">{{config.name}}</span></div>'
             }
         }
     }

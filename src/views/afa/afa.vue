@@ -11,7 +11,7 @@
             <!--</viewpart>-->
             <!--<workbenchPage id="ide_workbenchPage" ref="ide_workbenchPage" class="col-sm-10 col-md-9 col-xs-9">-->
             <!--</workbenchPage>-->
-            <workbench class="example col-sm-2 col-md-10 col-xs-9" :views="activeViews" ref="workbench"
+            <workbench class="example col-sm-2 col-md-10 col-xs-9" :views="views" ref="workbench"
                        :editors="editors"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :horizontal='verical'></fastbar>
         </div>
@@ -26,7 +26,7 @@
         width: 25px;
         height: 100%;
         float: left;
-        background: #00B7FF;
+        background: #DDD;
         padding: 0;
     }
 
@@ -35,14 +35,14 @@
         bottom: 0px;
         width: 100%;
         height: 25px;
-        background: #CCB7FF;
+        background: #DDD;
     }
 
     #right_fast_bar {
         width: 25px;
         height: 100%;
         float: right;
-        background: #00B7FF;
+        background: #DDD;
         padding: 0;
     }
 
@@ -78,36 +78,40 @@
             return {
                 verical: false,
                 horizontal: true,
-                active: true,
                 editors: {},
                 views: {
                     left: [{
                         id: 'navigator',
-                        direction: 0
+                        direction: 0,
+                        active:true,
                     }, {
-                        id: 'properties'
+                        id: 'properties',
+                        direction: 1,
+                        active:true,
                     }, {
-                        id: 'error'
+                        id: 'error',
+                        direction: 1,
+                        active:true,
                     }],
                     right: [{
-                        id: 'console'
+                        id: 'console',
+                        direction: 1,
+                        active:true,
+                    }, {
+                        id: 'version',
+                        direction: 0,
+                        active:true,
                     }],
                     bottom: [{
-                        id: 'problem'
-                    }, {
-                        id: 'version'
+                        id: 'problem',
+                        direction: 1,
+                        active:true,
                     }]
-                },
-                activeViews: {
-                    left: ['navigator', 'properties'],
-                    right: ['version'],
-                    bottom: ['problem'],
                 },
                 pageName: "pageName",
             }
         },
-        methods: {
-        },
+        methods: {},
         beforeCreate(){
             window.viewRegistry = {
                 'navigator': {
@@ -966,7 +970,7 @@
                 'properties': {
                     name: '属性',
                     component: './editorPart.vue',
-                    image: 'http://sc.admin5.com/uploads/allimg/100212/1139341Z4-5.png',
+                    image: 'http://img46.huitu.com/res/20170531/743119_20170531163337907010_2.jpg',
                 },
                 'console': {
                     name: '控制台',
@@ -976,17 +980,17 @@
                 'error': {
                     name: '错误控制',
                     component: './editorPart.vue',
-                    image: 'http://sc.admin5.com/uploads/allimg/100212/1139341Z4-4.png',
+                    image: 'http://img46.huitu.com/res/20170531/743119_20170531162656624013_2.jpg',
                 },
                 'problem': {
                     name: '问题',
                     component: './editorPart.vue',
-                    image: 'http://sc.admin5.com/uploads/allimg/100212/1139341Z4-2.png',
+                    image: 'http://img46.huitu.com/res/20170531/743119_20170531162659182012_2.jpg',
                 },
                 'version': {
                     name: '版本',
                     component: './editorPart.vue',
-                    image: 'http://sc.admin5.com/uploads/allimg/100212/1139341Z4-1.png',
+                    image: 'http://img80.nipic.com/file/20170216/13291986_164542942039_1.jpg',
                 }
             };
 
