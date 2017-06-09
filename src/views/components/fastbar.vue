@@ -1,6 +1,11 @@
 <template>
     <div>
-        <item v-for="item in items" :model="item" :horizontal="horizontal"></item>
+        <div :class="itemPanel0" @drop='drop($event)'>
+            <item v-for="item in group[0]" :model="item" :direction="direction"></item>
+        </div>
+        <div :class="itemPanel1" @drop='drop($event)'>
+            <item v-for="item in group[1]" :model="item" :direction="direction"></item>
+        </div>
     </div>
 </template>
 <style>
@@ -35,11 +40,24 @@
         height: 1em;
     }
 
-    .ft_img_v {
+    .ft_panel {
+        position: relative;
     }
 
-    .ft_img_h {
+    .ft_float_left {
         float: left;
+    }
+
+    .ft_float_right {
+        float: right;
+    }
+
+    .ft_panel.horizontal {
+        width: 50%;
+    }
+
+    .ft_panel.vertical {
+        height: 50%;
     }
 
     .ft_active {
@@ -53,23 +71,58 @@
             return {}
         },
         mounted(){
-            console.log(this.horizontal, !this.horizontal)
+            console.log(this.direction, !this.direction)
         },
-        props: ['horizontal', 'items'],
+        computed: {
+            group(){
+                let r = [];
+                for (let i = 0, len = this.items.length; i < len; i++) {
+                    let dir = this.items[i].direction;
+                    if (dir == null) dir = 0;
+                    if (r[dir] == null)
+                        r[dir] = [];
+                    r[dir].push('group:', this.items[i]);
+                }
+                return r;
+            },
+            itemPanel0(){
+                return {
+                    ft_panel: true,
+                    horizontal: this.direction,
+                    vertical: !this.direction,
+                    ft_float_left: this.direction
+                }
+            },
+            itemPanel1(){
+                return {
+                    ft_panel: true,
+                    horizontal: this.direction,
+                    vertical: !this.direction,
+                    ft_float_right: this.direction
+                }
+            },
+            drop(e){
+                console.log('drop')
+            }
+        },
+        props: ['direction', 'items'],
         components: {
             item: {
-                props: ['model', 'horizontal'],
+                props: ['model', 'direction'],
                 methods: {
                     show(){
-                        window.__Workbench.showView(this);
+                        window.WORKBENCH.showView(this);
+                    },
+                    drag(){
+                        console.log(this.model)
                     }
                 },
                 computed: {
                     itemClass(){
                         return {
                             'ft_item': true,
-                            'ft_item_v': !this.horizontal,
-                            'ft_item_h': this.horizontal,
+                            'ft_item_v': !this.direction,
+                            'ft_item_h': this.direction,
                             ft_left: this.direction,
                             ft_right: !this.direction,
                             ft_active: this.model.active,
@@ -77,21 +130,20 @@
                     },
                     textClass() {
                         return {
-                            ft_text_v: !this.horizontal,
-                            ft_text_h: this.horizontal,
+                            ft_text_v: !this.direction,
+                            ft_text_h: this.direction,
                         }
                     },
                     imageClass() {
                         return {
-                            ft_img_v: !this.horizontal,
-                            ft_img_h: this.horizontal,
+                            ft_float_left: this.direction,
                         }
                     },
                     config(){
                         return window.viewRegistry[this.model.id];
                     }
                 },
-                template: '<div :class="itemClass"  @click="show"><img :class="imageClass" :src="config.image" width="23" height="23"/><span :class="textClass">{{config.name}}</span></div>'
+                template: '<div :class="itemClass"  @click="show" draggable="true" @dragstart="drag($event)"><img :class="imageClass" :src="config.image" width="23" height="23"/><span :class="textClass">{{config.name}}</span></div>'
             }
         }
     }

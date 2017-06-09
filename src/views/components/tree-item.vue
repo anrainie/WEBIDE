@@ -28,13 +28,13 @@
                 open: false,
                 selected:false,
                 loaded:false,
-                checked:false,
+                checked: this.model.checked ? this.model.checked :false ,
                 itemImageSrc:"assets/image/nav-folder.png"
             }
         },
         computed: {
             isFolder: function () {
-                if(this.model.isFolder){
+                if(this.model.isParent){
                     return true
                 }
                 return false;
