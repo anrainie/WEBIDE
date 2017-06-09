@@ -10,7 +10,7 @@
         props: ['input','file','msgHub'],
         data:function () {
             return {
-                dirtyState:true
+                dirtyState:false
             }
         },
         methods:{

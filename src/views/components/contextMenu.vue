@@ -30,7 +30,25 @@
         list-style: none;
         display: inline-block;
         background-color: white;
+        overflow:scroll;
     }
+
+    .context-menu>div{
+        display: inline-block;
+        width: 100%;
+        height: 20px;
+    }
+
+    .context-menu>div>span{
+        display: inline-block;
+        margin: 0 auto;
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-top: 8px solid black;
+    }
+
     .context-menu-item{
         height: 22px;
         position: relative;
@@ -99,6 +117,7 @@
                 level:1,
                 subMenus:null,
                 msgHub:null,
+                collapsed:false
             }
         },
         mounted(){
@@ -253,9 +272,27 @@
             },
             show (x,y) {
                 this.$el.style.display = "block";
+                
+                if( (y + this.$el.clientHeight) > document.body.clientHeight){
+                    y = document.body.clientHeight - this.$el.clientHeight;
+                    if(y < 0 ){
+                        y = 0;
+                        this.$el.style.height = document.body.clientHeight + "px";
+                    }
+                }
+
                 this.$el.style.top = y + "px";
                 this.$el.style.left = x + "px";
-                $('html').one('click.contextmenu.data-api', $.proxy(this.hide, this));
+                $(document).one('click.contextmenu', $.proxy(this.hide, this));
+            },
+            needCollapse:function (y,vueComponent) {
+                if( (y + vueComponent.$el.clientHeight) > document.body.clientHeight){
+                    return true;
+                }
+                return false;
+            },
+            collapse:function (vueComponent) {
+                vueComponent.collapsed = true;
             },
             hide () {
                 this.$el.style.display = "none";

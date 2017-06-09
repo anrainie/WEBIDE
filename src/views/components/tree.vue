@@ -137,6 +137,12 @@
                     }
                 }
                 return false;
+            },
+            refresh:function (path) {
+                let item = this.getItem(path);
+                if(item){
+                    item.loadItems();
+                }
             }
         },
         mounted:function () {

@@ -933,7 +933,49 @@
                         "resId": "txt"
                     }
                     ],
-                naviContextMenuItems:[],
+                naviContextMenuItems:[
+                    {
+                        id:"01",
+                        name:"01都是负担0000我们的长长长长长长",
+                        img:"assets/image/nav-folder.png",
+                        shortcutKey:"01",
+                        type:'group'
+                    },{
+                        id:"02",
+                        name:"02",
+                        img:"",
+                        shortcutKey:"ctrl+r",
+                        type:'item',
+                        disable:true
+                    },{
+                        type:"separator"
+                    },{
+                        id:"03",
+                        name:"03",
+                        img:"",
+                        shortcutKey:"ctrl+l",
+                        type:'item',
+                    },
+                    {
+                        id:"03",
+                        name:"01都是负担0000我们的长长长长长长",
+                        img:"assets/image/nav-folder.png",
+                        shortcutKey:"01",
+                        type:'group'
+                    },{
+                        id:"04",
+                        name:"04",
+                        img:"",
+                        shortcutKey:"ctrl+l",
+                        type:'item',
+                    },{
+                        id:"05",
+                        name:"05",
+                        img:"",
+                        shortcutKey:"ctrl+l",
+                        type:'item',
+                    }
+                ],
                 contextMenuConfig:{
                     callback:{
                         onClick:function (id) {

@@ -1,8 +1,9 @@
 <template>
     <div style="padding: 0px">
-        <ul id="editors-indicate" class="editor-tab">
-            <div v-show="collapseEditors.length > 0" class="editors-collapse" @click="openCollapseMenu($event)">
-                {{collapseEditors.length}}
+        <ul id="editors-indicate" class="editor-tab" >
+            <div v-show="collapsedEditors.length > 0" class="editors-collapse" @click="openCollapseMenu($event)">
+                <div></div>
+                <span>{{collapsedEditors.length}}</span>
             </div>
         </ul>
         <div id="editors-content">
@@ -48,9 +49,26 @@
         display: inline-block;
         float: right;
         height: 29px;
-        width: 25px;
+        width: 30px;
         text-align: center;
         background-color: lightgray;
+    }
+    .editors-collapse:hover{
+        background-color: gray;
+    }
+    .editors-collapse div{
+        display: inline-block;
+        position: relative;
+        top:20%;
+        width: 15px;
+        height: 15px;
+        background: url("~assets/image/editor-collapse.png") no-repeat;
+    }
+
+    .editors-collapse span{
+        display: inline-block;
+        position: relative;
+        top:15%;
     }
 
     .editor-tab-delete{
@@ -73,8 +91,8 @@
                 //TODO 使用栈
                 editors : [],
                 activeEditor:null,
-                collapseEditors:[],
-                maxIndicateCharNum:13,
+                collapsedEditors:[],
+                maxIndicateCharNum:15,
                 defaultIndicateWidth:30,
                 eachCharWidth:12
             }
@@ -91,11 +109,20 @@
                 }
                 return null;
             },
-            _deleteEditor:function (item) {
+            removeEditorFromEditors:function (item) {
                 for(var i = 0 ; i < this.editors.length ; i ++){
                     var editor = this.editors[i];
                     if(item.model.path === editor.file.model.path){
                         this.editors.splice(i,1);
+                        break;
+                    }
+                }
+            },
+            removeEditorFromCollapsedEditors:function (item) {
+                for(var i = 0 ; i < this.collapsedEditors.length ; i ++){
+                    var editor = this.collapsedEditors[i];
+                    if(item.model.path === editor.file.model.path){
+                        this.collapsedEditors.splice(i,1);
                         break;
                     }
                 }
@@ -122,15 +149,15 @@
                    var editorIndicate = this.getEditorIndicate(item.model.path);
                    editorIndicate.remove();
 
-                   this._deleteEditor(item);
+                   this.removeEditorFromEditors(item);
                    editor.$destroy();
                    if(this.editors.length > 0){
                        this.showEditor(this.editors[0].file);
                    }
-                   if(this.collapseEditors.length > 0){
-                       for(let key in this.collapseEditors){
-                           var editor = this.collapseEditors[key];
-                           this.popAndShowEditorFromCollEditors(editor.file);
+                   if(this.collapsedEditors.length > 0){
+                       for(let key in this.collapsedEditors){
+                           var editor = this.collapsedEditors[key];
+                           this.showEditor(editor.file);
                            break;
                        }
                    }
@@ -145,19 +172,25 @@
                     var new_path = this.revisePath(item.model.path);
 
                     this.hideAllEditor();
-                    this.hideAllTabIndicate();
+                    this.unActiveAllTabIndicate();
 
                     var $li = $("[href='#"+ new_path + "']").parent();
                     $li.attr("class","editor-tab-active");
+                    $li.css("display","block");
 
                     var editor = $('#' + new_path);
                     editor.css('display','block');
 
+                    this.removeEditorFromCollapsedEditors(item);
+                    this.removeEditorFromEditors(item);
+                    this.editors.unshift(oldEditor);
+
                     this.activeEditor = this.getEditor(item);
                     this.activeEditor.focus();
 
-                    this._deleteEditor(item);
-                    this.editors.unshift(oldEditor);
+                    while(this.needCollapse()){
+                        this.emptyOutEditorIndicate();
+                    }
                 }
             },
             saveEditor:function (item) {
@@ -169,14 +202,18 @@
             getActiveEditor:function () {
               return this.activeEditor;
             },
-            needCollapse(newWidth){
+            needCollapse(){
                 let allLiWidth = 0 ;
                 var $lis = this.PAGE_INDICATE.find("li");
                 for(let i = 0 ; i < $lis.length ; i++){
-                    allLiWidth += $lis[i].clientWidth ;
+                    if($lis[i].style.display != 'none') {
+                        allLiWidth += ( $lis[i].clientWidth + 2);
+                    }
                 }
                 let indicateWidth = this.PAGE_INDICATE.width();
-                if(allLiWidth + newWidth > indicateWidth){
+                indicateWidth -= this.PAGE_COLLAPSE_BUTTON.width();
+
+                if(allLiWidth  > indicateWidth ){
                     return true;
                 }
                 return false;
@@ -202,12 +239,11 @@
                 }
 
                 this.hideAllEditor();
-                this.hideAllTabIndicate();
+                this.unActiveAllTabIndicate();
 
                 var indicateWidth = this.getIndicateWidth(item.model.name);
-                var needCollapse = this.needCollapse(indicateWidth);
 
-                //创建tab
+                //创建tab-indicator
                 var path = this.revisePath(item.model.path);
                 var $li = $("<li></li>");
                 $li.css('width',indicateWidth);
@@ -232,6 +268,14 @@
                         vue.closeEditor(item);
                     }
                 })(item,this));
+
+                $li.contextmenu((function (item,edtiorPart) {
+                    return function ($event) {
+                        $event.preventDefault();
+                        edtiorPart.openIndicatorMenu($event,item);
+                    }
+                })(item,this));
+
                 this.PAGE_INDICATE.append($li);
 
 
@@ -247,19 +291,21 @@
                 newEditor.$props.msgHub = this.msgHub;
                 newEditor.$mount('#' + path + " #editor");
 
-                if(needCollapse){
-                   this.hideLastEditorIndicate();
-                }
                 this.activeEditor = newEditor;
+
+                while(this.needCollapse()){
+                   this.emptyOutEditorIndicate();
+                }
+
                 this.editors.unshift(newEditor);
             },
-            hideLastEditorIndicate:function () {
+            emptyOutEditorIndicate:function () {
                 for(let i = this.editors.length - 1 ; i > 0 ; i--){
                     let lastEditor = this.editors[i];
                     var lastEditorIndicate = this.getEditorIndicate(lastEditor.file.model.path);
                     if(lastEditorIndicate.css('display') != 'none'){
                         lastEditorIndicate.css('display','none');
-                        this.collapseEditors.push(lastEditor);
+                        this.collapsedEditors.push(lastEditor);
                         break;
                     }
                 }
@@ -283,8 +329,8 @@
                 if(num < 4){
                     return this.defaultIndicateWidth;
                 }
-                if(num > 13){
-                    num = 13;
+                if(num > this.maxIndicateCharNum){
+                    num = this.maxIndicateCharNum;
                 }
                 return num * this.eachCharWidth;
             },
@@ -304,11 +350,68 @@
                 return name;
             },
             openCollapseMenu:function($event){
-                let collMenuItems = this.getCollapseMenuItem();
+                let self = this;
+                let collMenuItems = [];
+                for(let key in this.collapsedEditors){
+                    let editor = this.collapsedEditors[key];
+                    let file = editor.file.model;
+                    let item = {
+                        id:file.path,
+                        name:file.name,
+                        type:'item'
+                    }
+                    collMenuItems.push(item);
+                }
                 CONTEXTMENU.setItems(collMenuItems);
-                CONTEXTMENU.setCallback(this.getCollapseMenuConfig());
+
+                CONTEXTMENU.setCallback({
+                    onClick: function (menuItem) {
+                        var fileItem = NAVI.getItem(menuItem.id);
+                        self.showEditor(fileItem);
+                    }
+                });
                 CONTEXTMENU.show($event.x - 250,$event.y);
+
                 $event.stopPropagation();
+            },
+            openIndicatorMenu:function ($event,item) {
+                var self = this;
+                CONTEXTMENU.setItems([{
+                    id:'Close',
+                    name:'Close',
+                    type:'item'
+                },{
+                    id:'Close Other',
+                    name:'Close Other',
+                    type:'item'
+                },{
+                    id:'Close All',
+                    name:'Close All',
+                    type:'item'
+                }]);
+                CONTEXTMENU.setCallback({
+                    onClick: function (menuItem) {
+                        let id = menuItem.id;
+                        if(id === 'Close'){
+                            self.closeEditor(item);
+                        }else if(id === 'Close Other'){
+                            let copy = self.editors.concat([]);
+                            for(let key in copy){
+                                let editor = copy[key];
+                                if(editor.file.model.path != item.model.path) {
+                                    self.closeEditor(editor.file);
+                                }
+                            }
+                        }else if(id === 'Close All'){
+                            let copy = self.editors.concat([]);
+                            for(let key in copy){
+                                let editor = copy[key];
+                                self.closeEditor(editor.file);
+                            }
+                        }
+                    }
+                });
+                CONTEXTMENU.show($event.clientX,$event.clientY);
             },
             hideAllEditor:function () {
                 for(var i = 0 ; i < this.editors.length ; i++){
@@ -318,55 +421,16 @@
                     }
                 }
             },
-            hideAllTabIndicate:function () {
+            unActiveAllTabIndicate:function () {
                 var indicates = $('.editor-tab-active');
                 for(var i = 0 ; i < indicates.length ; i ++){
                     var indicate = indicates[i];
                     indicate.className = 'editor-tab-unactive';
                 }
             },
-            getCollapseMenuConfig:function () {
-                let self = this;
-               return {
-                       onClick: function (menuItem) {
-                           var fileItem = NAVI.getItem(menuItem.id);
-                           self.hideLastEditorIndicate();
-                           self.popAndShowEditorFromCollEditors(fileItem);
-                       }
-                   }
-            },
-            popAndShowEditorFromCollEditors(fileItem){
-                this.deleteEditorFromCollapseEditors(fileItem);
-                let editorIndicate = this.getEditorIndicate(fileItem.model.path);
-                editorIndicate.css('display','block');
-                this.showEditor(fileItem);
-            },
-            getCollapseMenuItem:function () {
-                let items = [];
-                for(let key in this.collapseEditors){
-                    let editor = this.collapseEditors[key];
-                    let file = editor.file.model;
-                    let item = {
-                        id:file.path,
-                        name:file.name,
-                        type:'item'
-                    }
-                    items.push(item);
-                }
-                return items;
-            },
-            deleteEditorFromCollapseEditors:function (item) {
-                for(var i = 0 ; i < this.collapseEditors.length ; i ++){
-                    var editor = this.collapseEditors[i];
-                    if(item.model.path === editor.file.model.path){
-                        this.collapseEditors.splice(i,1);
-                        break;
-                    }
-                }
-            },
             getEditorIndicate:function (path) {
                 let p = this.revisePath(path);
-                return $("[href='#"+ p + "']").parent();
+                return $("li a[href='#"+ p + "']").parent();
             },
             getEditorElement:function (path) {
                 let p = this.revisePath(path);
@@ -376,8 +440,9 @@
         mounted(){
             this.PAGE_INDICATE = $("#editors-indicate");
             this.PAGE_CONTENT = $("#editors-content");
+            this.PAGE_COLLAPSE_BUTTON = $("#editors-indicate .editors-collapse");
             this.msgHub.$on('dirtyStateChange',function (item,dirtyState) {
-
+                //TODO
             });
         },
         beforeDestory:function () {

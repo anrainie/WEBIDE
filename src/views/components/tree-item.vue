@@ -61,12 +61,21 @@
                 return null;
             },
             toggle: function () {
+                if(!this.loaded) {
+                    this.loadItems();
+                    this.loaded = true;
+                }
+                if (this.isFolder) {
+                    this.open = !this.open
+                }
+
+            },
+            loadItems(){
                 var self = this;
                 var asyncConfig = this.config.async;
                 if(asyncConfig && asyncConfig.enable && !this.loaded && !this.model.children) {
                     var data = {};
                     var url = asyncConfig.url;
-
                     if (asyncConfig.autoParam) {
                         for (var i = 0; i < asyncConfig.autoParam.length; i++) {
                             var param = asyncConfig.autoParam[i];
@@ -79,8 +88,18 @@
                             dataType : "json",
                             data : data,
                             success : function(result,status,xhr){
-                                this.model.children = result;
                                 self.itemImageSrc = oldItemImageSrc;
+                                if(result){
+                                    let oldItems = this.model.children.concat([]);
+                                    for(let key in result){
+                                        let item = result[key];
+                                        if(!self.getChild(item.name)){
+                                            this.model.children.push(item);
+                                        }else{
+                                            //TODO 被删除的元素暂时未做处理
+                                        }
+                                    }
+                                }
                             },
                             error : function(xhr,status,error){
                                 console.info(error);
@@ -88,13 +107,7 @@
                             }
                         }
                     );
-                    this.loaded = true;
                 }
-
-                if (this.isFolder) {
-                    this.open = !this.open
-                }
-
             },
             deleteItem:function () {
                 this.msgHub.$emit('deleteItem', this);
@@ -183,6 +196,7 @@
 <style>
     .item-selected{
         background-color: gray;
+        color: white;
         border-radius: 5px;
     }
 
@@ -194,13 +208,7 @@
         overflow:hidden;
     }
 
-    .item-body:hover{
-        background-color: gray;
-        border-radius: 5px;
-    }
-
     .item-body:hover .item-button{
-        background-color: gray;
         display: inline-block;
     }
 
