@@ -2,9 +2,7 @@
     <ul class="context-menu">
         <li v-for='item in items'
             :class="{  'context-menu-item':item.type ==='item' || item.type === 'group',
-                        item :item.type ==='item',
-                        group:item.type === 'group',
-                        separator:item.type ==='separator'}"
+                       'context-menu-separator':item.type ==='separator'}"
             @click="click(item)"
             @mouseenter="toggleSubMenu($event,item)"
         >
@@ -81,7 +79,7 @@
          color:#999;
     }
 
-    .separator{
+    .context-menu-separator{
         border-top:1px solid #ccc;
         margin:5px;
     }
@@ -272,7 +270,6 @@
             },
             show (x,y) {
                 this.$el.style.display = "block";
-                
                 if( (y + this.$el.clientHeight) > document.body.clientHeight){
                     y = document.body.clientHeight - this.$el.clientHeight;
                     if(y < 0 ){

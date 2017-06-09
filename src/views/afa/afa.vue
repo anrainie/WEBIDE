@@ -3,6 +3,7 @@
     <nav class="navbar navbar-default navbar-fixed-top">
         <menubar id="ide_menu" ref="ide_menu"></menubar>
     </nav>
+    <toolbar :toolItems="toolItems" :config="toolbarConfig" style="border: 1px solid;float: right;width: 100%"></toolbar>
     <div id="ide_workbench" class="container-fluid">
         <navigator id="ide_navigator" ref="ide_navigator" :model="naviModel" :config="naviConfig"
                    class="col-sm-2 col-md-3 col-xs-3" draggable="true"></navigator>
@@ -43,6 +44,7 @@
     import flowEditor from "../components/floweditor.vue";
     import contextMenu from "../components/contextMenu.vue";
     import shade from "../components/shade.vue";
+    import toolbar from "../components/toolbar.vue"
 
     export default{
         data(){
@@ -982,6 +984,66 @@
                             console.info("contextmenu onclick : " + id);
                         }
                     }
+                },
+                toolItems: [
+                            {
+                                id:'item1',
+                                desp:'desp1',
+                                type:'item',
+                                img:"assets/image/nav-folder.png"
+                            },
+                            {
+                                type:'separator',
+                            },
+                            {
+                                id:'item2',
+                                desp:'desp2',
+                                type:'item',
+                                img:"assets/image/nav-folder.png"
+                            },{
+                                id:'item3',
+                                desp:'desp3',
+                                type:'group',
+                                img:'assets/image/nav-folder.png',
+                                children:[
+                                    {
+                                        id:"031",
+                                        desp:'desp2',
+                                        name:"011",
+                                        img:'assets/image/nav-folder.png',
+                                        type:'item',
+                                    },{
+                                        id:"031",
+                                        desp:'desp2',
+                                        name:"011",
+                                        img:'assets/image/nav-folder.png',
+                                        type:'item',
+                                    }
+                                ]
+                            },
+                            {
+                                id:'item4',
+                                desp:'desp4',
+                                type:'item',
+                                img:"assets/image/nav-folder.png"
+                            },
+                            {
+                                type:'separator',
+                            },
+                            {
+                                id:'item5',
+                                desp:'desp5',
+                                type:'item',
+                                img:"assets/image/nav-folder.png"
+                            }
+                        ],
+                toolbarConfig:{
+                    callback:{
+                        onClick:function (item) {
+                            console.info("toolbar item onclick : " + item.id);
+                        }
+                    },
+                    direction:'left'
                 }
             }
         },
@@ -1017,7 +1079,8 @@
             menubar: menu,
             workbenchPage:workbenchPage,
             contextMenu:contextMenu,
-            shade:shade
+            shade:shade,
+            toolbar:toolbar
         }
     }
 </script>
