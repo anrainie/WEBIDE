@@ -1,4 +1,5 @@
 <template>
+<<<<<<< Updated upstream
     <div>
         <div>
             <menubar ref="ide_menu" :menuData="menuData"></menubar>
@@ -16,6 +17,24 @@
                      :items="naviContextMenuItems"
                      :config="contextMenuConfig"
         ></contextMenu>
+=======
+<div>
+    <nav class="navbar navbar-default">
+        <menubar id="ide_menu" ref="ide_menu"></menubar>
+    </nav>
+    <toolbar :toolItems="toolItems" :config="toolbarConfig" style="border: 1px solid;float: right;width: 100%"></toolbar>
+    <div id="ide_workbench" class="container-fluid">
+        <navigator id="ide_navigator" ref="ide_navigator" :model="naviModel" :config="naviConfig"
+                   class="col-sm-2 col-md-3 col-xs-3" draggable="true"></navigator>
+        <editorPage id="ide_workbenchPage" :config="editorPartConfig" ref="ide_workbenchPage"
+                       class="col-sm-10 col-md-9 col-xs-9">
+        </editorPage>
+    </div>
+    <contextMenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
+                 :items = "naviContextMenuItems"
+                 :config="contextMenuConfig"
+    ></contextMenu>
+>>>>>>> Stashed changes
 
         <shade ref="ide_shade"></shade>
     </div>
@@ -43,11 +62,12 @@
     import "ztree";
     import menu from "../components/menuBar.vue";
     import navi from "../components/tree.vue";
-    import workbenchPage from "../components/editorPart.vue";
+    import editorPage from "../components/editorPage.vue";
     import flowEditor from "../components/floweditor.vue";
     import contextMenu from "../components/contextMenu.vue";
     import shade from "../components/shade.vue";
     import toolbar from "../components/toolbar.vue"
+
 
     export default{
         data(){
@@ -98,7 +118,726 @@
                                 type: 'action',
                                 shortcut: 'Ctrl+A'
                             }
+<<<<<<< Updated upstream
                         ]
+=======
+                        },
+                        rightClick:function (event,item) {
+                            CONTEXTMENU.setItems([ {
+                                id:"01",
+                                name:"01都是负担0000我们的长长长长长长",
+                                img:"assets/image/nav-folder.png",
+                                shortcutKey:"01",
+                                type:'group'
+                            },{
+                                id:"02",
+                                name:"02",
+                                img:"",
+                                shortcutKey:"ctrl+r",
+                                type:'item',
+                                disable:true
+                            },{
+                                type:"separator"
+                            },{
+                                id:"03",
+                                name:"03",
+                                img:"",
+                                shortcutKey:"ctrl+l",
+                                type:'item',
+                            },
+                                {
+                                    id:"03",
+                                    name:"01都是负担0000我们的长长长长长长",
+                                    img:"assets/image/nav-folder.png",
+                                    shortcutKey:"01",
+                                    type:'group'
+                                },{
+                                    id:"04",
+                                    name:"04",
+                                    img:"",
+                                    shortcutKey:"ctrl+l",
+                                    type:'item',
+                                },{
+                                    id:"05",
+                                    name:"05",
+                                    img:"",
+                                    shortcutKey:"ctrl+l",
+                                    type:'item',
+                                }]);
+                            CONTEXTMENU.setCallback(self.contextMenuConfig.callback);
+                            if(CONTEXTMENU.isActive()){
+                                CONTEXTMENU.hide();
+                            }
+                            CONTEXTMENU.show(event.x,event.y);
+                        }
+                    }
+                },
+                naviModel: [
+                        {
+                            "children": [
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "name": "documentInterface",
+                                                    "path": "/dataModule/dataInterface/bank/documentInterface",
+                                                    "resId": "documentInterface",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "messageInterface",
+                                                    "path": "/dataModule/dataInterface/bank/messageInterface",
+                                                    "resId": "messageInterface",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "bank",
+                                            "path": "/dataModule/dataInterface/bank",
+                                            "resId": "bank",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "output",
+                                            "path": "/dataModule/dataInterface/output",
+                                            "resId": "output",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "name": "documentInterface",
+                                                                    "path": "/dataModule/dataInterface/projects/hello/heii/documentInterface",
+                                                                    "resId": "documentInterface",
+                                                                    "isParent":true
+                                                                },
+                                                                {
+                                                                    "name": "messageInterface",
+                                                                    "path": "/dataModule/dataInterface/projects/hello/heii/messageInterface",
+                                                                    "resId": "messageInterface",
+                                                                    "isParent":true
+                                                                }
+                                                            ],
+                                                            "name": "heii",
+                                                            "path": "/dataModule/dataInterface/projects/hello/heii",
+                                                            "resId": "application",
+                                                            "isParent":true
+                                                        }
+                                                    ],
+                                                    "name": "hello",
+                                                    "path": "/dataModule/dataInterface/projects/hello",
+                                                    "resId": "project",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "projects",
+                                            "path": "/dataModule/dataInterface/projects",
+                                            "resId": "projects",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "solutions",
+                                            "path": "/dataModule/dataInterface/solutions",
+                                            "resId": "solutions",
+                                            "isParent":true
+                                        }
+                                    ],
+                                    "name": "dataInterface",
+                                    "path": "/dataModule/dataInterface",
+                                    "resId": "dataInterface",
+                                    "isParent":true
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "name": "dataEntities",
+                                                    "path": "/dataModule/dataObject/bank/dataEntities",
+                                                    "resId": "dataEntities",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "srcFolder",
+                                                    "path": "/dataModule/dataObject/bank/srcFolder",
+                                                    "resId": "srcFolder",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "bank",
+                                            "path": "/dataModule/dataObject/bank",
+                                            "resId": "bank",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "output",
+                                            "path": "/dataModule/dataObject/output",
+                                            "resId": "output",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "name": "dataEntities",
+                                                                    "path": "/dataModule/dataObject/projects/hello/heii/dataEntities",
+                                                                    "resId": "dataEntities",
+                                                                    "isParent":true
+                                                                },
+                                                                {
+                                                                    "name": "srcFolder",
+                                                                    "path": "/dataModule/dataObject/projects/hello/heii/srcFolder",
+                                                                    "resId": "srcFolder",
+                                                                    "isParent":true
+                                                                }
+                                                            ],
+                                                            "name": "heii",
+                                                            "path": "/dataModule/dataObject/projects/hello/heii",
+                                                            "resId": "application",
+                                                            "isParent":true
+                                                        }
+                                                    ],
+                                                    "name": "hello",
+                                                    "path": "/dataModule/dataObject/projects/hello",
+                                                    "resId": "project",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "projects",
+                                            "path": "/dataModule/dataObject/projects",
+                                            "resId": "projects",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "solutions",
+                                            "path": "/dataModule/dataObject/solutions",
+                                            "resId": "solutions",
+                                            "isParent":true
+                                        }
+                                    ],
+                                    "name": "dataObject",
+                                    "path": "/dataModule/dataObject",
+                                    "resId": "dataObject",
+                                    "isParent":true
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "name": "databaseModule",
+                                                                    "path": "/dataModule/databaseTable/projects/hello/heii/databaseModule",
+                                                                    "resId": "databaseModule",
+                                                                    "isParent":true
+                                                                }
+                                                            ],
+                                                            "name": "heii",
+                                                            "path": "/dataModule/databaseTable/projects/hello/heii",
+                                                            "resId": "application",
+                                                            "isParent":true
+                                                        }
+                                                    ],
+                                                    "name": "hello",
+                                                    "path": "/dataModule/databaseTable/projects/hello",
+                                                    "resId": "project",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "projects",
+                                            "path": "/dataModule/databaseTable/projects",
+                                            "resId": "projects",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "children": [],
+                                            "name": "solutions",
+                                            "path": "/dataModule/databaseTable/solutions",
+                                            "resId": "solutions",
+                                            "isParent":true
+                                        }
+                                    ],
+                                    "name": "databaseTable",
+                                    "path": "/dataModule/databaseTable",
+                                    "resId": "databaseTable",
+                                    "isParent":true
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "name": "bank",
+                                            "path": "/dataModule/datadict/bank",
+                                            "resId": "bank",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "platform",
+                                            "path": "/dataModule/datadict/platform",
+                                            "resId": "platform",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "name": "heii",
+                                                            "path": "/dataModule/datadict/projects/hello/heii",
+                                                            "resId": "application",
+                                                            "isParent":true
+                                                        }
+                                                    ],
+                                                    "name": "hello",
+                                                    "path": "/dataModule/datadict/projects/hello",
+                                                    "resId": "project",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "projects",
+                                            "path": "/dataModule/datadict/projects",
+                                            "resId": "projects",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "solutions",
+                                            "path": "/dataModule/datadict/solutions",
+                                            "resId": "solutions",
+                                            "isParent":true
+                                        }
+                                    ],
+                                    "name": "datadict",
+                                    "path": "/dataModule/datadict",
+                                    "resId": "datadict",
+                                    "isParent":true
+                                }
+                            ],
+                            "name": "dataModule",
+                            "path": "/dataModule",
+                            "resId": "dataModule",
+                            "isParent":true
+                        },
+                        {
+                            "children": [
+                                {
+                                    "children": [
+                                        {
+                                            "name": "commonBusinessTemplate",
+                                            "path": "/flowModule/bank/commonBusinessTemplate",
+                                            "resId": "businessTemplate",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "commonTechnologyTemplate",
+                                            "path": "/flowModule/bank/commonTechnologyTemplate",
+                                            "resId": "technologyTemplate",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "commonTradeTemplate",
+                                            "path": "/flowModule/bank/commonTradeTemplate",
+                                            "resId": "tradeTemplate",
+                                            "isParent":true
+                                        }
+                                    ],
+                                    "name": "bank",
+                                    "path": "/flowModule/bank",
+                                    "resId": "bank",
+                                    "isParent":true
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "name": "commonBusinessTemplate",
+                                            "path": "/flowModule/platform/commonBusinessTemplate",
+                                            "resId": "businessTemplate",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": null,
+                                                            "name": "sf.sf",
+                                                            "path": "/flowModule/platform/commonTechnologyTemplate/flowInit/sf.sf",
+                                                            "resId": "sf"
+
+                                                        }
+                                                    ],
+                                                    "name": "flowInit",
+                                                    "path": "/flowModule/platform/commonTechnologyTemplate/flowInit",
+                                                    "resId": "flowInit",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "commonTechnologyTemplate",
+                                            "path": "/flowModule/platform/commonTechnologyTemplate",
+                                            "resId": "technologyTemplate",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "commonTradeTemplate",
+                                            "path": "/flowModule/platform/commonTradeTemplate",
+                                            "resId": "tradeTemplate",
+                                            "isParent":true
+                                        }
+                                    ],
+                                    "name": "platform",
+                                    "path": "/flowModule/platform",
+                                    "resId": "platform",
+                                    "isParent":true
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "name": "commonBusinessTemplate",
+                                                    "path": "/flowModule/projects/hello/commonBusinessTemplate",
+                                                    "resId": "businessTemplate",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "commonTechnologyTemplate",
+                                                    "path": "/flowModule/projects/hello/commonTechnologyTemplate",
+                                                    "resId": "technologyTemplate",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "commonTradeTemplate",
+                                                    "path": "/flowModule/projects/hello/commonTradeTemplate",
+                                                    "resId": "tradeTemplate",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "name": "privateBusinessTemplate",
+                                                            "path": "/flowModule/projects/hello/heii/privateBusinessTemplate",
+                                                            "resId": "businessTemplate",
+                                                            "isParent":true
+                                                        },
+                                                        {
+                                                            "name": "privateTechnologyTemplate",
+                                                            "path": "/flowModule/projects/hello/heii/privateTechnologyTemplate",
+                                                            "resId": "technologyTemplate",
+                                                            "isParent":true
+                                                        },
+                                                        {
+                                                            "name": "privateTradeTemplate",
+                                                            "path": "/flowModule/projects/hello/heii/privateTradeTemplate",
+                                                            "resId": "tradeTemplate",
+                                                            "isParent":true
+                                                        }
+                                                    ],
+                                                    "name": "heii",
+                                                    "path": "/flowModule/projects/hello/heii",
+                                                    "resId": "application",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "hello",
+                                            "path": "/flowModule/projects/hello",
+                                            "resId": "project",
+                                            "isParent":true
+                                        }
+                                    ],
+                                    "name": "projects",
+                                    "path": "/flowModule/projects",
+                                    "resId": "projects",
+                                    "isParent":true
+                                },
+                                {
+                                    "name": "solutions",
+                                    "path": "/flowModule/solutions",
+                                    "resId": "solutions",
+                                    "isParent":true
+                                }
+                            ],
+                            "name": "flowModule",
+                            "path": "/flowModule",
+                            "resId": "flowModule",
+                            "isParent":true
+                        },
+                        {
+                            "children": [
+                                {
+                                    "children": [
+                                        {
+                                            "name": "bank",
+                                            "path": "/functionModule/businessComponent/bank",
+                                            "resId": "bank",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "name": "heii",
+                                                            "path": "/functionModule/businessComponent/projects/hello/heii",
+                                                            "resId": "application",
+                                                            "isParent":true
+                                                        }
+                                                    ],
+                                                    "name": "hello",
+                                                    "path": "/functionModule/businessComponent/projects/hello",
+                                                    "resId": "project",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "projects",
+                                            "path": "/functionModule/businessComponent/projects",
+                                            "resId": "projects",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "solutions",
+                                            "path": "/functionModule/businessComponent/solutions",
+                                            "resId": "solutions",
+                                            "isParent":true
+                                        }
+                                    ],
+                                    "name": "businessComponent",
+                                    "path": "/functionModule/businessComponent",
+                                    "resId": "businessComponent",
+                                    "isParent":true
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "name": "componentSourceCode",
+                                                    "path": "/functionModule/technologyComponent/bank/componentSourceCode",
+                                                    "resId": "componentSourceCode",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "dependencies",
+                                                    "path": "/functionModule/technologyComponent/bank/dependencies",
+                                                    "resId": "dependencies",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "lib",
+                                                    "path": "/functionModule/technologyComponent/bank/lib",
+                                                    "resId": "lib",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "registerInfo",
+                                                    "path": "/functionModule/technologyComponent/bank/registerInfo",
+                                                    "resId": "registerInfo",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "bank",
+                                            "path": "/functionModule/technologyComponent/bank",
+                                            "resId": "bank",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "output",
+                                            "path": "/functionModule/technologyComponent/output",
+                                            "resId": "output",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "name": "componentSourceCode",
+                                                    "path": "/functionModule/technologyComponent/platform/componentSourceCode",
+                                                    "resId": "componentSourceCode",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "dependencies",
+                                                    "path": "/functionModule/technologyComponent/platform/dependencies",
+                                                    "resId": "dependencies",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "lib",
+                                                    "path": "/functionModule/technologyComponent/platform/lib",
+                                                    "resId": "lib",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "name": "registerInfo",
+                                                    "path": "/functionModule/technologyComponent/platform/registerInfo",
+                                                    "resId": "registerInfo",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "platform",
+                                            "path": "/functionModule/technologyComponent/platform",
+                                            "resId": "platform",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "name": "componentSourceCode",
+                                                                    "path": "/functionModule/technologyComponent/projects/hello/heii/componentSourceCode",
+                                                                    "resId": "componentSourceCode",
+                                                                    "isParent":true
+                                                                },
+                                                                {
+                                                                    "name": "dependencies",
+                                                                    "path": "/functionModule/technologyComponent/projects/hello/heii/dependencies",
+                                                                    "resId": "dependencies",
+                                                                    "isParent":true
+                                                                },
+                                                                {
+                                                                    "name": "lib",
+                                                                    "path": "/functionModule/technologyComponent/projects/hello/heii/lib",
+                                                                    "resId": "lib",
+                                                                    "isParent":true
+                                                                },
+                                                                {
+                                                                    "name": "registerInfo",
+                                                                    "path": "/functionModule/technologyComponent/projects/hello/heii/registerInfo",
+                                                                    "resId": "registerInfo",
+                                                                    "isParent":true
+                                                                }
+                                                            ],
+                                                            "name": "heii",
+                                                            "path": "/functionModule/technologyComponent/projects/hello/heii",
+                                                            "resId": "application",
+                                                            "isParent":true
+                                                        }
+                                                    ],
+                                                    "name": "hello",
+                                                    "path": "/functionModule/technologyComponent/projects/hello",
+                                                    "resId": "project",
+                                                    "isParent":true
+                                                }
+                                            ],
+                                            "name": "projects",
+                                            "path": "/functionModule/technologyComponent/projects",
+                                            "resId": "projects",
+                                            "isParent":true
+                                        },
+                                        {
+                                            "name": "solutions",
+                                            "path": "/functionModule/technologyComponent/solutions",
+                                            "resId": "solutions",
+                                            "isParent":true
+                                        }
+                                    ],
+                                    "name": "technologyComponent",
+                                    "path": "/functionModule/technologyComponent",
+                                    "resId": "technologyComponent",
+                                    "isParent":true
+                                }
+                            ],
+                            "name": "functionModule",
+                            "path": "/functionModule",
+                            "resId": "functionModule",
+                            "isParent":true
+                        },
+                        {
+                            "children": [
+                                {
+                                    "name": "extService",
+                                    "path": "/hello/extService",
+                                    "resId": "extService",
+                                    "isParent":true
+                                },
+                                {
+                                    "children": [
+                                        {
+                                            "children": [
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "name": "sql.sql",
+                                                                    "path": "/hello/heii/aaaa/config/dataConfig/sql.sql",
+                                                                    "resId": "sql"
+
+                                                                }
+                                                            ],
+                                                            "name": "dataConfig",
+                                                            "path": "/hello/heii/aaaa/config/dataConfig",
+                                                            "resId": "dataConfig",
+                                                            "isParent":true
+                                                        },
+                                                        {
+                                                            "name": "documentConfig",
+                                                            "path": "/hello/heii/aaaa/config/documentConfig",
+                                                            "resId": "documentConfig",
+                                                            "isParent":true
+                                                        }
+                                                    ],
+                                                    "name": "config",
+                                                    "path": "/hello/heii/aaaa/config",
+                                                    "resId": "config",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "name": "checkout",
+                                                            "path": "/hello/heii/aaaa/document/checkout",
+                                                            "resId": "checkout",
+                                                            "isParent":true
+                                                        },
+                                                        {
+                                                            "name": "design",
+                                                            "path": "/hello/heii/aaaa/document/design",
+                                                            "resId": "design",
+                                                            "isParent":true
+                                                        },
+                                                        {
+                                                            "name": "operation",
+                                                            "path": "/hello/heii/aaaa/document/operation",
+                                                            "resId": "operation",
+                                                            "isParent":true
+                                                        },
+                                                        {
+                                                            "name": "requirement",
+                                                            "path": "/hello/heii/aaaa/document/requirement",
+                                                            "resId": "requirement",
+                                                            "isParent":true
+                                                        }
+                                                    ],
+                                                    "name": "document",
+                                                    "path": "/hello/heii/aaaa/document",
+                                                    "resId": "document",
+                                                    "isParent":true
+                                                },
+                                                {
+                                                    "children": [
+                                                        {
+                                                            "children": [
+                                                                {
+                                                                    "name": "Taaaa.java",
+                                                                    "path": "/hello/heii/aaaa/flow/compileResult/Taaaa.java",
+                                                                    "resId": "java",
+
+                                                                },
+                                                                {
+                                                                    "name": "heii.aaaa.jar",
+                                                                    "path": "/hello/heii/aaaa/flow/compileResult/heii.aaaa.jar",
+                                                                    "resId": "jar",
+>>>>>>> Stashed changes
 
                     },
                     {
@@ -137,6 +876,7 @@
                     if (editor) {
                         WORKBENCHPAGE.closeEditor(item);
                     }
+<<<<<<< Updated upstream
                 },
                 click: function (item) {
                 },
@@ -540,6 +1280,15 @@
                         "path": "/flowModule/solutions",
                         "resId": "solutions",
                         "isParent": true
+=======
+                    ],
+                naviContextMenuItems:[],
+                contextMenuConfig:{
+                    callback:{
+                        onClick:function (id) {
+                            console.info("contextmenu onclick : " + id);
+                        }
+>>>>>>> Stashed changes
                     }
                 ],
                 "name": "flowModule",
@@ -1052,6 +1801,7 @@
                 }
             }
         },
+<<<<<<< Updated upstream
         toolItems: [
             {
                 id: 'item1',
@@ -1162,5 +1912,24 @@
     :
         toolbar
     }
+=======
+        methods: {
+        },
+        mounted(){
+            window.Menu = this.$refs.ide_menu;
+            window.NAVI = this.$refs.ide_navigator;
+            window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
+            window.CONTEXTMENU = this.$refs.ide_contextMenu;
+            window.SHADE = this.$refs.ide_shade;
+        },
+        components: {
+            navigator: navi,
+            menubar: menu,
+            editorPage:editorPage,
+            contextMenu:contextMenu,
+            shade:shade,
+            toolbar:toolbar
+        }
+>>>>>>> Stashed changes
     }
 </script>
