@@ -77,7 +77,7 @@
     import statusbar from "../components/statusbar.vue";
     import view from "../components/viewPart.vue";
     import workbench from "../components/workbench.vue";
-    import workbenchPage from "../components/editorPart.vue";
+    import workbenchPage from "../components/editorPage.vue";
     import flowEditor from "../components/floweditor.vue";
     import contextMenu from "../components/contextMenu.vue";
     import shade from "../components/shade.vue";

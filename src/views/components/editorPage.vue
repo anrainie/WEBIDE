@@ -1,7 +1,7 @@
 <template>
     <div style="padding: 0px">
         <ul id="editors-indicate" class="editor-tab" >
-            <div v-show="collapsedEditors.length > 0" class="editors-collapse" @click="openCollapseMenu($event)">
+            <div v-show="collapsedEditors.length > 0" class="editors-collapse contextmenu-dropdown" @click="openCollapseMenu($event)">
                 <div></div>
                 <span>{{collapsedEditors.length}}</span>
             </div>
@@ -23,24 +23,33 @@
         float: left;
         margin-bottom: -1px;
         height: 30px;
-        width: 100px;
+        font-size: 14px;
+        margin-left: -1px;
     }
     .editor-tab-active{
-        border-top: 1px solid #ddd;
         border-left: 1px solid #ddd;
         border-right: 1px solid #ddd;
         border-bottom: 1px solid white;
     }
     .editor-tab-unactive{
-        border-top: 1px solid darkgrey;
         border-left: 1px solid darkgrey;
         border-right: 1px solid darkgrey;
-        border-bottom: 1px solid darkgrey;
+        border-bottom: 1px solid #ddd;
         background-color: lightgray;
     }
+
+    .editor-tab > li > img{
+        margin-top: -5px;
+        margin-left: 5px;
+        width: 16px;
+        height: 16px;
+    }
+
     .editor-tab > li > a{
-        display: block;
-        margin: 5px;
+        display: inline-block;
+        margin-top: 5px;
+        margin-left: 10px;
+        margin-right: 10px;
         text-align: center;
         text-decoration: none;
         cursor:default;
@@ -75,6 +84,7 @@
         display: inline-block;
         width: 15px;
         height: 15px;
+        margin-left: 5px;
         float:right;
         background-image: url("~assets/image/nav-delete.png");
     }
@@ -92,9 +102,7 @@
                 editors : [],
                 activeEditor:null,
                 collapsedEditors:[],
-                maxIndicateCharNum:15,
-                defaultIndicateWidth:30,
-                eachCharWidth:12
+                maxIndicateCharNum:15
             }
         },
         computed:{
@@ -241,12 +249,9 @@
                 this.hideAllEditor();
                 this.unActiveAllTabIndicate();
 
-                var indicateWidth = this.getIndicateWidth(item.model.name);
-
                 //创建tab-indicator
                 var path = this.revisePath(item.model.path);
                 var $li = $("<li></li>");
-                $li.css('width',indicateWidth);
                 $li.attr("class","editor-tab-active");
                 $li.click((function (item,self) {
                     return function () {
@@ -254,7 +259,14 @@
                     }
                 })(item,this));
 
-                var $a = $("<a></a>");
+                if(editorDecorator.methods.getIcon){
+                    var icon = editorDecorator.methods.getIcon();
+                    var $icon = $('<img></img>');
+                    $icon.attr('src',icon);
+                    $li.append($icon);
+                }
+
+                var $a = $("<a onclick='return false;'></a>");
                 $a.text(this.getIndicateName(item.model.name));
                 $a.attr("href","#" + path);
                 $li.append($a);
@@ -317,23 +329,6 @@
             revisePath:function (path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/,"-");
             },
-            getIndicateWidth:function (name) {
-                var num = 0;
-                for (var i = 0; i < name.length; i++) {
-                    var c = name.charCodeAt(i);
-                    if (c >= 0 && c <= 128)
-                        num += 1;
-                    else
-                        num += 2;
-                }
-                if(num < 4){
-                    return this.defaultIndicateWidth;
-                }
-                if(num > this.maxIndicateCharNum){
-                    num = this.maxIndicateCharNum;
-                }
-                return num * this.eachCharWidth;
-            },
             getIndicateName:function (name) {
                 var num = 0;
                 for (var i = 0; i < name.length; i++) {
@@ -370,7 +365,7 @@
                         self.showEditor(fileItem);
                     }
                 });
-                CONTEXTMENU.show($event.x - 250,$event.y);
+                CONTEXTMENU.show(document.body.scrollLeft + $event.clientX - 250,document.body.scrollTop  + $event.clientY);
 
                 $event.stopPropagation();
             },

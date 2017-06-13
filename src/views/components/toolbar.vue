@@ -1,7 +1,10 @@
 <template>
     <div class="toolbar">
         <div v-for="item in toolItems"
-             :class="{'toolbar-item':item.type !='separator','toolbar-separator':item.type ==='separator'}"
+             :class="{'toolbar-item':item.type !='separator',
+                      'toolbar-separator':item.type ==='separator',
+                      'contextmenu-dropdown' : item.type === 'group'
+                      }"
              @click="onItemClick(item,$event)"
         >
             <img v-show="item.type !='separator'" v-bind:src="item.img"/>
@@ -16,14 +19,14 @@
     }
     .toolbar > div{
         display: inline-block;
-        height: 25px;
+        height: 23px;
         float: left;
         margin-left: 3px;
         text-align: center;
     }
 
     .toolbar-item{
-        width: 25px;
+        width: 23px;
         margin-left: 3px;
     }
 
@@ -51,7 +54,7 @@
     .toolbar > div > img{
         position: relative;
         top:50%;
-        margin-top: -10px;
+        margin-top: -9px;
         width: 16px;
         height: 16px;
     }
@@ -72,8 +75,7 @@ export default{
             }else if(item.type === 'group'){
                 CONTEXTMENU.setItems(item.children);
                 CONTEXTMENU.setCallback(this.config.callback);
-                CONTEXTMENU.show($event.clientX,$event.clientY);
-                $event.stopPropagation();
+                CONTEXTMENU.show(document.body.scrollLeft + $event.clientX,document.body.scrollTop + $event.clientY);
             }
         }
     },
