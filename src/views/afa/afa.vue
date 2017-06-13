@@ -1,8 +1,6 @@
 <template>
     <div>
-        <nav class="navbar navbar-default">
-            <menubar id="ide_menu" ref="ide_menu"></menubar>
-        </nav>
+        <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
         <toolbar :toolItems="toolItems" :config="toolbarConfig" style="border: 1px solid;float: right;width: 100%"></toolbar>
         <div id="ide_workbench" class="container-fluid">
             <navigator id="ide_navigator" ref="ide_navigator" :model="naviModel" :config="naviConfig"
@@ -38,8 +36,8 @@
     import "jquery";
     import "bootstrap";
     import "ztree";
-    import menu from "../components/menu.vue";
     import navi from "../components/tree.vue";
+    import menu from "../components/menubar.vue";
     import editorPage from "../components/editorPage.vue";
     import flowEditor from "../components/floweditor.vue";
     import contextMenu from "../components/contextMenu.vue";
@@ -1048,7 +1046,68 @@
                         }
                     },
                     direction:'left'
-                }
+                },
+                menuData:[
+                    {
+                        id:'main',
+                        name:'AFAIDE',
+                        type:'group',
+                        children:[
+                            {
+                                id:'main/about',
+                                name:'About',
+                                type:'group',
+                                img:"assets/image/nav-folder.png",
+                                children:[
+                                    {
+                                        id:'main/about/test1',
+                                        name:'test1',
+                                        type:'group',
+                                        children:[
+                                            {
+                                                id:'main/about/test1/test1_t1',
+                                                img:"assets/image/nav-folder.png",
+                                                name:'test1_t1',
+                                                type:'action'
+                                            }
+                                        ]
+                                    },
+                                    {
+                                        id:'main/about/test2',
+                                        name:'test2',
+                                        type:'group'
+                                    }
+                                ]
+                            },
+                            {
+                                id:'main/preference',
+                                name:'Preference',
+                                type:'action',
+                                shortcut:'Ctrl+A'
+                            }
+                        ]
+
+                    },
+                    {
+                        id:'file',
+                        name:'File',
+                        type:'group',
+                        children:[]
+
+                    },
+                    {
+                        id:'edit',
+                        name:'Edit',
+                        type:'group',
+                        children:[]
+                    },
+                    {
+                        id:'view',
+                        name:'View',
+                        type:'group',
+                        children:[]
+                    }
+                ]
             }
         },
         methods: {
@@ -1065,8 +1124,8 @@
             NAVI.collapseToLevel(item,1);
         },
         components: {
+            menubar:menu,
             navigator: navi,
-            menubar: menu,
             editorPage:editorPage,
             contextMenu:contextMenu,
             shade:shade,

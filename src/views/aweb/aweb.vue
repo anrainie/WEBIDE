@@ -71,7 +71,6 @@
     import "jquery";
     import "bootstrap";
     import "ztree";
-    import menu from "../components/menu.vue";
     import navi from "../components/tree.vue";
     import fastbar from "../components/fastbar.vue";
     import statusbar from "../components/statusbar.vue";
@@ -1033,7 +1032,6 @@
         },
         components: {
             navigator: navi,
-            menubar: menu,
             fastbar: fastbar,
             statusbar: statusbar,
             viewpart: view,
