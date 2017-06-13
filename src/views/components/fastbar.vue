@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div :class="itemPanel0" @drop='drop($event)'>
-            <item v-for="item in group[0]" :model="item" :direction="direction"></item>
+        <div :class="itemPanel0"  @drop='drop($event,0)' @dragover='allowDrop($event)'>
+            <item v-for="(item,index) in group[0]" :model="item" :direction="direction"></item>
         </div>
-        <div :class="itemPanel1" @drop='drop($event)'>
-            <item v-for="item in group[1]" :model="item" :direction="direction"></item>
+        <div :class="itemPanel1"  @drop='drop($event,1)' @dragover='allowDrop($event)'>
+            <item v-for="(item,index) in group[1]" :model="item" :direction="direction"></item>
         </div>
     </div>
 </template>
@@ -66,7 +66,16 @@
 </style>
 <script>
     export default{
-        methods: {},
+        methods: {
+            drop(e,dir){
+                e.preventDefault();
+//                window.__dragTarget.element.model;
+                window.__dragTarget.callback(this,dir);
+            },
+            allowDrop(e) {
+                e.preventDefault();
+            }
+        },
         data(){
             return {}
         },
@@ -81,7 +90,8 @@
                     if (dir == null) dir = 0;
                     if (r[dir] == null)
                         r[dir] = [];
-                    r[dir].push('group:', this.items[i]);
+                    this.items[i].index = i;
+                    r[dir].push(this.items[i]);
                 }
                 return r;
             },
@@ -100,9 +110,6 @@
                     vertical: !this.direction,
                     ft_float_right: this.direction
                 }
-            },
-            drop(e){
-                console.log('drop')
             }
         },
         props: ['direction', 'items'],
@@ -114,7 +121,19 @@
                         window.WORKBENCH.showView(this);
                     },
                     drag(){
-                        console.log(this.model)
+                        var self = this;
+                        window.__dragTarget = {
+                            element: self,
+                            callback(p,dir){
+                                this.element.$parent.items.splice(this.element.model.index, 1);
+                                window.WORKBENCH.showView(this.element);
+
+                                this.element.model.direction = dir;
+                                p.items.push(this.element.model);
+                                this.element.$parent = p;
+                                window.WORKBENCH.showView(this.element);
+                            }
+                        };
                     }
                 },
                 computed: {
