@@ -1,11 +1,21 @@
 var express = require('express');
 var webpack = require('webpack');
+var bodyParser = require('body-parser')
 var session = require('express-session');
-// var communication = require('./Communication');
-// var SiteDao = require("./dao/SiteDao");
-// var socketCenter = require('./SocketCenter');
+var communication = require('./Communication');
+var SiteDao = require("./dao/UserDao");
+var socketCenter = require('./SocketCenter');
+const mongoose = require('mongoose');
+const dburl = require('./Config').db;//数据库地址
+mongoose.Promise = global.Promise;
+global.db = mongoose.connect(dburl);
+
 
 var app = express();
+
+//服务器提交的数据json化
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: true}));
 
 //session
 var sessionStore = new session.MemoryStore({reapInterval: 60000 * 10});
@@ -16,37 +26,9 @@ app.use(session({
     key:'ide',
     store: sessionStore
 }));
+require('./routes')(app);
 
-
-
-// SiteDao.connect(function(error){
-//    if (error) throw error;
-// });
-//
-// // SiteDao.add('webide','AFAIDE','localhost',9090, function (err, row) {
-// //    if (err) {
-// //        return next(err);
-// //    }
-// // });
-//
-// // SiteDao.delete('59294ab43a9d0216dcb08ead', function (err) {
-// //     if (err) {
-// //         return next(err);
-// //     }
-// // });
-//
-// SiteDao.allSiteUrls(function (err, urls) {
-//    if (err) {
-//        return next(err);
-//    }
-// });
-//
-//
-// socketCenter.init();
-// communication.initCommunication();
-//
-// app.on('close', function(err) {
-//     SiteDao.disconnect(function(err) { });
-// });
+socketCenter.init();
+communication.initCommunication();
 
 module.exports  = app;

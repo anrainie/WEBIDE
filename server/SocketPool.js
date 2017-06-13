@@ -4,7 +4,7 @@
  * Created by pang on 2017/6/1.
  */
 const ioclient = require('socket.io-client');
-const urlDao = require("./dao/SiteDao");
+const User = require("./dao/UserDao");
 
 const pool = new Map();
 
@@ -29,7 +29,7 @@ exports.getConnection = function (username, idename, callback) {
 
 
 const regist = exports.regist = function (username, idename, callback) {
-    urlDao.findByConditions({'username': username, 'idename': idename}, function (err, res) {
+    User.findByConditions({'username': username, 'idename': idename}, function (err, res) {
         if (err) {
             console.log("Error:" + err);
         } else {
