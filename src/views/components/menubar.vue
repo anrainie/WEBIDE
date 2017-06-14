@@ -26,7 +26,7 @@
         padding: 0px 10px;
         font-family: Arial;
         width: 100%;
-        /*margin: 0;*/
+        margin: 0;
         text-align: left;
         color: #ffffff;
 

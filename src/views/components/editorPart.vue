@@ -1,5 +1,5 @@
 <template>
-    <div style="padding: 0px">
+    <div>
         <ul id="editors-indicate" class="editor-tab" >
             <div v-show="collapsedEditors.length > 0" class="editors-collapse" @click="openCollapseMenu($event)">
                 <div></div>

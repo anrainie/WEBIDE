@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="workbench">
         <div id="wb_n" class="split split-vertical">
             <div id="wb_w" class="split split-horizontal">
                 <viewpart id="wb_left_0" ref="wb_left_0" class="split split-vertical content">
@@ -8,7 +8,9 @@
                 </viewpart>
             </div>
             <div id="wb_main" class="split split-horizontal content">
-                编辑器区域
+
+                <editorPart id="ide_workbenchPage" :config="editorPartConfig" ref="ide_workbenchPage">
+                </editorPart>
             </div>
             <div id="wb_e" class="split split-horizontal">
 
@@ -28,6 +30,10 @@
     </div>
 </template>
 <style>
+    .workbench{
+        display: inline-block;
+        width: 96%;
+    }
     .split {
         -webkit-box-sizing: border-box;
         -moz-box-sizing: border-box;
@@ -72,12 +78,19 @@
     import  Split from "split.js";
     import Vue from "vue/dist/vue.js";
     import viewpart from "./viewPart.vue";
-
+    import editorPart from "../components/editorPart.vue";
+    import flowEditor from "../components/floweditor.vue";
     export default{
         props: ['views', 'editors'],
         data(){
             return {
                 cache: {},
+                editorPartConfig: {
+                    editorRefs: {
+                        txt: flowEditor,
+                        sql: flowEditor
+                    }
+                },
             }
         },
 //        watch: {
@@ -280,9 +293,11 @@
 //            }, {deep: true});
 
             window.WORKBENCH = this;
+            window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
         },
         components: {
             viewpart: viewpart,
+            editorPart:editorPart
         }
     }
 </script>

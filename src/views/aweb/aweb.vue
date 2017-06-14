@@ -23,44 +23,7 @@
 <style>
     @import "~bootstrap/dist/css/bootstrap.css";
 
-    #left_fast_bar {
-        width: 25px;
-        height: 100%;
-        float: left;
-        background: #DDD;
-        padding: 0;
-    }
 
-    #bottom_fast_bar {
-        position: absolute;
-        bottom: 0px;
-        width: 100%;
-        height: 25px;
-        background: #DDD;
-    }
-
-    #right_fast_bar {
-        width: 25px;
-        height: 100%;
-        float: right;
-        background: #DDD;
-        padding: 0;
-    }
-
-    #ide_workbench {
-        padding: 0px;
-    }
-
-    #ide_navigator {
-        position: relative;
-        border: 1px solid gray;
-        height: 100%;
-    }
-
-    #ide_workbenchPage {
-        border: 1px solid gray;
-        height: 100%;
-    }
 </style>
 <script>
     import "jquery";
