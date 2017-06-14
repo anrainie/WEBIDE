@@ -1,8 +1,7 @@
 <template>
     <div>
-        <nav class="navbar navbar-default navbar-fixed-top">
-            <menubar id="ide_menu" ref="ide_menu"></menubar>
-        </nav>
+        <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
+        <toolbar :toolItems="toolItems" :config="toolbarConfig" style="border: 1px solid;float: right;width: 100%"></toolbar>
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
             <!--<viewpart :model="naviModel" :config="naviConfig" class="col-sm-2 col-md-2 col-xs-4">-->
@@ -17,10 +16,6 @@
         </div>
 
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
-        <!--<contextMenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"-->
-                     <!--:items="naviContextMenuItems"-->
-                     <!--:config="contextMenuConfig"-->
-        <!--&gt;</contextMenu>-->
 
         <shade ref="ide_shade"></shade>
     </div>
@@ -1064,7 +1059,6 @@
             window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
             window.CONTEXTMENU = this.$refs.ide_contextMenu;
             window.SHADE = this.$refs.ide_shade;
-            window.WORKBENCH = this.$refs.workbench;
         },
         components: {
             fastbar: fastbar,

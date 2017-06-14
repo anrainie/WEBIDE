@@ -118,12 +118,7 @@
                 return this.getView('navigator');
             },
             showView(v, callback){
-                let dir = v.$parent.$el.id;
-                if (dir) {
-                    dir = dir.substr(0, dir.indexOf('_'));
-                } else return null;
-                console.log(dir);
-                this.showView0(dir,v.model,callback);
+                this.showView0(  v.$parent.$el.id,v.model,callback);
             },
             showView0(dir,model,callback){
                 if (dir) {
@@ -133,13 +128,13 @@
 
                 let num = model.direction | 0;
 
-//                let o = this.activeViews[dir][num];
-//                if (o && o != model) {
-//                    o.active = false;
-//                }
-//                if (callback)
-//                    callback();
-//                this['refresh_' + dir]();
+                let o = this.activeViews[dir][num];
+                if (o && o != model) {
+                    o.active = false;
+                }
+                if (callback)
+                    callback();
+                this['refresh_' + dir]();
             },
             refresh_left(){
                 this.refreshView('left', 0);
@@ -284,7 +279,7 @@
 //                this.refresh_bottom();
 //            }, {deep: true});
 
-            window.workbench = this;
+            window.WORKBENCH = this;
         },
         components: {
             viewpart: viewpart,

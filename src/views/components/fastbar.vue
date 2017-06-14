@@ -87,7 +87,6 @@
             return {}
         },
         mounted(){
-            console.log(this.direction, !this.direction)
         },
         computed: {
             group(){
