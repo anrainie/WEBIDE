@@ -117,19 +117,22 @@
             navigator(){
                 return this.getView('navigator');
             },
-            showView(v){
-                let dir = v.$parent.$el.id;
+            showView(v, callback){
+                this.showView0(v.$parent.$el.id,v.model,callback);
+            },
+            showView0(dir,model,callback){
                 if (dir) {
                     dir = dir.substr(0, dir.indexOf('_'));
                 } else return null;
 
-                let num = v.model.direction | 0;
+                let num = model.direction | 0;
 
                 let o = this.activeViews[dir][num];
-                if (o && o != v.model) {
+                if (o && o != model) {
                     o.active = false;
                 }
-                v.model.active = !v.model.active;
+                if (callback)
+                    callback();
                 this['refresh_' + dir]();
             },
             refresh_left(){
@@ -161,13 +164,13 @@
                 if (view == null)
                     return null;
                 if (this.cache[vid]) {
-                    let con = $('#'+id+' div.view_content');
+                    let con = $('#' + id + ' div.view_content');
                     con.empty();
 
                     if (this.$refs[id]) this.$refs[id].$data.title = view.name;
                     con.append(this.cache[vid].$el);
                 } else {
-                    let con = $('#'+id+' div.view_content');
+                    let con = $('#' + id + ' div.view_content');
                     con.empty();
                     let content = document.createElement('div');
                     if (this.$refs[id]) this.$refs[id].$data.title = view.name;

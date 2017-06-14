@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div :class="itemPanel0"  @drop='drop($event,0)' @dragover='allowDrop($event)'>
-            <item v-for="(item,index) in group[0]" :model="item" :direction="direction"></item>
+        <div :class="itemPanel0" @drop='drop($event,0)' @dragover='allowDrop($event)'>
+            <item v-for="(item,index) in group[0]" :index='index' :model="item" :direction="direction"></item>
         </div>
-        <div :class="itemPanel1"  @drop='drop($event,1)' @dragover='allowDrop($event)'>
-            <item v-for="(item,index) in group[1]" :model="item" :direction="direction"></item>
+        <div :class="itemPanel1" @drop='drop($event,1)' @dragover='allowDrop($event)'>
+            <item v-for="(item,index) in group[1]" :index='index' :model="item" :direction="direction"></item>
         </div>
     </div>
 </template>
@@ -54,10 +54,12 @@
 
     .ft_panel.horizontal {
         width: 50%;
+        height: 100%;
     }
 
     .ft_panel.vertical {
         height: 50%;
+        width: 100%;
     }
 
     .ft_active {
@@ -67,13 +69,18 @@
 <script>
     export default{
         methods: {
-            drop(e,dir){
-                e.preventDefault();
+            drop(e, dir){
+                if (window.__dragTarget.type == 'fastbar') {
+                    e.preventDefault();
 //                window.__dragTarget.element.model;
-                window.__dragTarget.callback(this,dir);
+                    window.__dragTarget.callback(this, dir, function () {
+                        window.__dragTarget = null;
+                    });
+                }
             },
             allowDrop(e) {
-                e.preventDefault();
+                if (window.__dragTarget.type == 'fastbar')
+                    e.preventDefault();
             }
         },
         data(){
@@ -115,23 +122,33 @@
         props: ['direction', 'items'],
         components: {
             item: {
-                props: ['model', 'direction'],
+                props: ['model', 'direction', 'index'],
                 methods: {
                     show(){
-                        window.WORKBENCH.showView(this);
+                        let self = this;
+                        window.WORKBENCH.showView(this, function () {
+                            self.model.active = !self.model.active;
+                        });
                     },
                     drag(){
                         var self = this;
                         window.__dragTarget = {
                             element: self,
-                            callback(p,dir){
-                                this.element.$parent.items.splice(this.element.model.index, 1);
-                                window.WORKBENCH.showView(this.element);
+                            type: 'fastbar',
+                            callback(p, dir, func){
+                                //移除已经展示的视图
+                                let model = this.element.$parent.items.splice(this.element.model.index, 1)[0];
+                                if (self.model.active)
+                                    window.WORKBENCH.showView(this.element);
 
-                                this.element.model.direction = dir;
-                                p.items.push(this.element.model);
-                                this.element.$parent = p;
-                                window.WORKBENCH.showView(this.element);
+//                                //展示视图
+                                model.direction = dir;
+                                p.items.push(model);
+                                if (model.active)
+                                    window.WORKBENCH.showView0(p.$el.id, model);
+
+                                if (func)
+                                    func();
                             }
                         };
                     }
@@ -162,7 +179,7 @@
                         return window.viewRegistry[this.model.id];
                     }
                 },
-                template: '<div :class="itemClass"  @click="show" draggable="true" @dragstart="drag($event)"><img :class="imageClass" :src="config.image" width="23" height="23"/><span :class="textClass">{{config.name}}</span></div>'
+                template: '<div :class="itemClass"  @click="show" draggable="true" @dragstart="drag($event)"><img :class="imageClass" :src="config.image" width="23" height="23"/><span :class="textClass">{{_uid}}:{{config.name}}</span></div>'
             }
         }
     }
