@@ -76,11 +76,11 @@
                     var username = document.registForm.username.value.trim();
                     var password = document.registForm.password.value.trim();
                     var password_r = document.registForm.password_r.value.trim();
-                    if(username !== password_r){
+                    if(password != password_r){
                       alert("输入的两次密码不一致！");
                       return;
                     }
-                    if (username !== '' && password !== '') {
+                    if (username != '' && password != '') {
                         var data = {
                             username: username,
                             password: password,
