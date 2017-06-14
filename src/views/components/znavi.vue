@@ -5,6 +5,9 @@
             </div>
 </template>
 <style>
+    @import "~bootstrap/dist/css/bootstrap.css";
+    @import "~assets/style/dashboard.css";
+    @import "~ztree/css/zTreeStyle/zTreeStyle.css";
 </style>
 <script>
     import "jquery";

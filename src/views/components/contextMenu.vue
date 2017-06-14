@@ -106,10 +106,7 @@
     }
 </style>
 <script type="text/javascript">
-    import Vue from 'vue/dist/vue.js';
-
-    $(document).on('click.ide.contextmenu-dropdown.data-api', '.contextmenu-dropdown', function (e) {e.stopPropagation();});
-
+    import Vue from 'vue/dist/vue.js'
     export default {
         name : "contextMenu",
         props: ['items','config'],
@@ -124,6 +121,7 @@
         mounted(){
             this.vueTemplete = require('../components/contextMenu.vue');
             this.config = this.config || {};
+
             /**
              * 给等级为1的的菜单设置初始的 msgHub、subMenus。
              * 其他等级的菜单会在_createSubMenu中设置进去。保证在所有菜单中msgHub、subMenus 只有唯一一份
@@ -148,16 +146,12 @@
                             }
                     };
                 })(this));
+
             }
         },
         methods:{
-            clearItems(){
-                if(this.items.length > 0) {
-                    this.items.splice(0, this.items.length);
-                }
-            },
             setItems(newItems){
-                this.clearItems();
+                this.items.splice(0,this.items.length);
                 for(let i = 0 ; i < newItems.length ; i ++){
                     this.items.push(newItems[i]);
                 }
@@ -277,7 +271,6 @@
             show (x,y) {
                 this.$el.style.display = "block";
                 if( (y + this.$el.clientHeight) > document.body.clientHeight){
-                    console.info('sdf1s');
                     y = document.body.clientHeight - this.$el.clientHeight;
                     if(y < 0 ){
                         y = 0;
@@ -287,8 +280,7 @@
 
                 this.$el.style.top = y + "px";
                 this.$el.style.left = x + "px";
-
-                $(document).one('click.ide.contextmenu-hide.data-api', $.proxy(this.hide, this));
+                $(document).one('click.contextmenu', $.proxy(this.hide, this));
             },
             needCollapse:function (y,vueComponent) {
                 if( (y + vueComponent.$el.clientHeight) > document.body.clientHeight){
@@ -300,15 +292,15 @@
                 vueComponent.collapsed = true;
             },
             hide () {
+                this.$el.style.display = "none";
                 for(var key in this.subMenus){
                     var subMenu = this.subMenus[key];
                     this.delSubMenu(subMenu);
                     delete this.subMenus[key];
                 }
-                this.$el.style.display = "none";
             },
             click (item) {
-                if(item.type === 'item' && (!item.disable || item.disable == false) ){
+                if(item.type === 'item' || item.disabled != true){
                     if(this.config.callback || this.config.callback.onClick){
                         this.msgHub.$emit("hide");
                         this.config.callback.onClick(item);

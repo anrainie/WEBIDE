@@ -37,7 +37,7 @@
 
     .entry p{
         position: relative;
-        top: 30%;
+        top: 10%;
         color: black;
         text-decoration: none;
         font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
