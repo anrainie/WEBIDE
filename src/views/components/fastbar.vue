@@ -178,7 +178,7 @@
                         return window.viewRegistry[this.model.id];
                     }
                 },
-                template: '<div :class="itemClass"  @click="show" draggable="true" @dragstart="drag($event)"><img :class="imageClass" :src="config.image" width="23" height="23"/><span :class="textClass">{{_uid}}:{{config.name}}</span></div>'
+                template: '<div :class="itemClass"  @click="show" draggable="true" @dragstart="drag($event)"><img :class="imageClass" :src="config.image" width="23" height="23"/><span :class="textClass">{{config.name}}</span></div>'
             }
         }
     }
