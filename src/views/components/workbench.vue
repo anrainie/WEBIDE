@@ -19,9 +19,12 @@
                 </viewpart>
             </div>
         </div>
-
-        <viewpart id="wb_bottom_0" ref="wb_bottom_0" class="split split-vertical content">
-        </viewpart>
+        <div id="wb_b" class="split split-vertical">
+            <viewpart id="wb_bottom_0" ref="wb_bottom_0" class="split split-horizontal content">
+            </viewpart>
+            <viewpart id="wb_bottom_1" ref="wb_bottom_1" class="split split-horizontal content">
+            </viewpart>
+        </div>
     </div>
 </template>
 <style>
@@ -77,7 +80,36 @@
                 cache: {},
             }
         },
+//        watch: {
+//            activeViews(v){
+////                console.log('watch', v);
+////                this.refresh();
+//            }
+//        },
+        computed: {
+            activeViews() {
+                let av = {
+                    left: [],
+                    right: [],
+                    bottom: []
+                };
+
+                this._collect(av.left, this.views.left, 2);
+                this._collect(av.right, this.views.right, 2);
+                this._collect(av.bottom, this.views.bottom, 1);
+                return av;
+            }
+        },
         methods: {
+            _collect(av, v, MAX){
+                for (let i = 0, len = v.length; i < len; i++) {
+                    if (v[i].active) {
+                        let o = av[v[i].direction];
+                        if (o) o.active = false;
+                        av[v[i].direction] = v[i];
+                    }
+                }
+            },
             refresh(){
                 this.refresh_bottom();
                 this.refreshTop();
@@ -85,58 +117,101 @@
             navigator(){
                 return this.getView('navigator');
             },
-            showView(v){
+            showView(v, callback){
                 let dir = v.$parent.$el.id;
                 if (dir) {
                     dir = dir.substr(0, dir.indexOf('_'));
                 } else return null;
-                let num = v.direction | 0;
+                console.log(dir);
+                this.showView0(dir,v.model,callback);
+            },
+            showView0(dir,model,callback){
+                if (dir) {
+                    dir = dir.substr(0, dir.indexOf('_'));
+                } else return null;
 
-                this.views[dir][num] = v.model.id;
-                this['refresh_' + dir]();
+
+                let num = model.direction | 0;
+
+//                let o = this.activeViews[dir][num];
+//                if (o && o != model) {
+//                    o.active = false;
+//                }
+//                if (callback)
+//                    callback();
+//                this['refresh_' + dir]();
             },
             refresh_left(){
                 this.refreshView('left', 0);
                 this.refreshView('left', 1);
+
+                let vid = this.activeViews.left;
+
+                let t = vid[0] == null ? 0 : 1;
+                let b = vid[1] == null ? 0 : 1;
+
+                let topSizes = layout.top.getSizes();
+                if (t + b == 0) {
+                    layout.top.collapse(0);
+                } else {
+                    let r = t + b;
+                    layout.left.setSizes([100 / r * t, 100 / r * b])
+                }
+                if (topSizes[0] < 1) {
+                    layout.top.setSizes([25, topSizes[1] > 25 ? topSizes[1] - 25 : 0, topSizes[2] > 75 ? topSizes[2] - 25 : topSizes[2]]);
+                }
             },
             refreshView(dir, num){
-                let vid = this.views[dir][num];
+                let viewModel = this.activeViews[dir][num];
+                if (viewModel == null)return null;
+                let vid = viewModel.id;
                 let id = 'wb_' + dir + '_' + num;
                 let view = window.viewRegistry[vid];
                 if (view == null)
-                    this.layout[dir].collapse(num);
-                else if (this.cache[vid]) {
-                    let con = document.getElementById(id);
+                    return null;
+                if (this.cache[vid]) {
+                    let con = $('#' + id + ' div.view_content');
+                    con.empty();
 
-                    con.removeChild(con.content);
-                    con.content = null;
-
-                    let tree = document.createElement('div');
-
-                    con.appendChild(tree);
-                    this.cache[vid].$mount(tree);
-
-
-                    con.content = this.cache[vid].$el;
+                    if (this.$refs[id]) this.$refs[id].$data.title = view.name;
+                    con.append(this.cache[vid].$el);
                 } else {
-                    let con = document.getElementById(id);
-//                    con.innerHTML = '';
+                    let con = $('#' + id + ' div.view_content');
+                    con.empty();
                     let content = document.createElement('div');
                     if (this.$refs[id]) this.$refs[id].$data.title = view.name;
 
-                    con.appendChild(content);
+                    con.append(content);
                     let vt = require(view.component);
                     let v = new Vue(vt);
+                    v.$props.name = view.name;
                     for (const k in view.data) {
                         v.$props[k] = view.data[k];
                     }
                     v.$mount(content);
-                    con.content = v.$el;
                     this.cache[vid] = v;
                 }
             },
             refresh_bottom(){
                 this.refreshView('bottom', 0);
+                this.refreshView('bottom', 1);
+
+                let vid = this.activeViews.bottom;
+
+                let t = vid[0] == null ? 0 : 1;
+                let b = vid[1] == null ? 0 : 1;
+
+                let mainSizes = layout.main.getSizes();
+                if (t + b == 0) {
+                    layout.main.collapse(1);
+                } else {
+                    let r = t + b;
+                    layout.bottom.setSizes([100 / r * t, 100 / r * b - 0.9])
+                }
+                if (mainSizes[1] < 1) {
+                    layout.main.setSizes([75, 25]);
+                }
+                console.log(layout.bottom.getSizes());
             },
             refreshTop(){
                 this.refresh_left();
@@ -145,6 +220,22 @@
             refresh_right(){
                 this.refreshView('right', 0);
                 this.refreshView('right', 1);
+
+                let vid = this.activeViews.right;
+
+                let t = vid[0] == null ? 0 : 1;
+                let b = vid[1] == null ? 0 : 1;
+
+                let topSizes = layout.top.getSizes();
+                if (t + b == 0) {
+                    layout.top.collapse(2);
+                } else {
+                    let r = t + b;
+                    layout.right.setSizes([100 / r * t, 100 / r * b])
+                }
+                if (topSizes[2] < 1) {
+                    layout.top.setSizes([topSizes[0] > 75 ? topSizes[0] - 25 : topSizes[0], topSizes[1] > 25 ? topSizes[1] - 25 : 0, 25]);
+                }
             },
             applyView(){
 
@@ -152,13 +243,18 @@
         },
         mounted(){
             this.layout = {};
-            this.layout.main = Split(['#wb_n', '#wb_bottom_0'], {
+            this.layout.main = Split(['#wb_n', '#wb_b'], {
                 direction: 'vertical',
                 sizes: [75, 25],
                 gutterSize: 8
             });
             this.layout.top = Split(['#wb_w', '#wb_main', '#wb_e'], {
                 sizes: [25, 50, 25],
+                gutterSize: 8,
+            });
+
+            this.layout.bottom = Split(['#wb_bottom_0', '#wb_bottom_1'], {
+                sizes: [50, 50],
                 gutterSize: 8,
             });
 
@@ -172,16 +268,21 @@
                 gutterSize: 8,
             });
             window.layout = this.layout;
+            window.views = this.views;
             this.refresh();
-            this.$watch('views.left', function (v) {
-                this.refresh_left();
-            }, {deep: true});
-            this.$watch('views.right', function (v) {
-                this.refresh_right();
-            }, {deep: true});
-            this.$watch('views.bottom', function (v) {
-                this.refresh_bottom();
-            }, {deep: true});
+
+//            this.$watch('activeViews.left', function (v) {
+//                console.info('refresh left');
+//                this.refresh_left();
+//            }, {deep: true});
+//            this.$watch('activeViews.right', function (v) {
+//                console.info('refresh right');
+//                this.refresh_right();
+//            }, {deep: true});
+//            this.$watch('activeViews.bottom', function (v) {
+//                console.info('refresh bottom');
+//                this.refresh_bottom();
+//            }, {deep: true});
 
             window.workbench = this;
         },

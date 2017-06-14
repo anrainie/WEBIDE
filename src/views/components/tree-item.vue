@@ -66,14 +66,9 @@
                     this.loaded = true;
                 }
                 if (this.isFolder) {
-                    this.open = !this.open;
+                    this.open = !this.open
                 }
 
-            },
-            collapse:function () {
-                if (this.isFolder) {
-                    this.open = false;
-                }
             },
             loadItems(){
                 var self = this;
