@@ -76,7 +76,6 @@
                 var password = document.registForm.password.value.trim();
                 var password_r = document.registForm.password_r.value.trim();
                 if (password != password_r) {
-                    console.log(password);
                     alert("输入的两次密码不一致！");
                     return;
                 }
