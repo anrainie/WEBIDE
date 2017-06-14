@@ -38,7 +38,7 @@
         border-bottom: 1px solid darkgrey;
         background-color: lightgray;
     }
-    .editor-tab > li > a{
+    .editor-tab > li > span{
         display: block;
         margin: 5px;
         text-align: center;
@@ -254,7 +254,7 @@
                     }
                 })(item,this));
 
-                var $a = $("<a></a>");
+                var $a = $("<span></span>");
                 $a.text(this.getIndicateName(item.model.name));
                 $a.attr("href","#" + path);
                 $li.append($a);
@@ -430,7 +430,7 @@
             },
             getEditorIndicate:function (path) {
                 let p = this.revisePath(path);
-                return $("li a[href='#"+ p + "']").parent();
+                return $("li span[href='#"+ p + "']").parent();
             },
             getEditorElement:function (path) {
                 let p = this.revisePath(path);
