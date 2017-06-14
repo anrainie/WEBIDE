@@ -22,6 +22,7 @@
         opacity: 0.5;
         text-align: center;
         background-color: darkgrey;
+        z-index: 999;
     }
     .shade-msg{
         position: relative;

@@ -82,8 +82,8 @@
         },
 //        watch: {
 //            activeViews(v){
-//                console.log('watch', v);
-//                this.refresh();
+////                console.log('watch', v);
+////                this.refresh();
 //            }
 //        },
         computed: {
@@ -117,20 +117,29 @@
             navigator(){
                 return this.getView('navigator');
             },
-            showView(v){
+            showView(v, callback){
                 let dir = v.$parent.$el.id;
                 if (dir) {
                     dir = dir.substr(0, dir.indexOf('_'));
                 } else return null;
+                console.log(dir);
+                this.showView0(dir,v.model,callback);
+            },
+            showView0(dir,model,callback){
+                if (dir) {
+                    dir = dir.substr(0, dir.indexOf('_'));
+                } else return null;
 
-                let num = v.model.direction | 0;
 
-                let o = this.activeViews[dir][num];
-                if (o && o != v.model) {
-                    o.active = false; 
-                }
-                v.model.active = !v.model.active;
-                this['refresh_' + dir]();
+                let num = model.direction | 0;
+
+//                let o = this.activeViews[dir][num];
+//                if (o && o != model) {
+//                    o.active = false;
+//                }
+//                if (callback)
+//                    callback();
+//                this['refresh_' + dir]();
             },
             refresh_left(){
                 this.refreshView('left', 0);
@@ -161,26 +170,18 @@
                 if (view == null)
                     return null;
                 if (this.cache[vid]) {
-                    let con = document.getElementById(id);
+                    let con = $('#' + id + ' div.view_content');
+                    con.empty();
 
-                    if (con.content)
-                        con.removeChild(con.content);
-                    con.content = null;
                     if (this.$refs[id]) this.$refs[id].$data.title = view.name;
-
-                    con.appendChild(this.cache[vid].$el);
-//                    this.cache[vid].$mount(tree);
-                    con.content = this.cache[vid].$el;
+                    con.append(this.cache[vid].$el);
                 } else {
-                    let con = document.getElementById(id);
-
-                    if (con.content)
-                        con.removeChild(con.content);
-//                    con.innerHTML = '';
+                    let con = $('#' + id + ' div.view_content');
+                    con.empty();
                     let content = document.createElement('div');
                     if (this.$refs[id]) this.$refs[id].$data.title = view.name;
 
-                    con.appendChild(content);
+                    con.append(content);
                     let vt = require(view.component);
                     let v = new Vue(vt);
                     v.$props.name = view.name;
@@ -188,7 +189,6 @@
                         v.$props[k] = view.data[k];
                     }
                     v.$mount(content);
-                    con.content = v.$el;
                     this.cache[vid] = v;
                 }
             },
@@ -206,10 +206,10 @@
                     layout.main.collapse(1);
                 } else {
                     let r = t + b;
-                    layout.bottom.setSizes([100 / r * t, 100 / r * b-0.9])
+                    layout.bottom.setSizes([100 / r * t, 100 / r * b - 0.9])
                 }
                 if (mainSizes[1] < 1) {
-                    layout.main.setSizes([75,25]);
+                    layout.main.setSizes([75, 25]);
                 }
                 console.log(layout.bottom.getSizes());
             },

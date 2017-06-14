@@ -16,11 +16,6 @@
 </template>
 <style>
   @import "~bootstrap/dist/css/bootstrap.css";
-  body {
-    padding-top: 40px;
-    padding-bottom: 40px;
-    background-color: #eee;
-  }
 
   .form-regist {
     max-width: 330px;
