@@ -16,7 +16,8 @@
         data() {
             return {
                 selections: [],
-                msgHub: new Vue()
+                msgHub: new Vue(),
+                ALL_LEVELS : -1
             }
         },
         computed: {},
@@ -137,6 +138,44 @@
                 }
                 return false;
             },
+            getChildren:function () {
+                return this.$children;
+            },
+            expandAll:function () {
+                this.expandToLevel(this.ALL_LEVELS)
+            },
+            expandToLevel:function (level,item) {
+                item = item || this;
+                this._internalExpandToLevel(item,level);
+            },
+            _internalExpandToLevel:function (item,level) {
+                if(level === this.ALL_LEVELS || level > 0){
+                    var children = item.getChildren();
+                    for(var index in children){
+                        var child  = children[index];
+                        child.toggle();
+                        var newLevel = (level === this.ALL_LEVELS ? this.ALL_LEVELS : level - 1);
+                        this._internalExpandToLevel(child,newLevel);
+                    }
+                }
+            },
+            collapseAll:function () {
+                this.collapseToLevel(this,this.ALL_LEVELS);
+            },
+            collapseToLevel:function (item,level) {
+                this._internalCollapseToLevel(item,level);
+            },
+            _internalCollapseToLevel(item,level){
+                if(level === this.ALL_LEVELS || level > 0){
+                    var children = item.getChildren();
+                    for(var index in children){
+                        var child  = children[index];
+                        child.toggle();
+                        var newLevel = (level === this.ALL_LEVELS ? this.ALL_LEVELS : level - 1);
+                        this._internalExpandToLevel(child,newLevel);
+                    }
+                }
+            },
             refresh:function (path) {
                 let item = this.getItem(path);
                 if(item){
@@ -166,6 +205,7 @@
 <style>
     .tree {
         padding-left: 10px;
+        overflow:scroll;
     }
 </style>
 

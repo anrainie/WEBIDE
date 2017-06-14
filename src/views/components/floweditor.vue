@@ -25,6 +25,9 @@
                 this.msgHub.$emit('dirtyStateChange',this.file,this.dirtyState);
             },
             focus(){
+            },
+            getIcon(){
+                return "assets/image/file_awb.gif";
             }
         }
     }
