@@ -123,6 +123,35 @@
                     }
                 }
             },
+            setPairSize(target, fs, intv){
+                let s = target.getSizes();
+
+                let x = [];
+                for (let i = 0, len = fs.length; i < len; i++) {
+                    x[i] = (s[i] > fs[i]) ? -1 : 1;
+                }
+
+                let animId = requestAnimationFrame(function fn() {
+                    let s = target.getSizes();
+                    let flag = true;
+                    for (let i = 0, len = fs.length; i < len; i++) {
+                        if (Math.abs(s[i] - fs[i]) <= intv) {
+                            flag &= flag;
+                            continue;
+                        } else {
+                            flag = false;
+                        }
+                        s[i] = s[i] + intv * x[i];
+                    }
+                    if (flag) {
+                        target.setSizes(fs);
+                        cancelAnimationFrame(animId);
+                        return;
+                    }
+                    target.setSizes(s);
+                    animId = requestAnimationFrame(fn);
+                });
+            },
             refresh(){
                 this.refresh_bottom();
                 this.refreshTop();
@@ -130,13 +159,19 @@
             openView(viewModel, dir, index){
                 if (dir == null)
                     dir = 'right';
-                if (index == null||isNaN(index))
+                if (index == null || isNaN(index))
                     index = 0;
                 let oldPart = this.openedViews[dir][index];
                 if (oldPart && oldPart != viewModel) {
                     oldPart.open = false;
                 }
                 viewModel.open = !viewModel.open;
+            },
+            findView(key){
+                let view = this.cache[key];
+                if (view)
+                    return view.$parent;
+                return null;
             },
             refresh_left(){
                 let vid = this.openedViews.left;
@@ -146,13 +181,17 @@
 
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
-                    layout.top.collapse(0);
+//                    layout.top.collapse(0);
+                    this.setPairSize(layout.top, [0, 100 - topSizes[2], topSizes[2]-1], 2);
                 } else {
                     let r = t + b;
-                    layout.left.setSizes([100 / r * t, 100 / r * b])
-                }
-                if (topSizes[0] < 1) {
-                    layout.top.setSizes([25, topSizes[1] > 25 ? topSizes[1] - 25 : 0, topSizes[2] > 75 ? topSizes[2] - 25 : topSizes[2]]);
+//                    layout.left.setSizes([100 / r * t, 100 / r * b]);
+                    this.setPairSize(layout.left, [100 / r * t, 100 / r * b], 4);
+
+                    if (topSizes[0] < 3) {
+//                        layout.top.setSizes([25, topSizes[1] > 25 ? topSizes[1] - 25 : 0, topSizes[2] > 75 ? topSizes[2] - 25 : topSizes[2]]);
+                        this.setPairSize(layout.top, [25, topSizes[1] > 25 ? topSizes[1] - 25 : 0, topSizes[2] > 75 ? topSizes[2] - 25 : topSizes[2]], 4);
+                    }
                 }
             },
             refresh_bottom(){
@@ -164,13 +203,15 @@
 
                 let mainSizes = layout.main.getSizes();
                 if (t + b == 0) {
-                    layout.main.collapse(1);
+                    this.setPairSize(layout.main, [98, 2], 2);
                 } else {
                     let r = t + b;
-                    layout.bottom.setSizes([100 / r * t, 100 / r * b - 0.9])
-                }
-                if (mainSizes[1] < 1) {
-                    layout.main.setSizes([75, 25]);
+                    //减去0.9是因为split.js的bug,[0,100]在横向上会错乱
+                    this.setPairSize(layout.bottom, [100 / r * t, 100 / r * b - 0.9], 4);
+//                    layout.bottom.setSizes([100 / r * t, 100 / r * b - 0.9])
+                    if (mainSizes[1] <= 3) {
+                        this.setPairSize(layout.main, [75, 25], 4);
+                    }
                 }
             },
             refreshTop(){
@@ -183,14 +224,17 @@
                 let b = vid[1] == null ? 0 : 1;
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
-                    layout.top.collapse(2);
+//                    layout.top.collapse(2);
+                    this.setPairSize(layout.top, [topSizes[0], 100 - topSizes[0]-1, 0], 2);
                 } else {
                     let r = t + b;
-                    layout.right.setSizes([100 / r * t, 100 / r * b])
+//                    layout.right.setSizes([100 / r * t, 100 / r * b])
+                    this.setPairSize(layout.right, [100 / r * t, 100 / r * b], 4);
+                    if (topSizes[2] < 3) {
+                        this.setPairSize(layout.top, [topSizes[0] > 75 ? topSizes[0] - 25 : topSizes[0], topSizes[1] > 25 ? topSizes[1] - 25 : 0, 25], 4);
+                    }
                 }
-                if (topSizes[2] < 1) {
-                    layout.top.setSizes([topSizes[0] > 75 ? topSizes[0] - 25 : topSizes[0], topSizes[1] > 25 ? topSizes[1] - 25 : 0, 25]);
-                }
+
             }
         },
         created(){
@@ -201,16 +245,16 @@
             this.layout.main = Split(['#wb_n', '#wb_b'], {
                 direction: 'vertical',
                 sizes: [75, 25],
-                gutterSize: 8
+                gutterSize: 6
             });
             this.layout.top = Split(['#wb_w', '#wb_main', '#wb_e'], {
                 sizes: [25, 50, 25],
-                gutterSize: 8,
+                gutterSize: 4,
             });
 
             this.layout.bottom = Split(['#wb_bottom_0', '#wb_bottom_1'], {
                 sizes: [50, 50],
-                gutterSize: 8,
+                gutterSize: 6,
             });
 
             this.layout.left = Split(['#wb_left_0', '#wb_left_1'], {
@@ -220,7 +264,7 @@
             this.layout.right = Split(['#wb_right_0', '#wb_right_1'], {
                 direction: 'vertical',
                 sizes: [50, 50],
-                gutterSize: 8,
+                gutterSize: 6,
             });
             window.layout = this.layout;
             window.views = this.views;
