@@ -59,7 +59,7 @@
 <script>
 export default{
     name:'toolbar',
-    props:['toolItems','config'],
+    props:['toolItems', 'config'],
     data:function () {
         return {
 

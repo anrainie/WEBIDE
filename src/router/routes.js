@@ -2,35 +2,33 @@
  * 路由配置文件
  * Created by pang on 2017/6/13.
  */
-
 // 引入vue及相关插件
-import Vue from 'vue/dist/vue.js'
-import VueRouter from 'vue-router'
-import Vuex from 'vuex'
-
-import center from '../views/center/center.vue'
-import login from '../views/center/login.vue'
-import regist from '../views/center/regist.vue'
+import Vue from "vue/dist/vue.js";
+import VueRouter from "vue-router";
+import Vuex from "vuex";
+import center from "../views/center/center.vue";
+import login from "../views/center/login.vue";
+import regist from "../views/center/regist.vue";
 // import afa from '../src/views/afa/afa.vue'
-import aweb from '../views/aweb/aweb.vue'
-import store from '../store/userStore'
+import aweb from "../views/aweb/aweb.vue";
+import store from "../store/userStore";
 
 // 注册插件
 Vue.use(VueRouter)
 Vue.use(Vuex)
 
 const routes = [
-    {path: '/', redirect: '/login',meta: { requireAuth: false }},
-    {path: '/regist', component: regist, name: 'regist',meta: { requireAuth: false }},
-    {path: '/login', component: login, name: 'login',meta: { requireAuth: false }},
-    {path: '/center', component: center, name: 'center',meta: { requireAuth: true }},
+    {path: '/', redirect: '/login', meta: {requireAuth: false}},
+    {path: '/regist', component: regist, name: 'regist', meta: {requireAuth: false}},
+    {path: '/login', component: login, name: 'login', meta: {requireAuth: false}},
+    {path: '/center', component: center, name: 'center', meta: {requireAuth: true}},
     // {path: '/afa', component: afa, name: 'afa'},
     {
-        path: '/afa',meta: { requireAuth: true }, component: resolve => {
+        path: '/afa', meta: {requireAuth: true}, component: resolve => {
         require(['../views/afa/afa.vue'], resolve)
     }, name: 'afa'
     },
-    {path: '/aweb',meta: { requireAuth: true }, component: aweb, name: 'aweb'}
+    {path: '/aweb', meta: {requireAuth: true}, component: aweb, name: 'aweb'}
 ];
 
 

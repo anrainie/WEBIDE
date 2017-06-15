@@ -2,13 +2,13 @@ var express = require('express');
 var webpack = require('webpack');
 var bodyParser = require('body-parser')
 var session = require('express-session');
-var communication = require('./Communication');
+var Servlet = require('./Servlet');
 var SiteDao = require("./dao/UserDao");
-var socketCenter = require('./SocketCenter');
-const mongoose = require('mongoose');
-const dburl = require('./Config').db;//数据库地址
+var mongoose = require('mongoose');
+var config = require('./config');
+var Product = require('./product/Product');
 mongoose.Promise = global.Promise;
-global.db = mongoose.connect(dburl);
+global.db = mongoose.connect(config.db);
 
 
 var app = express();
@@ -26,9 +26,16 @@ app.use(session({
     key:'ide',
     store: sessionStore
 }));
-require('./routes')(app);
+require('./route/routes')(app);
+require('./route/navi.routes')(app);
 
-socketCenter.init();
-communication.initCommunication();
+var afaServices = require('./service/afa.service');
+var servlet = new Servlet([afaServices]);
+servlet.start();
+
+var afaProduct =  new Product('afa','172.16.65.128','9090',afaServices);
+afaProduct.connect();
+servlet.addConsumer(afaProduct);
+
 
 module.exports  = app;
