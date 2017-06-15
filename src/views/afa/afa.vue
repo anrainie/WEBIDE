@@ -1071,37 +1071,37 @@
                 views: {
                     left: [{
                         id: 'navigator',
-                        direction: 0,
+                        subgroup: 0,
                         open: true,
                     }, {
                         id: 'properties',
-                        direction: 1,
+                        subgroup: 1,
                         open: true,
                     }, {
                         id: 'error',
-                        direction: 1,
+                        subgroup: 1,
                         open: true,
                     }],
                     right: [{
                         id: 'console',
-                        direction: 1,
+                        subgroup: 1,
                         open: true,
                     }, {
                         id: 'version',
-                        direction: 0,
+                        subgroup: 0,
                         open: true,
                     }],
                     bottom: [{
                         id: 'problem',
-                        direction: 1,
+                        subgroup: 1,
                         open: true,
                     },{
                         id: 'test1',
-                        direction: 0,
+                        subgroup: 0,
                         open: true,
                     },{
                         id: 'test2',
-                        direction: 0,
+                        subgroup: 0,
                         open: true,
                     }]
                 },

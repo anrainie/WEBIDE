@@ -106,7 +106,6 @@
                     v.$mount(content);
                     WORKBENCH.cache[this.model.id] = v;
                 }
-                console.log(this.model.id, content);
 
             }
         }

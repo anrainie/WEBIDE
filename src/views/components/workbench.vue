@@ -117,9 +117,9 @@
             _collect(av, v, MAX){
                 for (let i = 0, len = v.length; i < len; i++) {
                     if (v[i].open) {
-                        let o = av[v[i].direction];
+                        let o = av[v[i].subgroup];
                         if (o) o.open = false;
-                        av[v[i].direction] = v[i];
+                        av[v[i].subgroup] = v[i];
                     }
                 }
             },
@@ -128,6 +128,10 @@
                 this.refreshTop();
             },
             openView(viewModel, dir, index){
+                if (dir == null)
+                    dir = 'right';
+                if (index == null||isNaN(index))
+                    index = 0;
                 let oldPart = this.openedViews[dir][index];
                 if (oldPart && oldPart != viewModel) {
                     oldPart.open = false;
