@@ -1,10 +1,12 @@
 <template>
     <div>
         <div :class="itemPanel0" @drop='drop($event,0)' @dragover='allowDrop($event)'>
-            <item v-for="(item,index) in group[0]" :index='index' :model="item" :direction="direction"></item>
+            <item v-for="(item,index) in group[0]" position="0" :ref='item.id' :index='index' :model="item"
+                  :direction="direction"></item>
         </div>
         <div :class="itemPanel1" @drop='drop($event,1)' @dragover='allowDrop($event)'>
-            <item v-for="(item,index) in group[1]" :index='index' :model="item" :direction="direction"></item>
+            <item v-for="(item,index) in group[1]" position="1" :ref='item.id' :index='index' :model="item"
+                  :direction="direction"></item>
         </div>
     </div>
 </template>
@@ -62,7 +64,7 @@
         width: 100%;
     }
 
-    .ft_active {
+    .ft_open {
         background: #FFF;
     }
 </style>
@@ -72,7 +74,6 @@
             drop(e, dir){
                 if (window.__dragTarget.type == 'fastbar') {
                     e.preventDefault();
-//                window.__dragTarget.element.model;
                     window.__dragTarget.callback(this, dir, function () {
                         window.__dragTarget = null;
                     });
@@ -87,6 +88,9 @@
             return {}
         },
         mounted(){
+            window.FASTBAR = window.FASTBAR || {};
+            this.dir = this.$el.id.substr(0, this.$el.id.indexOf('_'));
+            window.FASTBAR[this.dir] = this;
         },
         computed: {
             group(){
@@ -121,13 +125,11 @@
         props: ['direction', 'items'],
         components: {
             item: {
-                props: ['model', 'direction', 'index'],
+                props: ['model', 'direction', 'index', 'position'],
                 methods: {
                     show(){
-                        let self = this;
-                        window.WORKBENCH.showView(this, function () {
-                            self.model.active = !self.model.active;
-                        });
+                        if (this.model)
+                            window.WORKBENCH.openView(this.model, this.$parent.dir, this.position);
                     },
                     drag(){
                         var self = this;
@@ -137,14 +139,10 @@
                             callback(p, dir, func){
                                 //移除已经展示的视图
                                 let model = this.element.$parent.items.splice(this.element.model.index, 1)[0];
-                                if (self.model.active)
-                                    window.WORKBENCH.showView(this.element);
 
 //                                //展示视图
                                 model.direction = dir;
                                 p.items.push(model);
-                                if (model.active)
-                                    window.WORKBENCH.showView0(p.$el.id, model);
 
                                 if (func)
                                     func();
@@ -160,7 +158,7 @@
                             'ft_item_h': this.direction,
                             ft_left: this.direction,
                             ft_right: !this.direction,
-                            ft_active: this.model.active,
+                            ft_open: this.model.open,
                         }
                     },
                     textClass() {

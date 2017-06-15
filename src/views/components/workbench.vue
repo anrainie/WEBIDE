@@ -2,9 +2,11 @@
     <div class="workbench">
         <div id="wb_n" class="split split-vertical">
             <div id="wb_w" class="split split-horizontal">
-                <viewpart id="wb_left_0" ref="wb_left_0" class="split split-vertical content">
+                <viewpart id="wb_left_0" ref="wb_left_0" :model="openedViews.left[0]" dir="left" index="0"
+                          class="split split-vertical content">
                 </viewpart>
-                <viewpart id="wb_left_1" ref="wb_left_1" class="split split-vertical content">
+                <viewpart id="wb_left_1" ref="wb_left_1" :model="openedViews.left[1]" dir="left" index="1"
+                          class="split split-vertical content">
                 </viewpart>
             </div>
             <div id="wb_main" class="split split-horizontal content">
@@ -14,26 +16,31 @@
             </div>
             <div id="wb_e" class="split split-horizontal">
 
-                <viewpart id="wb_right_0" ref="wb_right_0" class="split split-vertical content">
+                <viewpart id="wb_right_0" ref="wb_right_0" :model="openedViews.right[0]"
+                          class="split split-vertical content" dir="right" index="0">
                 </viewpart>
 
-                <viewpart id="wb_right_1" ref="wb_right_1" class="split split-vertical content">
+                <viewpart id="wb_right_1" ref="wb_right_1" :model="openedViews.right[1]"
+                          class="split split-vertical content" dir="right" index="1">
                 </viewpart>
             </div>
         </div>
         <div id="wb_b" class="split split-vertical">
-            <viewpart id="wb_bottom_0" ref="wb_bottom_0" class="split split-horizontal content">
+            <viewpart id="wb_bottom_0" ref="wb_bottom_0" :model="openedViews.bottom[0]"
+                      class="split split-horizontal content" dir="bottom" index="0">
             </viewpart>
-            <viewpart id="wb_bottom_1" ref="wb_bottom_1" class="split split-horizontal content">
+            <viewpart id="wb_bottom_1" ref="wb_bottom_1" :model="openedViews.bottom[1]"
+                      class="split split-horizontal content" dir="bottom" index="1">
             </viewpart>
         </div>
     </div>
 </template>
 <style>
-    .workbench{
+    .workbench {
         display: inline-block;
         width: 96%;
     }
+
     .split {
         -webkit-box-sizing: border-box;
         -moz-box-sizing: border-box;
@@ -93,20 +100,13 @@
                 },
             }
         },
-//        watch: {
-//            activeViews(v){
-////                console.log('watch', v);
-////                this.refresh();
-//            }
-//        },
         computed: {
-            activeViews() {
+            openedViews() {
                 let av = {
                     left: [],
                     right: [],
                     bottom: []
                 };
-
                 this._collect(av.left, this.views.left, 2);
                 this._collect(av.right, this.views.right, 2);
                 this._collect(av.bottom, this.views.bottom, 1);
@@ -116,9 +116,9 @@
         methods: {
             _collect(av, v, MAX){
                 for (let i = 0, len = v.length; i < len; i++) {
-                    if (v[i].active) {
+                    if (v[i].open) {
                         let o = av[v[i].direction];
-                        if (o) o.active = false;
+                        if (o) o.open = false;
                         av[v[i].direction] = v[i];
                     }
                 }
@@ -127,33 +127,15 @@
                 this.refresh_bottom();
                 this.refreshTop();
             },
-            navigator(){
-                return this.getView('navigator');
-            },
-            showView(v, callback){
-                this.showView0(  v.$parent.$el.id,v.model,callback);
-            },
-            showView0(dir,model,callback){
-                if (dir) {
-                    dir = dir.substr(0, dir.indexOf('_'));
-                } else return null;
-
-
-                let num = model.direction | 0;
-
-                let o = this.activeViews[dir][num];
-                if (o && o != model) {
-                    o.active = false;
+            openView(viewModel, dir, index){
+                let oldPart = this.openedViews[dir][index];
+                if (oldPart && oldPart != viewModel) {
+                    oldPart.open = false;
                 }
-                if (callback)
-                    callback();
-                this['refresh_' + dir]();
+                viewModel.open = !viewModel.open;
             },
             refresh_left(){
-                this.refreshView('left', 0);
-                this.refreshView('left', 1);
-
-                let vid = this.activeViews.left;
+                let vid = this.openedViews.left;
 
                 let t = vid[0] == null ? 0 : 1;
                 let b = vid[1] == null ? 0 : 1;
@@ -169,42 +151,9 @@
                     layout.top.setSizes([25, topSizes[1] > 25 ? topSizes[1] - 25 : 0, topSizes[2] > 75 ? topSizes[2] - 25 : topSizes[2]]);
                 }
             },
-            refreshView(dir, num){
-                let viewModel = this.activeViews[dir][num];
-                if (viewModel == null)return null;
-                let vid = viewModel.id;
-                let id = 'wb_' + dir + '_' + num;
-                let view = window.viewRegistry[vid];
-                if (view == null)
-                    return null;
-                if (this.cache[vid]) {
-                    let con = $('#' + id + ' div.view_content');
-                    con.empty();
-
-                    if (this.$refs[id]) this.$refs[id].$data.title = view.name;
-                    con.append(this.cache[vid].$el);
-                } else {
-                    let con = $('#' + id + ' div.view_content');
-                    con.empty();
-                    let content = document.createElement('div');
-                    if (this.$refs[id]) this.$refs[id].$data.title = view.name;
-
-                    con.append(content);
-                    let vt = require(view.component);
-                    let v = new Vue(vt);
-                    v.$props.name = view.name;
-                    for (const k in view.data) {
-                        v.$props[k] = view.data[k];
-                    }
-                    v.$mount(content);
-                    this.cache[vid] = v;
-                }
-            },
             refresh_bottom(){
-                this.refreshView('bottom', 0);
-                this.refreshView('bottom', 1);
 
-                let vid = this.activeViews.bottom;
+                let vid = this.openedViews.bottom;
 
                 let t = vid[0] == null ? 0 : 1;
                 let b = vid[1] == null ? 0 : 1;
@@ -219,21 +168,15 @@
                 if (mainSizes[1] < 1) {
                     layout.main.setSizes([75, 25]);
                 }
-                console.log(layout.bottom.getSizes());
             },
             refreshTop(){
                 this.refresh_left();
                 this.refresh_right();
             },
             refresh_right(){
-                this.refreshView('right', 0);
-                this.refreshView('right', 1);
-
-                let vid = this.activeViews.right;
-
+                let vid = this.openedViews.right;
                 let t = vid[0] == null ? 0 : 1;
                 let b = vid[1] == null ? 0 : 1;
-
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
                     layout.top.collapse(2);
@@ -244,10 +187,10 @@
                 if (topSizes[2] < 1) {
                     layout.top.setSizes([topSizes[0] > 75 ? topSizes[0] - 25 : topSizes[0], topSizes[1] > 25 ? topSizes[1] - 25 : 0, 25]);
                 }
-            },
-            applyView(){
-
             }
+        },
+        created(){
+            window.WORKBENCH = this;
         },
         mounted(){
             this.layout = {};
@@ -279,25 +222,11 @@
             window.views = this.views;
             this.refresh();
 
-//            this.$watch('activeViews.left', function (v) {
-//                console.info('refresh left');
-//                this.refresh_left();
-//            }, {deep: true});
-//            this.$watch('activeViews.right', function (v) {
-//                console.info('refresh right');
-//                this.refresh_right();
-//            }, {deep: true});
-//            this.$watch('activeViews.bottom', function (v) {
-//                console.info('refresh bottom');
-//                this.refresh_bottom();
-//            }, {deep: true});
-
-            window.WORKBENCH = this;
             window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
         },
         components: {
             viewpart: viewpart,
-            editorPart:editorPart
+            editorPart: editorPart
         }
     }
 </script>
