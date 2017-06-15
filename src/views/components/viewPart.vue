@@ -1,10 +1,10 @@
 <template>
     <div class="viewPart">
         <div :id="viewId" class="view_head">
-            <span class="view_title">{{title}}</span>
-            <!--<toolbar class="view_toolbar" :items="actions"></toolbar>-->
+            <span class="view_title" ref="view_title">{{title}}</span>
+            <toolbar class="view_toolbar" :toolItems="actions" :config="actionConfig" ref="view_toolbar"></toolbar>
         </div>
-        <div :id="contentId" class="view_content">
+        <div :id="contentId" class="view_content" ref="view_content">
             <slot name="content"></slot>
         </div>
     </div>
@@ -69,6 +69,7 @@
         data(){
             return {
                 actions: [],
+                actionConfig: {}
             }
         },
         beforeCreate()
@@ -84,6 +85,15 @@
                 this.applyContent();
         },
         methods: {
+            getContent(){
+                return this.refs.view_content;
+            },
+            getTitle(){
+                return this.refs.view_title;
+            },
+            getToolbar(){
+                return this.refs.view_toolbar;
+            },
             applyContent(){
                 let con = $('#' + this.contentId);
                 let viewConfig = window.viewRegistry[this.model.id];
@@ -92,6 +102,7 @@
                 let content;
                 if (_WB && _WB.cache[this.model.id]) {
                     content = _WB.cache[this.model.id].$el;
+                    _WB.cache[this.model.id].$parent = this;
                     con.append(content);
                 } else {
                     content = document.createElement('div');
@@ -99,11 +110,16 @@
                     let v = new Vue(vt);
                     v.$props.id = this.model.id;
                     v.$props.name = viewConfig.name;
-                    for (const k in viewConfig.data) {
-                        v.$props[k] = viewConfig.data[k];
+                    if (typeof(viewConfig.data) == 'object')
+                        for (const k in viewConfig.data) {
+                            v.$props[k] = viewConfig.data[k];
+                        }
+                    else if (typeof(viewConfig.data) == 'function') {
+                        viewConfig.data.call(this, v.$props);
                     }
                     con.append(content);
                     v.$mount(content);
+                    v.$parent = this;
                     WORKBENCH.cache[this.model.id] = v;
                 }
 
