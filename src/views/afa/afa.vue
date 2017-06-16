@@ -1109,16 +1109,18 @@
 
             socket.on('connect',function () {
                 console.info("connect successful");
-                socket.emit('getNaviItems',{
-                    type:IDE.type,
-                    event:'getNaviItems',
-                    data:{
-                        path:'\\',
-                        level:2
-                    }
-                },function (data) {
-                    console.info('getNaviItems',data);
-                });
+                setTimeout(function () {
+                    socket.emit('getNaviItems',{
+                        type:IDE.type,
+                        event:'getNaviItems',
+                        data:{
+                            path:'\\',
+                            level:2
+                        }
+                    },function (data) {
+                        console.info('getNaviItems',data);
+                    });
+                },5000)
             });
 
 

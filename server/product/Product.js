@@ -42,7 +42,7 @@ Product.prototype.connect = function () {
         console.error("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect_failed");
     });
 
-    this.socket.on('reconnect',function () {
+    this.socket.on('reconnect',function (data) {
         self.online = true;
         console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect");
     })
@@ -55,13 +55,18 @@ Product.prototype.runHandler = function (reqData,callback) {
     if (!service) {
         callback({returnCode: 'error', returnMsg: 'The service has not been register!'});
     } else {
-        service.handle(reqData.event,reqData,this.socket, function (err, rspData) {
-            if (err) {
-                callback({returnCode: 'error', returnMsg: err});
-            } else {
-                callback({returnCode: 'success', data: rspData});
-            }
-        });
+        if(this.socket.connected) {
+            let data = JSON.stringify(reqData);
+            service.handle(reqData.event, data, this.socket, function (err, rspData) {
+                if (err) {
+                    callback({returnCode: 'error', errorMsg: err});
+                } else {
+                    callback({returnCode: 'success', data: rspData});
+                }
+            });
+        }else{
+            callback({returnCode: 'error', errorMsg: 'ide soecke is off line'});
+        }
     }
 }
 
