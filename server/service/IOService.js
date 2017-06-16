@@ -9,7 +9,9 @@ function IOService() {
 }
 
 IOService.prototype.handle = function (eventId, data,socket, callback) {
+    console.info("ioservice emit :" + eventId);
     socket.emit(eventId, data, function (respData) {
+        console.info("ioservice respData :" + respData);
         callback(null, respData);
     });
 }

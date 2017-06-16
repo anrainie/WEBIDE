@@ -49,5 +49,5 @@ module.exports = app.listen(port, function (err) {
         console.log(err)
         return
     }
-    opn(uri);
+    //opn(uri);
 })

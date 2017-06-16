@@ -72,6 +72,7 @@ module.exports = function (app) {
                                 msg: '登录成功',
                                 name: username
                             })
+                            console.log('user login success:' ,user.username);
                         } else {
                             res.json({
                                 errno: 1,

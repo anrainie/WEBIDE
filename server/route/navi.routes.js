@@ -5,7 +5,6 @@
 module.exports = function (app) {
 
     app.post('/getNaviItems', function (req, res) {
-
         res.json({ddd:"ddd" });
     })
 }

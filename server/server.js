@@ -1,6 +1,7 @@
 var express = require('express');
 var webpack = require('webpack');
-var bodyParser = require('body-parser')
+var bodyParser = require('body-parser');
+var cookieParser = require('cookie-parser');
 var session = require('express-session');
 var Servlet = require('./Servlet');
 var SiteDao = require("./dao/UserDao");
@@ -15,6 +16,7 @@ var app = express();
 
 //服务器提交的数据json化
 app.use(bodyParser.json());
+app.use(cookieParser('ide'));
 app.use(bodyParser.urlencoded({extended: true}));
 
 //session
@@ -30,12 +32,14 @@ require('./route/routes')(app);
 require('./route/navi.routes')(app);
 
 var afaServices = require('./service/afa.service');
-var servlet = new Servlet([afaServices]);
-servlet.start();
 
+var servlet = new Servlet([afaServices],sessionStore);
+servlet.start();
+global.Servlet = servlet;
+
+global.Products = {};
 var afaProduct =  new Product('afa','172.16.65.128','9090',afaServices);
 afaProduct.connect();
-servlet.addConsumer(afaProduct);
-
+Products[afaProduct.name] = afaProduct;
 
 module.exports  = app;

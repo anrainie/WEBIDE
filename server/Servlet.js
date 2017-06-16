@@ -4,35 +4,43 @@
 
 var socket_io = require('socket.io');
 var config = require("./config");
+var parseCookie = require('cookie-parser');
 
-function Servlet(serviceConfigs) {
+function Servlet(serviceConfigs,sessionStore) {
     this.serviceConfigs = serviceConfigs;
+    this.sessionStore = sessionStore;
     this.consumers = {};
-    this.client = {};
+    this.clients = {};
 }
 
 Servlet.prototype.start = function () {
     var self = this;
     var server = socket_io.listen(config.port);
+
     server.on('connection', function (socket) {
-        //TODO 保存client
-        for(let index in this.serviceConfigs){
-           let services =  this.serviceConfigs[index];
+
+        socket.on('disconnect',function () {
+
+        });
+
+        for(let index in self.serviceConfigs){
+           let services =  self.serviceConfigs[index];
            if(services.services) {
                for(let sIndex in services.services) {
                    let service = services.services[sIndex];
-                   if (service.id) {
+                   if (!service.id) {
                        console.info('service id can not be null');
                        continue;
                    }
-                   if (service.type) {
+                   if (!service.type) {
                        console.info('service type can not be null');
                        continue;
                    }
-
                    if(service.type === 'IOService') {
+            console.info("bind socket event:" + service.id);
                        socket.on(service.id, function (reqData, callback) {
-                           let consumer = self.consumers[reqData.type];
+            console.info("capture socket event:",reqData);
+                           let consumer = Products[reqData.type];
                            if (!consumer) {
                                console.info("can not find consumer :" + reqData);
                            } else {
@@ -50,8 +58,8 @@ Servlet.prototype.start = function () {
     });
 }
 
-Servlet.prototype.addConsumer = function (consumer) {
-    this.consumers[consumer.name] = consumer;
+Servlet.prototype.getClient = function (id) {
+    return this.clients[id];
 }
 
 module.exports =  Servlet;

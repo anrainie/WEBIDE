@@ -20,6 +20,7 @@ Product.prototype.connect = function () {
 
     this.socket.on('connect',function () {
         self.online = true;
+        console.error("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect success");
         if(self.serviceConfig.services){
             for(let key in self.serviceConfig.services){
                 self.registerService(self.serviceConfig.services[key]);
@@ -29,32 +30,32 @@ Product.prototype.connect = function () {
 
     this.socket.on('connect_failed',function () {
         self.online = false;
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + "connect failed");
+        console.error("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect failed");
     });
 
     this.socket.on('disconnect',function () {
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " disconnect");
+        console.error("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " disconnect");
     })
 
     this.socket.on('reconnect_failed',function () {
         self.online = false;
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + "reconnect_failed");
+        console.error("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect_failed");
     });
 
     this.socket.on('reconnect',function () {
         self.online = true;
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + "reconnect");
+        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect");
     })
 
 
 }
 
 Product.prototype.runHandler = function (reqData,callback) {
-    let service = this.services[reqData.service];
-    if (service == null || service == undefined) {
+    let service = this.services[reqData.event];
+    if (!service) {
         callback({returnCode: 'error', returnMsg: 'The service has not been register!'});
     } else {
-        service.handle(reqData.service,reqData,this.socket, function (err, rspData) {
+        service.handle(reqData.event,reqData,this.socket, function (err, rspData) {
             if (err) {
                 callback({returnCode: 'error', returnMsg: err});
             } else {
@@ -68,15 +69,15 @@ Product.prototype.registerService = function (service) {
     if(this.online){
         let id = service.id;
         let handler = service.handler;
-        if(service.id){
+        if(!service.id){
             console.info('service id can not be null');
             return;
         }
-        if(service.handler){
+        if(!service.handler){
             console.info('service handler can not be null');
             return;
         }
-        this.services[service.id] = new serviceHandler();
+        this.services[service.id] = new service.handler();
     }else{
         console.info('product is offline,' + 'name:' + this.name + ' ip:' + this.ip + ' port:' + this.port);
     }
