@@ -1,5 +1,5 @@
 <template>
-    <div class="item">
+    <div v-show="enable" class="item">
         <div v-show="!isFolder" class="none-arrow"></div>
         <div v-show="isFolder" @click='toggle' :class="[open?'down-arrow':'right-arrow']"></div>
         <input v-show="config.check" type="checkbox" v-model="checked" class="item-checkbox" @click="setCheck(true)">
@@ -25,6 +25,7 @@
         components: {},
         data() {
             return {
+                enable:true,
                 open: false,
                 selected:false,
                 loaded:false,
@@ -73,8 +74,13 @@
             loadItems(){
                 var self = this;
                 var asyncConfig = this.config.async;
-                if(asyncConfig && asyncConfig.enable && !this.loaded && !this.model.children) {
-                    var data = {};
+                if(asyncConfig  && !this.loaded) {
+                    if(this.config.callback.asyncLoadItem){
+                        this.config.callback.asyncLoadItem(this);
+                    }else{
+                        console.error("don't have asyncLoadItem function");
+                    }
+ /*                   var data = {};
                     var url = asyncConfig.url;
                     if (asyncConfig.autoParam) {
                         for (var i = 0; i < asyncConfig.autoParam.length; i++) {
@@ -106,7 +112,9 @@
                                 self.itemImageSrc = oldItemImageSrc;
                             }
                         }
+
                     );
+*/
                 }
             },
             deleteItem:function () {
@@ -163,11 +171,8 @@
                 }
                 return checkedItems;
             },
-            addChild:function (data) {
-                if(!this.model.children){
-                    this.model.children = new Array();
-                }
-                this.model.children.push(data);
+            addChild:function (child) {
+                this.model.children.push(child);
             },
             handleClick:function (event) {
                 if(!this.selected) {
@@ -188,7 +193,17 @@
                 if(this.config.callback.rightClick){
                     this.config.callback.rightClick(event,this);
                 }
+            },
+            setEnable(enable){
+                this.enable = enable;
             }
+        },
+        mounted:function () {
+          if(this.config.filter){
+              if(this.config.filter(this)){
+                  this.setEnable(false);
+              }
+          }
         }
     }
 </script>

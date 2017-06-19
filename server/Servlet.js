@@ -39,7 +39,7 @@ Servlet.prototype.start = function () {
                    if(service.type === 'IOService') {
             console.info("bind socket event:" + service.id);
                        socket.on(service.id, function (reqData, callback) {
-            console.info("capture socket event:",reqData);
+            console.info("servlet capture socket event:",reqData.event);
                            let consumer = Products[reqData.type];
                            if (!consumer) {
                                console.info("can not find consumer :" + reqData);

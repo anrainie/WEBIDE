@@ -59,9 +59,9 @@ Product.prototype.runHandler = function (reqData,callback) {
             let data = JSON.stringify(reqData);
             service.handle(reqData.event, data, this.socket, function (err, rspData) {
                 if (err) {
-                    callback({returnCode: 'error', errorMsg: err});
+                    callback({state: 'error', errorMsg: err});
                 } else {
-                    callback({returnCode: 'success', data: rspData});
+                    callback(rspData);
                 }
             });
         }else{
