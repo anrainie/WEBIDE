@@ -128,7 +128,6 @@
                 props: ['model', 'index', 'position'],
                 methods: {
                     show(){
-                        console.log(this.model.subgroup);
                         if (this.model)
                             window.WORKBENCH.openView(this.model, this.$parent.dir, this.position);
                     },

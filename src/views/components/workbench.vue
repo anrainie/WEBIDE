@@ -182,7 +182,7 @@
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
 //                    layout.top.collapse(0);
-                    this.setPairSize(layout.top, [0, 100 - topSizes[2], topSizes[2]-1], 2);
+                    this.setPairSize(layout.top, [0, 100 - topSizes[2], topSizes[2]-1], 4);
                 } else {
                     let r = t + b;
 //                    layout.left.setSizes([100 / r * t, 100 / r * b]);
@@ -203,7 +203,7 @@
 
                 let mainSizes = layout.main.getSizes();
                 if (t + b == 0) {
-                    this.setPairSize(layout.main, [98, 2], 2);
+                    this.setPairSize(layout.main, [98, 2], 4);
                 } else {
                     let r = t + b;
                     //减去0.9是因为split.js的bug,[0,100]在横向上会错乱
@@ -225,7 +225,7 @@
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
 //                    layout.top.collapse(2);
-                    this.setPairSize(layout.top, [topSizes[0], 100 - topSizes[0]-1, 0], 2);
+                    this.setPairSize(layout.top, [topSizes[0], 100 - topSizes[0]-1, 0], 4);
                 } else {
                     let r = t + b;
 //                    layout.right.setSizes([100 / r * t, 100 / r * b])
@@ -254,17 +254,18 @@
 
             this.layout.bottom = Split(['#wb_bottom_0', '#wb_bottom_1'], {
                 sizes: [50, 50],
-                gutterSize: 6,
+                gutterSize: 4,
             });
 
             this.layout.left = Split(['#wb_left_0', '#wb_left_1'], {
                 direction: 'vertical',
-                sizes: [50, 50]
+                sizes: [50, 50],
+                gutterSize: 4,
             });
             this.layout.right = Split(['#wb_right_0', '#wb_right_1'], {
                 direction: 'vertical',
                 sizes: [50, 50],
-                gutterSize: 6,
+                gutterSize: 4,
             });
             window.layout = this.layout;
             window.views = this.views;
