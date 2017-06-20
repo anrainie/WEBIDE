@@ -5,7 +5,9 @@ var opn = require('opn');
 var path = require('path');
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.dev.conf');
-var app = require('../server/server');
+var Server = require('../server/server');
+var server = new Server();
+
 
 var compiler = webpack(webpackConfig);
 
@@ -27,14 +29,14 @@ compiler.plugin('compilation', function (compilation) {
 })
 
 // handle fallback for HTML5 history API
-app.use(require('connect-history-api-fallback')())
+server.use(require('connect-history-api-fallback')())
 
 // serve webpack bundle output
-app.use(devMiddleware)
+server.use(devMiddleware)
 
 // enable hot-reload and state-preserving
 // compilation error display
-app.use(hotMiddleware)
+server.use(hotMiddleware)
 
 devMiddleware.waitUntilValid(function () {
     console.log('> Listening at ' + uri + '\n')
@@ -44,10 +46,10 @@ var port = 8080;
 
 var uri = 'http://localhost:' + port;
 
-module.exports = app.listen(port, function (err) {
+module.exports = server.start(port, function (err) {
     if (err) {
         console.log(err)
         return
     }
-    //opn(uri);
+    opn(uri);
 })

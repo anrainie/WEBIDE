@@ -2,7 +2,7 @@ var express = require('express');
 var webpack = require('webpack');
 var bodyParser = require('body-parser');
 var cookieParser = require('cookie-parser');
-var session = require('express-session');
+var expressSession = require('express-session');
 var Servlet = require('./Servlet');
 var SiteDao = require("./dao/UserDao");
 var mongoose = require('mongoose');
@@ -13,6 +13,8 @@ global.db = mongoose.connect(config.db);
 
 
 var app = express();
+var http = require('http').Server(app);
+
 
 //服务器提交的数据json化
 app.use(bodyParser.json());
@@ -20,26 +22,39 @@ app.use(cookieParser('ide'));
 app.use(bodyParser.urlencoded({extended: true}));
 
 //session
-var sessionStore = new session.MemoryStore({reapInterval: 60000 * 10});
-app.use(session({
+var sessionStore = new expressSession.MemoryStore({reapInterval: 60000 * 10});
+var session = expressSession({
     resave: true,
     saveUninitialized: true,
     secret:'agree',
     key:'ide',
     store: sessionStore
-}));
+});
+app.use(session);
 require('./route/routes')(app);
 require('./route/navi.routes')(app);
 
 var afaServices = require('./service/afa.service');
 
-var servlet = new Servlet([afaServices],sessionStore);
+var servlet = new Servlet([afaServices],session,http);
 servlet.start();
 global.Servlet = servlet;
 
 global.Products = {};
-var afaProduct =  new Product('afa','172.16.65.128','9090',afaServices);
+var afaProduct =  new Product('afa','localhost','9090',afaServices);
 afaProduct.connect();
 Products[afaProduct.name] = afaProduct;
 
-module.exports  = app;
+function Server() {
+
+}
+
+Server.prototype.use = function(obj){
+    app.use(obj);
+}
+
+Server.prototype.start = function(port,f){
+    http.listen(port, f);
+}
+
+module.exports  = Server;

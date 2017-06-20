@@ -47,6 +47,7 @@ module.exports = function (app) {
     }),
     // 登录
     app.post('/user/signin', function (req, res) {
+        // console.log("Sign in session id = "+req.session.id);
         var _user = req.body;
         var username = _user.username;
         var password = _user.password;

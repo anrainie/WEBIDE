@@ -5,20 +5,26 @@
 var socket_io = require('socket.io');
 var config = require("./config");
 var parseCookie = require('cookie-parser');
+var shareSession = require('express-socket.io-session');
 
-function Servlet(serviceConfigs,sessionStore) {
+function Servlet(serviceConfigs,session,http) {
     this.serviceConfigs = serviceConfigs;
-    this.sessionStore = sessionStore;
+    this.session = session;
+    this.http =http;
     this.consumers = {};
     this.clients = {};
 }
 
 Servlet.prototype.start = function () {
     var self = this;
-    var server = socket_io.listen(config.port);
+    // var server = socket_io.listen(config.port);
+    var server = socket_io(this.http);
+    server.use(shareSession(this.session,{
+        autoSave:true
+    }));
 
     server.on('connection', function (socket) {
-
+        // console.log(socket.handshake.session);
         socket.on('disconnect',function () {
 
         });

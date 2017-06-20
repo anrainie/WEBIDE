@@ -259,7 +259,7 @@
             window.CONTEXTMENU = this.$refs.ide_contextMenu;
             window.SHADE = this.$refs.ide_shade;
 
-            let socket = io("http://127.0.0.1:8760");
+            let socket = io("http://localhost:8080");
             socket.on('connect_failed',function (err) {
                 console.info(err);
                 IDE.socket = null;
