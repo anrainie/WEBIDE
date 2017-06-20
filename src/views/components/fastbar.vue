@@ -1,11 +1,11 @@
 <template>
     <div>
         <div :class="itemPanel0" @drop='drop($event,0)' @dragover='allowDrop($event)'>
-            <item v-for="(item,index) in group[0]" position="0" :ref='item.id' :index='index' :model="item"
+            <item v-for="(item,index) in group[0]" position="0" :key="item.id" :ref='item.id' :index='index' :model="item"
             ></item>
         </div>
         <div :class="itemPanel1" @drop='drop($event,1)' @dragover='allowDrop($event)'>
-            <item v-for="(item,index) in group[1]" position="1" :ref='item.id' :index='index' :model="item"
+            <item v-for="(item,index) in group[1]" position="1" :key="item.id" :ref='item.id' :index='index' :model="item"
             ></item>
         </div>
     </div>

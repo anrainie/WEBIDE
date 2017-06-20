@@ -472,7 +472,7 @@
                 },
                 'test2': {
                     name: '测试2',
-                    component: './editorPart.vue',
+                    component: './table.vue',
                     image: "assets/image/nav-folder.png",
                 },
                 'test3': {

@@ -110,10 +110,11 @@
                     let v = new Vue(vt);
                     v.$props.id = this.model.id;
                     v.$props.name = viewConfig.name;
-                    if (typeof(viewConfig.data) == 'object')
+                    if (typeof(viewConfig.data) == 'object') {
                         for (const k in viewConfig.data) {
                             v.$props[k] = viewConfig.data[k];
                         }
+                    }
                     else if (typeof(viewConfig.data) == 'function') {
                         viewConfig.data.call(this, v.$props);
                     }
