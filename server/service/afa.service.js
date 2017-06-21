@@ -8,7 +8,19 @@ module.exports =  {
         {
             id:'getNaviItems',
             type:'IOService',
-            handler:ioService,
+            handler:ioService
+        },
+        {
+            id:'test',
+            type:'IOService',
+            handler:ioService
+        },
+        {
+            id:'local1',
+            type:'localService',
+            handler:function () {
+                console.info('run afa localService: local1');
+            }
         }
     ]
 }

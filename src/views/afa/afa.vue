@@ -1,5 +1,6 @@
 <template>
     <div>
+        <input type="button" @click="testClick" value="click">
         <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
         <toolbar :config="toolbarConfig" :toolItems="toolItems" style="border: 1px solid;float: right;width: 100%"></toolbar>
 
@@ -248,7 +249,19 @@
                 },
             }
         },
-        methods: {},
+        methods: {
+            testClick(){
+                IDE.socket.emit('test',{
+                    type:IDE.type,
+                    event:'local',
+                    data:{
+                        info:'testinfo'
+                    }
+                },function (data) {
+                    console.info(data);
+                });
+            }
+        },
         mounted(){
             window.IDE = {
                 type:'afa'
@@ -259,32 +272,43 @@
             window.CONTEXTMENU = this.$refs.ide_contextMenu;
             window.SHADE = this.$refs.ide_shade;
 
+            let first = true;
+
             let socket = io("http://localhost:8080");
-            socket.on('connect_failed',function (err) {
-                console.info(err);
+            socket.on('connect_error',function (err) {
+                console.info('connect_error');
                 IDE.socket = null;
             });
 
             socket.on('connect',function () {
-                console.info("connect successful");
-
+                console.info("connect successful:");
+                if(first){
+                    IDE.socket.emit('getNaviItems',{
+                        type:IDE.type,
+                        event:'getNaviItems',
+                        data:{
+                            path:'\\',
+                            level:1
+                        }
+                    },function (data) {
+                        let result = JSON.parse(data);
+                        if(result.state === 'success'){
+                            for(let index in result.data){
+                                naviItems.push(result.data[index]);
+                            }
+                        }else{
+                            console.info('emit getNaviItems : ',result.errorMsg);
+                        }
+                    });
+                    first = false;
+                }
             });
+
+            socket.on('reconnect_error',function (data) {
+                console.info("reconnect_error:",data);
+            })
 
             IDE.socket = socket;
-
-            IDE.socket.emit('getNaviItems',{
-                type:IDE.type,
-                event:'getNaviItems',
-                data:{
-                    path:'\\',
-                    level:1
-                }
-            },function (data) {
-                let result = JSON.parse(data);
-                for(let index in result){
-                    naviItems.push(result[index]);
-                }
-            });
 
         },
         beforeCreate(){
@@ -308,8 +332,12 @@
                                         }
                                     },function (data) {
                                         let result = JSON.parse(data);
-                                        for(let index in result){
-                                            item.addChild(result[index]);
+                                        if(result.state === 'success'){
+                                            for(let index in result.data){
+                                                item.addChild(result.data[index]);
+                                            }
+                                        }else{
+                                            console.info(result);
                                         }
                                     });
                                 },

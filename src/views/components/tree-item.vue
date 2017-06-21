@@ -78,8 +78,9 @@
                     if(this.config.callback.asyncLoadItem){
                         this.config.callback.asyncLoadItem(this);
                     }else{
-                        console.error("don't have asyncLoadItem function");
+                        console.error("tree's config don't have asyncLoadItem function");
                     }
+                    this.loaded = true;
  /*                   var data = {};
                     var url = asyncConfig.url;
                     if (asyncConfig.autoParam) {
