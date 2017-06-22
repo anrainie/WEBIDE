@@ -11,7 +11,7 @@ module.exports =  {
             handler:ioService
         },
         {
-            id:'test',
+            id:'getNaviMenu',
             type:'IOService',
             handler:ioService
         },

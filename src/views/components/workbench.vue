@@ -38,7 +38,6 @@
 <style>
     .workbench {
         display: inline-block;
-        width: 96%;
     }
 
     .split {

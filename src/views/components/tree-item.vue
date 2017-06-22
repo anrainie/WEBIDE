@@ -30,7 +30,7 @@
                 selected:false,
                 loaded:false,
                 checked: this.model.checked ? this.model.checked :false ,
-                itemImageSrc:"assets/image/nav-folder.png"
+                itemImageSrc: (this.model.icon ? ("/assets/image/" + this.model.icon) : "assets/image/nav-folder.png")
             }
         },
         computed: {

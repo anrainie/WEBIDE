@@ -1,12 +1,11 @@
 <template>
     <div>
-        <input type="button" @click="testClick" value="click">
         <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
         <toolbar :config="toolbarConfig" :toolItems="toolItems" style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
-            <workbench :views="views" ref="workbench" :editors="editors"></workbench>
+            <workbench id="ide_workbench_center" :views="views" ref="workbench" :editors="editors"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
 
@@ -23,13 +22,17 @@
     @import "~bootstrap/dist/css/bootstrap.css";
     #left_fast_bar {
         display: inline-block;
-        width: 2%;
+        width: 25px;
         height: 100%;
         float: left;
         background: #DDD;
     }
+    #ide_workbench_center{
+        width:-moz-calc(100% - 50px);
+        width:-webkit-calc(100% - 50px);
+        width: calc(100% - 50px);
+    }
     #bottom_fast_bar {
-        position: absolute;
         bottom: 0px;
         width: 100%;
         height: 25px;
@@ -46,6 +49,9 @@
     #ide_workbench {
         display: inline-block;
         width: 100%;
+        height:-moz-calc(100% - 70px);
+        height:-webkit-calc(100% - 70px);
+        height: calc(100% - 70px);
     }
     #ide_navigator {
         position: relative;
@@ -73,7 +79,7 @@
     import shade from "../components/shade.vue";
     import toolbar from "../components/toolbar.vue"
     import io from 'socket.io-client';
-
+window.io = io;
     var naviItems = [];
     export default{
         data(){
@@ -291,13 +297,15 @@
                             level:1
                         }
                     },function (data) {
-                        let result = JSON.parse(data);
-                        if(result.state === 'success'){
-                            for(let index in result.data){
-                                naviItems.push(result.data[index]);
+                        if(data) {
+                            let result = JSON.parse(data);
+                            if (result.state === 'success') {
+                                for (let index in result.data) {
+                                    naviItems.push(result.data[index]);
+                                }
+                            } else {
+                                console.info('emit getNaviItems : ', result.errorMsg);
                             }
-                        }else{
-                            console.info('emit getNaviItems : ',result.errorMsg);
                         }
                     });
                     first = false;
