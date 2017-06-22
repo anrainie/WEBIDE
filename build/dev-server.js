@@ -51,5 +51,5 @@ module.exports = server.start(port, function (err) {
         console.log(err)
         return
     }
-    opn(uri);
+    //opn(uri);
 })

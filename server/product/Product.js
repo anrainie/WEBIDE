@@ -16,34 +16,37 @@ function Product(name,ip,port,serviceConfig) {
 
 Product.prototype.connect = function () {
     var self = this;
-    this.socket = Client.connect("http://" + this.ip + ":" + this.port);
+    this.socket = Client("http://" + this.ip + ":" + this.port);
 
     this.socket.on('connect',function () {
         self.online = true;
-        console.error("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect success");
-        if(self.serviceConfig.services){
+        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect success");
+        if(!self.inited && self.serviceConfig.services){
             for(let key in self.serviceConfig.services){
                 self.registerService(self.serviceConfig.services[key]);
             }
+            self.inited = true;
         }
+        self.socket.emit("getNaviItems","{'type':'afa','event':'getNaviItems','data':{'path':'\\\\','level':1}}",function (data) {
+            console.info('========');
+        });
     });
 
     this.socket.on('connect_failed',function () {
         self.online = false;
-        console.error("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect failed");
+        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect failed");
     });
 
     this.socket.on('disconnect',function () {
-        console.error("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " disconnect");
+        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " disconnect");
     })
 
     this.socket.on('reconnect_failed',function () {
         self.online = false;
-        console.error("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect_failed");
+        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect_failed");
     });
 
     this.socket.on('reconnect',function (data) {
-        self.online = true;
         console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect");
     })
 
@@ -51,21 +54,22 @@ Product.prototype.connect = function () {
 }
 
 Product.prototype.runHandler = function (reqData,callback) {
-    let service = this.services[reqData.event];
-    if (!service) {
-        callback({returnCode: 'error', returnMsg: 'The service has not been register!'});
-    } else {
-        if(this.socket.connected) {
+    let handler = this.services[reqData.event];
+
+    if(!this.socket.connected) {
+        callback(JSON.stringify({"state": "error", "errorMsg": "ide socket is off line"}));
+    }else{
+        if (!handler) {
+            callback(JSON.stringify({"state": "error", "returnMsg": "The service is unregisted"}));
+        } else {
             let data = JSON.stringify(reqData);
-            service.handle(reqData.event, data, this.socket, function (err, rspData) {
+            handler(reqData.event, data, this.socket, function (err, rspData) {
                 if (err) {
-                    callback({state: 'error', errorMsg: err});
+                    callback(JSON.stringify({"state": "error", "errorMsg": "err"}));
                 } else {
                     callback(rspData);
                 }
             });
-        }else{
-            callback({returnCode: 'error', errorMsg: 'ide soecke is off line'});
         }
     }
 }
@@ -82,7 +86,9 @@ Product.prototype.registerService = function (service) {
             console.info('service handler can not be null');
             return;
         }
-        this.services[service.id] = new service.handler();
+        if(service.type === 'IOService') {
+            this.services[service.id] = service.handler;
+        }
     }else{
         console.info('product is offline,' + 'name:' + this.name + ' ip:' + this.ip + ' port:' + this.port);
     }

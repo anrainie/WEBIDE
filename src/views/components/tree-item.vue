@@ -30,7 +30,7 @@
                 selected:false,
                 loaded:false,
                 checked: this.model.checked ? this.model.checked :false ,
-                itemImageSrc:"assets/image/nav-folder.png"
+                itemImageSrc: (this.model.icon ? ("/assets/image/" + this.model.icon) : "assets/image/nav-folder.png")
             }
         },
         computed: {
@@ -78,8 +78,9 @@
                     if(this.config.callback.asyncLoadItem){
                         this.config.callback.asyncLoadItem(this);
                     }else{
-                        console.error("don't have asyncLoadItem function");
+                        console.error("tree's config don't have asyncLoadItem function");
                     }
+                    this.loaded = true;
  /*                   var data = {};
                     var url = asyncConfig.url;
                     if (asyncConfig.autoParam) {

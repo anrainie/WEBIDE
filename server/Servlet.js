@@ -17,16 +17,32 @@ function Servlet(serviceConfigs,session,http) {
 
 Servlet.prototype.start = function () {
     var self = this;
-    // var server = socket_io.listen(config.port);
     var server = socket_io(this.http);
+
     server.use(shareSession(this.session,{
         autoSave:true
     }));
 
-    server.on('connection', function (socket) {
-        // console.log(socket.handshake.session);
-        socket.on('disconnect',function () {
+    server.use(function(socket, next) {
+        var user = socket.handshake.session.user;
 
+        if (user) {
+            // 用户已登录则允许连接socket
+            next();
+        } else {
+            next(new Error('nosession'));
+        }
+    });
+
+    server.on('connection', function (socket) {
+        var user = socket.handshake.session.user;
+
+        console.info(user.username + " connect socket successful");
+
+        self.clients[user.username] = socket;
+
+        socket.on('disconnect',function () {
+            delete self.clients[user.username];
         });
 
         for(let index in self.serviceConfigs){
@@ -43,7 +59,7 @@ Servlet.prototype.start = function () {
                        continue;
                    }
                    if(service.type === 'IOService') {
-            console.info("bind socket event:" + service.id);
+            console.info("bind IOService:" + service.id);
                        socket.on(service.id, function (reqData, callback) {
             console.info("servlet capture socket event:",reqData.event);
                            let consumer = Products[reqData.type];
@@ -54,8 +70,9 @@ Servlet.prototype.start = function () {
                            }
                        });
                    }else if(service.type === 'localService'){
+             console.info("bind localService:" + service.id);
                        socket.on(service.id, function (reqData, callback) {
-                           service.handle(reqData,callback);
+                           service.handler(reqData,callback);
                        });
                    }
                }
@@ -64,8 +81,15 @@ Servlet.prototype.start = function () {
     });
 }
 
-Servlet.prototype.getClient = function (id) {
-    return this.clients[id];
+Servlet.prototype.getClient = function (username) {
+    return this.clients[username];
+}
+
+Servlet.prototype.closeClient = function (username) {
+    var client = this.getClient(username);
+    if(client){
+        client.disconnect(true);
+    }
 }
 
 module.exports =  Servlet;
