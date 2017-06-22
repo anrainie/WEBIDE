@@ -182,7 +182,7 @@
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
 //                    layout.top.collapse(0);
-                    this.setPairSize(layout.top, [0, 100 - topSizes[2], topSizes[2]-1], 4);
+                    this.setPairSize(layout.top, [0, 100 - topSizes[2], topSizes[2] - 1], 4);
                 } else {
                     let r = t + b;
 //                    layout.left.setSizes([100 / r * t, 100 / r * b]);
@@ -225,7 +225,7 @@
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
 //                    layout.top.collapse(2);
-                    this.setPairSize(layout.top, [topSizes[0], 100 - topSizes[0]-1, 0], 4);
+                    this.setPairSize(layout.top, [topSizes[0], 100 - topSizes[0] - 1, 0], 4);
                 } else {
                     let r = t + b;
 //                    layout.right.setSizes([100 / r * t, 100 / r * b])
@@ -239,6 +239,8 @@
         },
         created(){
             window.WORKBENCH = this;
+            this.activePage = null;
+            this.activeEditor = null;
         },
         mounted(){
             this.layout = {};

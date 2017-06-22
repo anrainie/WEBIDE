@@ -1,5 +1,5 @@
 <template>
-    <div class="viewPart">
+    <div class="viewPart" @focus="active()">
         <div :id="viewId" class="view_head">
             <span class="view_title" ref="view_title">{{title}}</span>
             <toolbar class="view_toolbar" :toolItems="actions" :config="actionConfig" ref="view_toolbar"></toolbar>
@@ -85,6 +85,9 @@
                 this.applyContent();
         },
         methods: {
+            active(){
+                console.log(this._uid, 'activated');
+            },
             getContent(){
                 return this.refs.view_content;
             },

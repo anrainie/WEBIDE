@@ -4,25 +4,22 @@
         <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
-                :current-page="currentPage4"
-                :page-sizes="[100, 200, 300, 400]"
-                :page-size="100"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="400">
+                :page-sizes="tableConfig.pageSizes"
+                :page-size="tableConfig.pageSize"
+                v-if="tableConfig.showPagination"
+                :layout="tableConfig.paginationLayout"
+                :total="total">
         </el-pagination>
-
-
-    </div>
-    <el-table
-            :data="model"
-            stripe
-            style="width: 100%" :row-style="rowStyle">
-        <el-table-column v-for="(head,index) in columnConfig"
-                         :prop="head.id"
-                         :label="head.label"
-                         :width="head.width" class-name="t_item">
-        </el-table-column>
-    </el-table>
+        <el-table
+                :data="model"
+                stripe
+                style="width: 100%" :row-style="rowStyle">
+            <el-table-column v-for="(head,index) in tableConfig.columnConfig"
+                             :prop="head.id"
+                             :label="head.label"
+                             :width="head.width" class-name="t_item">
+            </el-table-column>
+        </el-table>
     </div>
 </template>
 <style>
@@ -46,7 +43,7 @@
 
     Vue.use(ElementUI);
     export  default{
-        props: ['columnConfig', 'model'],
+        props: ['columnConfig', 'model', 'tableConfig'],
         data(){
             return {
                 visible: false,
@@ -55,9 +52,27 @@
                 }
             }
         },
-        mounted(){
+        methods: {
+            handleSizeChange(){
+                console.log();
+            },
+            handleCurrentChange(){
+            }
+        },
+        computed: {
+            total(){
+                return Math.ceil(this.model.length / this.tableConfig.pageSize);
+            }
+        },
+        created(){
             //测试数据
-            this.columnConfig = this.columnConfig || [
+            this.tableConfig = {
+                showPagination: true,
+                pageSize: 10,
+                pageSizes: [10, 20, 50, 100],
+                paginationLayout: "total, sizes, prev, pager, next, jumper",
+            };
+            this.tableConfig.columnConfig = this.tableConfig.columnConfig || [
                     {
                         id: 'name',
                         label: '名称',
@@ -87,6 +102,8 @@
                         age: 32
                     },
                 ]
+        },
+        mounted(){
         }
     }
 </script>
