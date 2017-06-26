@@ -6,7 +6,7 @@
             @click="click(item)"
             @mouseenter="toggleSubMenu($event,item)"
         >
-            <img class="context-menu-item-img" v-show="item.img" v-bind:src="item.img">
+            <img class="context-menu-item-img" v-show="item.icon" v-bind:src="item.icon">
 
             <span v-show="item.type === 'item' || item.type === 'group' "
                   class="context-menu-name"
@@ -28,7 +28,6 @@
         list-style: none;
         display: inline-block;
         background-color: white;
-        overflow:scroll;
     }
 
     .context-menu>div{
@@ -156,9 +155,6 @@
                     this.items.push(newItems[i]);
                 }
             },
-            setCallback(callback){
-                this.config.callback = callback;
-            },
             getName (item) {
                 if (item.type === 'item' || item.type === 'group') {
                     var name = item.name;
@@ -205,7 +201,6 @@
                 newMenu.$data.level = this.level + 1;
                 newMenu.$data.subMenus = this.subMenus;
                 newMenu.$data.msgHub = this.msgHub;
-
                 newMenu.$props.items = parent.children;
                 newMenu.$props.config = this.config;
 
@@ -301,10 +296,9 @@
             },
             click (item) {
                 if(item.type === 'item' || item.disabled != true){
-                    if(this.config.callback || this.config.callback.onClick){
-                        this.msgHub.$emit("hide");
-                        this.config.callback.onClick(item);
-                    }
+                    console.info(item.id);
+                    this.msgHub.$emit("hide");
+                    this.handle();
                 }
             }
         }

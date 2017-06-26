@@ -91,11 +91,6 @@ window.io = io;
                 pageName: "pageName",
                 naviContextMenuItems: [],
                 contextMenuConfig: {
-                    callback: {
-                        onClick: function (id) {
-                            console.info("contextmenu onclick : " + id);
-                        }
-                    }
                 },
                 toolItems: [
                     {
@@ -256,17 +251,6 @@ window.io = io;
             }
         },
         methods: {
-            testClick(){
-                IDE.socket.emit('test',{
-                    type:IDE.type,
-                    event:'local',
-                    data:{
-                        info:'testinfo'
-                    }
-                },function (data) {
-                    console.info(data);
-                });
-            }
         },
         mounted(){
             window.IDE = {
@@ -287,7 +271,7 @@ window.io = io;
             });
 
             socket.on('connect',function () {
-                console.info("connect successful:");
+                console.info("client connect successful:");
                 if(first){
                     IDE.socket.emit('getNaviItems',{
                         type:IDE.type,
@@ -363,52 +347,20 @@ window.io = io;
                                     }
                                 },
                                 rightClick: function (event, item) {
-                                    CONTEXTMENU.setItems([{
-                                        id: "01",
-                                        name: "01都是负担0000我们的长长长长长长",
-                                        img: "assets/image/nav-folder.png",
-                                        shortcutKey: "01",
-                                        type: 'group'
-                                    }, {
-                                        id: "02",
-                                        name: "02",
-                                        img: "",
-                                        shortcutKey: "ctrl+r",
-                                        type: 'item',
-                                        disable: true
-                                    }, {
-                                        type: "separator"
-                                    }, {
-                                        id: "03",
-                                        name: "03",
-                                        img: "",
-                                        shortcutKey: "ctrl+l",
-                                        type: 'item',
-                                    },
-                                        {
-                                            id: "03",
-                                            name: "01都是负担0000我们的长长长长长长",
-                                            img: "assets/image/nav-folder.png",
-                                            shortcutKey: "01",
-                                            type: 'group'
-                                        }, {
-                                            id: "04",
-                                            name: "04",
-                                            img: "",
-                                            shortcutKey: "ctrl+l",
-                                            type: 'item',
-                                        }, {
-                                            id: "05",
-                                            name: "05",
-                                            img: "",
-                                            shortcutKey: "ctrl+l",
-                                            type: 'item',
-                                        }]);
-                                    CONTEXTMENU.setCallback(self.contextMenuConfig.callback);
-                                    if (CONTEXTMENU.isActive()) {
-                                        CONTEXTMENU.hide();
-                                    }
-                                    CONTEXTMENU.show(event.x, event.y);
+                                    IDE.socket.emit('getNaviMenu',{type:IDE.type,event:'getNaviMenu',data:{path:item.model.path}},function (data) {
+                                        if(data) {
+                                            let result = JSON.parse(data);
+                                            if (result.state === 'success') {
+                                                CONTEXTMENU.setItems(result.data);
+                                                if (CONTEXTMENU.isActive()) {
+                                                    CONTEXTMENU.hide();
+                                                }
+                                                CONTEXTMENU.show(event.x, event.y);
+                                            } else {
+                                                console.info('getNaviMenu : ', result.errorMsg);
+                                            }
+                                        }
+                                    });
                                 }
                             },
                             filter:function (item) {

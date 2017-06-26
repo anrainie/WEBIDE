@@ -10,6 +10,7 @@
              @contextmenu.prevent="handleContextmenu($event)">
             <img class="item-image" v-bind:src="itemImageSrc">
             <span class="item-title">{{model.name}}</span>
+            <span class="item-desp">{{model.desp}}</span>
             <div class="item-button nav-delete" @click="deleteItem"></div>
         </div>
         <div class="item-children" v-show="open" v-if='isFolder' >
@@ -216,12 +217,19 @@
         border-radius: 5px;
     }
 
+    .item-selected .item-desp{
+        color: white;
+    }
+
     .item-checkbox{
         float: left;
     }
 
     .item-body{
         overflow:hidden;
+    }
+    .item-desp{
+        color: #888888;
     }
 
     .item-body:hover .item-button{
