@@ -86,6 +86,7 @@
     import viewpart from "./viewPart.vue";
     import editorPart from "../components/editorPart.vue";
     import flowEditor from "../components/floweditor.vue";
+    import dictEditor from "./dictEditor.vue";
     export default{
         props: ['views', 'editors'],
         data(){
@@ -94,7 +95,8 @@
                 editorPartConfig: {
                     editorRefs: {
                         txt: flowEditor,
-                        sql: flowEditor
+                        sql: flowEditor,
+                        dict: dictEditor,
                     }
                 },
             }

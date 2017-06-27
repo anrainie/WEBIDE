@@ -455,7 +455,7 @@ window.io = io;
                 },
                 'test1': {
                     name: '测试1',
-                    component: './editorPart.vue',
+                    component: './dictEditor.vue',
                     image: "assets/image/nav-folder.png",
                 },
                 'test2': {

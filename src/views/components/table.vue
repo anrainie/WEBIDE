@@ -1,7 +1,5 @@
 <template>
     <div>
-    <div>
-        <span class="demonstration">完整功能</span>
         <el-pagination
                 @size-change="handleSizeChange"
                 @current-change="handleCurrentChange"
@@ -14,11 +12,28 @@
         <el-table
                 :data="model"
                 stripe
-                style="width: 100%" :row-style="rowStyle">
+                highlight-current-row
+                style="width: 100%" ref="tableReference" :row-style="rowStyle" @current-change="handleCurrentRowChange"
+                @row-click="selectionChanged">
             <el-table-column v-for="(head,index) in tableConfig.columnConfig"
                              :prop="head.id"
                              :label="head.label"
                              :width="head.width" class-name="t_item">
+                <template scope="scope">
+                    <el-input v-if="head.edit=='text'" size="large"
+                              v-model="scope.row[head.id]"
+                              style="width:100%;height:100%;"></el-input>
+                    <el-select v-model="scope.row[head.id]"
+                               filterable @change="apply" v-if="head.edit=='combo'">
+                        <el-option
+                                v-for="item in head.options"
+                                :key="item.value"
+                                :label="item.label"
+                                :value="item.value">
+                        </el-option>
+                    </el-select>
+                </template>
+
             </el-table-column>
         </el-table>
     </div>
@@ -50,42 +65,57 @@
                 visible: false,
                 rowStyle: {
                     'font-size': '15px',
-                }
+                },
+                currentRow: null
             }
         },
         methods: {
+            apply(v, a, c){
+                console.log(v,a,c)
+            },
             handleSizeChange(){
                 console.log();
             },
-            handleCurrentChange(){
+            handleCurrentChange(c, o){
+                console.log(c, o);
+            },
+            handleCurrentRowChange(val){
+                if (this.tableConfig.selectionChanged) this.tableConfig.selectionChanged(val, this.currentRow);
+                this.currentRow = val;
+            },
+            selectionChanged(row, event, col){
+                this.$refs.tableReference.setCurrentRow(row);
             }
         },
         computed: {
             total(){
-                return Math.ceil(this.model.length / this.tableConfig.pageSize);
+                return this.model == null ? 0 : this.model.length;
             }
         },
         created(){
             //测试数据
-            this.tableConfig = {
-                showPagination: true,
-                pageSize: 10,
-                pageSizes: [10, 20, 50, 100],
-                paginationLayout: "total, sizes, prev, pager, next, jumper",
-            };
-            this.tableConfig.columnConfig = this.tableConfig.columnConfig || [
-                    {
-                        id: 'name',
-                        label: '名称',
-                    }, {
-                        id: 'sexual',
-                        label: '性别',
-                    }, {
-                        id: 'age',
-                        label: '年龄',
-                        width: '80'
+            this.tableConfig = this.tableConfig || {
+                    showPagination: true,
+                    pageSize: 10,
+                    pageSizes: [10, 20, 50, 100],
+                    paginationLayout: "total, sizes, prev, pager, next, jumper",
+                    columnConfig: [
+                        {
+                            id: 'name',
+                            label: '名称',
+                        }, {
+                            id: 'sexual',
+                            label: '性别',
+                        }, {
+                            id: 'age',
+                            label: '年龄',
+                            width: '80'
+                        }
+                    ],
+                    selectionChanged(row, event, col){
+                        console.log('selection changed:', row, col);
                     }
-                ];
+                };
             this.model = this.model || [
                     {
                         name: 'Alex',
