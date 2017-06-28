@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div :id="masterId" class="split split-horizontal">
+        <div :id="masterId" class="split split-horizontal content">
             <dtable :tableConfig="tableConfig" :toolbarConfig="toolbarConfig" :searchConfig="searchConfig"
                     :model="dictModel"></dtable>
         </div>
-        <div :id="detailId" class="split split-horizontal">
+        <div :id="detailId" class="split split-horizontal content">
             <el-form ref="form" :model="selection" label-width="80px" v-if="selection">
                 <el-col :span="11">
                     <el-form-item label="英文名称">
@@ -21,45 +21,6 @@
     </div>
 </template>
 <style>
-    .split {
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-
-    .content {
-        border: 1px solid #C0C0C0;
-        box-shadow: inset 0 1px 2px #e4e4e4;
-        background-color: #fff;
-    }
-
-    .gutter {
-        background-color: transparent;
-        background-repeat: no-repeat;
-        background-position: 50%;
-    }
-
-    .gutter.gutter-horizontal {
-        cursor: col-resize;
-        background-image: url('~split.js/grips/vertical.png');
-    }
-
-    .gutter.gutter-vertical {
-        cursor: row-resize;
-        background-image: url('~split.js/grips/horizontal.png');
-    }
-
-    .split.split-horizontal, .gutter.gutter-horizontal {
-        height: 100%;
-        float: left;
-    }
-
-    .split.split-vertical, .gutter.gutter-vertical {
-        width: 100%;
-        float: left;
-    }
 </style>
 <script>
     import table from "./table.vue";
@@ -103,16 +64,16 @@
                         label: '字典大类',
                         edit: 'combo',
                         options: [{
-                            name: '0',
+                            value: '0',
                             label: '平台'
                         }, {
-                            name: '1',
+                            value: '1',
                             label: '银行'
                         }, {
-                            name: '2',
+                            value: '2',
                             label: '产品'
                         }, {
-                            name: '3',
+                            value: '3',
                             label: '项目'
                         }],
                     }, {
@@ -134,19 +95,20 @@
                 }, {
                     name: 'id',
                     PUBCODECNAME: 'ID',
-                    DICTTYPE: 2,
+                    DICTTYPE: '2',
                     type: 'Integer'
                 }, {
                     name: 'account',
                     PUBCODECNAME: '帐号',
-                    DICTTYPE: 0,
+                    DICTTYPE: '0',
                     type: 'varchar'
-                }]
+                }];
+            window.dict = this.dictModel;
         },
         mounted(){
             this.layout = Split(['#' + this.masterId, '#' + this.detailId], {
-                sizes: [90, 10],
-                gutterSize: 4
+                sizes: [50, 50],
+                gutterSize: 4,
             });
         }
     }

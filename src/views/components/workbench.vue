@@ -11,7 +11,7 @@
             </div>
             <div id="wb_main" class="split split-horizontal content">
 
-                <editorPart id="ide_workbenchPage" :config="editorPartConfig" ref="ide_workbenchPage">
+                <editorPart id="ide_editorPart" :config="editorPartConfig" ref="ide_editorPart">
                 </editorPart>
             </div>
             <div id="wb_e" class="split split-horizontal">
@@ -182,15 +182,12 @@
 
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
-//                    layout.top.collapse(0);
-                    this.setPairSize(layout.top, [0, 100 - topSizes[2], topSizes[2] - 1], 4);
+                    this.setPairSize(layout.top, [0, 100 - topSizes[2], topSizes[2]], 4);
                 } else {
                     let r = t + b;
-//                    layout.left.setSizes([100 / r * t, 100 / r * b]);
                     this.setPairSize(layout.left, [100 / r * t, 100 / r * b], 4);
 
                     if (topSizes[0] < 3) {
-//                        layout.top.setSizes([25, topSizes[1] > 25 ? topSizes[1] - 25 : 0, topSizes[2] > 75 ? topSizes[2] - 25 : topSizes[2]]);
                         this.setPairSize(layout.top, [25, topSizes[1] > 25 ? topSizes[1] - 25 : 0, topSizes[2] > 75 ? topSizes[2] - 25 : topSizes[2]], 4);
                     }
                 }
@@ -208,7 +205,7 @@
                 } else {
                     let r = t + b;
                     //减去0.9是因为split.js的bug,[0,100]在横向上会错乱
-                    this.setPairSize(layout.bottom, [100 / r * t, 100 / r * b - 0.9], 4);
+                    this.setPairSize(layout.bottom, [100 / r * t, 100 / r * b], 4);
 //                    layout.bottom.setSizes([100 / r * t, 100 / r * b - 0.9])
                     if (mainSizes[1] <= 3) {
                         this.setPairSize(layout.main, [75, 25], 4);
@@ -226,7 +223,7 @@
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
 //                    layout.top.collapse(2);
-                    this.setPairSize(layout.top, [topSizes[0], 100 - topSizes[0] - 1, 0], 4);
+                    this.setPairSize(layout.top, [topSizes[0], 100 - topSizes[0], 0], 4);
                 } else {
                     let r = t + b;
 //                    layout.right.setSizes([100 / r * t, 100 / r * b])
@@ -270,11 +267,13 @@
                 sizes: [50, 50],
                 gutterSize: 4,
             });
+
+
             window.layout = this.layout;
             window.views = this.views;
             this.refresh();
 
-            window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
+            window.EDITOR_PART = this.$refs.ide_editorPart;
         },
         components: {
             viewpart: viewpart,

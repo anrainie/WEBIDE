@@ -11,13 +11,24 @@
 </template>
 <style>
     .viewPart {
+        position:relative;
         padding: 0px;
     }
 
     .view_head {
+        position:absolute;
         width: 100%;
-        height: 25px;
+        height: 20px;
         background: #888;
+    }
+    .view_content{
+        position:absolute;
+        top: 21px;
+        height:-moz-calc(100% - 21px);
+        height:-webkit-calc(100% - 21px);
+        height: calc(100% - 21px);
+        width:100%;
+        overflow-y:scroll;
     }
 
     .view_toolbar {
@@ -111,6 +122,7 @@
                     content = document.createElement('div');
                     let vt = require(viewConfig.component);
                     let v = new Vue(vt);
+//                    let v=Vue.extend(viewConfig.component);
                     v.$props.id = this.model.id;
                     v.$props.name = viewConfig.name;
                     if (typeof(viewConfig.data) == 'object') {

@@ -49,16 +49,16 @@
     #ide_workbench {
         display: inline-block;
         width: 100%;
-        height:-moz-calc(100% - 70px);
-        height:-webkit-calc(100% - 70px);
-        height: calc(100% - 70px);
+        height:-moz-calc(100% - 75px);
+        height:-webkit-calc(100% - 75px);
+        height: calc(100% - 75px);
     }
     #ide_navigator {
         position: relative;
         border: 1px solid gray;
         height: 100%;
     }
-    #ide_workbenchPage {
+    #ide_EDITOR_PART {
         height: 100%;
     }
 </style>
@@ -334,16 +334,16 @@ window.io = io;
                                     });
                                 },
                                 delete: function (item) {
-                                    var editor = WORKBENCHPAGE.getEditor(item);
+                                    var editor = EDITOR_PART.getEditor(item);
                                     if (editor) {
-                                        WORKBENCHPAGE.closeEditor(item);
+                                        EDITOR_PART.closeEditor(item);
                                     }
                                 },
                                 click: function (item) {
                                 },
                                 dblclick: function (item) {
                                     if (!item.model.isParent) {
-                                        WORKBENCHPAGE.openEditor(item);
+                                        EDITOR_PART.openEditor(item);
                                     }
                                 },
                                 rightClick: function (event, item) {
@@ -376,7 +376,6 @@ window.io = io;
                 },
                 'properties': {
                     name: '属性',
-                    component: './editorPart.vue',
                     image: "assets/image/nav-folder.png",
                     data:{
                         toolItems:[
@@ -435,22 +434,18 @@ window.io = io;
                 },
                 'console': {
                     name: '控制台',
-                    component: './editorPart.vue',
                     image: "assets/image/nav-folder.png",
                 },
                 'error': {
                     name: '错误控制',
-                    component: './editorPart.vue',
                     image: "assets/image/nav-folder.png",
                 },
                 'problem': {
                     name: '问题',
-                    component: './editorPart.vue',
                     image: "assets/image/nav-folder.png",
                 },
                 'version': {
                     name: '版本',
-                    component: './editorPart.vue',
                     image: "assets/image/nav-folder.png",
                 },
                 'test1': {
@@ -465,7 +460,6 @@ window.io = io;
                 },
                 'test3': {
                     name: '测试3',
-                    component: './editorPart.vue',
                     image: "assets/image/nav-folder.png",
                 }
             };

@@ -8,8 +8,8 @@
             <!--<navigator slot="content" id="ide_navigator" ref="ide_navigator" :model="naviModel" :config="naviConfig"-->
             <!--draggable="true"></navigator>-->
             <!--</viewpart>-->
-            <!--<workbenchPage id="ide_workbenchPage" ref="ide_workbenchPage" class="col-sm-10 col-md-9 col-xs-9">-->
-            <!--</workbenchPage>-->
+            <!--<EDITOR_PART id="ide_EDITOR_PART" ref="ide_EDITOR_PART" class="col-sm-10 col-md-9 col-xs-9">-->
+            <!--</EDITOR_PART>-->
             <workbench class="example col-sm-2 col-md-10 col-xs-9" :views="views" ref="workbench"
                        :editors="editors"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
@@ -33,7 +33,7 @@
     import statusbar from "../components/statusbar.vue";
     import view from "../components/viewPart.vue";
     import workbench from "../components/workbench.vue";
-    import workbenchPage from "../components/editorPart.vue";
+    import EDITOR_PART from "../components/editorPart.vue";
     import flowEditor from "../components/floweditor.vue";
     import contextMenu from "../components/contextMenu.vue";
     import shade from "../components/shade.vue";
@@ -101,16 +101,16 @@
                             },
                             callback: {
                                 delete: function (item) {
-                                    var editor = WORKBENCHPAGE.getEditor(item);
+                                    var editor = EDITOR_PART.getEditor(item);
                                     if(editor){
-                                        WORKBENCHPAGE.closeEditor(item);
+                                        EDITOR_PART.closeEditor(item);
                                     }
                                 },
                                 click:function (item) {
                                 },
                                 dblclick:function (item) {
                                     if(!item.model.isParent) {
-                                        WORKBENCHPAGE.openEditor(item);
+                                        EDITOR_PART.openEditor(item);
                                     }
                                 },
                                 rightClick:function (event,item) {
@@ -1019,7 +1019,7 @@
         mounted(){
             window.Menu = this.$refs.ide_menu;
             window.NAVI = this.$refs.ide_navigator;
-            window.WORKBENCHPAGE = this.$refs.ide_workbenchPage;
+            window.EDITOR_PART = this.$refs.ide_EDITOR_PART;
             window.CONTEXTMENU = this.$refs.ide_contextMenu;
             window.SHADE = this.$refs.ide_shade;
         },
@@ -1028,7 +1028,7 @@
             statusbar: statusbar,
             viewpart: view,
             workbench: workbench,
-            workbenchPage: workbenchPage,
+            EDITOR_PART: EDITOR_PART,
             contextMenu: contextMenu,
             shade: shade
         }

@@ -20,11 +20,15 @@
                              :label="head.label"
                              :width="head.width" class-name="t_item">
                 <template scope="scope">
-                    <el-input v-if="head.edit=='text'" size="large"
-                              v-model="scope.row[head.id]"
-                              style="width:100%;height:100%;"></el-input>
+                    <span v-if="head.edit==null">{{scope.row[head.id]}}</span>
+                    <!--<el-input v-if="head.edit=='text'" size="small"-->
+                    <!--v-model="scope.row[head.id]"-->
+                    <!--style="width:100%;height:100%;"></el-input>-->
+                    <input type="text" v-if="head.edit=='text'"
+                           v-model="scope.row[head.id]"
+                           style="width:100%;height:100%;border:none;background-color:inherit"/>
                     <el-select v-model="scope.row[head.id]"
-                               filterable @change="apply" v-if="head.edit=='combo'">
+                               filterable @change="apply" v-if="head.edit=='combo'" style="border:none">
                         <el-option
                                 v-for="item in head.options"
                                 :key="item.value"
@@ -46,7 +50,7 @@
         min-width: 0;
         text-overflow: ellipsis;
         vertical-align: middle;
-        font-size: 15px;
+        font-size: 12px;
         line-height: 10px;
     }
 
@@ -71,7 +75,7 @@
         },
         methods: {
             apply(v, a, c){
-                console.log(v,a,c)
+                console.log(v, a, c)
             },
             handleSizeChange(){
                 console.log();

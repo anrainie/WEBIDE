@@ -12,18 +12,18 @@
 <style rel="stylesheet">
     .toolbar{
         display: inline-block;
-        height: 25px;
+        height: 20px;
     }
     .toolbar > div{
         display: inline-block;
-        height: 25px;
+        height: 20px;
         float: left;
         margin-left: 3px;
         text-align: center;
     }
 
     .toolbar-item{
-        width: 25px;
+        width: 20px;
         margin-left: 3px;
     }
 
