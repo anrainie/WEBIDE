@@ -79,6 +79,8 @@
     import shade from "../components/shade.vue";
     import toolbar from "../components/toolbar.vue"
     import io from 'socket.io-client';
+    import navContextMenus from '../../action/afa.navi.contextmenu';
+
 window.io = io;
     var naviItems = [];
     export default{
@@ -351,7 +353,8 @@ window.io = io;
                                         if(data) {
                                             let result = JSON.parse(data);
                                             if (result.state === 'success') {
-                                                CONTEXTMENU.setItems(result.data);
+                                                let newItems = navContextMenus.match(result.data);
+                                                CONTEXTMENU.setItems(newItems);
                                                 if (CONTEXTMENU.isActive()) {
                                                     CONTEXTMENU.hide();
                                                 }
