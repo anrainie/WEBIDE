@@ -10,7 +10,8 @@ function resolve (dir) {
 
 module.exports = {
     entry: {
-        app: './src/main.js'
+        app: './src/main.js',
+        vendor: ['anrajs/index.js']
     },
     output:{
         path:resolve(__dirname, '../dist'),
@@ -44,7 +45,8 @@ module.exports = {
     resolve:{
         alias: {
             'jquery': 'jquery',
-            assets: resolve('src/asset')
+            assets: resolve('src/asset'),
+            anrajs: resolve('src/asset/javascript/anrajs/')
         }
     },
     babel: {
@@ -62,6 +64,9 @@ module.exports = {
                 to: "assets/image",
                 ignore: ['.*']
             }
-        ])
+        ]),
+        new webpack.optimize.CommonsChunkPlugin({
+                name: 'vendor' // 指定公共 bundle 的名字。
+        })
     ]
 }
