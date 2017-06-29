@@ -254,13 +254,12 @@
         },
         mounted(){
             var self = this;
-            window.IDE = {
-                type:'afa',
-                navigator:self.$refs.ide_navigator,
-                contextmenu:self.$refs.ide_contextMenu,
-                shade:self.$refs.ide_shade,
-                menu:self.$refs.ide_menu,
-            }
+
+            IDE.type='afa';
+            IDE.navigator=self.$refs.ide_navigator;
+            IDE.contextmenu=self.$refs.ide_contextMenu;
+            IDE.shade=self.$refs.ide_shade;
+            IDE.menu=self.$refs.ide_menu;
 
             let first = true;
 
