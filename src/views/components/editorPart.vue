@@ -362,21 +362,21 @@
                     }
                     collMenuItems.push(item);
                 }
-                CONTEXTMENU.setItems(collMenuItems);
+                IDE.contextmenu.setItems(collMenuItems);
 
-                CONTEXTMENU.setCallback({
+                IDE.contextmenu.setCallback({
                     onClick: function (menuItem) {
-                        var fileItem = NAVI.getItem(menuItem.id);
+                        var fileItem = IDE.navigator.getItem(menuItem.id);
                         self.showEditor(fileItem);
                     }
                 });
-                CONTEXTMENU.show($event.x - 250,$event.y);
+                IDE.contextmenu.show($event.x - 250,$event.y);
 
                 $event.stopPropagation();
             },
             openIndicatorMenu:function ($event,item) {
                 var self = this;
-                CONTEXTMENU.setItems([{
+                IDE.contextmenu.setItems([{
                     id:'Close',
                     name:'Close',
                     type:'item'
@@ -389,7 +389,7 @@
                     name:'Close All',
                     type:'item'
                 }]);
-                CONTEXTMENU.setCallback({
+                IDE.contextmenu.setCallback({
                     onClick: function (menuItem) {
                         let id = menuItem.id;
                         if(id === 'Close'){
@@ -411,7 +411,7 @@
                         }
                     }
                 });
-                CONTEXTMENU.show($event.clientX,$event.clientY);
+                IDE.contextmenu.show($event.clientX,$event.clientY);
             },
             hideAllEditor:function () {
                 for(var i = 0 ; i < this.editors.length ; i++){

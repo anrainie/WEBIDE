@@ -11,7 +11,7 @@ var items = {
         name: "应用",
         type: "item",
         handler:function () {
-            console.info('ddd')
+            console.info(this.type)
         }
     },
     "/solutionAction": {
@@ -62,17 +62,17 @@ var items = {
         type: "item"
     },
     "P&roperties": {
-        name: "P&roperties",
+        name: "Properties",
         type: "item"
     },
     "org.eclipse.ui.DeleteResourceAction": {
         id: "org.eclipse.ui.DeleteResourceAction",
-        name: "&Delete",
+        name: "Delete",
         type: "item"
     },
     "org.eclipse.ui.RefreshAction": {
         id: "org.eclipse.ui.RefreshAction",
-        name: "Re&fresh",
+        name: "Refresh",
         type: "item"
     },
     "org.eclipse.ui.CopyAction": {
@@ -83,6 +83,10 @@ var items = {
             
         }
     }
+}
+
+function newFile() {
+    console.info(this);
 }
 
 function match(originalItems, newItems) {
@@ -102,8 +106,8 @@ function match(originalItems, newItems) {
     }
 }
 
+
 module.exports = {
-    items: items,
     match: function (originalItems) {
         var newItems = []
         match(originalItems, newItems);

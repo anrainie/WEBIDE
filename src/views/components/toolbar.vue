@@ -23,7 +23,7 @@
     }
 
     .toolbar-item{
-        width: 20px;
+        width: 22px;
         margin-left: 3px;
     }
 

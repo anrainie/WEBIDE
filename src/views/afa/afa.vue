@@ -8,7 +8,6 @@
             <workbench id="ide_workbench_center" :views="views" ref="workbench" :editors="editors"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
-
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
         <contextMenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
                      :items="naviContextMenuItems"
@@ -81,7 +80,6 @@
     import io from 'socket.io-client';
     import navContextMenus from '../../action/afa.navi.contextmenu';
 
-window.io = io;
     var naviItems = [];
     export default{
         data(){
@@ -255,14 +253,14 @@ window.io = io;
         methods: {
         },
         mounted(){
+            var self = this;
             window.IDE = {
-                type:'afa'
+                type:'afa',
+                navigator:self.$refs.ide_navigator,
+                contextmenu:self.$refs.ide_contextMenu,
+                shade:self.$refs.ide_shade,
+                menu:self.$refs.ide_menu,
             }
-
-            window.Menu = this.$refs.ide_menu;
-            window.NAVI = this.$refs.ide_navigator;
-            window.CONTEXTMENU = this.$refs.ide_contextMenu;
-            window.SHADE = this.$refs.ide_shade;
 
             let first = true;
 
@@ -273,8 +271,8 @@ window.io = io;
             });
 
             socket.on('connect',function () {
-                console.info("client connect successful:");
                 if(first){
+                    IDE.shade.open();
                     IDE.socket.emit('getNaviItems',{
                         type:IDE.type,
                         event:'getNaviItems',
@@ -293,6 +291,7 @@ window.io = io;
                                 console.info('emit getNaviItems : ', result.errorMsg);
                             }
                         }
+                        IDE.shade.hide();
                     });
                     first = false;
                 }
@@ -336,16 +335,16 @@ window.io = io;
                                     });
                                 },
                                 delete: function (item) {
-                                    var editor = EDITOR_PART.getEditor(item);
+                                    var editor = IDE.editorPart.getEditor(item);
                                     if (editor) {
-                                        EDITOR_PART.closeEditor(item);
+                                        IDE.editorPart.closeEditor(item);
                                     }
                                 },
                                 click: function (item) {
                                 },
                                 dblclick: function (item) {
                                     if (!item.model.isParent) {
-                                        EDITOR_PART.openEditor(item);
+                                        IDE.editorPart.openEditor(item);
                                     }
                                 },
                                 rightClick: function (event, item) {
@@ -354,11 +353,11 @@ window.io = io;
                                             let result = JSON.parse(data);
                                             if (result.state === 'success') {
                                                 let newItems = navContextMenus.match(result.data);
-                                                CONTEXTMENU.setItems(newItems);
-                                                if (CONTEXTMENU.isActive()) {
-                                                    CONTEXTMENU.hide();
+                                                IDE.contextmenu.setItems(newItems);
+                                                if (IDE.contextmenu.isActive()) {
+                                                    IDE.contextmenu.hide();
                                                 }
-                                                CONTEXTMENU.show(event.x, event.y);
+                                                IDE.contextmenu.show(event.x, event.y);
                                             } else {
                                                 console.info('getNaviMenu : ', result.errorMsg);
                                             }

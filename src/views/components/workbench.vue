@@ -273,7 +273,7 @@
             window.views = this.views;
             this.refresh();
 
-            window.EDITOR_PART = this.$refs.ide_editorPart;
+            window.IDE.editorPart = this.$refs.ide_editorPart;
         },
         components: {
             viewpart: viewpart,

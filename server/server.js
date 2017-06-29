@@ -32,7 +32,6 @@ var session = expressSession({
 });
 app.use(session);
 require('./route/routes')(app);
-require('./route/navi.routes')(app);
 
 var afaServices = require('./service/afa.service');
 
