@@ -296,9 +296,8 @@
             },
             click (item) {
                 if(item.type === 'item' || item.disabled != true){
-                    console.info(item.id);
                     this.msgHub.$emit("hide");
-                    this.handle();
+                    item.handler();
                 }
             }
         }

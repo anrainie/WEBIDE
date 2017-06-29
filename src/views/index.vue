@@ -17,6 +17,7 @@
             return {}
         },
         mounted(){
+            window.IDE = {};
         },
         methods: {
         }

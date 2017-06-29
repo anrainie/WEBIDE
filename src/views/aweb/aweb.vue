@@ -101,16 +101,16 @@
                             },
                             callback: {
                                 delete: function (item) {
-                                    var editor = EDITOR_PART.getEditor(item);
+                                    var editor = IDE.editorPart.getEditor(item);
                                     if(editor){
-                                        EDITOR_PART.closeEditor(item);
+                                        IDE.editorPart.closeEditor(item);
                                     }
                                 },
                                 click:function (item) {
                                 },
                                 dblclick:function (item) {
                                     if(!item.model.isParent) {
-                                        EDITOR_PART.openEditor(item);
+                                        IDE.editorPart.openEditor(item);
                                     }
                                 },
                                 rightClick:function (event,item) {
