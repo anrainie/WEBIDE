@@ -21,14 +21,12 @@
                              :width="head.width" class-name="t_item">
                 <template scope="scope">
                     <span v-if="head.edit==null">{{scope.row[head.id]}}</span>
-                    <!--<el-input v-if="head.edit=='text'" size="small"-->
-                    <!--v-model="scope.row[head.id]"-->
-                    <!--style="width:100%;height:100%;"></el-input>-->
                     <input type="text" v-if="head.edit=='text'"
                            v-model="scope.row[head.id]"
                            style="width:100%;height:100%;border:none;background-color:inherit"/>
                     <el-select v-model="scope.row[head.id]"
-                               filterable @change="apply" v-if="head.edit=='combo'" style="border:none">
+                               filterable @change="apply" v-if="head.edit=='combo'" size="mini"
+                               style="border:none;width:80px">
                         <el-option
                                 v-for="item in head.options"
                                 :key="item.value"

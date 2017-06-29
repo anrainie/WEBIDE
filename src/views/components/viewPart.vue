@@ -11,24 +11,25 @@
 </template>
 <style>
     .viewPart {
-        position:relative;
+        position: relative;
         padding: 0px;
     }
 
     .view_head {
-        position:absolute;
+        position: absolute;
         width: 100%;
         height: 20px;
         background: #888;
     }
-    .view_content{
-        position:absolute;
+
+    .view_content {
+        position: absolute;
         top: 21px;
-        height:-moz-calc(100% - 21px);
-        height:-webkit-calc(100% - 21px);
+        height: -moz-calc(100% - 21px);
+        height: -webkit-calc(100% - 21px);
         height: calc(100% - 21px);
-        width:100%;
-        overflow-y:scroll;
+        width: 100%;
+        overflow-y: auto;
     }
 
     .view_toolbar {
@@ -118,7 +119,7 @@
                     content = _WB.cache[this.model.id].$el;
                     _WB.cache[this.model.id].$parent = this;
                     con.append(content);
-                } else {
+                } else if (viewConfig.component) {
                     content = document.createElement('div');
                     let vt = require(viewConfig.component);
                     let v = new Vue(vt);

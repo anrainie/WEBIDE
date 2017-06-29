@@ -1,10 +1,10 @@
 <template>
     <div>
-        <div :id="masterId" class="split split-horizontal content">
+        <div :id="masterId" class="content" style="position:relative;width:50%;height:100%;float:left">
             <dtable :tableConfig="tableConfig" :toolbarConfig="toolbarConfig" :searchConfig="searchConfig"
                     :model="dictModel"></dtable>
         </div>
-        <div :id="detailId" class="split split-horizontal content">
+        <div :id="detailId" class="content" style="position:relative;width:50%;height:100%;float:right">
             <el-form ref="form" :model="selection" label-width="80px" v-if="selection">
                 <el-col :span="11">
                     <el-form-item label="英文名称">
@@ -23,7 +23,7 @@
 <style>
 </style>
 <script>
-    import table from "./table.vue";
+    import table from "../table.vue";
     import  Split from "split.js";
 
     export default{
@@ -106,10 +106,10 @@
             window.dict = this.dictModel;
         },
         mounted(){
-            this.layout = Split(['#' + this.masterId, '#' + this.detailId], {
-                sizes: [50, 50],
-                gutterSize: 4,
-            });
+//            this.layout = Split(['#' + this.masterId, '#' + this.detailId], {
+//                sizes: [50, 50],
+//                gutterSize: 4,
+//            });
         }
     }
 </script>

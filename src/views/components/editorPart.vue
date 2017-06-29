@@ -311,8 +311,7 @@
                 }
             },
             getEditorDecorator:function (resId) {
-                var editorRef = this.config.editorRefs[resId];
-                return editorRef;
+                return this.config.editorRefs[resId];
             },
             revisePath:function (path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/,"-");
