@@ -1,51 +1,36 @@
 <template>
-    <li id="nav_item">{{children.name}}
-        <ul id="subList">
+    <li class="item nav_item">{{children.name}}
+        <ul class="subList">
             <MIC v-for="childrenItem in children.children" :children="childrenItem"></MIC>
         </ul>
     </li>
-
-    <!--<div id="nav_item">File-->
-
-    <!--</div>-->
-    <!--<div id="nav_item">View</div>-->
-    <!--<div id="nav_item">Edit</div>-->
-    <!--<div id="nav_item">Navigate</div>-->
-    <!--<div id="item">-->
-        <!--<div id="subList">-->
-            <!--&lt;!&ndash;<MTC v-for="children in children.children" id="MTC" :children="children"></MTC>&ndash;&gt;-->
-            <!--<div>123321</div>-->
-        <!--</div>-->
-    <!--</div>-->
-
 </template>
 <style>
 
-    #nav_item{
-        position: relative;
+    .nav_item{
         padding:3px 10px;
-        display:inline;
-    }
-    #nav_item:hover{
-        color: #78aaff;
-        -webkit-transition: all 0.3s;
-        /*-webkit-animation:textColor 0.3s;*/
-        /*-webkit-animation-fill-mode: forwards;*/
-    }
-    #nav_item:hover > #subList{
-        display: block;
-
     }
 
-    #subList{
+    .subList{
         background-color:#000000;
         position: absolute;
         left: 0;
+        top:15px;
         padding:0px;
-        display: none;
-        z-index: 999;
-
+        /*display: none;*/
+        visibility: hidden;
+        z-index: 10;
+        opacity: 0;
+        -webkit-transition: all 0.4s ease;
     }
+
+    .nav_item:hover > .subList{
+        visibility: visible;
+        top: 21px;
+        opacity: 1;
+    }
+
+
 
 </style>
 <script>

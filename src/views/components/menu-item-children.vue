@@ -23,7 +23,9 @@
     }
 
     .subList-item:hover > .subList-horizontal {
-        display: block;
+        visibility: visible;
+        left: 100%;
+        opacity: 1;
     }
 
     .subList-item .item-name{
@@ -31,13 +33,14 @@
     }
 
     .subList-item .subList-horizontal {
-        left: 100%;
+        left: 90%;
         top: 5px;
         padding: 0;
         position: absolute;
-        display: none;
+        visibility: hidden;
         background-color: #021A1A;
-
+        -webkit-transition: all 0.3s ease;
+        opacity: 0;
     }
 
     .subList-item .context-menu-item-img{
