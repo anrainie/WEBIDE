@@ -7,7 +7,7 @@
     </div>
 </template>
 <style>
-    @import "../../asset/style/style.css";
+    @import "../../asset/style/fontStyle.css";
 
     .quickBar{
         background-color: #000000;
