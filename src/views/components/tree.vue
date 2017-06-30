@@ -6,7 +6,7 @@
 </template>
 <script type="text/javascript">
     import item from "../components/tree-item.vue";
-    import Vue from 'vue/dist/vue.js'
+    import Vue from 'vue'
     export default {
         name: 'tree',
         props: ['model', 'config'],

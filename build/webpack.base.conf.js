@@ -3,8 +3,11 @@
  */
 var path = require('path');
 var webpack = require('webpack');
-var CopyWebpackPlugin = require('copy-webpack-plugin')
-function resolve (dir) {
+var CopyWebpackPlugin = require('copy-webpack-plugin');
+var utils = require('./utils');
+var vueLoaderConfig = require('./vue-loader.conf');
+
+function resolve(dir) {
     return path.join(__dirname, '..', dir)
 }
 
@@ -12,39 +15,78 @@ module.exports = {
     entry: {
         app: './src/main.js'
     },
-    output:{
-        path:resolve(__dirname, '../dist'),
-        filename:'[name].js',
+    output: {
+        path: resolve(__dirname, '../dist'),
+        filename: '[name].js',
         publicPath: '/'
     },
-    module:{
-        loaders: [{
-            test: /\.vue$/,
-            exclude: /node_modules/,
-            loader: 'vue-loader'
-        }, {
-            test: /\.css$/,
-            exclude: /node_modules/,
-            loader: 'style-loader!css-loader'
-        }, {
-            test: /\.js$/,
-            exclude: /node_modules/,
-            loader: 'babel'
-        }, {
-            test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
-            loader: 'file-loader'
-        }, {
-            test: /\.(png|jpg|gif)$/,
-            loader: 'url-loader',
-            options: {
-                name: '[name].[ext]?[hash]'
+    module: {
+        loaders: [
+            // {
+            //     test: /\.(js|vue)$/,
+            //     loader: 'eslint-loader',
+            //     enforce: "pre",
+            //     include: [resolve('src'), resolve('test')],
+            //     options: {
+            //         formatter: require('eslint-friendly-formatter')
+            //     }
+            // },
+            {
+                test: /\.vue$/,
+                loader: 'vue-loader',
+                options: vueLoaderConfig
+            },
+            {
+                test: /\.js$/,
+                loader: 'babel',
+                include: [resolve('src')]
+            },
+            {
+                test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+                loader: 'url-loader',
+                query: {
+                    limit: 10000,
+                    name: utils.assetsPath('img/[name].[hash:7].[ext]')
+                }
+            },
+            {
+                test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+                loader: 'url-loader',
+                query: {
+                    limit: 10000,
+                    name: utils.assetsPath('fonts/[name].[hash:7].[ext]')
+                }
             }
-        }]
+        ]
+        // loaders: [{
+        //     test: /\.vue$/,
+        //     exclude: /node_modules/,
+        //     loader: 'vue-loader'
+        // }, {
+        //     test: /\.css$/,
+        //     exclude: /node_modules/,
+        //     loader: 'style-loader!css-loader'
+        // }, {
+        //     test: /\.js$/,
+        //     exclude: /node_modules/,
+        //     loader: 'babel'
+        // }, {
+        //     test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
+        //     loader: 'file-loader'
+        // }, {
+        //     test: /\.(png|jpg|gif)$/,
+        //     loader: 'url-loader',
+        //     options: {
+        //         name: '[name].[ext]?[hash]'
+        //     }
+        // }
+        // ]
     },
-    resolve:{
+    resolve: {
         alias: {
             'jquery': 'jquery',
-            assets: resolve('src/asset')
+            assets: resolve('src/asset'),
+            'vue$': 'vue/dist/vue.js',
         }
     },
     babel: {

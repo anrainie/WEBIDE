@@ -105,7 +105,7 @@
     }
 </style>
 <script type="text/javascript">
-    import Vue from 'vue/dist/vue.js'
+    import Vue from 'vue'
     export default {
         name : "contextMenu",
         props: ['items','config'],

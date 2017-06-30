@@ -1,5 +1,5 @@
 //es6加载模块
-import Vue from 'vue/dist/vue.js'
+import Vue from 'vue'
 import App from './views/index.vue'
 import VueRouter from './router/routes'
 import store from './store/store'

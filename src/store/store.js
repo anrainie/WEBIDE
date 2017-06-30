@@ -1,7 +1,7 @@
 /**
  * Created by pang on 2017/6/8.
  */
-import Vue from 'vue/dist/vue.js'
+import Vue from 'vue'
 import Vuex from 'vuex'
 import UserStore from './userStore';
 

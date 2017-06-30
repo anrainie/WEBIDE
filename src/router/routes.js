@@ -3,7 +3,7 @@
  * Created by pang on 2017/6/13.
  */
 // 引入vue及相关插件
-import Vue from "vue/dist/vue.js";
+import Vue from "vue";
 import VueRouter from "vue-router";
 import Vuex from "vuex";
 import center from "../views/center/center.vue";

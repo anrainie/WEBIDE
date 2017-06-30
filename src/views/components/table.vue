@@ -57,7 +57,7 @@
 </style>
 <script>
     import ElementUI from 'element-ui';
-    import Vue from "vue/dist/vue.js";
+    import Vue from "vue";
 
     Vue.use(ElementUI);
     export  default{

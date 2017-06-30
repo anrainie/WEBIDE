@@ -47,7 +47,7 @@
 </style>
 <script>
     import toolbar from './toolbar.vue';
-    import Vue from "vue/dist/vue.js";
+    import Vue from "vue";
 
     export default {
         name: 'workbenchPage',

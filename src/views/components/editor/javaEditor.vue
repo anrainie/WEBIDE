@@ -1,34 +1,53 @@
 <template>
-    <div :id="editorId">
-
+    <div class="hello">
+        <div>
+            <MonacoEditor
+                    height='200'
+                    language="typescript"
+                    :code='code'
+            ></MonacoEditor>
+        </div>
     </div>
 </template>
-<script>
-    import monaco from "monaco-editor/min/vs/loader.js";
 
-    export default{
-        props: [],
-        created(){
-            this.editorId = 'editor_' + this._uid
+<script>
+    import MonacoEditor from 'vue-monaco-editor'
+
+    export default {
+        name: 'hello',
+        data () {
+            return {
+                msg: 'Welcome to MonacoEditor example',
+                code: `var hello = 'world'\nconsole.log(hello)`
+            }
         },
-        mounted(){
-//            var model = monaco.editor.createModel('', 'plaintext');
-//
-//            var editor = monaco.editor.create(document.getElementById('#' + this.editorId), {
-//                model: model,
-//                readOnly: false,
-//                glyphMargin: true,
-//                wrappingColumn: WRAPPING_COLUMN,
-//                outlineMarkers: false,
-//                renderWhitespace: true,
-//                minimap: {
-//                    enabled: true
-//                }
-//                // scrollbar: {
-//                // 	verticalHasArrows: true,
-//                // 	horizontalHasArrows: true
-//                // }
-//            });
+        components: {
+            MonacoEditor
         }
     }
 </script>
+
+<!-- Add "scoped" attribute to limit CSS to this component only -->
+<style scoped>
+    h1, h2 {
+        font-weight: normal;
+    }
+
+    ul {
+        list-style-type: none;
+        padding: 0;
+    }
+
+    li {
+        display: inline-block;
+        margin: 0 10px;
+    }
+
+    a {
+        color: #42b983;
+    }
+
+    .wrap {
+        text-align: center;
+    }
+</style>

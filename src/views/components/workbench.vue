@@ -82,7 +82,7 @@
 </style>
 <script>
     import  Split from "split.js";
-    import Vue from "vue/dist/vue.js";
+    import Vue from "vue";
     import viewpart from "./viewPart.vue";
     import editorPart from "../components/editorPart.vue";
     import flowEditor from "../components/floweditor.vue";

@@ -66,7 +66,7 @@
     }
 </style>
 <script>
-    import Vue from 'vue/dist/vue.js'
+    import Vue from 'vue'
     export default {
         name: 'menuItemChildren',
         props: ['children'],
