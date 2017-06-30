@@ -33,7 +33,7 @@ module.exports = {
             loader: 'babel'
         }, {
             test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
-            loader: 'file-loader'
+            loader: 'url-loader'
         }, {
             test: /\.(png|jpg|gif)$/,
             loader: 'url-loader',
