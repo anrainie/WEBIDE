@@ -86,6 +86,7 @@ module.exports = {
     resolve: {
         alias: {
             'jquery': 'jquery',
+            'vue$': 'vue/dist/vue.common.js',
             assets: resolve('src/asset'),
             anrajs: resolve('src/asset/javascript/anrajs/')
         }
@@ -107,7 +108,7 @@ module.exports = {
             }
         ]),
         new webpack.optimize.CommonsChunkPlugin({
-                name: 'vendor' // 指定公共 bundle 的名字。
+            name: 'vendor' // 指定公共 bundle 的名字。
         })
     ]
 }
