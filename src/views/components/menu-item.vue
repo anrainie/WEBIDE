@@ -1,5 +1,5 @@
 <template>
-    <li class="item nav_item">{{children.name}}
+    <li class="menu_item nav_item">{{children.name}}
         <ul class="subList">
             <MIC v-for="childrenItem in children.children" :children="childrenItem"></MIC>
         </ul>

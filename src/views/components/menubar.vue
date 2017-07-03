@@ -18,13 +18,13 @@
         display: inline-block;
 
     }
-    .item{
+    .menu_item{
         color: #ffffff;
         display: inline;
         position: relative;
         list-style: none;
     }
-    .item:hover{
+    .menu_item:hover{
         color: #78aaff;
         -webkit-transition: all 0.3s;
     }
