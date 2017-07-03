@@ -2,7 +2,7 @@
  * GEF(graphic editor framework)相关类，参考Eclipse GEF编写，完全应用MVC模式。
  * @type {Object}
  */
-import {Map, Array} from './anra.common'
+import {Map, Util} from './anra.common'
 import Base from '../lib/Base'
 import {anra} from './anra.svg'
 import * as constants from './anra.constants'
@@ -246,7 +246,7 @@ anra.gef.EditPart = Base.extend({
     removeChild: function (child) {
         if (child == null)
             throw 'child can not be null';
-        var index = this.children.indexOf(child);
+        var index = Util.indexOf.call(this.children, child);
         if (index < 0)
             return;
         this.fireRemovingChild(child, index);
@@ -255,7 +255,7 @@ anra.gef.EditPart = Base.extend({
         child.removeNotify();
         this.removeChildVisual(child);
         child.setParent(null);
-        this.children.remove(child);
+        Util.remove.call(this.children, child);
     },
     fireRemovingChild: function (child, index) {
         var listeners = this.eventTable.getListeners(anra.gef.EditPartListener.prototype.class);
@@ -281,7 +281,7 @@ anra.gef.EditPart = Base.extend({
         if (index == null)
             index = this.children.length;
 
-        this.children.insert(child, index);
+        Util.insert.call(this.children, child, index);
         child.setParent(this);
         this.addChildVisual(child, index);
         child.addNotify();
@@ -295,8 +295,8 @@ anra.gef.EditPart = Base.extend({
     },
     reorderChild: function (editpart, index) {
 //        this.removeChildVisual(editpart);
-        this.children.removeObject(editpart);
-        this.children.insert(editpart, index);
+        Util.removeObject.call(this.children, editpart);
+        Util.insert.call(this.children, editpart, index);
 //        this.addChildVisual(editpart, index);
     },
     removeChildVisual: function (child) {
@@ -753,24 +753,23 @@ anra.gef.NodeEditPart = anra.gef.EditPart.extend({
 
     },
     reorderSourceConnection: function (line, index) {
-        var o = this.sConns.remove(index);
-        this.sConns.insert(o, index + 1);
+        var o = Util.remove.call(this.sConns, index);
+        Util.insert.call(this.sConns, o, index + 1);
         line.refresh();
     },
     removeSourceConnection: function (line) {
-        this.fireRemovingSourceConnection(line, this.sConns
-            .indexOf(line));
+        this.fireRemovingSourceConnection(line, Util.indexOf.call(this.sConns,line));
         if (line.source == this) {
             line.deactivate();
             line.source = null;
         }
-        this.sConns.removeObject(line);
+        Util.removeObject.call(this.sConns, line);
     },
     addSourceConnection: function (line, index) {
-        this.sConns.insert(line, index);
+        Util.insert.call(this.sConns, line, index);
         var source = line.source;
         if (source != null && source != this)
-            source.sConns.removeObject(line);
+            Util.removeObject.call(source.sConns, line)
         line.setSource(this);
         if (this.isActive())
             line.activate();
@@ -815,24 +814,24 @@ anra.gef.NodeEditPart = anra.gef.EditPart.extend({
         }
     },
     addTargetConnection: function (line, index) {
-        this.tConns.insert(line, index);
+        Util.insert.call(this.tConns, line, index);
         var target = line.source;
         if (target != null && target != this)
-            target.tConns.removeObject(line);
+            Util.removeObject.call(target.tConns, line);
         line.setTarget(this);
         this.fireTargetConnectionAdded(line, index);
         line.refresh();
     },
     reorderTargetConnection: function (line, index) {
-        var o = this.tConns.remove(index);
-        this.tConns.insert(o, index + 1);
+        var o = Util.remove.call(this.tConns, index);
+        Util.insert.call(this.tConns, o, index + 1);
         line.refresh();
     },
     removeTargetConnection: function (line, index) {
-        this.fireRemovingTargetConnection(line, this.tConns.indexOf(line));
+        this.fireRemovingTargetConnection(line, Util.indexOf.call(this.tConns,line));
         if (line.target == this)
             line.target = null;
-        this.tConns.removeObject(line);
+        Util.removeObject.call(this.tConns, line);
     },
     createLineEditPart: function (model) {
         return new anra.gef.LineEditPart(model);
@@ -891,7 +890,7 @@ anra.gef.RootEditPart = anra.gef.EditPart.extend({
             }
             if (f)return;
         }
-        if (this.selection == o || (this.selection != null && this.selection instanceof Array && this.selection.contains(o)))return;
+        if (this.selection == o || (this.selection != null && this.selection instanceof Array &&  Util.contains.call(this.selection, o)))return;
         this.clearSelection();
         this.selection = o;
         if (o instanceof Array) {
@@ -2067,7 +2066,7 @@ anra.gef.Editor = Base.extend({
             anra.Platform.error('GEF的父级元素不能为空');
             return;
         }
-        this.palette = this.createPalette(parentId);
+        //this.palette = this.createPalette(parentId);
         this.canvas = this.createCanvas(parentId);
 
         this._initCanvasListeners(this.canvas);
@@ -2273,10 +2272,9 @@ anra.gef.Line = anra.gef.Figure.extend(anra.svg.Polyline).extend({
                 y: anchor.y
             });
         else
-            this.points.insert({
+            Util.insert.call(this.points, {
                 x: anchor.x,
-                y: anchor.y
-            });
+                y: anchor.y});
     },
     setTargetAnchor: function (anchor) {
         this.targetAnchor = anchor;

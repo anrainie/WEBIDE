@@ -10,7 +10,7 @@
  * @type {*}
  */
 import Base from '../lib/Base'
-import {Map, Array} from './anra.common'
+import {Map, Util} from './anra.common'
 
 //anra.svg.GridLayout.numColumns = 3;
 //anra.svg.GridLayout.makeColumnsEqualWidth=false;

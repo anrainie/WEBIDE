@@ -1,4 +1,4 @@
-import {anra, Map, Array} from './anra.common'
+import {anra, Map, Util} from './anra.common'
 import Base from '../lib/Base'
 import * as layout from './anra.layout'
 
@@ -37,7 +37,9 @@ anra.svg.Util = {
         }
     }
 };
-var Util = anra.svg.Util;
+
+//todo
+Object.assign(Util, anra.svg.Util);
 
 /**
  *控件基类，生命周期。
@@ -302,7 +304,7 @@ var _Composite = {
         if (c instanceof anra.svg.Control) {
             c.dispose();
             if (this.children != null)
-                this.children.removeObject(c);
+                Util.removeObject.call(this.children, c);
 
             //this cause bugs, should fix
              if (this.domContainer().contains(c.owner))
@@ -317,7 +319,7 @@ var _Composite = {
             this.children = [];
         }
         if (c instanceof anra.svg.Control) {
-            if (!this.children.contains(c)) {
+            if (!Util.contains.call(this.children, c)) {
                 this.children.push(c);
                 c.create();
                 c.setParent(this);
@@ -562,7 +564,7 @@ anra.svg.LineStrategy = {
                 }
                 j++;
             }
-            p.push(points.last());
+            p.push(Util.last.call(points));
             return this.Curve(p, l);
         }
     },

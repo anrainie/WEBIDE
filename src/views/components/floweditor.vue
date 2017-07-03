@@ -1,20 +1,79 @@
 <template>
-    <div>
-        <div class='main-editor'></div>
-        <div class='assist-editor'></div>
+<div class='main-editor'>
+    <div style = "position: relative;top: 0;width: 10%;height: 100%;background-color: #d3d3d3;float:left">
+        <p></p>
+        <el-row type="flex" justify="space-around">
+            <el-col :span='12'>
+                <el-button type="primary" icon="edit"></el-button>
+            </el-col>
+            <el-col :span='12'>
+                <el-button type="primary" icon="edit"></el-button>
+            </el-col>
+        </el-row>
+        
+        <el-row>
+            <el-col :span='24'>
+        <el-collapse v-if="isVisibility(mainEditor)" v-model="activeNames">                        
+            <el-collapse-item v-bind:title="items.name" name="1" v-for="items in getGroup(mainEditor)">
+                <img src="../../asset/image/editor/palette_component_ComponentInvoke.gif"/>
+            </el-collapse-item>
+        </el-collapse>
+                </el-col>
+        </el-row>
     </div>
+</div>
+       <!-- <div class='assist-editor'></div>-->
 </template>
+<style>
+    /*@import '~element-ui/lib/theme-default/index.css';*/
+    @import url("//unpkg.com/element-ui@1.3.7/lib/theme-default/index.css");
+    .main-editor {
+        position: relative;
+        left: 0px;
+        top: 0px;
+        width: 100%;
+        height: 90%;
+        background-color: rgb(13, 13, 13);
+        float: left;
+    }
+    
+    .assist-editor {
+        position: relative;
+        left: 0;
+        top: 0;
+        width: 50%;
+        height: 90%;
+        background-color: rgb(255, 255, 255);
+        float: left;
+    }
+    
+    .el-row {
+        margin-bottom: 10px;
+        &:last-child {
+        margin-bottom: 0;
+        }
+    }
+</style>
 <script type="text/javascript">
     import {$AG} from 'anrajs/index.js'
     import {FlowEditor} from 'anrajs/src/editorConfig'
     import config from 'anrajs/src/config'
+    
+    //test
+    import {Util} from 'anrajs/src/anra.common'
+    
+    import ElementUI from 'element-ui'
+    import Vue from "vue/dist/vue.js";
+
+    Vue.use(ElementUI);
     export default {
         name: 'flowEditor',
         props: ['input', 'file', 'msgHub'],
-        data: function() {
+            data: function() {
             return {
                 mainEditor: null,
-                assistEditor: null
+                assistEditor: null,
+                activeNames: ['1']
             }
         },
         mounted() {
@@ -22,9 +81,29 @@
             //this.createMainEditor(FlowEditor, config);
             //this.createAssistEditor(FlowEditor, config);
             this.createTestEditor(FlowEditor);
-            this.createAssistEditor(FlowEditor, config);
+            //this.createAssistEditor(FlowEditor, config);
+            
+            
+            
+            //test util
+            var a = {s: 4, ss :　5}, b = {b: 5, bb: 55};
+            Object.assign(a, b)
+            console.log(a)
+            console.log(b)
+        },
+        computed: {
         },
         methods: {
+            getGroup(editor) {
+                if (editor && editor.hasOwnProperty('config')) {
+                    return editor.config.group;
+                }
+            },
+            isVisibility(editor) {
+                if (editor) {
+                    return editor.config.group != null;
+                }
+            },
             isDirty() {
                 return this.isDirtyWithEditor(this.mainEditor) | this.isDirtyWithEditor(this.assistEditor);
             },
@@ -67,7 +146,6 @@
                     return;
                 }
 
-
                 /*应该不严谨*/
                 var cfg, id = this.pathName + '-mainEditor';
 
@@ -75,12 +153,8 @@
 
 
                 if (modelConfig) {
-                    try {
-                        cfg = $AG.resolveData(flowConfig, modelConfig);
-                        cfg.id = id;
-                    } catch (e) {
-                        console.error('配置格式可能有问题')
-                    }
+                    cfg = $AG.resolveData(flowConfig, modelConfig);
+                    cfg.id = id;
                 } else {
                     cfg = flowConfig;
                 }
@@ -424,31 +498,9 @@
                 }];
 
                 this.mainEditor = new $AG.Editor(flowConfig);
-
             }
         }
     }
 
 </script>
-<style>
-    .main-editor {
-        position: relative;
-        left: 0px;
-        top: 0px;
-        width: 50%;
-        height: 90%;
-        background-color: rgb(13, 13, 13);
-        float: left;
-    }
-    
-    .assist-editor {
-        position: relative;
-        left: 0;
-        top: 0;
-        width: 50%;
-        height: 90%;
-        background-color: rgb(255, 255, 255);
-        float: left;
-    }
 
-</style>

@@ -6,7 +6,7 @@
  */
 import {anra} from './anra.gef'
 import Base from '../lib/Base'
-import {Map, Array} from './anra.common'
+import {Map, Util} from './anra.common'
 import * as constants from './anra.constants'
 
 anra.addExtend('./anra.handle')
@@ -126,7 +126,7 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
                 var valid;
                 for (var i = 0, len = selection.length; i < len; i++) {
                     if (selection[i].figure == request.target) {
-                        s.insert(selection[i]);
+                        Util.insert.call(s, selection[i]);
                         valid = true;
                     } else {
                         s.push(selection[i]);
@@ -519,7 +519,7 @@ anra.gef.SelectionPolicy = anra.gef.AbstractEditPolicy.extend({
         this.getHost().removeEditPartListener(this.selectionListener);
     },
     showPrimarySelection: function () {
-        if (this.handles == null || this.handles.isEmpty())
+        if (this.handles == null || Util.isEmpty.call(this.handles))
             this.addSelectionHandles();
         else {
             for (var i = 0; i < this.handles.length; i++) {
@@ -528,7 +528,7 @@ anra.gef.SelectionPolicy = anra.gef.AbstractEditPolicy.extend({
         }
     },
     hideSelection: function () {
-        if (this.handles == null || this.handles.isEmpty()) {
+        if (this.handles == null || Util.isEmpty.call(this.handles)) {
             return;
         }
         for (var i = 0; i < this.handles.length; i++) {
@@ -544,7 +544,7 @@ anra.gef.SelectionPolicy = anra.gef.AbstractEditPolicy.extend({
             }
     },
     removeSelectionHandles: function () {
-        if (this.handles.isEmpty()) {
+        if (Util.isEmpty.call(this.handles)) {
             return;
         }
         if (this.handles != null)

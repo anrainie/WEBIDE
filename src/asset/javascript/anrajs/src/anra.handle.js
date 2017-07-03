@@ -1,7 +1,7 @@
 /**
  * Created by weiyajun on 2016/8/9 0009.
  */
-import {Map, Array, SELECTED, SELECTED_NONE, SELECTED_PRIMARY} from './anra.common'
+import {Map, Util} from './anra.common'
 import Base from '../lib/Base'
 import {anra} from './anra.gef'
 

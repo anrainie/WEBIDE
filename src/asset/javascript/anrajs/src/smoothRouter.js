@@ -2,6 +2,51 @@ import {Map} from './anra.common'
 import Base from '../lib/Base'
 import {anra} from './anra.gef'
 
+/*添加数组Api*/
+Array.prototype.indexOf = function (val) {
+    for (var i = 0; i < this.length; i++) {
+        if (this[i] == val) return i;
+    }
+    return -1;
+};
+
+Array.prototype.remove = function (val) {
+    if (typeof val == 'number') {
+        var o = this[val];
+        this.splice(val, 1);
+        return o;
+    } else {
+        this.removeObject(val);
+        return val;
+    }
+};
+
+Array.prototype.insert = function (item, index) {
+    this.splice(index, 0, item);
+};
+ 
+Array.prototype.removeObject = function (val) {
+    var index = this.indexOf(val);
+    if (index > -1) {
+        this.remove(index);
+    }
+};
+Array.prototype.isEmpty = function () {
+    return this.length == 0;
+};
+Array.prototype.last = function () {
+    return this[this.length - 1];
+};
+
+Array.prototype.contains = function (obj) {
+    var i = this.length;
+    while (i--) {
+        if (this[i] == obj) {
+            return true;
+        }
+    }
+    return false;
+}
 
 /**
  * 路由主体

@@ -7,7 +7,90 @@ window.requestAnimationFrame = window.requestAnimationFrame
     || window.webkitRequestAnimationFrame
     || window.mozRequestAnimationFrame
     || window.msRequestAnimationFrame;
-Array.prototype.indexOf = function (val) {
+
+Base.prototype._do = function (func) {
+    func.call(this);
+};
+
+//call 调用
+var Util = {};
+Util.isValid = function() {
+    if (! this instanceof Array) {
+        console.log('not array')
+    }
+}
+Util.indexOf = function (val) {
+    Util.isValid();
+    
+    for (var i = 0; i < this.length; i++) {
+        if (this[i] == val) return i;
+    }
+    return -1;
+};
+Util.remove = function (val) {
+    Util.isValid();
+    
+    if (typeof val == 'number') {
+        var o = this[val];
+        this.splice(val, 1);
+        return o;
+    } else {
+        Util.removeObject.call(this, val);
+        return val;
+    }
+};
+
+Util._do = function (func) {
+    Util.isValid();
+    
+    for (var i = 0; i < this.length; i++) {
+        func.call(this[i]);
+    }
+};
+
+
+Util.insert = function (item, index) {
+    Util.isValid();
+    
+    this.splice(index, 0, item);
+};
+/**
+ * 移除数组中的指定对象
+ * @param val
+ */
+Util.removeObject = function (val) {
+    Util.isValid();
+    
+    var index = Util.indexOf.call(this, val);
+    if (index > -1) {
+        Util.remove.call(this, index);
+    }
+};
+Util.isEmpty = function () {
+    Util.isValid();
+    
+    return this.length == 0;
+};
+Util.last = function () {
+    Util.isValid();
+    
+    return this[this.length - 1];
+};
+
+Util.contains = function (obj) {
+    Util.isValid();
+    
+    var i = this.length;
+    while (i--) {
+        if (this[i] == obj) {
+            return true;
+        }
+    }
+    return false;
+};
+
+
+/*Array.prototype.indexOf = function (val) {
     for (var i = 0; i < this.length; i++) {
         if (this[i] == val) return i;
     }
@@ -24,10 +107,6 @@ Array.prototype.remove = function (val) {
     }
 };
 
-Base.prototype._do = function (func) {
-    func.call(this);
-};
-
 Array.prototype._do = function (func) {
     for (var i = 0; i < this.length; i++) {
         func.call(this[i]);
@@ -38,10 +117,10 @@ Array.prototype._do = function (func) {
 Array.prototype.insert = function (item, index) {
     this.splice(index, 0, item);
 };
-/**
+*
  * 移除数组中的指定对象
  * @param val
- */
+ 
 Array.prototype.removeObject = function (val) {
     var index = this.indexOf(val);
     if (index > -1) {
@@ -63,7 +142,7 @@ Array.prototype.contains = function (obj) {
         }
     }
     return false;
-};
+};*/
 
 function isJson(obj) {
     var isjson = typeof(obj) == "object" && Object.prototype.toString.call(obj).toLowerCase() == "[object object]" && !obj.length;
@@ -233,7 +312,7 @@ anra._EventTable = {
             this.eventTable.dispose();
     },
     notifyListeners: function (eventType, event, isGlobalEvent) {
-        if (this.parent != null && !isGlobalEvent && anra.BubbleEvent.contains(eventType)) {
+        if (this.parent != null && !isGlobalEvent && Util.contains.call(anra.BubbleEvent, eventType)) {
             var ls = this.eventTable == null ? null : this.eventTable.getListeners(eventType);
             if (ls == null || ls.length == 0) {
                 this.parent.notifyListeners(eventType, event, isGlobalEvent);
@@ -548,8 +627,8 @@ anra.event.EventTable = Base.extend({
         this.listeners.length = 0;
     },
     remove: function (i) {
-        this.types.remove(i);
-        this.listeners.remove(i);
+        Util.remove.call(this.types, i);
+        Util.remove.call(this.listeners, i);
     },
     sendEvent: function (event) {
         if (event.type == anra.EVENT.NONE)return;
@@ -788,11 +867,11 @@ anra.CommandStack = Base.extend({
         this.notifyListeners();
     },
     flushRedo: function () {
-        while (!this.redoable.isEmpty())
+        while (!Util.isEmpty.call(this.redoable))
             this.redoable.pop().dispose();
     },
     flushUndo: function () {
-        while (!this.undoable.isEmpty())
+        while (!Util.isEmpty.call(this.undoable))
             this.undoable.pop().dispose();
     },
     execute: function (c) {
@@ -804,7 +883,7 @@ anra.CommandStack = Base.extend({
             c.execute();
             if (this.getUndoLimit() > 0)
                 while (this.undoable.length > this.getUndoLimit()) {
-                    this.undoable.remove(0).dispose();
+                    Util.remove.call(this.undoable, 0);
                     if (this.saveLocation > -1)
                         this.saveLocation--;
                 }
@@ -880,7 +959,7 @@ anra.ArrayMap = Base.extend({
         var vs = this.map.get(k);
         if (vs == null)
             return;
-        vs.removeObject(v);
+        Util.removeObject.call(vs, v);
     }
 });
 
@@ -907,4 +986,4 @@ anra.genUUID = function () {
 };
 
 
-export {Map, Array, anra};
+export {Map, Array, anra, Util};

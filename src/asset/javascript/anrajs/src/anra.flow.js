@@ -70,7 +70,7 @@
  * 对外的API
  * @type {{}}
  */
-import {Map, Array} from './anra.common'
+import {Map, Util} from './anra.common'
 import {anra} from './anra.gef'
 import Base from '../lib/Base'
 
