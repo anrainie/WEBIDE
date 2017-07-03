@@ -1,52 +1,6 @@
-import {Map} from './anra.common'
+import {Map, Util} from './anra.common'
 import Base from '../lib/Base'
 import {anra} from './anra.gef'
-
-/*添加数组Api*/
-Array.prototype.indexOf = function (val) {
-    for (var i = 0; i < this.length; i++) {
-        if (this[i] == val) return i;
-    }
-    return -1;
-};
-
-Array.prototype.remove = function (val) {
-    if (typeof val == 'number') {
-        var o = this[val];
-        this.splice(val, 1);
-        return o;
-    } else {
-        this.removeObject(val);
-        return val;
-    }
-};
-
-Array.prototype.insert = function (item, index) {
-    this.splice(index, 0, item);
-};
- 
-Array.prototype.removeObject = function (val) {
-    var index = this.indexOf(val);
-    if (index > -1) {
-        this.remove(index);
-    }
-};
-Array.prototype.isEmpty = function () {
-    return this.length == 0;
-};
-Array.prototype.last = function () {
-    return this[this.length - 1];
-};
-
-Array.prototype.contains = function (obj) {
-    var i = this.length;
-    while (i--) {
-        if (this[i] == obj) {
-            return true;
-        }
-    }
-    return false;
-}
 
 /**
  * 路由主体
@@ -75,7 +29,8 @@ var smoothRouter = {
             
             while (i < length - 2) {
                 if ((path[i + 1].x == path[i].x && path[i].x == path[i + 2].x) || (path[i + 1].y == path[i].y && path[i].y == path[i + 2].y)) {
-                    path.removeObject(path[i + 1]);
+                    //path.removeObject(path[i + 1]);
+                    Util.removeObject.call(path, path[i + 1]);
                     length = path.length;
                 } else {
                     i++;
@@ -145,7 +100,8 @@ var binaryList = function(node, list) {
             }
         }
 
-        list.insert(node, low);    
+        //list.insert(node, low);   
+        Util.insert.call(list, node, low)
 };
 
 var calculatePath= function(node) {
@@ -172,7 +128,7 @@ var doubleAS = {
         this.addOpenList(start, end, list, forward);
         this.addOpenList(end, start, blist, backward);
         
-        while (!list.isEmpty() && !blist.isEmpty()) {
+        while (!Util.isEmpty.call(list) && !Util.isEmpty.call(blist)) {
             current = this.getMinPoint(list);
             bcurrent = this.getMinPoint(blist);
             
@@ -196,7 +152,8 @@ var doubleAS = {
         if (point.newG >= point.g)
             return;
 
-        open.removeObject(point);
+        //open.removeObject(point);
+        Util.removeObject.call(open, point);
         point.g = point.newG;
         point.state = notFound;
     },

@@ -59,9 +59,6 @@
     import {FlowEditor} from 'anrajs/src/editorConfig'
     import config from 'anrajs/src/config'
     
-    //test
-    import {Util} from 'anrajs/src/anra.common'
-    
     import ElementUI from 'element-ui'
     import Vue from "vue/dist/vue.js";
 
@@ -83,13 +80,6 @@
             this.createTestEditor(FlowEditor);
             //this.createAssistEditor(FlowEditor, config);
             
-            
-            
-            //test util
-            var a = {s: 4, ss :　5}, b = {b: 5, bb: 55};
-            Object.assign(a, b)
-            console.log(a)
-            console.log(b)
         },
         computed: {
         },
