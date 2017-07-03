@@ -3,8 +3,10 @@
  */
 "use strict";
 
-module.exports =  {
-    port : 8760,
-    session_secret : 'webide session secret',
-    db : 'mongodb://127.0.0.1:27017/webide',
+module.exports = {
+    port: 8760,
+    session_secret: 'webide session secret',
+    db: 'mongodb://127.0.0.1:27017/webide',
+    IDE_HOST: 'localhost',
+    IDE_PORT: '9090'
 }

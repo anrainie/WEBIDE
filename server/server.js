@@ -40,7 +40,7 @@ servlet.start();
 global.Servlet = servlet;
 
 global.Products = {};
-var afaProduct =  new Product('afa','10.8.6.62','9090',afaServices);
+var afaProduct =  new Product('afa',config.IDE_HOST,config.IDE_PORT,afaServices);
 afaProduct.connect();
 Products[afaProduct.name] = afaProduct;
 
