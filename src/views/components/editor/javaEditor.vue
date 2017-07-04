@@ -1,53 +1,42 @@
 <template>
     <div class="hello">
-        <div>
-            <MonacoEditor
-                    height='200'
-                    language="typescript"
-                    :code='code'
-            ></MonacoEditor>
-        </div>
+        <monacoeditor
+                width="100%"
+                height="100%"
+                language="java"
+                :code="input"
+                :editorOptions="options"
+                @mounted="onMounted"
+                @codeChange="onCodeChange"
+        >
+        </monacoeditor>
     </div>
 </template>
 
 <script>
-    import MonacoEditor from 'vue-monaco-editor'
+    import monacoeditor from 'vue-monaco-editor'
 
+    // use in component
     export default {
-        name: 'hello',
-        data () {
+        props: ['input'],
+        data() {
             return {
-                msg: 'Welcome to MonacoEditor example',
-                code: `var hello = 'world'\nconsole.log(hello)`
+                options: {
+                    selectOnLineNumbers: false
+                }
+            };
+        },
+        methods: {
+            onMounted(editor) {
+                this.editor = editor;
+                window.editor = this.editor;
+            },
+            onCodeChange(editor) {
+                console.log(editor.getValue());
             }
         },
         components: {
-            MonacoEditor
+            monacoeditor
         }
     }
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-    h1, h2 {
-        font-weight: normal;
-    }
-
-    ul {
-        list-style-type: none;
-        padding: 0;
-    }
-
-    li {
-        display: inline-block;
-        margin: 0 10px;
-    }
-
-    a {
-        color: #42b983;
-    }
-
-    .wrap {
-        text-align: center;
-    }
-</style>

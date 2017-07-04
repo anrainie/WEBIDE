@@ -36,10 +36,7 @@
         },
         computed: {
             isFolder: function () {
-                if(this.model.isParent){
-                    return true
-                }
-                return false;
+                return this.model.isParent;
             }
         },
         methods: {

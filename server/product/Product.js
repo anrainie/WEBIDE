@@ -28,7 +28,7 @@ Product.prototype.connect = function () {
             self.inited = true;
         }
         self.socket.emit("getNaviItems","{'type':'afa','event':'getNaviItems','data':{'path':'\\\\','level':1}}",function (data) {
-            console.info('====hello====');
+            console.info('====IDE链接初始化====');
         });
     });
 
