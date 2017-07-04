@@ -1,108 +1,136 @@
-body{
-  padding: 0px;
-  margin: 0px;
-  overflow:hidden;
+body {
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
 }
 
+/*===========滚动条===========*/
+::-webkit-scrollbar {
+    width: 16px;
+    height: 16px;
+    background-color: #99A9BF;
+}
+
+/*定义滚动条轨道 内阴影+圆角*/
+::-webkit-scrollbar-track {
+    /*-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);*/
+    border-radius: 5px;
+    background-color: #8492A6;
+}
+
+/*定义滑块 内阴影+圆角*/
+::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+    /*-webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);*/
+    background-color: #475669;
+}
+
+/*====================工作空间======================*/
 .workbench {
-  display: inline-block;
-  background-color: #475669;
+    display: inline-block;
+    background-color: #475669;
 }
 
+/*---------------顶部工具栏----------------*/
+.top_toolbar{
+    background-color: #475669;
+}
+
+/*---------------分隔栏-----------------*/
 .split {
-  -webkit-box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  box-sizing: border-box;
-  overflow-y: hidden;
-  overflow-x: hidden;
-  background-color: transparent;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    overflow-y: hidden;
+    overflow-x: hidden;
+    background-color: transparent;
 }
 
 .content {
-  border: 1px solid #324057;
-  background-color: transparent;
+    border: 1px solid #324057;
+    background-color: transparent;
 }
 
 .gutter {
-  background-color: transparent;
-  background-repeat: no-repeat;
-  background-position: 50%;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: 50%;
 }
 
 .gutter.gutter-horizontal {
-  cursor: col-resize;
-  background-image: url('~split.js/grips/vertical.png');
+    cursor: col-resize;
+    background-image: url('~split.js/grips/vertical.png');
 }
 
 .gutter.gutter-vertical {
-  cursor: row-resize;
-  background-image: url('~split.js/grips/horizontal.png');
+    cursor: row-resize;
+    background-image: url('~split.js/grips/horizontal.png');
 }
 
 .split.split-horizontal, .gutter.gutter-horizontal {
-  height: 100%;
-  float: left;
+    height: 100%;
+    float: left;
 }
 
 .split.split-vertical, .gutter.gutter-vertical {
-  width: 100%;
-  float: left;
+    width: 100%;
+    float: left;
 }
 
-
 .ft_item {
-  position: relative;
-  background-color:#324057;
-  color: #99A9BF;
+    position: relative;
+    background-color: #324057;
+    color: #99A9BF;
 }
 
 .ft_panel {
-  position: relative;
-  background: #324057;
+    position: relative;
+    background: #324057;
 }
 
 .ft_open {
-  background: #475669;
+    background: #475669;
 }
 
 .ft_item_v {
-  width: 100%;
-  height: 100px;
-  padding-bottom: 2px;
+    width: 100%;
+    height: 100px;
+    padding-bottom: 2px;
 }
 
 .ft_item_h {
-  width: 100px;
-  height: 100%;
-  float: left;
-  padding-right: 2px;
+    width: 100px;
+    height: 100%;
+    float: left;
+    padding-right: 2px;
 }
 
 .ft_text_v {
-  width: 1em;
-  height: 90px;
+    width: 1em;
+    height: 90px;
 }
 
 .ft_text_h {
-  float: right;
-  width: 70px;
-  height: 1em;
+    float: right;
+    width: 70px;
+    height: 1em;
 }
 
 .ft_float_left {
-  float: left;
+    float: left;
 }
 
 .ft_float_right {
-  float: right;
+    float: right;
 }
 
 .ft_panel.horizontal {
-  width: 50%;
-  height: 100%;
+    width: 50%;
+    height: 100%;
 }
 
 .ft_panel.vertical {
-  height: 50%;
-  width: 100%;
+    height: 50%;
+    width: 100%;
 }
+

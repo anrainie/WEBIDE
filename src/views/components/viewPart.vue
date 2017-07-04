@@ -37,7 +37,7 @@
         float: right;
         width: 50%;
         height: 100%;
-        background: #1F2D3D;
+        /*background: #1F2D3D;*/
     }
 
     .view_title {
