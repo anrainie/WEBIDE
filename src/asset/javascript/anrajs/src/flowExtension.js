@@ -108,15 +108,15 @@ $AG.Editor.prototype.createPaletteItem = function (type) {
     item.setAttribute('src', config.paletteUrl);
 
     item.onmousedown = function () {
-        var json = {
-                id: createID(),
-                name: config.name,
-                type: type,
-                bounds: config.bounds
-            },
-            node = new anra.gef.NodeModel();
+        var node = new $AG.Node();
 
-        node.props = json;
+        node.props = {
+            id: createID(),
+            name: config.name,
+            type: type,
+            bounds: config.bounds
+        };
+
         editor.setActiveTool(new anra.gef.CreationTool(node));
         return true;
     };
@@ -211,6 +211,32 @@ var createID = (function () {
         return count++;
     }
 })();
+
+//暂时性
+$AG.Editor.prototype.createID = createID;
+
+$AG.Editor.prototype.createNodeWithPalette = function(type) {
+    var config = this.config.children[type], editor = this;
+    
+    if (config == null) {
+        return null;
+    }
+    
+    return function () {
+        var node = new $AG.Node();
+
+        node.props = {
+            id: editor.createID(),
+            name: config.name,
+            type: type,
+            bounds: config.bounds
+        };
+
+        editor.setActiveTool(new anra.gef.CreationTool(node));
+        return true;
+    }
+};
+
 
 //打印地图节点
 $AG.Editor.prototype.showMap = function() {

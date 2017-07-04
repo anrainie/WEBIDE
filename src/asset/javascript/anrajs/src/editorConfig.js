@@ -198,6 +198,133 @@ var serviceNodeConfig = {
     refresh : refresh
 };
 
+//组三
+var start = {
+    name: 'start',
+    url: 'assets/image/editor/palette_component_nodeStart.gif',
+    paletteUrl: 'assets/image/editor/palette_component_nodeStart.gif',
+    type: $AG.IMAGE,
+    bounds: [0, 0, 50, 50],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+            {id: 0, dir: 'n', offset: 0},
+            {id: 1, dir: 's', offset: 0},
+            {id: 2, dir: 'e', offset: 0},
+            {id: 3, dir: 'w', offset: 0}
+    ],
+    refresh : refresh
+};
+
+var end = {
+    name: 'end',
+    url: 'assets/image/editor/palette_component_nodeEnd.gif',
+    paletteUrl: 'assets/image/editor/palette_component_nodeEnd.gif',
+    type: $AG.IMAGE,
+    bounds: [0, 0, 50, 50],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+            {id: 0, dir: 'n', offset: 0},
+            {id: 1, dir: 's', offset: 0},
+            {id: 2, dir: 'e', offset: 0},
+            {id: 3, dir: 'w', offset: 0}
+    ],
+    refresh : refresh
+};
+
+var eend = {
+    name: 'eend',
+    url: 'assets/image/editor/palette_component_nodeAbnormalEnd.gif',
+    paletteUrl: 'assets/image/editor/palette_component_nodeAbnormalEnd.gif',
+    type: $AG.IMAGE,
+    bounds: [0, 0, 50, 50],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+            {id: 0, dir: 'n', offset: 0},
+            {id: 1, dir: 's', offset: 0},
+            {id: 2, dir: 'e', offset: 0},
+            {id: 3, dir: 'w', offset: 0}
+    ],
+    refresh : refresh
+};
+
+var error = {
+    name: 'error',
+    url: 'assets/image/editor/palette_component_nodeErrorDelegate.gif',
+    paletteUrl: 'assets/image/editor/palette_component_nodeErrorDelegate.gif',
+    type: $AG.IMAGE,
+    bounds: [0, 0, 50, 50],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+            {id: 0, dir: 'n', offset: 0},
+            {id: 1, dir: 's', offset: 0},
+            {id: 2, dir: 'e', offset: 0},
+            {id: 3, dir: 'w', offset: 0}
+    ],
+    refresh : refresh
+};
+
+var context = {
+    name: 'context',
+    url: 'assets/image/editor/palette_component_ComponentInvoke.gif',
+    paletteUrl: 'assets/image/editor/palette_component_ComponentInvoke.gif',
+    type: $AG.IMAGE,
+    bounds: [0, 0, 50, 50],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+            {id: 0, dir: 'n', offset: 0},
+            {id: 1, dir: 's', offset: 0},
+            {id: 2, dir: 'e', offset: 0},
+            {id: 3, dir: 'w', offset: 0}
+    ],
+    refresh : refresh
+};
+
+var serivceX = {
+    name: 'serivceX',
+    url: 'assets/image/editor/palette_component_TradeInvoke.gif',
+    paletteUrl: 'assets/image/editor/palette_component_TradeInvoke.gif',
+    type: $AG.IMAGE,
+    bounds: [0, 0, 50, 50],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+            {id: 0, dir: 'n', offset: 0},
+            {id: 1, dir: 's', offset: 0},
+            {id: 2, dir: 'e', offset: 0},
+            {id: 3, dir: 'w', offset: 0}
+    ],
+    refresh : refresh
+};
+
+var mid = {
+    name: 'mid',
+    url: 'assets/image/editor/palette_component_transfer.gif',
+    paletteUrl: 'assets/image/editor/palette_component_transfer.gif',
+    type: $AG.IMAGE,
+    bounds: [0, 0, 50, 50],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+            {id: 0, dir: 'n', offset: 0},
+            {id: 1, dir: 's', offset: 0},
+            {id: 2, dir: 'e', offset: 0},
+            {id: 3, dir: 'w', offset: 0}
+    ],
+    refresh : refresh
+};
+
 var FlowEditor = {
     id: 'mainEditor',
     children: {
@@ -205,7 +332,14 @@ var FlowEditor = {
         '4': serviceCpt,
         '5': serviceCpt,
         '6': commonNodeConfig,
-        '7': serviceNodeConfig
+        '7': serviceNodeConfig,
+        '8':  start,
+        '9':  end,
+        '10': eend,
+        '11': error,
+        '12': context,
+        '13': serivceX,
+        '14': mid,
     },
     lines: {
         0 : manhattanRoute
@@ -220,7 +354,8 @@ var FlowEditor = {
             items: ['6', '7']
         },
         2: {
-            name: '组三'
+            name: '组三',
+            items: ['8', '9', '10', '11', '12', '13', '14']
         }
     },
     operations: [

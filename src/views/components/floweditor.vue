@@ -4,18 +4,22 @@
         <p></p>
         <el-row type="flex" justify="space-around">
             <el-col :span='12'>
-                <el-button type="primary" icon="edit"></el-button>
+                <el-button v-selectTool="mainEditor" type="primary" icon="edit"></el-button>
             </el-col>
             <el-col :span='12'>
-                <el-button type="primary" icon="edit"></el-button>
+                <el-button v-linkTool="mainEditor" type="primary" icon="edit"></el-button>
             </el-col>
         </el-row>
         
         <el-row>
             <el-col :span='24'>
-        <el-collapse v-if="isVisibility(mainEditor)" v-model="activeNames">                        
-            <el-collapse-item v-bind:title="items.name" name="1" v-for="items in getGroup(mainEditor)">
-                <img src="../../asset/image/editor/palette_component_ComponentInvoke.gif"/>
+        <el-collapse v-if="isVisibility(mainEditor)" v-model="activeNames" accordion>                        
+            <el-collapse-item v-bind:title="value.name" v-bind:name="index" v-for="(value, key, index) in getGroup(mainEditor)">
+                <el-row v-for="item in value.items">
+                    <el-col :span='24'>
+                        <img v-drag="{editor: mainEditor, type: item}"/>
+                    </el-col>
+                </el-row>
             </el-collapse-item>
         </el-collapse>
                 </el-col>
@@ -59,18 +63,16 @@
     import {FlowEditor} from 'anrajs/src/editorConfig'
     import config from 'anrajs/src/config'
     
-    import ElementUI from 'element-ui'
-    import Vue from "vue/dist/vue.js";
+    //import ElementUI from 'element-ui'
 
-    Vue.use(ElementUI);
     export default {
         name: 'flowEditor',
-        props: ['input', 'file', 'msgHub'],
+        props: ['file', 'msgHub', 'input'],
             data: function() {
             return {
                 mainEditor: null,
                 assistEditor: null,
-                activeNames: ['1']
+                activeNames: [0]
             }
         },
         mounted() {
@@ -79,7 +81,6 @@
             //this.createAssistEditor(FlowEditor, config);
             this.createTestEditor(FlowEditor);
             //this.createAssistEditor(FlowEditor, config);
-            
         },
         computed: {
         },
@@ -488,6 +489,64 @@
                 }];
 
                 this.mainEditor = new $AG.Editor(flowConfig);
+            }
+        },
+        
+        directives: {
+            drag : {
+                bind : function(el, binding, vnode) {
+                    //统一的验证 todo
+                    var editor = binding.value.editor, type = binding.value.type;
+                    
+                    el.onmousedown = editor.createNodeWithPalette(type);
+                    el.ondragstart = function() {
+                        return false;
+                    };
+                    el.setAttribute('src', editor.config.children[type].paletteUrl);
+                 }
+            },
+            selectTool : {
+                update : function(el, binding, vnode) {
+                    var editor = binding.value;
+                    if (editor == null) {
+                        console.warn('编辑器为空')
+                        return;
+                    }
+                    
+                    if (! editor instanceof $AG.Editor) {
+                        console.error('参数不是编辑器');
+                    }
+                    
+                    
+                    el.onmousedown = function() {
+                        editor.setActiveTool(editor.getDefaultTool());
+                    };
+                }
+            },
+            linkTool : {
+                update : function(el, binding, vnode) {
+                    var editor = binding.value;
+                    if (editor == null) {
+                        console.warn('编辑器为空')
+                        return;
+                    }
+                    
+                    if (! editor instanceof $AG.Editor) {
+                        console.error('参数不是编辑器');
+                    }
+                    
+                    var lineTool = new $AG.LineTool({id: 3, type: 0,target: 5, entr: 7, exit: 6});
+    
+                    el.onmousedown = function () {
+                        if (editor.getActiveTool() == lineTool) {
+                            editor.setActiveTool(editor.getDefaultTool());
+                        } else {
+                            editor.setActiveTool(lineTool);
+                        }
+                        
+                        return false;
+                    };
+                }
             }
         }
     }
