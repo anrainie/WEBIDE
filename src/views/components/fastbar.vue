@@ -1,72 +1,18 @@
 <template>
     <div>
         <div :class="itemPanel0" @drop='drop($event,0)' @dragover='allowDrop($event)'>
-            <item v-for="(item,index) in group[0]" position="0" :key="item.id" :ref='item.id' :index='index' :model="item"
+            <item v-for="(item,index) in group[0]" position="0" :key="item.id" :ref='item.id' :index='index'
+                  :model="item"
             ></item>
         </div>
         <div :class="itemPanel1" @drop='drop($event,1)' @dragover='allowDrop($event)'>
-            <item v-for="(item,index) in group[1]" position="1" :key="item.id" :ref='item.id' :index='index' :model="item"
+            <item v-for="(item,index) in group[1]" position="1" :key="item.id" :ref='item.id' :index='index'
+                  :model="item"
             ></item>
         </div>
     </div>
 </template>
 <style>
-
-    .ft_item {
-        position: relative;
-        background: #CCC;
-        border: 1px solid #AAA;
-    }
-
-    .ft_item_v {
-        width: 100%;
-        height: 100px;
-        padding-bottom: 2px;
-    }
-
-    .ft_item_h {
-        width: 100px;
-        height: 100%;
-        float: left;
-        padding-right: 2px;
-    }
-
-    .ft_text_v {
-        width: 1em;
-        height: 90px;
-    }
-
-    .ft_text_h {
-        float: right;
-        width: 70px;
-        height: 1em;
-    }
-
-    .ft_panel {
-        position: relative;
-    }
-
-    .ft_float_left {
-        float: left;
-    }
-
-    .ft_float_right {
-        float: right;
-    }
-
-    .ft_panel.horizontal {
-        width: 50%;
-        height: 100%;
-    }
-
-    .ft_panel.vertical {
-        height: 50%;
-        width: 100%;
-    }
-
-    .ft_open {
-        background: #FFF;
-    }
 </style>
 <script>
     export default{

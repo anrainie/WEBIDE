@@ -36,49 +36,6 @@
     </div>
 </template>
 <style>
-    .workbench {
-        display: inline-block;
-    }
-
-    .split {
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;
-        overflow-y: auto;
-        overflow-x: hidden;
-    }
-
-    .content {
-        border: 1px solid #C0C0C0;
-        box-shadow: inset 0 1px 2px #e4e4e4;
-        background-color: #fff;
-    }
-
-    .gutter {
-        background-color: transparent;
-        background-repeat: no-repeat;
-        background-position: 50%;
-    }
-
-    .gutter.gutter-horizontal {
-        cursor: col-resize;
-        background-image: url('~split.js/grips/vertical.png');
-    }
-
-    .gutter.gutter-vertical {
-        cursor: row-resize;
-        background-image: url('~split.js/grips/horizontal.png');
-    }
-
-    .split.split-horizontal, .gutter.gutter-horizontal {
-        height: 100%;
-        float: left;
-    }
-
-    .split.split-vertical, .gutter.gutter-vertical {
-        width: 100%;
-        float: left;
-    }
 </style>
 <script>
     import  Split from "split.js";
@@ -98,7 +55,7 @@
                         txt: flowEditor,
                         sql: flowEditor,
                         dict: dictEditor,
-                        java:javaEditor
+                        java: javaEditor
                     }
                 },
             }

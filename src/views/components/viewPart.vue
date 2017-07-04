@@ -19,7 +19,8 @@
         position: absolute;
         width: 100%;
         height: 20px;
-        background: #888;
+        background: #1F2D3D;
+        color: #C0CCDA;
     }
 
     .view_content {
@@ -36,7 +37,7 @@
         float: right;
         width: 50%;
         height: 100%;
-        background: #CCC;
+        background: #1F2D3D;
     }
 
     .view_title {

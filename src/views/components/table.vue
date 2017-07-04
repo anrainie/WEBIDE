@@ -56,8 +56,9 @@
     }
 </style>
 <script>
-    import ElementUI from 'element-ui';
     import Vue from "vue";
+    import ElementUI from 'element-ui';
+    //    import 'https://unpkg.com/element-ui/lib/index.js';
 
     Vue.use(ElementUI);
     export  default{

@@ -190,6 +190,7 @@
 <style>
     .tree {
         padding-left: 10px;
+        color: #E5E9F2;
     }
 </style>
 
