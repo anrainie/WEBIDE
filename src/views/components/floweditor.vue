@@ -65,7 +65,7 @@
     Vue.use(ElementUI);
     export default {
         name: 'flowEditor',
-        props: ['input', 'file', 'msgHub'],
+        props: ['file', 'msgHub','input'],
             data: function() {
             return {
                 mainEditor: null,

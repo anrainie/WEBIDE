@@ -348,18 +348,28 @@
                                 click: function (item) {
                                 },
                                 dblclick: function (item) {
-                                    IDE.socket.emit("getFile",{
-                                        type:IDE.type,
-                                        event:'getFile',
-                                        data:{
-                                            path:item.model.path
+                                    if(!item.model.isParent) {
+                                        let editor = IDE.editorPart.getEditor(item);
+                                        if(editor){
+                                            IDE.editorPart.showEditor(item);
+                                            return;
                                         }
-                                    },function (data) {
-                                        let result = JSON.parse(data);
-                                       console.info(result);
-                                    })
-                                    if (!item.model.isParent) {
-                                        IDE.editorPart.openEditor(item);
+                                        IDE.shade.open();
+                                        IDE.socket.emit("getFile", {
+                                            type: IDE.type,
+                                            event: 'getFile',
+                                            data: {
+                                                path: item.model.path
+                                            }
+                                        }, function (data) {
+                                            let result = JSON.parse(data);
+                                            console.info("getFile", result);
+                                            if (!item.model.isParent) {
+                                                IDE.editorPart.openEditor(item,result.data);
+                                            }
+                                            IDE.shade.hide();
+                                        })
+
                                     }
                                 },
                                 rightClick: function (event, item) {

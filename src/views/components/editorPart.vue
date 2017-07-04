@@ -219,18 +219,13 @@
                 }
                 return false;
             },
-            openEditor:function (item) {
+            openEditor:function (item,input) {
                 var oldEditor = this.getEditor(item);
                 if(oldEditor){
                    this.showEditor(item);
                    return;
                 }
-                this.loadFileContent(item);
-            },
-            loadFileContent:function (item) {
-                var self = this;
-                //TODO 通过ajax获取文件内容
-                this.doOpenEditor(item,"test");
+                this.doOpenEditor(item,input);
             },
             doOpenEditor:function (item,content) {
                 var editorDecorator = this.getEditorDecorator(item.model.resId);
