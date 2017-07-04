@@ -70,6 +70,11 @@
                 }
 
             },
+            collapse:function () {
+                if (this.isFolder) {
+                    this.open = false;
+                }
+            },
             loadItems(){
                 var self = this;
                 var asyncConfig = this.config.async;

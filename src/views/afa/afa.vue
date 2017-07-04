@@ -363,7 +363,7 @@
                                             }
                                         }, function (data) {
                                             let result = JSON.parse(data);
-                                            console.info("getFile", result);
+                                            console.info("getFile：", result);
                                             if (!item.model.isParent) {
                                                 IDE.editorPart.openEditor(item,result.data);
                                             }
