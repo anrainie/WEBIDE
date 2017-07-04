@@ -1,7 +1,7 @@
 <template>
     <div class="toolbar">
         <div v-for="item in toolItems"
-             :class="{'toolbar-item':item.type !='separator','toolbar-separator':item.type ==='separator'}"
+             :class="{'toolbar-item contextmenu-dropdown':item.type !='separator','toolbar-separator':item.type ==='separator'}"
              @click="onItemClick(item,$event)"
         >
             <img v-show="item.type !='separator'" v-bind:src="item.img"/>
@@ -70,10 +70,8 @@ export default{
             if(item.type === 'item' && this.config.callback.onClick){
                 this.config.callback.onClick(item);
             }else if(item.type === 'group'){
-                CONTEXTMENU.setItems(item.children);
-                CONTEXTMENU.setCallback(this.config.callback);
-                CONTEXTMENU.show($event.clientX,$event.clientY);
-                $event.stopPropagation();
+                IDE.contextmenu.setItems(item.children);
+                IDE.contextmenu.show($event.clientX,$event.clientY);
             }
         }
     },
