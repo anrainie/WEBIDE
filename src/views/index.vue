@@ -5,11 +5,7 @@
 </template>
 
 <style>
-    body{
-        padding: 0px;
-        margin: 0px;
-        overflow:hidden;
-    }
+    @import '~assets/style/style.css';
 </style>
 <script>
     export default{
