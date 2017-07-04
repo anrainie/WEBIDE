@@ -342,6 +342,16 @@
                                 click: function (item) {
                                 },
                                 dblclick: function (item) {
+                                    IDE.socket.emit("getFile",{
+                                        type:IDE.type,
+                                        event:'getFile',
+                                        data:{
+                                            path:item.model.path
+                                        }
+                                    },function (data) {
+                                        let result = JSON.parse(data);
+                                       console.info(result);
+                                    })
                                     if (!item.model.isParent) {
                                         IDE.editorPart.openEditor(item);
                                     }

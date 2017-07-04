@@ -16,6 +16,11 @@ module.exports =  {
             handler:ioService
         },
         {
+            id:'getFile',
+            type:'IOService',
+            handler:ioService
+        },
+        {
             id:'local1',
             type:'localService',
             handler:function () {
