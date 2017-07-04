@@ -40,7 +40,7 @@
         </el-table>
     </div>
 </template>
-<style>
+<style> 
     @import '~element-ui/lib/theme-default/index.css';
 
     .el-table td, .el-table th {
@@ -56,11 +56,6 @@
     }
 </style>
 <script>
-    import Vue from "vue";
-    import ElementUI from 'element-ui';
-    //    import 'https://unpkg.com/element-ui/lib/index.js';
-
-    Vue.use(ElementUI);
     export  default{
         props: ['columnConfig', 'model', 'tableConfig'],
         data(){
