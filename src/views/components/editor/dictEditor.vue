@@ -90,7 +90,10 @@
         methods:{
            isDirty(){
                return false;
-           }
+           },
+            focus(){
+
+            }
         },
         mounted(){
 //            this.layout = Split(['#' + this.masterId, '#' + this.detailId], {

@@ -4,7 +4,7 @@
             <span class="view_title" ref="view_title">{{title}}</span>
             <toolbar class="view_toolbar" :toolItems="actions" :config="actionConfig" ref="view_toolbar"></toolbar>
         </div>
-        <div :id="contentId" class="view_content" ref="view_content">
+        <div :id="contentId" class="view_content">
             <slot name="content"></slot>
         </div>
     </div>
@@ -102,13 +102,13 @@
                 console.log(this._uid, 'activated');
             },
             getContent(){
-                return this.refs.view_content;
+                return this['view_content'];
             },
             getTitle(){
-                return this.refs.view_title;
+                return this.$refs.view_title;
             },
             getToolbar(){
-                return this.refs.view_toolbar;
+                return this.$refs.view_toolbar;
             },
             applyContent(){
                 let con = $('#' + this.contentId);
@@ -138,6 +138,7 @@
                     con.append(content);
                     v.$mount(content);
                     v.$parent = this;
+                    this['view_content'] = v;
                     WORKBENCH.cache[this.model.id] = v;
                 }
 

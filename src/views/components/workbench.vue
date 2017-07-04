@@ -233,6 +233,7 @@
             this.refresh();
 
             window.IDE.editorPart = this.$refs.ide_editorPart;
+            window.IDE.navigator = this.findView('navigator').getContent();
         },
         components: {
             viewpart: viewpart,

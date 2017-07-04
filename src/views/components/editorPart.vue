@@ -1,7 +1,7 @@
 <template>
     <div>
         <ul id="editors-indicate" class="editor-tab contextmenu-dropdown" >
-            <div v-show="collapsedEditors.length > 0" class="editors-collapse" @click="openCollapseMenu($event)">
+            <div v-show="collapsedEditors.length > 0" class="editors-collapse contextmenu-dropdown" @click="openCollapseMenu($event)">
                 <div></div>
                 <span>{{collapsedEditors.length}}</span>
             </div>
@@ -353,21 +353,15 @@
                     let item = {
                         id:file.path,
                         name:file.name,
-                        type:'item'
+                        type:'item',
+                        handler:function () {
+                            self.showEditor(editor.file);
+                        }
                     }
                     collMenuItems.push(item);
                 }
                 IDE.contextmenu.setItems(collMenuItems);
-
-                IDE.contextmenu.setCallback({
-                    onClick: function (menuItem) {
-                        var fileItem = IDE.navigator.getItem(menuItem.id);
-                        self.showEditor(fileItem);
-                    }
-                });
                 IDE.contextmenu.show($event.x - 250,$event.y);
-
-                $event.stopPropagation();
             },
             openIndicatorMenu:function ($event,item) {
                 IDE.contextmenu.setItems(editorPartTab);
