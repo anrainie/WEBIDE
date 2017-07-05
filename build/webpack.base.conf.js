@@ -38,6 +38,14 @@ module.exports = {
                 options: vueLoaderConfig
             },
             {
+                test: /\.(htm)(\?.*)?$/,
+                loader: 'url-loader',
+                query: {
+                    limit: 10000,
+                    name: utils.assetsPath('lib/[name].[hash:7].[ext]')
+                }
+            },
+            {
                 test: /\.js$/,
                 loader: 'babel',
                 include: [resolve('src')]
@@ -88,7 +96,8 @@ module.exports = {
             'jquery': 'jquery',
             'vue$': 'vue/dist/vue.common.js',
             assets: resolve('src/asset'),
-            anrajs: resolve('src/asset/javascript/anrajs/')
+            anrajs: resolve('src/asset/javascript/anrajs/'),
+            'vs$':'monaco-editor/min/vs'
         }
     },
     babel: {
@@ -105,6 +114,10 @@ module.exports = {
                 from: path.resolve(__dirname, '../src/asset/image'),
                 to: "assets/image",
                 ignore: ['.*']
+            },
+            {
+                from: 'node_modules/monaco-editor/min/vs',
+                to: 'vs',
             }
         ]),
         new webpack.optimize.CommonsChunkPlugin({

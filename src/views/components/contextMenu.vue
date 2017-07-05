@@ -106,6 +106,9 @@
 </style>
 <script type="text/javascript">
     import Vue from 'vue'
+
+    $(document).on('click.ide.contextmenu-dropdown.data-api', '.contextmenu-dropdown', function (e) {e.stopPropagation();});
+
     export default {
         name : "contextMenu",
         props: ['items','config'],
@@ -275,7 +278,8 @@
 
                 this.$el.style.top = y + "px";
                 this.$el.style.left = x + "px";
-                $(document).one('click.contextmenu', $.proxy(this.hide, this));
+
+                $(document).one('click.ide.contextmenu-hide.data-api', $.proxy(this.hide, this));
             },
             needCollapse:function (y,vueComponent) {
                 if( (y + vueComponent.$el.clientHeight) > document.body.clientHeight){

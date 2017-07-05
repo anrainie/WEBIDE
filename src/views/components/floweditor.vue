@@ -67,7 +67,7 @@
 
     export default {
         name: 'flowEditor',
-        props: ['file', 'msgHub', 'input'],
+        props: ['file', 'msgHub','input'],
             data: function() {
             return {
                 mainEditor: null,

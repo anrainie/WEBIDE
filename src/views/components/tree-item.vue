@@ -19,6 +19,7 @@
         </div>
     </div>
 </template>
+
 <script type="text/javascript">
     export default {
         name: 'item',
@@ -36,10 +37,7 @@
         },
         computed: {
             isFolder: function () {
-                if(this.model.isParent){
-                    return true
-                }
-                return false;
+                return this.model.isParent;
             }
         },
         methods: {
@@ -71,6 +69,11 @@
                     this.open = !this.open
                 }
 
+            },
+            collapse:function () {
+                if (this.isFolder) {
+                    this.open = false;
+                }
             },
             loadItems(){
                 var self = this;

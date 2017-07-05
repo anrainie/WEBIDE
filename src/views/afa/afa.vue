@@ -1,7 +1,8 @@
 <template>
     <div>
         <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
-        <toolbar :config="toolbarConfig" :toolItems="toolItems" style="border: 1px solid;float: right;width: 100%"></toolbar>
+        <toolbar class="top_toolbar" :config="toolbarConfig" :toolItems="toolItems"
+                 style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
@@ -19,6 +20,7 @@
 </template>
 <style>
     @import "~bootstrap/dist/css/bootstrap.css";
+
     #left_fast_bar {
         display: inline-block;
         width: 25px;
@@ -26,17 +28,20 @@
         float: left;
         background: #DDD;
     }
-    #ide_workbench_center{
-        width:-moz-calc(100% - 50px);
-        width:-webkit-calc(100% - 50px);
+
+    #ide_workbench_center {
+        width: -moz-calc(100% - 50px);
+        width: -webkit-calc(100% - 50px);
         width: calc(100% - 50px);
     }
+
     #bottom_fast_bar {
         bottom: 0px;
         width: 100%;
         height: 25px;
         background: #DDD;
     }
+
     #right_fast_bar {
         display: inline-block;
         width: 25px;
@@ -45,18 +50,21 @@
         background: #DDD;
         padding: 0;
     }
+
     #ide_workbench {
         display: inline-block;
         width: 100%;
-        height:-moz-calc(100% - 75px);
-        height:-webkit-calc(100% - 75px);
+        height: -moz-calc(100% - 75px);
+        height: -webkit-calc(100% - 75px);
         height: calc(100% - 75px);
     }
+
     #ide_navigator {
         position: relative;
         border: 1px solid gray;
         height: 100%;
     }
+
     #ide_EDITOR_PART {
         height: 100%;
     }
@@ -90,8 +98,7 @@
                 horizontal: true,
                 pageName: "pageName",
                 naviContextMenuItems: [],
-                contextMenuConfig: {
-                },
+                contextMenuConfig: {},
                 toolItems: [
                     {
                         id: 'item1',
@@ -144,7 +151,7 @@
                         img: "assets/image/nav-folder.png"
                     }
                 ],
-                toolbarConfig:{
+                toolbarConfig: {
                     callback: {
                         onClick: function (item) {
                             console.info("toolbar item onclick : " + item.id);
@@ -238,11 +245,11 @@
                         id: 'problem',
                         subgroup: 1,
                         open: true,
-                    },{
+                    }, {
                         id: 'test1',
                         subgroup: 0,
                         open: true,
-                    },{
+                    }, {
                         id: 'test2',
                         subgroup: 0,
                         open: true,
@@ -250,37 +257,35 @@
                 },
             }
         },
-        methods: {
-        },
+        methods: {},
         mounted(){
             var self = this;
 
-            IDE.type='afa';
-            IDE.navigator=self.$refs.ide_navigator;
-            IDE.contextmenu=self.$refs.ide_contextMenu;
-            IDE.shade=self.$refs.ide_shade;
-            IDE.menu=self.$refs.ide_menu;
+            IDE.type = 'afa';
+            IDE.contextmenu = self.$refs.ide_contextMenu;
+            IDE.shade = self.$refs.ide_shade;
+            IDE.menu = self.$refs.ide_menu;
 
             let first = true;
 
             let socket = io("http://localhost:8080");
-            socket.on('connect_error',function (err) {
+            socket.on('connect_error', function (err) {
                 console.info('connect_error');
                 IDE.socket = null;
             });
 
-            socket.on('connect',function () {
-                if(first){
+            socket.on('connect', function () {
+                if (first) {
                     IDE.shade.open();
-                    IDE.socket.emit('getNaviItems',{
-                        type:IDE.type,
-                        event:'getNaviItems',
-                        data:{
-                            path:'\\',
-                            level:1
+                    IDE.socket.emit('getNaviItems', {
+                        type: IDE.type,
+                        event: 'getNaviItems',
+                        data: {
+                            path: '\\',
+                            level: 1
                         }
-                    },function (data) {
-                        if(data) {
+                    }, function (data) {
+                        if (data) {
                             let result = JSON.parse(data);
                             if (result.state === 'success') {
                                 for (let index in result.data) {
@@ -296,8 +301,8 @@
                 }
             });
 
-            socket.on('reconnect_error',function (data) {
-                console.info("reconnect_error:",data);
+            socket.on('reconnect_error', function (data) {
+                console.info("reconnect_error:", data);
             })
 
             IDE.socket = socket;
@@ -311,24 +316,24 @@
                     component: './tree.vue',
                     data: {
                         config: {
-                            check:false,
-                            async:true,
+                            check: false,
+                            async: true,
                             callback: {
-                                asyncLoadItem:function (item) {
-                                    IDE.socket.emit('getNaviItems',{
-                                        type:IDE.type,
-                                        event:'getNaviItems',
-                                        data:{
-                                            path:item.model.path,
-                                            level:1
+                                asyncLoadItem: function (item) {
+                                    IDE.socket.emit('getNaviItems', {
+                                        type: IDE.type,
+                                        event: 'getNaviItems',
+                                        data: {
+                                            path: item.model.path,
+                                            level: 1
                                         }
-                                    },function (data) {
+                                    }, function (data) {
                                         let result = JSON.parse(data);
-                                        if(result.state === 'success'){
-                                            for(let index in result.data){
+                                        if (result.state === 'success') {
+                                            for (let index in result.data) {
                                                 item.addChild(result.data[index]);
                                             }
-                                        }else{
+                                        } else {
                                             console.info(result);
                                         }
                                     });
@@ -342,13 +347,37 @@
                                 click: function (item) {
                                 },
                                 dblclick: function (item) {
-                                    if (!item.model.isParent) {
-                                        IDE.editorPart.openEditor(item);
+                                    if(!item.model.isParent) {
+                                        let editor = IDE.editorPart.getEditor(item);
+                                        if(editor){
+                                            IDE.editorPart.showEditor(item);
+                                            return;
+                                        }
+                                        IDE.shade.open();
+                                        IDE.socket.emit("getFile", {
+                                            type: IDE.type,
+                                            event: 'getFile',
+                                            data: {
+                                                path: item.model.path
+                                            }
+                                        }, function (data) {
+                                            let result = JSON.parse(data);
+                                            console.info("getFile：", result);
+                                            if (!item.model.isParent) {
+                                                IDE.editorPart.openEditor(item,result.data);
+                                            }
+                                            IDE.shade.hide();
+                                        })
+
                                     }
                                 },
                                 rightClick: function (event, item) {
-                                    IDE.socket.emit('getNaviMenu',{type:IDE.type,event:'getNaviMenu',data:{path:item.model.path}},function (data) {
-                                        if(data) {
+                                    IDE.socket.emit('getNaviMenu', {
+                                        type: IDE.type,
+                                        event: 'getNaviMenu',
+                                        data: {path: item.model.path}
+                                    }, function (data) {
+                                        if (data) {
                                             let result = JSON.parse(data);
                                             if (result.state === 'success') {
                                                 let newItems = navContextMenus.match(result.data);
@@ -364,8 +393,8 @@
                                     });
                                 }
                             },
-                            filter:function (item) {
-                                if(item.model.name.startsWith(".")){
+                            filter: function (item) {
+                                if (item.model.name.startsWith(".")) {
                                     return true;
                                 }
                                 return false;
@@ -378,8 +407,8 @@
                 'properties': {
                     name: '属性',
                     image: "assets/image/nav-folder.png",
-                    data:{
-                        toolItems:[
+                    data: {
+                        toolItems: [
                             {
                                 id: 'item1',
                                 desp: 'desp1',

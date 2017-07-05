@@ -5,13 +5,14 @@
 </template>
 
 <style>
-    body{
-        padding: 0px;
-        margin: 0px;
-        overflow:hidden;
-    }
+    @import '~assets/style/style.css';
 </style>
 <script>
+    import Vue from "vue";
+    import ElementUI from 'element-ui';
+    //    import 'https://unpkg.com/element-ui/lib/index.js';
+
+    Vue.use(ElementUI);
     export default{
         data :function () {
             return {}

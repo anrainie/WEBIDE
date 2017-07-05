@@ -16,7 +16,8 @@
         data() {
             return {
                 selections: [],
-                msgHub: new Vue()
+                msgHub: new Vue(),
+                ALL_LEVELS : -1
             }
         },
         computed: {},
@@ -105,24 +106,24 @@
                     }
                 }
             },
-            getItemByRealpath:function () {
+            getItemByRealpath: function () {
                 var paths = path.split("/");
                 var reachedNode = this;
                 for (var i = 1; i < paths.length; i++) {
                     var children = reachedNode.getChildren();
-                    if(children){
+                    if (children) {
                         var exist = false;
-                        for(let index in children){
+                        for (let index in children) {
                             var child = children[index];
-                            if(child.rname === path[i]){
+                            if (child.rname === path[i]) {
                                 reachedNode = child;
                                 exist = true;
-                                if(i === paths.length - 1){
+                                if (i === paths.length - 1) {
                                     return reachedNode;
                                 }
                             }
                         }
-                        if(!exist){
+                        if (!exist) {
                             return null;
                         }
                     }
@@ -160,12 +161,51 @@
                 }
                 return false;
             },
-            refresh:function (path) {
+            getChildren:function () {
+                return this.$children;
+            },
+            expandAll:function () {
+                this.expandToLevel(this.ALL_LEVELS)
+            },
+            expandToLevel:function (level,item) {
+                item = item || this;
+                this._internalExpandToLevel(item,level);
+            },
+            _internalExpandToLevel:function (item,level) {
+                if(level === this.ALL_LEVELS || level > 0){
+                    var children = item.getChildren();
+                    for(var index in children){
+                        var child  = children[index];
+                        child.toggle();
+                        var newLevel = (level === this.ALL_LEVELS ? this.ALL_LEVELS : level - 1);
+                        this._internalExpandToLevel(child,newLevel);
+                    }
+                }
+            },
+            collapseAll:function () {
+                this.collapseToLevel(this,this.ALL_LEVELS);
+            },
+            collapseToLevel:function (item,level) {
+                this._internalCollapseToLevel(item,level);
+            },
+            _internalCollapseToLevel(item,level){
+                if(level === this.ALL_LEVELS || level > 0){
+                    var children = item.getChildren();
+                    for(var index in children){
+                        var child  = children[index];
+                        child.toggle();
+                        var newLevel = (level === this.ALL_LEVELS ? this.ALL_LEVELS : level - 1);
+                        this._internalExpandToLevel(child,newLevel);
+                    }
+                }
+            },
+            refresh: function (path) {
                 let item = this.getItem(path);
-                if(item){
+                if (item) {
                     item.loadItems();
                 }
-            }
+            },
+
         },
         mounted: function () {
             var self = this;
@@ -177,6 +217,7 @@
             this.msgHub.$on("setSelected", function (item, event) {
                 self.setSelection(item, event);
             });
+            window.treeModel = this.model;
         },
         created: function () {
         },
@@ -189,6 +230,7 @@
 <style>
     .tree {
         padding-left: 10px;
+        color: #E5E9F2;
     }
 </style>
 

@@ -1,7 +1,7 @@
 <template>
     <div>
-        <ul id="editors-indicate" class="editor-tab" >
-            <div v-show="collapsedEditors.length > 0" class="editors-collapse" @click="openCollapseMenu($event)">
+        <ul id="editors-indicate" class="editor-tab contextmenu-dropdown" >
+            <div v-show="collapsedEditors.length > 0" class="editors-collapse contextmenu-dropdown" @click="openCollapseMenu($event)">
                 <div></div>
                 <span>{{collapsedEditors.length}}</span>
             </div>
@@ -81,7 +81,8 @@
 
 </style>
 <script type="text/javascript">
-    import Vue from 'vue'
+    import Vue from 'vue';
+    import editorPartTab from '../../action/editorPartTab.contextmenu';
     export default {
         name:'workbenchPage',
         props: ['config'],
@@ -218,18 +219,13 @@
                 }
                 return false;
             },
-            openEditor:function (item) {
+            openEditor:function (item,input) {
                 var oldEditor = this.getEditor(item);
                 if(oldEditor){
                    this.showEditor(item);
                    return;
                 }
-                this.loadFileContent(item);
-            },
-            loadFileContent:function (item) {
-                var self = this;
-                //TODO 通过ajax获取文件内容
-                this.doOpenEditor(item,"test");
+                this.doOpenEditor(item,input);
             },
             doOpenEditor:function (item,content) {
                 var editorDecorator = this.getEditorDecorator(item.model.resId);
@@ -357,59 +353,18 @@
                     let item = {
                         id:file.path,
                         name:file.name,
-                        type:'item'
+                        type:'item',
+                        handler:function () {
+                            self.showEditor(editor.file);
+                        }
                     }
                     collMenuItems.push(item);
                 }
                 IDE.contextmenu.setItems(collMenuItems);
-
-                IDE.contextmenu.setCallback({
-                    onClick: function (menuItem) {
-                        var fileItem = IDE.navigator.getItem(menuItem.id);
-                        self.showEditor(fileItem);
-                    }
-                });
                 IDE.contextmenu.show($event.x - 250,$event.y);
-
-                $event.stopPropagation();
             },
             openIndicatorMenu:function ($event,item) {
-                var self = this;
-                IDE.contextmenu.setItems([{
-                    id:'Close',
-                    name:'Close',
-                    type:'item'
-                },{
-                    id:'Close Other',
-                    name:'Close Other',
-                    type:'item'
-                },{
-                    id:'Close All',
-                    name:'Close All',
-                    type:'item'
-                }]);
-                IDE.contextmenu.setCallback({
-                    onClick: function (menuItem) {
-                        let id = menuItem.id;
-                        if(id === 'Close'){
-                            self.closeEditor(item);
-                        }else if(id === 'Close Other'){
-                            let copy = self.editors.concat([]);
-                            for(let key in copy){
-                                let editor = copy[key];
-                                if(editor.file.model.path != item.model.path) {
-                                    self.closeEditor(editor.file);
-                                }
-                            }
-                        }else if(id === 'Close All'){
-                            let copy = self.editors.concat([]);
-                            for(let key in copy){
-                                let editor = copy[key];
-                                self.closeEditor(editor.file);
-                            }
-                        }
-                    }
-                });
+                IDE.contextmenu.setItems(editorPartTab);
                 IDE.contextmenu.show($event.clientX,$event.clientY);
             },
             hideAllEditor:function () {

@@ -2,7 +2,7 @@
     <div>
         <div :id="masterId" class="content" style="position:relative;width:50%;height:100%;float:left">
             <dtable :tableConfig="tableConfig" :toolbarConfig="toolbarConfig" :searchConfig="searchConfig"
-                    :model="dictModel"></dtable>
+                    :model="input.DataField"></dtable>
         </div>
         <div :id="detailId" class="content" style="position:relative;width:50%;height:100%;float:right">
             <el-form ref="form" :model="selection" label-width="80px" v-if="selection">
@@ -27,7 +27,7 @@
     import  Split from "split.js";
 
     export default{
-        props: ['dictModel', 'toolbarConfig', 'searchConfig'],
+        props: ['file','msgHub','input', 'toolbarConfig', 'searchConfig'],
         data(){
             return {
                 selection: null,
@@ -86,24 +86,14 @@
                 ],
             }
 
+        },
+        methods:{
+           isDirty(){
+               return false;
+           },
+            focus(){
 
-            this.dictModel = this.dictModel || [{
-                    name: 'name',
-                    PUBCODECNAME: '名称',
-                    DICTTYPE: '1',
-                    type: 'Varchar'
-                }, {
-                    name: 'id',
-                    PUBCODECNAME: 'ID',
-                    DICTTYPE: '2',
-                    type: 'Integer'
-                }, {
-                    name: 'account',
-                    PUBCODECNAME: '帐号',
-                    DICTTYPE: '0',
-                    type: 'varchar'
-                }];
-            window.dict = this.dictModel;
+            }
         },
         mounted(){
 //            this.layout = Split(['#' + this.masterId, '#' + this.detailId], {
