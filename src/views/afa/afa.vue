@@ -1,5 +1,5 @@
 <template>
-    <div>
+    <div class="ide_root">
         <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
         <toolbar class="top_toolbar" :config="toolbarConfig" :toolItems="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
@@ -38,7 +38,7 @@
     #bottom_fast_bar {
         bottom: 0px;
         width: 100%;
-        height: 25px;
+        /*height: 25px;*/
         background: #DDD;
     }
 
@@ -54,9 +54,9 @@
     #ide_workbench {
         display: inline-block;
         width: 100%;
-        height: -moz-calc(100% - 75px);
-        height: -webkit-calc(100% - 75px);
-        height: calc(100% - 75px);
+        height: -moz-calc(100% - 60px);
+        height: -webkit-calc(100% - 60px);
+        height: calc(100% - 60px);
     }
 
     #ide_navigator {
@@ -152,10 +152,8 @@
                     }
                 ],
                 toolbarConfig: {
-                    callback: {
-                        onClick: function (item) {
-                            console.info("toolbar item onclick : " + item.id);
-                        }
+                    onclick: function (item) {
+                        console.info("toolbar item onclick : " + item.id);
                     },
                     direction: 'left'
                 },
@@ -347,9 +345,9 @@
                                 click: function (item) {
                                 },
                                 dblclick: function (item) {
-                                    if(!item.model.isParent) {
+                                    if (!item.model.isParent) {
                                         let editor = IDE.editorPart.getEditor(item);
-                                        if(editor){
+                                        if (editor) {
                                             IDE.editorPart.showEditor(item);
                                             return;
                                         }
@@ -364,7 +362,7 @@
                                             let result = JSON.parse(data);
                                             console.info("getFile：", result);
                                             if (!item.model.isParent) {
-                                                IDE.editorPart.openEditor(item,result.data);
+                                                IDE.editorPart.openEditor(item, result.data);
                                             }
                                             IDE.shade.hide();
                                         })
@@ -403,6 +401,16 @@
                         model: naviItems,
                     },
                     image: "assets/image/nav-folder.png",
+                    actions: {
+                        collapse: {
+                            onclick(){
+                                console.log(collapse);
+                            },
+                            validate(){
+                                return false;
+                            }
+                        }
+                    }
                 },
                 'properties': {
                     name: '属性',

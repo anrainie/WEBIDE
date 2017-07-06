@@ -15,7 +15,7 @@
         },
         data() {
             return {
-                selections: [],
+                selection: [],
                 msgHub: new Vue(),
                 ALL_LEVELS : -1
             }
@@ -27,11 +27,11 @@
                 /* 按住ctrl时无法拿到event参数
                  if(event.ctrlKey){
                  var exist = false;
-                 for(var i = 0 ;i < this.selections.length ; i++){
-                 var selected = this.selections[i];
+                 for(var i = 0 ;i < this.selection.length ; i++){
+                 var selected = this.selection[i];
                  if(selected.model.path === item.model.path){
-                 var oldSelected = this.selections[i];
-                 this.selections.splice(i,1);
+                 var oldSelected = this.selection[i];
+                 this.selection.splice(i,1);
                  oldSelected.selected = false;
                  exist = true;
                  break;
@@ -41,24 +41,24 @@
                  added = true;
                  }
                  }else */
-                if (this.selections.length > 1) {
-                    for (var i = 0; i < this.selections.length; i++) {
-                        this.selections[i].selected = false;
+                if (this.selection.length > 1) {
+                    for (var i = 0; i < this.selection.length; i++) {
+                        this.selection[i].selected = false;
                     }
-                    this.selections.splice(0, this.selections.length);
+                    this.selection.splice(0, this.selection.length);
                     added = true;
-                } else if (this.selections.length == 1) {
+                } else if (this.selection.length == 1) {
                     if (!this.isSelected(item.model.path)) {
-                        var old = this.selections.pop();
+                        var old = this.selection.pop();
                         old.selected = false;
                         added = true;
                     }
-                } else if (this.selections.length == 0) {
+                } else if (this.selection.length == 0) {
                     added = true;
                 }
 
                 if (added) {
-                    this.selections.push(item);
+                    this.selection.push(item);
                     if (this.config.callback.click) {
                         this.config.callback.click(item);
                     }
@@ -66,17 +66,17 @@
 
             },
             removeSelection: function (item) {
-                for (var i = 0; i < this.selections.length; i++) {
-                    var selected = this.selections[i];
+                for (var i = 0; i < this.selection.length; i++) {
+                    var selected = this.selection[i];
                     if (selected.model.path === item.model.path) {
-                        this.selections.splice(i, 1);
+                        this.selection.splice(i, 1);
                         break;
                     }
                 }
             },
             isSelected: function (path) {
-                for (var i = 0; i < this.selections.length; i++) {
-                    var selected = this.selections[i];
+                for (var i = 0; i < this.selection.length; i++) {
+                    var selected = this.selection[i];
                     if (selected.path === path) {
                         return true;
                     }

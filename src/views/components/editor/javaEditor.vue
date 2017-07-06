@@ -18,12 +18,13 @@
 
     // use in component
     export default {
-        props: ['input'],
+        props: ['file', 'msgHub', 'input'],
         data() {
             return {
                 options: {
                     selectOnLineNumbers: false
-                }
+                },
+                testInput: "test\\n\\r,test1\\n"
             };
         },
         methods: {

@@ -1,8 +1,10 @@
 <template>
     <div class="viewPart" @focus="active()">
         <div :id="viewId" class="view_head">
-            <span class="view_title" ref="view_title">{{title}}</span>
-            <toolbar class="view_toolbar" :toolItems="actions" :config="actionConfig" ref="view_toolbar"></toolbar>
+            <span class="view_title" ref="view_title">{{title}}:{{selection}}</span>
+
+            <toolbar class="view_toolbar" :toolItems="actions" :selection="selection" :config="actionConfig"
+                     ref="view_toolbar"></toolbar>
         </div>
         <div :id="contentId" class="view_content">
             <slot name="content"></slot>
@@ -63,9 +65,37 @@
                 if (v) {
                     this.applyContent();
                 }
+            },
+            view_content(v){
+                console.log(v);
             }
+            
         },
         computed: {
+            selection(){
+                console.log('view_content', this.view_content);
+                if (this.view_content == null)
+                    return null;
+                return this.view_content.selection;
+            },
+            actions(){
+                let actions = {
+                    refresh: {
+                        run(){
+                            console.info('refresh');
+                        },
+                        validate(){
+                            return true;
+                        }
+                    }
+                };
+                if (this.model && this.model.actions) {
+                    for (let key in this.model.actions) {
+                        actions[key] = this.model.actions[key];
+                    }
+                }
+                return actions;
+            },
             open(){
                 if (this.model)
                     return this.model.open;
@@ -81,8 +111,7 @@
         },
         data(){
             return {
-                actions: [],
-                actionConfig: {}
+                actionConfig: {},
             }
         },
         beforeCreate()
@@ -102,7 +131,7 @@
                 console.log(this._uid, 'activated');
             },
             getContent(){
-                return this['view_content'];
+                return this.view_content;
             },
             getTitle(){
                 return this.$refs.view_title;
@@ -120,6 +149,7 @@
                     content = _WB.cache[this.model.id].$el;
                     _WB.cache[this.model.id].$parent = this;
                     con.append(content);
+                    this.view_content = _WB.cache[this.model.id];
                 } else if (viewConfig.component) {
                     content = document.createElement('div');
                     let vt = require(viewConfig.component);
@@ -138,7 +168,7 @@
                     con.append(content);
                     v.$mount(content);
                     v.$parent = this;
-                    this['view_content'] = v;
+                    this.view_content = v;
                     WORKBENCH.cache[this.model.id] = v;
                 }
 
