@@ -106,29 +106,6 @@
                     }
                 }
             },
-            getItemByRealpath: function () {
-                var paths = path.split("/");
-                var reachedNode = this;
-                for (var i = 1; i < paths.length; i++) {
-                    var children = reachedNode.getChildren();
-                    if (children) {
-                        var exist = false;
-                        for (let index in children) {
-                            var child = children[index];
-                            if (child.rname === path[i]) {
-                                reachedNode = child;
-                                exist = true;
-                                if (i === paths.length - 1) {
-                                    return reachedNode;
-                                }
-                            }
-                        }
-                        if (!exist) {
-                            return null;
-                        }
-                    }
-                }
-            },
             getCheckedItems: function () {
                 var checkedItems = [];
                 if (this.config.check) {

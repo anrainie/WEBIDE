@@ -18,7 +18,7 @@
 
     // use in component
     export default {
-        props: ['input'],
+        props: ['input','file','msgHub'],
         data() {
             return {
                 options: {
@@ -33,6 +33,15 @@
             },
             onCodeChange(editor) {
                 console.log(editor.getValue());
+            },
+            save(){
+
+            },
+            focus(){
+
+            },
+            isDirty(){
+
             }
         },
         components: {

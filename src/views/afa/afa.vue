@@ -87,6 +87,10 @@
     import toolbar from "../components/toolbar.vue"
     import io from 'socket.io-client';
     import navContextMenus from '../../action/afa.navi.contextmenu';
+    import menuData from '../../action/ide.menu';
+    import debug from '../../utils/debug';
+
+    window.debug = debug;
 
     var naviItems = [];
     export default{
@@ -159,65 +163,6 @@
                     },
                     direction: 'left'
                 },
-                menuData: [
-                    {
-                        id: 'main',
-                        name: 'AFAIDE',
-                        type: 'group',
-                        children: [
-                            {
-                                id: 'main/about',
-                                name: 'About',
-                                type: 'group',
-                                img: "assets/image/nav-folder.png",
-                                children: [
-                                    {
-                                        id: 'main/about/test1',
-                                        name: 'test1',
-                                        type: 'group',
-                                        children: [
-                                            {
-                                                id: 'main/about/test1/test1_t1',
-                                                img: "assets/image/nav-folder.png",
-                                                name: 'test1_t1',
-                                                type: 'action'
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        id: 'main/about/test2',
-                                        name: 'test2',
-                                        type: 'group'
-                                    }
-                                ]
-                            },
-                            {
-                                id: 'main/preference',
-                                name: 'Preference',
-                                type: 'action',
-                                shortcut: 'Ctrl+A'
-                            }
-                        ]
-                    },
-                    {
-                        id: 'file',
-                        name: 'File',
-                        type: 'group',
-                        children: []
-                    },
-                    {
-                        id: 'edit',
-                        name: 'Edit',
-                        type: 'group',
-                        children: []
-                    },
-                    {
-                        id: 'view',
-                        name: 'View',
-                        type: 'group',
-                        children: []
-                    }
-                ],
                 views: {
                     left: [{
                         id: 'navigator',
@@ -255,6 +200,7 @@
                         open: true,
                     }]
                 },
+                menuData:menuData
             }
         },
         methods: {},
@@ -330,8 +276,13 @@
                                     }, function (data) {
                                         let result = JSON.parse(data);
                                         if (result.state === 'success') {
+                                            let oldChildren = item.model.children.concat([]);
                                             for (let index in result.data) {
-                                                item.addChild(result.data[index]);
+                                                let newChild = result.data[index];
+                                                //如果已存在的子元素，被删除的子元素都不做处理
+                                                if(!item.getChild(newChild.name)) {
+                                                    item.addChild(result.data[index]);
+                                                }
                                             }
                                         } else {
                                             console.info(result);
@@ -400,7 +351,7 @@
                                 return false;
                             }
                         },
-                        model: naviItems,
+                        model: naviItems
                     },
                     image: "assets/image/nav-folder.png",
                 },

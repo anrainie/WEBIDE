@@ -9,7 +9,7 @@
              @click.prevent="handleClick($event)"
              @contextmenu.prevent="handleContextmenu($event)">
             <img class="item-image" v-bind:src="itemImageSrc">
-            <span class="item-title">{{model.name}}</span>
+            <span class="item-title">{{model.displayName? model.displayName: model.name}}</span>
             <span class="item-desp">{{model.desp}}</span>
             <div class="item-button nav-delete" @click="deleteItem"></div>
         </div>
@@ -85,41 +85,6 @@
                         console.error("tree's config don't have asyncLoadItem function");
                     }
                     this.loaded = true;
- /*                   var data = {};
-                    var url = asyncConfig.url;
-                    if (asyncConfig.autoParam) {
-                        for (var i = 0; i < asyncConfig.autoParam.length; i++) {
-                            var param = asyncConfig.autoParam[i];
-                            data[param] = this.model[param];
-                        }
-                    }
-                    var oldItemImageSrc = this.itemImageSrc;
-                    this.itemImageSrc = "assets/image/nav-loading.png";
-                    $.ajax({url : url,
-                            dataType : "json",
-                            data : data,
-                            success : function(result,status,xhr){
-                                self.itemImageSrc = oldItemImageSrc;
-                                if(result){
-                                    let oldItems = this.model.children.concat([]);
-                                    for(let key in result){
-                                        let item = result[key];
-                                        if(!self.getChild(item.name)){
-                                            this.model.children.push(item);
-                                        }else{
-                                            //TODO 被删除的元素暂时未做处理
-                                        }
-                                    }
-                                }
-                            },
-                            error : function(xhr,status,error){
-                                console.info(error);
-                                self.itemImageSrc = oldItemImageSrc;
-                            }
-                        }
-
-                    );
-*/
                 }
             },
             deleteItem:function () {

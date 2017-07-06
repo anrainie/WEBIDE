@@ -282,6 +282,17 @@
                 this.PAGE_CONTENT.append($div);
 
                 var newEditor = new Vue(editorDecorator);
+
+                if(!newEditor.hasOwnProperty("input") || !newEditor.hasOwnProperty("file") || !newEditor.hasOwnProperty("msgHub")){
+                    debug.error("$props of editor must has three methods : isDirty,save,focus");
+                    return;
+                }
+
+                if( typeof newEditor.isDirty != 'function' || typeof newEditor.save != 'function' || typeof newEditor.focus != 'function'){
+                    debug.error("editor must has three methods : isDirty,save,focus");
+                    return;
+                }
+
                 newEditor.$props.input = content;
                 newEditor.$props.file = item;
                 newEditor.$props.msgHub = this.msgHub;
@@ -395,9 +406,6 @@
             this.PAGE_INDICATE = $("#editors-indicate");
             this.PAGE_CONTENT = $("#editors-content");
             this.PAGE_COLLAPSE_BUTTON = $("#editors-indicate .editors-collapse");
-            this.msgHub.$on('dirtyStateChange',function (item,dirtyState) {
-                //TODO
-            });
         },
         beforeDestory:function () {
             this.msgHub.$destroy();
