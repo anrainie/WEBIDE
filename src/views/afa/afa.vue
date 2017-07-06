@@ -169,11 +169,11 @@
                     }, {
                         id: 'properties',
                         subgroup: 1,
-                        open: true,
+                        open: false,
                     }, {
                         id: 'error',
                         subgroup: 1,
-                        open: true,
+                        open: false,
                     }],
                     right: [{
                         id: 'console',

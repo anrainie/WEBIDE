@@ -17,26 +17,18 @@
         padding-left: 0px;
         margin-bottom: 0px;
         list-style: none;
-        border-bottom: 1px solid #ddd;
+        border-bottom: 1px solid #271212;
     }
     .editor-tab > li{
         float: left;
-        margin-bottom: -1px;
+        margin-bottom: 1px;
         height: 30px;
         width: 100px;
     }
     .editor-tab-active{
-        border-top: 1px solid #ddd;
-        border-left: 1px solid #ddd;
-        border-right: 1px solid #ddd;
-        border-bottom: 1px solid white;
+        background-color: white;
     }
     .editor-tab-unactive{
-        border-top: 1px solid darkgrey;
-        border-left: 1px solid darkgrey;
-        border-right: 1px solid darkgrey;
-        border-bottom: 1px solid darkgrey;
-        background-color: lightgray;
     }
     .editor-tab > li > span{
         display: block;
@@ -51,7 +43,6 @@
         height: 29px;
         width: 30px;
         text-align: center;
-        background-color: lightgray;
     }
     .editors-collapse:hover{
         background-color: gray;
