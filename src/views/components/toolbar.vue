@@ -10,11 +10,12 @@
     </div>
 </template>
 <style rel="stylesheet">
-    .toolbar{
+    .toolbar {
         display: inline-block;
         height: 20px;
     }
-    .toolbar > div{
+
+    .toolbar > div {
         display: inline-block;
         height: 20px;
         float: left;
@@ -22,20 +23,20 @@
         text-align: center;
     }
 
-    .toolbar-item{
+    .toolbar-item {
         width: 22px;
         margin-left: 3px;
     }
 
-    .toolbar-item:active{
+    .toolbar-item:active {
         background-color: lightgray;
     }
 
-    .toolbar-separator{
-        border-left:1px solid #ccc;
+    .toolbar-separator {
+        border-left: 1px solid #ccc;
     }
 
-    .toolbar > div > div{
+    .toolbar > div > div {
         position: relative;
         display: inline-block;
         width: 0;
@@ -48,36 +49,36 @@
         float: right;
     }
 
-    .toolbar > div > img{
+    .toolbar > div > img {
         position: relative;
-        top:50%;
+        top: 50%;
         margin-top: -10px;
         width: 16px;
         height: 16px;
     }
 </style>
 <script>
-export default{
-    name:'toolbar',
-    props:['toolItems', 'config'],
-    data:function () {
-        return {
-
-        }
-    },
-    methods: {
-        onItemClick:function (item,$event) {
-            if(item.type === 'item' && this.config.callback.onClick){
-                this.config.callback.onClick(item);
-            }else if(item.type === 'group'){
-                IDE.contextmenu.setItems(item.children);
-                IDE.contextmenu.show($event.clientX,$event.clientY);
+    export default{
+        name: 'toolbar',
+        props: ['toolItems', 'config'],
+        data: function () {
+            return {}
+        },
+        methods: {
+            onItemClick: function (item, $event) {
+                if (item.type === 'item' && this.config.onclick) {
+//                    this.config.onclick(item);
+                    if (item.onclick) {
+                        item.onclick.call(item, this.selection);
+                    } else console.info('action [${item.name}] has no onclick function');
+                } else if (item.type === 'group') {
+                    IDE.contextmenu.setItems(item.children);
+                    IDE.contextmenu.show($event.clientX, $event.clientY);
+                }
             }
+        },
+        mounted: function () {
+            this.config = this.config || {};
         }
-    },
-    mounted:function () {
-        this.config = this.config || {};
-        this.config.callback = this.config.callback || {};
     }
-}
 </script>

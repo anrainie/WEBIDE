@@ -104,6 +104,13 @@
                         s[i] = s[i] + intv * x[i];
                     }
                     if (flag) {
+                        /*
+                         *split.js的bug替代修复方法
+                         *split.js的pair在计算时，会平分分隔栏的大小s，calc(${size}% - ${s/2}px)
+                         * 当size==0时，calc不会等于 -s，而是0，所以右侧的pair会多出s/2个像素，导致不期望的换行
+                         */
+                        if (fs[0] == 0)
+                            fs[fs.length - 1] -= 1;
                         target.setSizes(fs);
                         cancelAnimationFrame(animId);
                         return;
@@ -141,7 +148,7 @@
 
                 let topSizes = layout.top.getSizes();
                 if (t + b == 0) {
-                    this.setPairSize(layout.top, [0, 100 - topSizes[2], topSizes[2]], 4);
+                    this.setPairSize(layout.top, [0, 100 - topSizes[2] - 0.5, topSizes[2]], 4);
                 } else {
                     let r = t + b;
                     this.setPairSize(layout.left, [100 / r * t, 100 / r * b], 4);
@@ -160,7 +167,7 @@
 
                 let mainSizes = layout.main.getSizes();
                 if (t + b == 0) {
-                    this.setPairSize(layout.main, [98, 2], 4);
+                    this.setPairSize(layout.main, [100, 0], 4);
                 } else {
                     let r = t + b;
                     //减去0.9是因为split.js的bug,[0,100]在横向上会错乱
