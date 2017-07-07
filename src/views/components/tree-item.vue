@@ -145,10 +145,8 @@
                 this.model.children.push(child);
             },
             handleClick:function (event) {
-                if(!this.selected) {
-                    this.selected = !this.selected;
-                    this.msgHub.$emit('setSelected', this, event);
-                }
+                this.selected = !this.selected;
+                this.msgHub.$emit('setSelected', this, event);
             },
             handleDbClick:function () {
                 if(this.config.callback.dblclick){

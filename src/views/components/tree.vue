@@ -23,47 +23,43 @@
         computed: {},
         methods: {
             setSelection: function (item, event) {
-                var added = false;
-                /* 按住ctrl时无法拿到event参数
-                 if(event.ctrlKey){
-                 var exist = false;
-                 for(var i = 0 ;i < this.selection.length ; i++){
-                 var selected = this.selection[i];
-                 if(selected.model.path === item.model.path){
-                 var oldSelected = this.selection[i];
-                 this.selection.splice(i,1);
-                 oldSelected.selected = false;
-                 exist = true;
-                 break;
-                 }
-                 }
-                 if(!exist){
-                 added = true;
-                 }
-                 }else */
-                if (this.selection.length > 1) {
+                var needAdd = false;
+                if (event && (event.ctrlKey || event.metaKey)) {
+                    var exist = false;
+                    for (var i = 0; i < this.selection.length; i++) {
+                        var selected = this.selection[i];
+                        if (selected.model.path === item.model.path) {
+                            var oldSelected = this.selection[i];
+                            this.selection.splice(i, 1);
+                            oldSelected.selected = false;
+                            exist = true;
+                            break;
+                        }
+                    }
+                    if (!exist) {
+                        needAdd = true;
+                    }
+                }else if (this.selection.length > 1) {
                     for (var i = 0; i < this.selection.length; i++) {
                         this.selection[i].selected = false;
                     }
                     this.selection.splice(0, this.selection.length);
-                    added = true;
+                    needAdd = true;
                 } else if (this.selection.length == 1) {
                     if (!this.isSelected(item.model.path)) {
                         var old = this.selection.pop();
                         old.selected = false;
-                        added = true;
+                        needAdd = true;
                     }
                 } else if (this.selection.length == 0) {
-                    added = true;
+                    needAdd = true;
                 }
-
-                if (added) {
+                if (needAdd) {
                     this.selection.push(item);
                     if (this.config.callback.click) {
                         this.config.callback.click(item);
                     }
                 }
-
             },
             removeSelection: function (item) {
                 for (var i = 0; i < this.selection.length; i++) {
@@ -194,7 +190,6 @@
             this.msgHub.$on("setSelected", function (item, event) {
                 self.setSelection(item, event);
             });
-            window.treeModel = this.model;
         },
         created: function () {
         },
@@ -208,6 +203,10 @@
     .tree {
         padding-left: 10px;
         color: #E5E9F2;
+        -webkit-user-select:none;
+        -moz-user-select:none;
+        -o-user-select:none;
+        user-select:none;
     }
 </style>
 
