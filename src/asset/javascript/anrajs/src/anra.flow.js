@@ -236,6 +236,7 @@ $AG.Editor = anra.gef.Editor.extend({
     setInput: function (input) {
         this.input = input;
         this.storeId = anra.Store.newStore(input.uuid);
+        this.store = anra.Store.get(this.storeId);
         this.rootModel = this.createRootModel(input);
         this.rootModel.storeId = this.storeId;
         this.input2model(this.input, this.rootModel);
