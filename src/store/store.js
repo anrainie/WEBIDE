@@ -4,6 +4,7 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import UserStore from './userStore';
+import IDEStore from './ideStore';
 
 
 
@@ -12,7 +13,8 @@ Vue.use(Vuex)
 //Vuex配置
 const store = new Vuex.Store({
     modules: {
-        userStore: UserStore
+        userStore: UserStore,
+        IDE:IDEStore,
     }
 })
 

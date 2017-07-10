@@ -1,9 +1,9 @@
 <template>
     <div class="viewPart" @focus="active()">
         <div :id="viewId" class="view_head">
-            <span class="view_title" ref="view_title">{{title}}:{{selection}}</span>
+            <span class="view_title" ref="view_title">{{title}}</span>
 
-            <toolbar class="view_toolbar" :toolItems="actions" :selection="selection" :config="actionConfig"
+            <toolbar class="view_toolbar" :toolItems="actions" :config="actionConfig"
                      ref="view_toolbar"></toolbar>
         </div>
         <div :id="contentId" class="view_content">
@@ -51,6 +51,7 @@
 <script>
     import toolbar from './toolbar.vue';
     import Vue from "vue";
+    import Vuex from 'vuex';
 
     export default {
         name: 'workbenchPage',
@@ -66,32 +67,29 @@
                     this.applyContent();
                 }
             },
-            view_content(v){
-                console.log(v);
-            }
-            
         },
         computed: {
-            selection(){
-                console.log('view_content', this.view_content);
-                if (this.view_content == null)
-                    return null;
-                return this.view_content.selection;
-            },
             actions(){
-                let actions = {
-                    refresh: {
-                        run(){
+                let actions = [
+                    {
+                        id: 'refreshAction',
+                        desp: 'refresh',
+                        type: 'item',
+                        img: "assets/image/file_awb.gif",
+                        onclick(){
                             console.info('refresh');
                         },
                         validate(){
                             return true;
                         }
                     }
-                };
+                ];
                 if (this.model && this.model.actions) {
-                    for (let key in this.model.actions) {
-                        actions[key] = this.model.actions[key];
+//                    for (let key in this.model.actions) {
+//                        actions[key] = this.model.actions[key];
+//                    }
+                    for (let i = 0; i < this.model.actions.length; i++) {
+                        actions[i] = this.model.actions[i];
                     }
                 }
                 return actions;
@@ -118,6 +116,9 @@
         {
             this.viewId = this._uid + '_view';
             this.contentId = this._uid + '_content';
+
+        },
+        created(){
         },
         components: {
             toolbar: toolbar
@@ -157,6 +158,8 @@
 //                    let v=Vue.extend(viewConfig.component);
                     v.$props.id = this.model.id;
                     v.$props.name = viewConfig.name;
+
+                    let self = this;
                     if (typeof(viewConfig.data) == 'object') {
                         for (const k in viewConfig.data) {
                             v.$props[k] = viewConfig.data[k];
@@ -170,6 +173,10 @@
                     v.$parent = this;
                     this.view_content = v;
                     WORKBENCH.cache[this.model.id] = v;
+
+                    v.$on('selectionChanged', function (s) {
+                        self.getToolbar().selectionChanged(s);
+                    });
                 }
 
             }

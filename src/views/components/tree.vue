@@ -17,10 +17,14 @@
             return {
                 selection: [],
                 msgHub: new Vue(),
-                ALL_LEVELS : -1
+                ALL_LEVELS: -1
             }
         },
-        computed: {},
+        watch: {
+            selection(s){
+                this.$emit('selectionChanged', s);
+            }
+        },
         methods: {
             setSelection: function (item, event) {
                 var needAdd = false;
@@ -134,41 +138,41 @@
                 }
                 return false;
             },
-            getChildren:function () {
+            getChildren: function () {
                 return this.$children;
             },
-            expandAll:function () {
+            expandAll: function () {
                 this.expandToLevel(this.ALL_LEVELS)
             },
-            expandToLevel:function (level,item) {
+            expandToLevel: function (level, item) {
                 item = item || this;
-                this._internalExpandToLevel(item,level);
+                this._internalExpandToLevel(item, level);
             },
-            _internalExpandToLevel:function (item,level) {
-                if(level === this.ALL_LEVELS || level > 0){
+            _internalExpandToLevel: function (item, level) {
+                if (level === this.ALL_LEVELS || level > 0) {
                     var children = item.getChildren();
-                    for(var index in children){
-                        var child  = children[index];
+                    for (var index in children) {
+                        var child = children[index];
                         child.toggle();
                         var newLevel = (level === this.ALL_LEVELS ? this.ALL_LEVELS : level - 1);
-                        this._internalExpandToLevel(child,newLevel);
+                        this._internalExpandToLevel(child, newLevel);
                     }
                 }
             },
-            collapseAll:function () {
-                this.collapseToLevel(this,this.ALL_LEVELS);
+            collapseAll: function () {
+                this.collapseToLevel(this, this.ALL_LEVELS);
             },
-            collapseToLevel:function (item,level) {
-                this._internalCollapseToLevel(item,level);
+            collapseToLevel: function (item, level) {
+                this._internalCollapseToLevel(item, level);
             },
-            _internalCollapseToLevel(item,level){
-                if(level === this.ALL_LEVELS || level > 0){
+            _internalCollapseToLevel(item, level){
+                if (level === this.ALL_LEVELS || level > 0) {
                     var children = item.getChildren();
-                    for(var index in children){
-                        var child  = children[index];
+                    for (var index in children) {
+                        var child = children[index];
                         child.toggle();
                         var newLevel = (level === this.ALL_LEVELS ? this.ALL_LEVELS : level - 1);
-                        this._internalExpandToLevel(child,newLevel);
+                        this._internalExpandToLevel(child, newLevel);
                     }
                 }
             },

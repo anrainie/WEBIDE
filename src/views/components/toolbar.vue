@@ -2,10 +2,11 @@
     <div class="toolbar">
         <div v-for="item in toolItems"
              :class="{'toolbar-item contextmenu-dropdown':item.type !='separator','toolbar-separator':item.type ==='separator'}"
-             @click="onItemClick(item,$event)"
+             @click="execute(item,$event)"
         >
-            <img v-show="item.type !='separator'" v-bind:src="item.img"/>
-            <div v-show="item.type ==='group'"/>
+            <span>{{item.id}}:{{item.enable}}</span>
+            <img v-if="item.type !='separator'" v-bind:src="item.img"/>
+            <div v-if="item.type ==='group'"/>
         </div>
     </div>
 </template>
@@ -58,18 +59,25 @@
     }
 </style>
 <script>
+    var selection = null;
     export default{
         name: 'toolbar',
-        props: ['toolItems', 'config'],
+        props: ['toolItems'],
         data: function () {
             return {}
         },
         methods: {
-            onItemClick: function (item, $event) {
-                if (item.type === 'item' && this.config.onclick) {
-//                    this.config.onclick(item);
+            selectionChanged(s){
+                selection = s;
+                for (let i = 0; i < this.toolItems.length; i++) {
+                    if (this.toolItems[i].validate)
+                        this.toolItems[i].enable = this.toolItems[i].validate(s);
+                }
+            },
+            execute: function (item, $event) {
+                if (item.type === 'item' && item.onclick) {
                     if (item.onclick) {
-                        item.onclick.call(item, this.selection);
+                        item.onclick.call(item, selection);
                     } else console.info('action [${item.name}] has no onclick function');
                 } else if (item.type === 'group') {
                     IDE.contextmenu.setItems(item.children);
@@ -78,7 +86,12 @@
             }
         },
         mounted: function () {
-            this.config = this.config || {};
+            for (let i = 0; i < this.toolItems.length; i++) {
+                if (this.toolItems[i].validate)
+                    this.toolItems[i].enable = this.toolItems[i].validate(null);
+                else this.toolItems[i].enable = true;
+            }
+            window.tool = this.toolItems;
         }
     }
 </script>

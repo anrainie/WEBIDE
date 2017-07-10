@@ -45,6 +45,10 @@
     import flowEditor from "../components/floweditor.vue";
     import dictEditor from "./editor/dictEditor.vue";
     import javaEditor from "./editor/javaEditor.vue";
+    import Vuex from 'vuex';
+
+    Vue.use(Vuex);
+
     export default{
         props: ['views', 'editors'],
         data(){
