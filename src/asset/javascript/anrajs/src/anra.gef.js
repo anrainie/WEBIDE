@@ -1649,18 +1649,18 @@ anra.gef.RelocalCommand = anra.Command.extend({
     execute: function () {
         this.editPart = this.root.getEditPart(this.model);
         var b = this.editPart.model.get('bounds');
-        b[0] = this.ep.x;
-        b[1] = this.ep.y;
+        /*this.editPart.model.get('bounds')[0] = this.ep.x;
+        this.editPart.model.get('bounds')[1] = this.ep.y;*/
         
-        this.editPart.model.set('bounds', b);
+        this.editPart.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
         
-        //this.editPart.model.get('bounds')[0] = this.ep.x;
-        //this.editPart.model.get('bounds')[1] = this.ep.y;
         this.editPart.refresh();
     },
     undo: function () {
-        this.editPart.model.get('bounds')[0] = this.sp.x;
-        this.editPart.model.get('bounds')[1] = this.sp.y;
+        var b = this.editPart.model.get('bounds');
+        /*this.editPart.model.get('bounds')[0] = this.sp.x;
+        this.editPart.model.get('bounds')[1] = this.sp.y;*/
+        this.editPart.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
         this.editPart.refresh();
     }
 
@@ -2345,13 +2345,7 @@ anra.gef.BaseModel = Base.extend({
     },
     set: function (key, value, unfire) {
         var o = this.props[key];
-        if (this.store) {
-            var _tj = {};
-            _tj[key] = value;
-            this.props = this.store.update(_tj).first();
-        } else
-            this.props[key] = value;
-
+        this.props[key] = value;
         if (this.pls && !unfire)
             this.pls.firePropertyChanged(key, o, value);
     },
@@ -2403,10 +2397,16 @@ anra.gef.NodeModel = anra.gef.BaseModel.extend({
         line.sourceNode = this;
         if (!this.sourceLines.has(nId)) {
             this.sourceLines.put(nId, line);
-            if (this.storeId) {
+/*            if (this.storeId) {
                 if (line.store) {
                     line.store.update(line.props);
                 } else {
+                    line.store = anra.Store.get(this.storeId).line.insert(line.props);
+                }
+            }*/
+            
+            if (this.storeId) {
+                if (line.store == null) {
                     line.store = anra.Store.get(this.storeId).line.insert(line.props);
                 }
             }
@@ -2420,12 +2420,18 @@ anra.gef.NodeModel = anra.gef.BaseModel.extend({
         line.targetNode = this;
         if (!this.targetLines.has(nId)) {
             this.targetLines.put(nId, line);
-            if (this.storeId) {
+            /*if (this.storeId) {
                 if (line.store) {
                     line.store.update(line.props);
                 } else {
                     line.store = anra.Store.get(this.storeId).line.insert(line.props);
                 }
+            }*/
+            
+            if (this.storeId) {
+                if (line.store == null) {
+                    line.store = anra.Store.get(this.storeId).line.insert(line.props);
+                } 
             }
             return true;
         }

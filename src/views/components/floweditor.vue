@@ -1,102 +1,110 @@
 <template>
-<div class='main-editor'>
-    <div style = "position: relative;top: 0;width: 10%;height: 100%;background-color: #d3d3d3;float:left">
-        <p></p>
-        <el-row type="flex" justify="space-around">
-            <el-col :span='12'>
-                <el-button v-selectTool="mainEditor" type="primary" icon="edit"></el-button>
-            </el-col>
-            <el-col :span='12'>
-                <el-button v-linkTool="mainEditor" type="primary" icon="edit"></el-button>
-            </el-col>
-        </el-row>
+    <div style="overflow: hidden">
+        <div class="left-editor" v-show="leftEditor" v-bind:style="leftStyle" @click.ctrl="right" @click.shift="test1(leftEditor)" @click.meta="test2(leftEditor)">
+            <!-- -->
+            <palette :editor='leftEditor'></palette>
+        </div>
         
-        <el-row>
-            <el-col :span='24'>
-        <el-collapse v-if="isVisibility(mainEditor)" v-model="activeNames" accordion>                        
-            <el-collapse-item v-bind:title="value.name" v-bind:name="index" v-for="(value, key, index) in getGroup(mainEditor)">
-                <el-row v-for="item in value.items">
-                    <el-col :span='24'>
-                        <img v-drag="{editor: mainEditor, type: item}"/>
-                    </el-col>
-                </el-row>
-            </el-collapse-item>
-        </el-collapse>
-                </el-col>
-        </el-row>
+        <div class="right-editor" v-show="rightEditor" v-bind:style="rightStyle" @click.alt="left" @click.shift="test1(rightEditor)" @click.meta="test2(rightEditor)">
+            <palette :editor='rightEditor'></palette>
+        </div>
+        
     </div>
-</div>
-       <!-- <div class='assist-editor'></div>-->
 </template>
 <style>
     /*@import '~element-ui/lib/theme-default/index.css';*/
+    
     @import url("//unpkg.com/element-ui@1.3.7/lib/theme-default/index.css");
-    .main-editor {
+    .left-editor {
         position: relative;
         left: 0px;
         top: 0px;
         width: 100%;
-        height: 90%;
+        height: 100%;
         background-color: rgb(13, 13, 13);
         float: left;
+        overflow: hidden;
     }
     
-    .assist-editor {
+    .right-editor {
         position: relative;
         left: 0;
         top: 0;
-        width: 50%;
-        height: 90%;
+        width: 100%;
+        height: 100%;
         background-color: rgb(255, 255, 255);
         float: left;
+        overflow: hidden;
     }
     
     .el-row {
         margin-bottom: 10px;
         &:last-child {
-        margin-bottom: 0;
+            margin-bottom: 0;
         }
     }
+    
+    .el-col {
+        border-radius: 4px;
+    }
+
 </style>
 <script type="text/javascript">
     import {$AG} from 'anrajs/index.js'
     import {FlowEditor} from 'anrajs/src/editorConfig'
     import config from 'anrajs/src/config'
     
-    //import ElementUI from 'element-ui'
-
     export default {
         name: 'flowEditor',
-        props: ['file', 'msgHub','input'],
-            data: function() {
+        props: ['file', 'msgHub', 'input'],
+        data: function() {
             return {
-                mainEditor: null,
-                assistEditor: null,
-                activeNames: [0]
+                leftEditor: null,
+                rightEditor: null
             }
         },
         mounted() {
             this.pathName = this.revisePath(this.file.model.path);
-            //this.createMainEditor(FlowEditor, config);
-            //this.createAssistEditor(FlowEditor, config);
             this.createTestEditor(FlowEditor);
-            //this.createAssistEditor(FlowEditor, config);
         },
         computed: {
+            leftStyle: function () {
+                var width = this.rightEditor ? "50%" : "100%";
+                
+                return {
+                    width: width
+                };
+            },
+            rightStyle: function() {
+                var width = this.leftEditor ? "50%" : "100%";
+                
+                return {
+                    width: width
+                }
+            }
         },
         methods: {
-            getGroup(editor) {
-                if (editor && editor.hasOwnProperty('config')) {
-                    return editor.config.group;
+            //for test
+            test1(editor) {
+                console.log('test1')
+                if (editor == null) {
+                    alert("编辑器为空")
                 }
+                
+                editor.showMap1();
             },
-            isVisibility(editor) {
-                if (editor) {
-                    return editor.config.group != null;
+            
+            test2(editor) {
+                if (editor == null) {
+                    alert("编辑器为空")
                 }
+                
+                editor.deleteHandle();
             },
+            
+            
             isDirty() {
-                return this.isDirtyWithEditor(this.mainEditor) | this.isDirtyWithEditor(this.assistEditor);
+                return this.isDirtyWithEditor(this.leftEditor) | this.isDirtyWithEditor(this.rightEditor);
             },
             isDirtyWithEditor(editor) {
                 if (editor) {
@@ -106,18 +114,18 @@
                 return false;
             },
             save() {
-                var mainState = this.isDirtyWithEditor(this.mainEditor),
-                    assistState = this.isDirtyWithEditor(this.assistEditor);
-                if (mainState) {
-                    this.mainEditor.doSave();
+                var leftState = this.isDirtyWithEditor(this.leftEditor),
+                    rightState = this.isDirtyWithEditor(this.rightEditor);
+                if (leftState) {
+                    this.leftEditor.doSave();
                 }
 
-                if (assistState) {
-                    this.assistEditor.doSave();
+                if (rightState) {
+                    this.rightEditor.doSave();
                 }
 
                 //???
-                if (mainState | assistState) {
+                if (leftState | rightState) {
                     this.msgHub.$emit('dirtyStateChange', this.file, false);
                 }
             },
@@ -127,20 +135,20 @@
             },
             focus() {},
 
-            //Editor
             revisePath: function(path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
             },
-            createMainEditor(flowConfig, modelConfig) {
-                if (this.mainEditor) {
+            createLeftEditor(flowConfig, modelConfig) {
+                if (this.leftEditor) {
                     console.warn('已经有编辑器了')
                     return;
                 }
 
                 /*应该不严谨*/
-                var cfg, id = this.pathName + '-mainEditor';
+                var cfg, id = this.pathName + '-leftEditor';
 
-                $('#' + this.pathName).find('.main-editor').attr('id', id);
+                $('#' + this.pathName).find('.left-editor').attr('id', id);
+                
 
 
                 if (modelConfig) {
@@ -151,22 +159,32 @@
                 }
 
                 try {
-                    this.mainEditor = new $AG.Editor(cfg);
+                    this.leftEditor = new $AG.Editor(cfg);
                 } catch (e) {
                     console.error('配置内容可能有问题')
                 }
             },
 
-            createAssistEditor(flowConfig, modelConfig) {
-                if (this.assistEditor != null) {
+            closeLeftEditor: function() {
+                if (this.leftEditor == null) {
+                    return;
+                }
+
+                var id = this.pathName + '-leftEditor';
+                $('#' + id).children().last().remove();
+                this.leftEditor = null;
+
+            },
+
+            createRightEditor(flowConfig, modelConfig) {
+                if (this.rightEditor != null) {
                     return;
                 }
 
                 /*应该不严谨,暂时什么都不考虑*/
-                var cfg, id = this.pathName + '-assistEditor';
-                
-                $('#' + this.pathName).find('.assist-editor').attr('id', id);
-                //$('#' + this.pathName).find('.main-editor').css('width', '50%');
+                var cfg, id = this.pathName + '-rightEditor';
+
+                $('#' + this.pathName).find('.right-editor').attr('id', id);
 
                 if (modelConfig) {
                     try {
@@ -178,21 +196,31 @@
                 } else {
                     cfg = flowConfig;
                 }
-                
-                this.assistEditor = new $AG.Editor(cfg);
+
+                this.rightEditor = new $AG.Editor(cfg);
+            },
+
+            closeRightEdior: function() {
+                if (this.rightEditor == null) {
+                    return;
+                }
+
+                var id = this.pathName + '-rightEditor';
+                $('#' + id).children().last().remove();
+                this.rightEditor = null;
             },
 
             createTestEditor(flowConfig, modelConfig) {
-                if (this.mainEditor) {
+                if (this.leftEditor) {
                     console.warn('已经有编辑器了')
                     return;
                 }
 
 
                 /*应该不严谨*/
-                var cfg, id = this.pathName + '-mainEditor';
+                var cfg, id = this.pathName + '-leftEditor';
 
-                $('#' + this.pathName).find('.main-editor').attr('id', id);
+                $('#' + this.pathName).find('.left-editor').attr('id', id).append('<palette :editor="leftEditor"></palette>');
 
                 flowConfig.id = id;
 
@@ -297,6 +325,7 @@
                     type: '6',
                     bounds: [1000, 350, 50, 50]
                 }];
+
                 flowConfig.line = [{
                     id: 'line1',
                     source: 244,
@@ -488,68 +517,121 @@
                     entr: 0
                 }];
 
-                this.mainEditor = new $AG.Editor(flowConfig);
+                this.leftEditor = new $AG.Editor($AG.deepCopy(flowConfig));
+            },
+            
+            left() {
+                if (this.leftEditor) {
+                    this.closeLeftEditor();
+                } else {
+                    this.createTestEditor(FlowEditor)
+                }
+            },
+            
+            right() {
+                if (this.rightEditor) {
+                    this.closeRightEdior();
+                } else {
+                    this.createRightEditor(FlowEditor, config)
+                }
             }
         },
-        
-        directives: {
-            drag : {
-                bind : function(el, binding, vnode) {
-                    //统一的验证 todo
-                    var editor = binding.value.editor, type = binding.value.type;
-                    
-                    el.onmousedown = editor.createNodeWithPalette(type);
-                    el.ondragstart = function() {
-                        return false;
-                    };
-                    el.setAttribute('src', editor.config.children[type].paletteUrl);
-                 }
-            },
-            selectTool : {
-                update : function(el, binding, vnode) {
-                    var editor = binding.value;
-                    if (editor == null) {
-                        console.warn('编辑器为空')
-                        return;
+        components: {
+            palette: {
+                props: {
+                    editor: {
+                        validator: function (value){
+                            return value && value instanceof $AG.Editor;
+                        }
                     }
-                    
-                    if (! editor instanceof $AG.Editor) {
-                        console.error('参数不是编辑器');
+                },
+                data: function() {
+                    return {
+                        activeNames: [0]
                     }
-                    
-                    
-                    el.onmousedown = function() {
-                        editor.setActiveTool(editor.getDefaultTool());
-                    };
-                }
-            },
-            linkTool : {
-                update : function(el, binding, vnode) {
-                    var editor = binding.value;
-                    if (editor == null) {
-                        console.warn('编辑器为空')
-                        return;
+                },
+                methods: {
+                    getGroup() {
+                        var e = this.editor
+                        if (e && e.hasOwnProperty('config')) {
+                            return e.config.group;
+                        }
                     }
-                    
-                    if (! editor instanceof $AG.Editor) {
-                        console.error('参数不是编辑器');
-                    }
-                    
-                    var lineTool = new $AG.LineTool({id: 3, type: 0,target: 5, entr: 7, exit: 6});
-    
-                    el.onmousedown = function () {
-                        if (editor.getActiveTool() == lineTool) {
-                            editor.setActiveTool(editor.getDefaultTool());
-                        } else {
-                            editor.setActiveTool(lineTool);
+                },
+                computed: {
+                    isVisibility() {
+                        if (this.editor == null) {
+                            return false;
                         }
                         
-                        return false;
-                    };
-                }
+                        return this.editor.config.group != null
+                    }
+                },
+                directives: {
+                    drag: {
+                        bind: function(el, binding, vnode) {
+                            //统一的验证 todo
+                            var editor = binding.value.editor,
+                                type = binding.value.type;
+
+                            el.onmousedown = editor.createNodeWithPalette(type);
+                            el.ondragstart = function() {
+                                return false;
+                            };
+                            el.setAttribute('src', editor.config.children[type].paletteUrl);
+                        }
+                    },
+                    selectTool: {
+                        update: function(el, binding, vnode) {
+                            var editor = binding.value;
+                            if (editor == null) {
+                                return;
+                            }
+
+                            if (!editor instanceof $AG.Editor) {
+                                console.error('参数不是编辑器');
+                            }
+
+
+                            el.onmousedown = function() {
+                                editor.setActiveTool(editor.getDefaultTool());
+                            };
+                        }
+                    },
+                    linkTool: {
+                        update: function(el, binding, vnode) {
+                            var editor = binding.value;
+                            if (editor == null) {
+                                return;
+                            }
+
+                            if (!editor instanceof $AG.Editor) {
+                                console.error('参数不是编辑器');
+                            }
+
+                            var lineTool = new $AG.LineTool({
+                                id: 3,
+                                type: 0,
+                                target: 5,
+                                entr: 7,
+                                exit: 6
+                            });
+
+                            el.onmousedown = function() {
+                                if (editor.getActiveTool() == lineTool) {
+                                    editor.setActiveTool(editor.getDefaultTool());
+                                } else {
+                                    editor.setActiveTool(lineTool);
+                                }
+
+                                return false;
+                            };
+                        }
+                    }
+                },
+                template: '<div v-if="editor" style="position: relative;top: 0;width: 10%;height: 100%;background-color: #d3d3d3;float:left"><p></p><el-row type="flex" justify="center"><el-col :span="9" :offset="2"><el-button v-selectTool="editor" type="primary" icon="edit" size="mini"></el-button></el-col><el-col :span="9" :offset="2"><el-button v-linkTool="editor" type="primary" icon="edit" size="mini"></el-button></el-col></el-row><el-row><el-col :span="24"><el-collapse v-if="isVisibility" v-model="activeNames" accordion><el-collapse-item v-bind:title="value.name" v-bind:name="index" v-for="(value, key, index) in getGroup()"><el-row v-for="item in value.items"><el-col :span="24"><img v-drag="{editor: editor, type: item}"/></el-col></el-row></el-collapse-item></el-collapse></el-col></el-row></div>'
             }
         }
     }
 
 </script>
-
