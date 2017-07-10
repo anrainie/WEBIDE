@@ -1,10 +1,9 @@
 <template>
     <div class="toolbar">
-        <div v-for="item in toolItems"
+        <div v-for="item in items"
              :class="{'toolbar-item contextmenu-dropdown':item.type !='separator','toolbar-separator':item.type ==='separator'}"
-             @click="execute(item,$event)"
+             @click="execute(item,$event)" v-show="item.enable"
         >
-            <span>{{item.id}}:{{item.enable}}</span>
             <img v-if="item.type !='separator'" v-bind:src="item.img"/>
             <div v-if="item.type ==='group'"/>
         </div>
@@ -61,17 +60,19 @@
 <script>
     var selection = null;
     export default{
-        name: 'toolbar',
         props: ['toolItems'],
         data: function () {
-            return {}
+            return {
+                name: "test",
+                items: [],
+            }
         },
         methods: {
             selectionChanged(s){
                 selection = s;
-                for (let i = 0; i < this.toolItems.length; i++) {
-                    if (this.toolItems[i].validate)
-                        this.toolItems[i].enable = this.toolItems[i].validate(s);
+                for (let i = 0; i < this.items.length; i++) {
+                    if (this.items[i].validate)
+                        this.items[i].enable = this.items[i].validate(s);
                 }
             },
             execute: function (item, $event) {
@@ -91,7 +92,8 @@
                     this.toolItems[i].enable = this.toolItems[i].validate(null);
                 else this.toolItems[i].enable = true;
             }
-            window.tool = this.toolItems;
+            this.items = this.toolItems;
+            window.tool = this;
         }
     }
 </script>
