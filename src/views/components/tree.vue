@@ -43,7 +43,7 @@
                     if (!exist) {
                         needAdd = true;
                     }
-                }else if (this.selection.length > 1) {
+                } else if (this.selection.length > 1) {
                     for (var i = 0; i < this.selection.length; i++) {
                         this.selection[i].selected = false;
                     }
@@ -207,10 +207,10 @@
     .tree {
         padding-left: 10px;
         color: #E5E9F2;
-        -webkit-user-select:none;
-        -moz-user-select:none;
-        -o-user-select:none;
-        user-select:none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -o-user-select: none;
+        user-select: none;
     }
 </style>
 

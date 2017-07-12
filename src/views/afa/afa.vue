@@ -92,7 +92,6 @@
 
     window.debug = debug;
 
-    var naviItems = [];
     export default{
         data(){
             var self = this;
@@ -198,7 +197,7 @@
                         open: true,
                     }]
                 },
-                menuData:menuData
+                menuData: menuData
             }
         },
         methods: {},
@@ -220,27 +219,7 @@
 
             socket.on('connect', function () {
                 if (first) {
-                    IDE.shade.open();
-                    IDE.socket.emit('getNaviItems', {
-                        type: IDE.type,
-                        event: 'getNaviItems',
-                        data: {
-                            path: '\\',
-                            level: 1
-                        }
-                    }, function (data) {
-                        if (data) {
-                            let result = JSON.parse(data);
-                            if (result.state === 'success') {
-                                for (let index in result.data) {
-                                    naviItems.push(result.data[index]);
-                                }
-                            } else {
-                                console.info('emit getNaviItems : ', result.errorMsg);
-                            }
-                        }
-                        IDE.shade.hide();
-                    });
+                    IDE.emit('connected success', true);
                     first = false;
                 }
             });
@@ -258,6 +237,31 @@
                 'navigator': {
                     name: '导航器',
                     component: './tree.vue',
+                    init(callback){
+                        IDE.shade.open();
+                        IDE.socket.emit('getNaviItems', {
+                            type: IDE.type,
+                            event: 'getNaviItems',
+                            data: {
+                                path: '\\',
+                                level: 1
+                            }
+                        }, function (data) {
+                            if (data) {
+                                let naviItems = [];
+                                let result = JSON.parse(data);
+                                if (result.state === 'success') {
+                                    for (let index in result.data) {
+                                        naviItems.push(result.data[index]);
+                                    }
+                                    callback(naviItems);
+                                } else {
+                                    console.info('emit getNaviItems : ', result.errorMsg);
+                                }
+                            }
+                            IDE.shade.hide();
+                        });
+                    },
                     data: {
                         config: {
                             check: false,
@@ -278,7 +282,7 @@
                                             for (let index in result.data) {
                                                 let newChild = result.data[index];
                                                 //如果已存在的子元素，被删除的子元素都不做处理
-                                                if(!item.getChild(newChild.name)) {
+                                                if (!item.getChild(newChild.name)) {
                                                     item.addChild(result.data[index]);
                                                 }
                                             }
@@ -349,7 +353,6 @@
                                 return false;
                             }
                         },
-                        model: naviItems
                     },
                     image: "assets/image/nav-folder.png",
                     actions: {

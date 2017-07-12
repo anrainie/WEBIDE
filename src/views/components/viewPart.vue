@@ -70,6 +70,7 @@
         },
         computed: {
             actions(){
+                let self = this;
                 let actions = [
                     {
                         id: 'refreshAction',
@@ -77,7 +78,7 @@
                         type: 'item',
                         img: "assets/image/file_awb.gif",
                         onclick(){
-                            console.info('refresh');
+                            self.refresh();
                         },
                         validate(){
                             return true;
@@ -140,6 +141,9 @@
             getToolbar(){
                 return this.$refs.view_toolbar;
             },
+            refresh(){
+                this.view_content.refresh && this.view_content.refresh();
+            },
             applyContent(){
                 let con = $('#' + this.contentId);
                 let viewConfig = window.viewRegistry[this.model.id];
@@ -147,10 +151,16 @@
                 let _WB = window.WORKBENCH || null;
                 let content;
                 if (_WB && _WB.cache[this.model.id]) {
-                    content = _WB.cache[this.model.id].$el;
-                    _WB.cache[this.model.id].$parent = this;
+                    let v = _WB.cache[this.model.id];
+                    content = v.$el;
+                    v.$parent = this;
                     con.append(content);
-                    this.view_content = _WB.cache[this.model.id];
+                    this.view_content = v;
+                    //切换监听
+                    v.$off('selectionChanged');
+                    v.$on('selectionChanged', function (s) {
+                        self.getToolbar().selectionChanged(s);
+                    });
                 } else if (viewConfig.component) {
                     content = document.createElement('div');
                     let vt = require(viewConfig.component);
@@ -165,15 +175,20 @@
                             v.$props[k] = viewConfig.data[k];
                         }
                     }
-                    else if (typeof(viewConfig.data) == 'function') {
-                        viewConfig.data.call(this, v.$props);
-                    }
                     con.append(content);
                     v.$mount(content);
+
+                    if (viewConfig.init) {
+                        IDE.once('connected success', function () {
+                            viewConfig.init(function (m) {
+                                v.model = m;
+                            });
+                        });
+                    }
+
                     v.$parent = this;
                     this.view_content = v;
                     WORKBENCH.cache[this.model.id] = v;
-
                     v.$on('selectionChanged', function (s) {
                         self.getToolbar().selectionChanged(s);
                     });

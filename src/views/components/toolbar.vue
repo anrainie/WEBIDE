@@ -72,13 +72,13 @@
                 selection = s;
                 for (let i = 0; i < this.items.length; i++) {
                     if (this.items[i].validate)
-                        this.items[i].enable = this.items[i].validate(s);
+                        this.items[i].enable = this.items[i].validate.call(this, s);
                 }
             },
             execute: function (item, $event) {
                 if (item.type === 'item' && item.onclick) {
                     if (item.onclick) {
-                        item.onclick.call(item, selection);
+                        item.onclick.call(this, selection);
                     } else console.info('action [${item.name}] has no onclick function');
                 } else if (item.type === 'group') {
                     IDE.contextmenu.setItems(item.children);
