@@ -9,12 +9,13 @@
     import Vue from 'vue'
     export default {
         name: 'tree',
-        props: ['model', 'config'],
+        props: ['config'],
         components: {
             item: item
         },
         data() {
             return {
+                model: [],
                 selection: [],
                 msgHub: new Vue(),
                 ALL_LEVELS: -1
@@ -177,6 +178,13 @@
                 }
             },
             refresh: function (path) {
+                if (path == null) {
+                    let self = this;
+                    self.init(function (m) {
+                        self.model = m;
+                    });
+                    return;
+                }
                 let item = this.getItem(path);
                 if (item) {
                     item.loadItems();

@@ -179,6 +179,7 @@
                     v.$mount(content);
 
                     if (viewConfig.init) {
+                        v.init = viewConfig.init;
                         IDE.once('connected success', function () {
                             viewConfig.init(function (m) {
                                 v.model = m;
