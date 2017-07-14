@@ -87,6 +87,10 @@
                     }
                 }
             },
+            refreshProperty(propPageConfig, selection){
+                //根据属性视图刷新选项
+
+            },
             setPairSize(target, fs, intv){
                 let s = target.getSizes();
 

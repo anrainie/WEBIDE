@@ -358,17 +358,26 @@
                     actions: {
                         collapse: {
                             onclick(){
-                                console.log(collapse);
+                                console.log('collapse');
                             },
                             validate(){
                                 return false;
                             }
+                        }
+                    },
+                    propertyPage: {
+                        component: './table.vue',
+                        match(selection){
+                            return '';
                         }
                     }
                 },
                 'properties': {
                     name: '属性',
                     image: "assets/image/nav-folder.png",
+                    init(){
+                        WORKBENCH.property = this;
+                    },
                     data: {
                         toolItems: [
                             {

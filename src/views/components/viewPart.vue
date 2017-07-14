@@ -86,9 +86,6 @@
                     }
                 ];
                 if (this.model && this.model.actions) {
-//                    for (let key in this.model.actions) {
-//                        actions[key] = this.model.actions[key];
-//                    }
                     for (let i = 0; i < this.model.actions.length; i++) {
                         actions[i] = this.model.actions[i];
                     }
@@ -178,10 +175,11 @@
                     con.append(content);
                     v.$mount(content);
 
+                    //初始化需要链接成功，所以由IDE负责通知
                     if (viewConfig.init) {
                         v.init = viewConfig.init;
                         IDE.once('connected success', function () {
-                            viewConfig.init(function (m) {
+                            viewConfig.init.call(self, function (m) {
                                 v.model = m;
                             });
                         });
@@ -192,6 +190,10 @@
                     WORKBENCH.cache[this.model.id] = v;
                     v.$on('selectionChanged', function (s) {
                         self.getToolbar().selectionChanged(s);
+                        if (viewConfig.propertyPage) {
+                            viewConfig.propertyPage.selectionChanged(s);
+                            WORKBENCH.refreshProperty(viewConfig.propertyPage, s);
+                        }
                     });
                 }
 
