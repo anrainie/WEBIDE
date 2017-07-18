@@ -79,7 +79,9 @@
                 if (item.type === 'item' && item.onclick) {
                     if (item.onclick) {
                         item.onclick.call(this, selection);
-                    } else console.info('action [${item.name}] has no onclick function');
+                    } else {
+                        console.info('action [${item.name}] has no onclick function');
+                    }
                 } else if (item.type === 'group') {
                     IDE.contextmenu.setItems(item.children);
                     IDE.contextmenu.show($event.clientX, $event.clientY);

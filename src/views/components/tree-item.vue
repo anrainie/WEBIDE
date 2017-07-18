@@ -87,6 +87,17 @@
                     this.loaded = true;
                 }
             },
+            refresh(){
+                var self = this;
+                var asyncConfig = this.config.async;
+                if(asyncConfig) {
+                    if(this.config.callback.asyncLoadItem){
+                        this.config.callback.asyncLoadItem(this);
+                    }else{
+                        console.error("tree's config don't have asyncLoadItem function");
+                    }
+                }
+            },
             deleteItem:function () {
                 this.msgHub.$emit('deleteItem', this);
             },
@@ -145,8 +156,8 @@
                 this.model.children.push(child);
             },
             handleClick:function (event) {
-                this.selected = !this.selected;
                 this.msgHub.$emit('setSelected', this, event);
+                this.selected = !this.selected;
             },
             handleDbClick:function () {
                 if(this.config.callback.dblclick){

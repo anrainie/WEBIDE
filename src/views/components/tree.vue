@@ -187,7 +187,7 @@
                 }
                 let item = this.getItem(path);
                 if (item) {
-                    item.loadItems();
+                    item.refresh();
                 }
             },
 

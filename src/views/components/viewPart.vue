@@ -71,23 +71,13 @@
         computed: {
             actions(){
                 let self = this;
-                let actions = [
-                    {
-                        id: 'refreshAction',
-                        desp: 'refresh',
-                        type: 'item',
-                        img: "assets/image/file_awb.gif",
-                        onclick(){
-                            self.refresh();
-                        },
-                        validate(){
-                            return true;
+                let actions = [];
+                if(this.model) {
+                    let viewConfig = window.viewRegistry[this.model.id];
+                    if (viewConfig && viewConfig.actions) {
+                        for (let i = 0; i < viewConfig.actions.length; i++) {
+                            actions[i] = viewConfig.actions[i];
                         }
-                    }
-                ];
-                if (this.model && this.model.actions) {
-                    for (let i = 0; i < this.model.actions.length; i++) {
-                        actions[i] = this.model.actions[i];
                     }
                 }
                 return actions;

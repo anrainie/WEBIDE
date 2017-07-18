@@ -333,7 +333,7 @@
                                         if (data) {
                                             let result = JSON.parse(data);
                                             if (result.state === 'success') {
-                                                let newItems = navContextMenus.match(result.data);
+                                                let newItems = navContextMenus.merge(result.data);
                                                 IDE.contextmenu.setItems(newItems);
                                                 if (IDE.contextmenu.isActive()) {
                                                     IDE.contextmenu.hide();
@@ -355,18 +355,29 @@
                         },
                     },
                     image: "assets/image/nav-folder.png",
-                    actions: {
-                        collapse: {
-                            onclick(){
-                                console.log('collapse');
-                            },
+                    actions: [
+                        {
+                            id: 'refreshAction',
+                            name: 'refresh',
+                            type: 'item',
+                            img: "assets/image/file_awb.gif",
                             validate(){
-                                return false;
+                                return true;
+                            },
+                            onclick(selection){
+                                if( selection instanceof Array){
+                                    for(let index in selection){
+                                        selection[index].refresh();
+                                    }
+                                }
+
                             }
                         }
-                    },
+                    ],
                     propertyPage: {
                         component: './table.vue',
+                        selectionChanged(){
+                        },
                         match(selection){
                             return '';
                         }

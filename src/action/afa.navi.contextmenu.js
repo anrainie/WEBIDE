@@ -108,7 +108,7 @@ function match(originalItems, newItems) {
 
 
 module.exports = {
-    match: function (originalItems) {
+    merge: function (originalItems) {
         var newItems = []
         match(originalItems, newItems);
         return newItems;
