@@ -12,10 +12,12 @@ function resolve(dir) {
 }
 
 module.exports = {
+    //入口，只有一个入口起点（不包括 vendor）的单页应用程序，
     entry: {
         app: './src/main.js',
         vendor: ['anrajs/index.js']
     },
+  //出口，控制 webpack 如何向硬盘写入编译文件，不管入口起点有多少个，出口只有一个
     output: {
         path: resolve(__dirname, '../dist'),
         filename: '[name].js',
