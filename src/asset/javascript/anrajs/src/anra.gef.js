@@ -128,13 +128,16 @@ anra.gef.Figure = anra.svg.Composite.extend({
     },
     paint: function () {
         this.applyBounds();
-        if (this.layoutManager != null)
-            this.layout();
+        /*if (this.layoutManager != null)
+            this.layout();*/
         this.fireRepaintListener();
         if (this.children)
             for (var i = 0; i < this.children.length; i++) {
                 this.children[i].paint();
             }
+        
+        if (this.layoutManager != null)
+            this.layout();
     },
     fireRepaintListener: function () {
         if (this.repaintListeners != null) {
@@ -1265,7 +1268,7 @@ anra.gef.CreationTool = anra.gef.Tool.extend({
         var parent = p;
         while (policy == null && parent != null) {
             policy = parent.getLayoutPolicy();
-            parent = p.parent;
+            parent = parent.parent;
         }
         return policy;
     },
@@ -1306,12 +1309,14 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
     },
     activate: function () {
         //根控制器激活连线模式，展示UI
+        //原先代码
         var policy = this.editor.rootEditPart.getConnectionPolicy();
         if (policy != null)
             policy.showSourceFeedback({type: constants.REQ_CONNECTION_MOD});
     },
     deactivate: function () {
         //清除连线模式的UI
+        //原先代码
         var policy = this.editor.rootEditPart.getConnectionPolicy();
         if (policy != null)
             policy.eraseSourceFeedback({type: constants.REQ_CONNECTION_MOD});
@@ -1377,6 +1382,9 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                 this.guideLine.setSourceAnchor(anchor);
                 this.guideLine.disableEvent();
             }
+            //无法连接同一节点的锚点
+            this.editor.rootEditPart.figure.dispatcher.dragTarget = this.guideLine.figure;
+            
             if (p instanceof anra.gef.NodeEditPart)
                 anchor = p.getTargetAnchor(req);
             this.guideLine.setTargetAnchor(anchor);
@@ -1413,6 +1421,7 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                 anchor: p.getSourceAnchor({event: e}),
                 model: this.model
             };
+            
             if (policy != null) {
                 this.command = policy.getCommand(req);
                 policy.eraseSourceFeedback(req);
@@ -1428,10 +1437,31 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
         }
     },
     mouseDrag: function (e, p) {
+        if (this.type == constants.REQ_CONNECTION_START) {
+            return;
+        }
+        
+        if (this.type == constants.REQ_RECONNECT_SOURCE || this.type == constants.REQ_RECONNECT_TARGET) {
+            var handles = this.linePart.policies.get('line selection').handles;
+            if (handles) {
+                handles.forEach(function (item) {
+                    item.disableEvent();
+                });
+            }
+        }
         this.mouseMove(e, p);
         return true;
     },
     dragEnd: function (e, p) {
+        if (this.type == constants.REQ_RECONNECT_SOURCE || this.type == constants.REQ_RECONNECT_TARGET) {
+            var handles = this.linePart.policies.get('line selection').handles;
+            if (handles) {
+                handles.forEach(function (item) {
+                    item.enableEvent();
+                });
+            }
+        }
+        
         this.mouseUp(e, p);
         return true;
     },
@@ -1439,11 +1469,19 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
         if (p instanceof anra.gef.NodeEditPart &&
             (this.type == constants.REQ_CONNECTION_END || this.type == constants.REQ_RECONNECT_TARGET || this.type == constants.REQ_RECONNECT_SOURCE)) {
             var policy = p.getConnectionPolicy();
-            var v = this;
+            var v = this, anchor;
 
-            var anchor = this.type == constants.REQ_RECONNECT_TARGET ? this.guideLine.targetAnchor :
-                (this.type == constants.REQ_RECONNECT_SOURCE ? this.guideLine.sourceAnchor :
-                    p.getTargetAnchor({event: e}));
+            if (this.guideLine) {
+                anchor = this.type == constants.REQ_RECONNECT_TARGET ? this.guideLine.targetAnchor :
+                        (this.type == constants.REQ_RECONNECT_SOURCE ? this.guideLine.sourceAnchor :
+                            p.getTargetAnchor({
+                                event: e
+                            }));
+            } else {
+                anchor = p.getTargetAnchor({
+                    event: e
+                });
+            }
 
             var req = {
                 editPart: p,
@@ -1459,8 +1497,13 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                 policy.eraseSourceFeedback(req);
                 policy.eraseTargetFeedback(req);
             }
-            if (this.command != null)
+            if (this.command != null){
                 p.getRoot().editor.execute(this.command);
+            }
+        }
+        
+        if (this.type == constants.REQ_RECONNECT_TARGET || this.type == constants.REQ_RECONNECT_SOURCE) {
+            this.editor.setActiveTool(this.editor.getDefaultTool());
         }
         this.reset();
         return true;
@@ -1564,21 +1607,20 @@ anra.gef.RootDragTracker = Base.extend({
             event: me,
             type: constants.REQ_DRAG_START
         };
-        editPart.showSourceFeedback(req);
+        
+        editPart.showTargetFeedback(req);
     },
     mouseDrag: function (me, editPart) {
-        var v = this;
         var req = {
             editPart: editPart,
             target: me.prop.drag,
             event: me,
             type: constants.REQ_MOVE
         };
-        if (req.type == null)return false;
+        
         editPart.showTargetFeedback(req);
     },
     dragEnd: function (me, editPart) {
-        var v = this;
         var req = {
             editPart: editPart,
             target: me.prop.drag,
@@ -1608,10 +1650,12 @@ anra.gef.DragTracker = anra.gef.RootDragTracker.extend({
     },
 
     dragStart: function (me, editPart) {
-        return true;
+        var bounds = editPart.figure.getClientArea();
+        me.offsetX = bounds[0] - me.x;
+        me.offsetY = bounds[1] - me.y;
+        return false;
     },
     dragEnd: function (me, editPart) {
-        var v = this;
         var req = {
             editPart: editPart,
             target: me.prop.drag,
@@ -1638,7 +1682,7 @@ anra.gef.RelocalCommand = anra.Command.extend({
         this.sp = sp;
         this.ep = ep;
         this.model = editPart.model;
-        this.root = editPart.getRoot();
+        this.editPart = editPart;
     },
     dispose: function () {
         this.editPart = null;
@@ -1647,20 +1691,24 @@ anra.gef.RelocalCommand = anra.Command.extend({
         return this.model != null && this.sp != null && this.ep != null;
     },
     execute: function () {
-        this.editPart = this.root.getEditPart(this.model);
-        var b = this.editPart.model.get('bounds');
-        /*this.editPart.model.get('bounds')[0] = this.ep.x;
-        this.editPart.model.get('bounds')[1] = this.ep.y;*/
+        var b = this.editPart.model.get('bounds'), parent = this.editPart.parent;
         
-        this.editPart.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
+        if (parent instanceof anra.gef.RootEditPart) {
+            this.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
+        } else {
+            var loc = [parent.getFigure().getAttr('x', parseFloat),
+                       parent.getFigure().getAttr('y', parseFloat)];
+            this.model.set('bounds', [this.ep.x - loc[0],
+                                      this.ep.y - loc[1],
+                                      b[2],
+                                      b[3]]);
+        }
         
         this.editPart.refresh();
     },
     undo: function () {
-        var b = this.editPart.model.get('bounds');
-        /*this.editPart.model.get('bounds')[0] = this.sp.x;
-        this.editPart.model.get('bounds')[1] = this.sp.y;*/
-        this.editPart.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
+        var b = this.model.get('bounds');
+        this.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
         this.editPart.refresh();
     }
 
@@ -1818,6 +1866,7 @@ anra.gef.ReconnectSourceCommand = anra.Command.extend({
         if (this.oldSource != this.source) {
             this.line.setSource(this.source);
             this.line.attachSource();
+            this.oldSource.removeSourceConnection(this.line)
         }
         this.oldTerminal = this.line.model.get('exit');
         this.line.model.set('exit', this.terminal);
@@ -1839,10 +1888,24 @@ anra.gef.ReconnectTargetCommand = anra.Command.extend({
         if (this.oldTarget != this.target) {
             this.line.setTarget(this.target);
             this.line.attachTarget();
+            this.oldTarget.removeTargetConnection(this.line);
         }
         this.oldTerminal = this.line.model.get('entr');
         this.line.model.set('entr', this.terminal);
         this.line.refresh();
+        
+/*        this.oldTarget = this.line.target;
+        this.oldTerminal = this.line.model.get('entr');
+        
+        console.log(this.oldTerminal != this.terminal)
+        if (this.oldTarget != this.target || this.oldTerminal != this.terminal) {
+            this.line.setTarget(this.target);
+            this.line.attachTarget();
+            this.oldTarget.removeTargetConnection(this.line);
+        }
+        this.line.model.set('entr', this.terminal);
+        this.line.refresh();*/
+        
     },
     undo: function () {
         if (this.oldTarget != this.target) {

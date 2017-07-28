@@ -76,6 +76,8 @@ import Base from '../lib/Base'
 
 anra.addExtend('./anra.policy')
 
+anra.svg.Image.layoutManager = new anra.svg.FillLayout();
+
 var $AG = {
     CIRCLE: anra.svg.Circle,
     RECT: anra.svg.Rect,
@@ -203,11 +205,15 @@ $AG.Editor = anra.gef.Editor.extend({
                 }
 
                 l.onCreateFigure = function (figure) {
-                    //figure.router = l.config.router;
-                    
-                    figure.router = function(line) {
-                        return l.config.router(line, root.getReader());
-                    }
+                    figure.router = (function(r) {
+                        if (r.length == 2) {
+                            return function(line) {
+                                return r(line, root.getReader());
+                            }
+                        } else if (r.length == 1) {
+                            return r;
+                        }
+                    })(l.config.router);
                     
                     
                     figure.oncreated = function () {

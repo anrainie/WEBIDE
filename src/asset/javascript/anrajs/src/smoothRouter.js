@@ -11,13 +11,24 @@ var smoothRouter = {
             return null;
         }
         
+        var source = line.getStartPoint(), target = line.getEndPoint();
+        
         //适应框架本身的BUG
         if (!line.hasOwnProperty('model')) {
-            return [line.getStartPoint(), line.getEndPoint()];
+            var abs = Math.abs, p1, p2;
+            if (abs(source.x - target.x) > abs(source.y - target.y)) {
+                p1 = {x: (source.x + target.x)/2, y: source.y};
+                p2 = {x: (source.x + target.x)/2, y: target.y};
+            } else {
+                p1 = {x: source.x, y: (source.y + target.y)/2};
+                p2 = {x: target.x, y: (source.y + target.y)/2};
+            }
+            
+            return [source, p1, p2, target];
         }
         
-        var path, start = reader.absoluteToRelative(line.getStartPoint()),
-            end = reader.absoluteToRelative(line.getEndPoint());
+        var path, start = reader.absoluteToRelative(source),
+            end = reader.absoluteToRelative(target);
         
         
         //搜索大致路径
@@ -45,7 +56,7 @@ var smoothRouter = {
             return optimize(path, line, reader);
         }
         
-        return [line.getStartPoint(), line.getEndPoint()];
+        return [source, target];
     }
 };
 
@@ -602,6 +613,7 @@ var ReaderListener = anra.gef.EditPartListener.extend({
     },
 
     childAdded: function (child, index) {
+        // toadd 父子
         if (child instanceof anra.gef.NodeEditPart) {
             var root = child.getRoot();
             root.getReader().read(child);
@@ -784,7 +796,6 @@ Reader.prototype.getCount = function(x, y) {
     if (!this.isValid(x, y)) {
         return -1;
     }
-    
     
     var key = x + '_' + y;
     if (!this.struct.has(key)) {

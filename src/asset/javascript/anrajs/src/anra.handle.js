@@ -4,6 +4,7 @@
 import {Map, Util} from './anra.common'
 import Base from '../lib/Base'
 import {anra} from './anra.gef'
+import * as constants from './anra.constants'
 
 //anra = anra || {};
 var Control = anra.svg.Control;
@@ -75,10 +76,11 @@ anra.Handle = Control.extend({
 
 
 anra.gef.LineHandle = anra.Handle.extend({
-    constructor:function (editPart, style) {
+    constructor:function (editPart, type, style) {
         Control.prototype.constructor.call(this);
         this.editPart = editPart;
         this.setStyle(style);
+        this.type = type;
     },
     _init:function () {
         this.bds = {'x':0, 'y':0, 'width':100, 'height':100};
@@ -107,7 +109,7 @@ anra.gef.LineHandle = anra.Handle.extend({
         }
         var w = 6;
         var hf = w / 2;
-
+        
         this.setBounds({x:p.x, y:p.y - hf, width:w, height:w}, true);
 //        this.paint();
     },
@@ -134,7 +136,13 @@ anra.ResizeHandle = Control.extend({
         this.direction = direction;
         var model = editPart.model;
         if (model != null) {
-            this.setLocator(editPart.getFigure().bounds);
+            var figure = editPart.getFigure();
+            this.setLocator({
+                x: figure.getAttr('x', parseFloat),
+                y: figure.getAttr('y', parseFloat),
+                width: figure.getAttr('width', parseFloat),
+                height: figure.getAttr('height', parseFloat)
+            });
             this.setStyle({
                 'stroke':'#000000',
                 'fill':'#FFFFFF'
@@ -199,7 +207,11 @@ anra.ResizeHandle = Control.extend({
         });
     },
     refreshLocation:function (f) {
-        this.setLocator(f.bounds,true);
+        this.setLocator({
+            x: f.getAttr('x', parseFloat),
+            y: f.getAttr('y', parseFloat),
+            width: f.getAttr('width', parseFloat),
+            height: f.getAttr('height', parseFloat)}, true);
     },
     getResizeTracker:function (direction) {
         return  anra.gef.ResizeTracker.getInstance(direction);

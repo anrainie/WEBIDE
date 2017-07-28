@@ -105,16 +105,18 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
                 feedback = this.getFeedback(editParts[i]);
                 this.refreshFeedback(feedback, request, editParts[i].figure.bounds.x - ox, editParts[i].figure.bounds.y - oy);
             }
-        } else if (editParts instanceof anra.gef.NodeEditPart) {
+        } else if (editParts instanceof anra.gef.NodeEditPart && (editParts.dragTracker || request.type == constants.REQ_CREATE)) {
             feedback = this.getFeedback(editParts);
-            this.refreshFeedback(feedback, request);
+            feedback.offsetX = request.event.offsetX || feedback.offsetX;
+            feedback.offsetY = request.event.offsetY || feedback.offsetY;
+            this.refreshFeedback(feedback, request, feedback.offsetX, feedback.offsetY);
         }
     },
     getLayoutEditParts: function (request) {
         if (constants.REQ_CREATE == request.type) {
             var creationTool = request.target;
             return creationTool.getEditPart(this.getHost());
-        } else if (constants.REQ_MOVE == request.type) {
+        } else if (constants.REQ_MOVE == request.type || constants.REQ_DRAG_START == request.type) {
 //            if (request.target.model instanceof anra.gef.NodeModel) {
             var selection = this.getHost().getRoot().selection;
             if (selection == null)return null;
@@ -170,10 +172,12 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
     getDeleteDependantCommand: function (request) {
         return null;
     },
-    getMoveCommand: function (request) {
+    getMoveCommand: function (request) {        
         var target = this.editParts;
-        if (target instanceof anra.gef.NodeEditPart && target.dragTracker)
-            return this.movecmd(target, request);
+        if (target instanceof anra.gef.NodeEditPart && target.dragTracker){
+            var feedback = this.getFeedback(target);
+            return this.movecmd(target, request, feedback.offsetX, feedback.offsetY);
+        }
         else if (target instanceof Array) {
             var cmd, offx, offy, ox, oy;
             if (request.target.bounds == null) {
@@ -204,9 +208,21 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
             });
     },
     getCreateCommand: function (request) {
-        var model = request.event.prop.drag.model;
-        var b = model.get('bounds');
-        model.set('bounds', [request.event.x - b[2] / 2, request.event.y - b[3] / 2, b[2], b[3]]);
+        var model = request.event.prop.drag.model,
+            type = model.get('type'),
+            b = model.get('bounds'), parent = request.editPart;
+        
+         while (parent && (parent.config.children == null || parent.config.children[type] == null)) {
+            parent = parent.parent;
+        }
+        
+        if (parent == null) {
+            return null;
+        }
+        
+        var pb = parent instanceof anra.gef.RootEditPart ? [0, 0] : parent.model.get('bounds');
+        
+        model.set('bounds', [request.event.x - pb[0], request.event.y - pb[1], b[2], b[3]]);
         return new anra.gef.CreateNodeCommand(this.getHost().getRoot(), model);
     },
     createListener: function () {
@@ -305,7 +321,8 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
             || constants.REQ_CLONE == request.type
             || constants.REQ_MOVE == request.type
             || constants.REQ_RESIZE_CHILDREN == request.type
-            || constants.REQ_CREATE == request.type)
+            || constants.REQ_CREATE == request.type
+            || constants.REQ_DRAG_START == request.type)
             this.showLayoutTargetFeedback(request);
 
         if (constants.REQ_CREATE == request.type) {
@@ -418,7 +435,7 @@ anra.gef.ConnectionPolicy = anra.gef.AbstractEditPolicy.extend({
         var Rect = anra.svg.Control.extend(anra.svg.Circle);
         Rect = new Rect();
         Rect.setAttribute({
-            stroke: 'yellow'
+            fill: 'yellow'
         });
         Rect.setOpacity(0.5);
         return Rect;
@@ -523,6 +540,7 @@ anra.gef.SelectionPolicy = anra.gef.AbstractEditPolicy.extend({
             this.addSelectionHandles();
         else {
             for (var i = 0; i < this.handles.length; i++) {
+                this.handles[i].refreshLocation(this.getHost().figure);
                 this.handles[i].setVisible(true);
             }
         }
@@ -574,10 +592,10 @@ anra.gef.LineSelectionPolicy = anra.gef.SelectionPolicy.extend({
         });
     },
     selected: function (editPart) {
-        this.color = this.getHostFigure().getStyle('storke');
+        this.color = this.getHostFigure().getStyle('stroke');
         if(this.color==null)
-            this.color=this.getHostFigure().attr['storke'];
-        this.sw = this.getHostFigure().getStyle('storke-width');
+            this.color=this.getHostFigure().attr['stroke'];
+        this.sw = this.getHostFigure().getStyle('stroke-width');
         this.getHostFigure().setStyle('stroke', 'blue');
     },
     createSelectionHandles: function (selection) {
