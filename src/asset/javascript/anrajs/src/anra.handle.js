@@ -4,6 +4,7 @@
 import {Map, Util} from './anra.common'
 import Base from '../lib/Base'
 import {anra} from './anra.gef'
+import * as constants from './anra.constants'
 
 //anra = anra || {};
 var Control = anra.svg.Control;
@@ -75,10 +76,11 @@ anra.Handle = Control.extend({
 
 
 anra.gef.LineHandle = anra.Handle.extend({
-    constructor:function (editPart, style) {
+    constructor:function (editPart, type, style) {
         Control.prototype.constructor.call(this);
         this.editPart = editPart;
         this.setStyle(style);
+        this.type = type;
     },
     _init:function () {
         this.bds = {'x':0, 'y':0, 'width':100, 'height':100};
@@ -107,7 +109,7 @@ anra.gef.LineHandle = anra.Handle.extend({
         }
         var w = 6;
         var hf = w / 2;
-
+        
         this.setBounds({x:p.x, y:p.y - hf, width:w, height:w}, true);
 //        this.paint();
     },

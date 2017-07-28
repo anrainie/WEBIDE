@@ -1,63 +1,107 @@
 import {$AG} from './anra.flow'
 import {anra} from './anra.gef'
+import * as constants from './anra.constants'
 import {ReaderListener} from './smoothRouter'
 import {Map, Util} from './anra.common'
 
 $AG.Editor.prototype.initRootEditPart = function (editPart) {
     editPart.addEditPartListener(new ReaderListener());
+    editPart.config = this.config;
+    /*add 增加对应的节点有效地子节点
+    var config = this.config, available = config.available, children = this.config.children;
+    if (available == null) {
+        return;
+    }
+
+    for (var type in available) {
+        if (children[type] == null) {
+            console.error(type + '类型节点不对')
+        }
+
+        if (available[type] == null || available[type].length < 1) {
+            continue;
+        }
+        
+        children[type].available = {};
+
+        for (var i in available[type]) {
+            if (children[available[type][i]] == null) {
+                console.error(type + '类型节点不对')
+            }
+
+            children[type].available[i] = available[type][i];
+        }
+    }*/
+    
+    editPart.addNotify();
 };
 
 /*关于json传入转出输入形式*/
 //仅仅初始化生成图 粗糙版
-var resolveData = function(editorConfig, json) {
-    //错误判断，忽略
+var resolveData = function(editorConfig, modelConfig) {
+    //TODO 错误判断
+    var ec = deepCopy(editorConfig),
+        mc = deepCopy(modelConfig);
     
-    var nodes = json.Root.Regulation.Step, 
-        result = deepCopy(editorConfig);
     
-    result.data = [];
-    result.line = [];
+    //DateInfo
+    ec.DateInfo = mc.DateInfo || null;
     
-    if (nodes.length == 0) {
-        return;
+    //NodeMaxnimum
+    ec.NodeMaxnimum = mc.NodeMaxnimum || null;
+    
+    //UUID
+    ec.UUID = mc.UUID || null;
+
+    //Regulation
+    if (mc.Regulation == null || mc.Regulation.Step == null) {
+        return ec;
     }
     
-    var location, size;
-    nodes.forEach(function(item, index, input) {
+    //Step 里面没有节点是null,只有一个节点的时候是Object，多节点是Array
+    var nodes = mc.Regulation.Step, location, size;
+    
+    ec.data = [];
+    ec.line = [];
+    
+    if (!(nodes instanceof Array) && nodes instanceof Object) {
+        nodes = [nodes];
+    }
+    
+    nodes.forEach(function (item, index, input) {
         location = item.Constraint.Location.split(',');
         size = item.Constraint.Size.split(',');
-        result.data[index] = Object.assign({
-            id : item.Id,
-            type : item.Type,
-            bounds : [parseInt(location[0]), parseInt(location[1]), 
-                      parseInt(size[0]), parseInt(size[1])],
+        ec.data[index] = Object.assign({
+            id: item.Id,
+            type: item.Type,
+            bounds: [parseInt(location[0]), parseInt(location[1]),
+                         parseInt(size[0]), parseInt(size[1])],
             desp: item.Desp
         }, item);
-        
-        
-        if (item.SourceConnections && 
-            item.SourceConnections.Connection && 
-            item.SourceConnections.Connection.length > 0) {
-            item.SourceConnections.Connection.forEach(function(item1, index1, input1) {
-                result.line.push({
+
+        if (item.SourceConnections &&
+            item.SourceConnections.Connection) {
+            
+            //单线为Object
+            if (!(item.SourceConnections.Connection instanceof Array)) {
+                item.SourceConnections.Connection = [item.SourceConnections.Connection];
+            }
+            
+            item.SourceConnections.Connection.forEach(function (item1, index1, input1) {
+                ec.line.push({
                     //id问题 
-                    id: createID(), 
-                    source: item.Id, 
-                    type: 0, 
-                    target: item1.targetId, 
-                    exit: item1.SourceTerminal, 
+                    id: item.Id + '_' + item1.targetId,
+                    source: item.Id,
+                    type: 0,
+                    target: item1.targetId,
+                    exit: item1.SourceTerminal,
                     entr: item1.TargetTerminal
                 });
             });
         }
     });
     
-    //假装知道
-    result.uuid = json.Root.UUID;
-    result.DateInfo = json.Root.DateInfo;
-    result.NodeMaxnimum = json.Root.NodeMaxnimum;
-    
-    return result;
+    return ec;
 }
 $AG.resolveData = resolveData;
 
@@ -82,7 +126,7 @@ var deepCopy= function(source) {
 $AG.deepCopy = deepCopy;
 
 var createID = (function () {
-    var count = 0;
+    var count = 100;
     return function () {
         return count++;
     }
@@ -91,10 +135,10 @@ var createID = (function () {
 //暂时性
 $AG.Editor.prototype.createID = createID;
 
-$AG.Editor.prototype.createNodeWithPalette = function(type) {
-    var config = this.config.children[type], editor = this;
+$AG.Editor.prototype.createNodeWithPalette = function(type, item) {
+    var editor = this, tool = new anra.gef.CreationTool();
     
-    if (config == null) {
+    if (!(item && type)) {
         return null;
     }
     
@@ -103,12 +147,12 @@ $AG.Editor.prototype.createNodeWithPalette = function(type) {
 
         node.props = {
             id: editor.createID(),
-            name: config.name,
             type: type,
-            bounds: config.bounds
+            bounds: [0, 0, item.size[0], item.size[1]]
         };
-
-        editor.setActiveTool(new anra.gef.CreationTool(node));
+        tool.model = node;
+        
+        editor.setActiveTool(tool);
         return true;
     }
 };
@@ -210,7 +254,6 @@ var mapHandle = anra.svg.Composite.extend({
     }
 });
 
-
 var Platform = {
     main : null,
     assist : null,
@@ -219,5 +262,119 @@ var Platform = {
         return this.pool.get(id) == this.assist;
     }
 };
+
+//this.editor.rootEditPart.figure.dispatcher.dragTarget = this.linePart.figure;
+
+
+//重新连线的测试策略
+var testSelectionPolicy = anra.gef.SelectionPolicy.extend({
+    _selected: false, 
+    selected: function(editPart) {
+        if (this._selected) {
+            return;
+        }
+        this.color = this.getHostFigure().getStyle('stroke');
+        if(this.color==null)
+            this.color=this.getHostFigure().attr['stroke'];
+        this.sw = this.getHostFigure().getStyle('stroke-width');
+        this.getHostFigure().setStyle('stroke', 'red');
+        this.getHostFigure().paint();
+        
+        this._selected = true;
+    },
+    unselected: function(editPart) {
+        if (!this._selected) {
+            return;
+        }
+        this.getHostFigure().setStyle({
+            stroke: this.color,
+            'stroke-width': this.sw
+        });
+        this.getHostFigure().paint();
+        
+        this._selected = false;
+    },
+    createSelectionHandles: function(selection) {
+        return [new testLineHandle(this.getHost(), constants.REQ_RECONNECT_SOURCE), new testLineHandle(this.getHost(), constants.REQ_RECONNECT_TARGET)];
+    }
+});
+
+anra.gef.LineSelectionPolicy = testSelectionPolicy;
+
+var Control = anra.svg.Control;
+var testLineHandle = anra.Handle.extend(anra.svg.Circle).extend({
+    constructor: function(editPart, type) {
+        Control.prototype.constructor.call(this);
+        this.type = type;
+        this.editPart = editPart;
+    },
+    initProp: function() {
+        var anchor;
+        if (this.type == constants.REQ_RECONNECT_SOURCE) {
+            anchor = this.editPart.getSourceAnchor();
+        } else if (this.type == constants.REQ_RECONNECT_TARGET) {
+            anchor = this.editPart.getTargetAnchor();
+        } else {
+            console.error('chuan ru type cuo wu')
+        }
+        
+        this.setOpacity(1);
+        
+        this.setAttribute({
+            fill:'white',
+            stroke:'blue'
+        });
+        this.setStyle({'cursor':'move'});
+        
+        this.setBounds({
+            x: anchor.x,
+            y: anchor.y,
+            width: 10
+        }, true);
+        
+    },
+    refreshLocation:function (figure) {
+        var points = figure.points;
+        var p;
+        if (this.type == constants.REQ_RECONNECT_SOURCE) {
+            p = points[0];
+        } else if (this.type == constants.REQ_RECONNECT_TARGET) {
+            p = points[points.length - 1];
+        }
+        var w = 10;
+        
+        this.setBounds({x:p.x, y:p.y, width:w, height:w}, true);
+    },
+    dragStart: function() {
+        var tool = new $AG.LineTool({
+            id: 3,
+            type: 0,
+            target: 5,
+            entr: 7,
+            exit: 6
+        });
+        tool.linePart = this.editPart;
+        tool.type = this.type;
+        this.editPart.getRoot().editor.setActiveTool(tool);
+        return true;
+    }
+});
+
+//test layoutPolicy
+var ContainerLayoutPolicy = anra.gef.LayoutPolicy.extend({
+    createFeedback: function (ep) {
+        var f = anra.FigureUtil.createGhostFigure(ep);
+        var b = f.bounds;
+        f.bounds = {width: b.width / 2, height: b.height / 2};
+        return f;
+    },
+    getCreateCommand: function (request) {
+        var model = request.event.prop.drag.model;
+        var b = model.get('bounds'), pb = this.getHost().model.get('bounds');
+        model.set('bounds', [request.event.x - pb[0] - b[2] / 2, request.event.y - pb[1] - b[3] / 2, b[2], b[3]]);
+        return new anra.gef.CreateNodeCommand(this.getHost(), model);
+    }
+});
+$AG.ContainerLayoutPolicy = ContainerLayoutPolicy;
 
 export {$AG}

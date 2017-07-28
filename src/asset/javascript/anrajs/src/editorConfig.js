@@ -26,7 +26,8 @@ var manhattanRoute = {
     endMarker: {
         type: $AG.Marker.TRIANGLE,
         size: 3
-    }
+    },
+    selectable: true
 };
 
 //策略
@@ -38,7 +39,7 @@ var textPolicy = $AG.policy.TextPolicy('desp', function (figure) {
 });
 
 
-//右键菜单
+/***************************************右键菜单***************************************/
 var selectAll = {
     id: 'selectAll',
     name: '全选',
@@ -57,7 +58,7 @@ var deleteItem = {
     check: function () {
         return this.selection instanceof $AG.NodeEditPart ||
                this.selection instanceof $AG.LineEditPart ||
-               this.selection instanceof Array;
+               (this.selection instanceof Array && this.selection.length > 0);
     },
     run: function () {
         var cmd, selection = this.selection,
@@ -115,7 +116,7 @@ var save = {
     }
 };
 
-
+/***************************************  节点  ***************************************/
 var commonCpt = {
     name: 'common',
     paletteUrl: "assets/image/editor/palette_component_stepCommonCpt.gif",
@@ -126,9 +127,11 @@ var commonCpt = {
         {id: 'N', dir: 'n', offset: 0},
         {id: '0', dir: 's', offset: -25},
         {id: '1', dir: 's', offset: 25},
-        {id: 'E', dir: 'e', offset: 0}
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+        {id: 'C', dir: 'c', offset: 0}
     ],
-    
+    size: [160, 46],
     
     //特性
     canDrag: true,
@@ -137,9 +140,9 @@ var commonCpt = {
     refresh : refresh,
     
     
-    policies: {
+/*    policies: {
         'TextPolicy': textPolicy
-    }
+    }*/
 };
 
 var serviceCpt = {
@@ -147,13 +150,14 @@ var serviceCpt = {
     paletteUrl: 'assets/image/editor/palette_component_ServiceInvoke.gif',
     url:'assets/image/editor/event_component_ServiceInvokdEntered.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 160, 46],
     anchor: [
         {id: 'N', dir: 'n', offset: 0},
         {id: '0', dir: 's', offset: -25},
         {id: '1', dir: 's', offset: 25},
-        {id: 'E', dir: 'e', offset: 0}
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0}
     ],
+    size: [160, 46],
     
     //特性
     canDrag: true,
@@ -167,17 +171,16 @@ var commonNodeConfig = {
     url: 'assets/image/editor/palette_component_ServiceInvoke.gif',
     paletteUrl: 'assets/image/editor/palette_component_ServiceInvoke.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
     canDrag: true,
     linkable: true,
     selectable: true,
     anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
+        {id: 0, dir: 'n', offset: 0},
+        {id: 1, dir: 's', offset: 0},
+        {id: 2, dir: 'e', offset: 0},
+        {id: 3, dir: 'w', offset: 0}
     ],
-    refresh : refresh
+    refresh: refresh
 };
 
 var serviceNodeConfig = {
@@ -201,10 +204,10 @@ var serviceNodeConfig = {
 //组三
 var start = {
     name: 'start',
-    url: 'assets/image/editor/palette_component_nodeStart.gif',
+    url: 'assets/image/editor/event_component_nodeStart.gif',
     paletteUrl: 'assets/image/editor/palette_component_nodeStart.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
+    size: [50, 50],
     canDrag: true,
     linkable: true,
     selectable: true,
@@ -214,16 +217,23 @@ var start = {
             {id: 2, dir: 'e', offset: 0},
             {id: 3, dir: 'w', offset: 0}
     ],
-    refresh : refresh
+    refresh: refresh,
+    policies: {
+        'layoutPolicy' : $AG.ContainerLayoutPolicy
+    },
+    children: {
+        '1': end,
+        '2': eend
+    }
 };
 
 var end = {
     name: 'end',
-    url: 'assets/image/editor/palette_component_nodeEnd.gif',
+    url: 'assets/image/editor/event_component_nodeEnd.gif',
     paletteUrl: 'assets/image/editor/palette_component_nodeEnd.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
-    canDrag: true,
+    size: [25, 25],
+    canDrag: false,
     linkable: true,
     selectable: true,
     anchor: [
@@ -237,10 +247,10 @@ var end = {
 
 var eend = {
     name: 'eend',
-    url: 'assets/image/editor/palette_component_nodeAbnormalEnd.gif',
+    url: 'assets/image/editor/event_component_nodeAbnormalEnd.gif',
     paletteUrl: 'assets/image/editor/palette_component_nodeAbnormalEnd.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
+    size: [50, 50],
     canDrag: true,
     linkable: true,
     selectable: true,
@@ -258,7 +268,7 @@ var error = {
     url: 'assets/image/editor/palette_component_nodeErrorDelegate.gif',
     paletteUrl: 'assets/image/editor/palette_component_nodeErrorDelegate.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
+    size: [50, 50],
     canDrag: true,
     linkable: true,
     selectable: true,
@@ -276,7 +286,7 @@ var context = {
     url: 'assets/image/editor/palette_component_ComponentInvoke.gif',
     paletteUrl: 'assets/image/editor/palette_component_ComponentInvoke.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
+    size: [50, 50],
     canDrag: true,
     linkable: true,
     selectable: true,
@@ -294,7 +304,7 @@ var serivceX = {
     url: 'assets/image/editor/palette_component_TradeInvoke.gif',
     paletteUrl: 'assets/image/editor/palette_component_TradeInvoke.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
+    size: [50, 50],
     canDrag: true,
     linkable: true,
     selectable: true,
@@ -312,7 +322,7 @@ var mid = {
     url: 'assets/image/editor/palette_component_transfer.gif',
     paletteUrl: 'assets/image/editor/palette_component_transfer.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
+    size: [50, 50],
     canDrag: true,
     linkable: true,
     selectable: true,
@@ -328,34 +338,38 @@ var mid = {
 var FlowEditor = {
     id: 'mainEditor',
     children: {
-        '3': commonCpt,
-        '4': serviceCpt,
-        '5': serviceCpt,
-        '6': commonNodeConfig,
-        '7': serviceNodeConfig,
-        '8':  start,
-        '9':  end,
-        '10': eend,
-        '11': error,
-        '12': context,
-        '13': serivceX,
-        '14': mid,
+        '3': serviceCpt,
+        '5': commonCpt,
+        '6': start,
+        /*有点问题*/
+        '7': end
     },
     lines: {
         0 : manhattanRoute
     },
     group: {
         0: {
-            name: '组一',
-            items: ['3', '4', '5']
+            name: '一',
+            items: {
+                '3': serviceCpt,
+                '5': commonCpt,
+            }
         },
         1: {
-            name: '组二',
-            items: ['6', '7']
+            name: '二',
+            items: {
+                '6': start,
+                '7': end,
+                '8': eend,
+                '9': error,
+                '10': context,
+                '11': serivceX,
+                '12': mid
+            }
         },
         2: {
-            name: '组三',
-            items: ['8', '9', '10', '11', '12', '13', '14']
+            name: '三',
+            items: []
         }
     },
     operations: [
@@ -367,4 +381,39 @@ var FlowEditor = {
     ]
 };
 
-export {FlowEditor}
+var AnthorEditor = {
+    id: 'gg',
+    children: {
+        '0': start,
+        '3': error,
+        '4': context,
+        '5': serivceX,
+        '6': mid
+    },
+    lines: {
+        0 : manhattanRoute
+    },
+    group: {
+        0: {
+            name: 'test',
+            items: {
+                '0': start,
+                '1': end,
+                '2': eend,
+                '3': error,
+                '4': context,
+                '5': serivceX,
+                '6': mid
+            }
+        }
+    },
+    operations: [
+        selectAll,
+        deleteItem,
+        undo,
+        redo,
+        save
+    ]
+}
+
+export {FlowEditor, AnthorEditor}

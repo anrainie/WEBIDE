@@ -418,7 +418,7 @@ anra.gef.ConnectionPolicy = anra.gef.AbstractEditPolicy.extend({
         var Rect = anra.svg.Control.extend(anra.svg.Circle);
         Rect = new Rect();
         Rect.setAttribute({
-            stroke: 'yellow'
+            fill: 'yellow'
         });
         Rect.setOpacity(0.5);
         return Rect;
@@ -574,10 +574,10 @@ anra.gef.LineSelectionPolicy = anra.gef.SelectionPolicy.extend({
         });
     },
     selected: function (editPart) {
-        this.color = this.getHostFigure().getStyle('storke');
+        this.color = this.getHostFigure().getStyle('stroke');
         if(this.color==null)
-            this.color=this.getHostFigure().attr['storke'];
-        this.sw = this.getHostFigure().getStyle('storke-width');
+            this.color=this.getHostFigure().attr['stroke'];
+        this.sw = this.getHostFigure().getStyle('stroke-width');
         this.getHostFigure().setStyle('stroke', 'blue');
     },
     createSelectionHandles: function (selection) {

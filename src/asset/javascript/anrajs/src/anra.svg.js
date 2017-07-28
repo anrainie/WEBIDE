@@ -944,8 +944,14 @@ anra.svg.EventDispatcher = Base.extend({
         this.mouseState = anra.EVENT.MouseDown;
         var e = new anra.event.Event(anra.EVENT.MouseDown);
         var location = this.getRelativeLocation(event);
-        e.x = location[0];
-        e.y = location[1];
+        
+        e.x = e.canvasX = location[0];
+        e.y = e.canvasY = location[1];
+        if (this.display != this.focusTarget) {
+            e.x -= this.focusTarget.getAttr('x', parseFloat);
+            e.y -= this.focusTarget.getAttr('y', parseFloat);
+        }
+        
         e.button = event.button;
         e.prop = {drag: this.dragTarget, target: this.focusTarget};
         var widget = this.focusTarget;
@@ -958,8 +964,14 @@ anra.svg.EventDispatcher = Base.extend({
         this.mouseState = anra.EVENT.MouseUp;
         var e = new anra.event.Event(anra.EVENT.MouseDown);
         var location = this.getRelativeLocation(event);
-        e.x = location[0];
-        e.y = location[1];
+        
+        e.x = e.canvasX = location[0];
+        e.y = e.canvasY = location[1];
+        if (this.display != this.focusTarget) {
+            e.x -= this.focusTarget.getAttr('x', parseFloat);
+            e.y -= this.focusTarget.getAttr('y', parseFloat);
+        }
+        
         e.prop = {drag: this.dragTarget, target: this.focusTarget};
         var widget = this.focusTarget;
         widget.notifyListeners(anra.EVENT.MouseClick, e);
@@ -981,25 +993,46 @@ anra.svg.EventDispatcher = Base.extend({
             this.mouseState = anra.EVENT.MouseDrag;
             if (this.dragTarget == null) {
                 this.dragTarget = this.focusTarget;
-                e = new anra.event.Event(anra.EVENT.DragStart, location);
+                e = new anra.event.Event(anra.EVENT.DragStart);
+                
+                e.canvasX = e.x = location[0];
+                e.canvasY = e.y = location[1];
+                
+                if (this.mouseOnTarget != this.display) {
+                    e.x -= this.mouseOnTarget.getAttr('x', parseFloat);
+                    e.y -= this.mouseOnTarget.getAttr('y', parseFloat); 
+                }
+                
                 e.prop = {drag: this.dragTarget, target: this.mouseOnTarget};
                 this.dragTarget.notifyListeners(anra.EVENT.DragStart, e);
-                if (this.dragTarget != this.mouseOnTarget && this.mouseOnTarget.notifyListeners)
-                    this.mouseOnTarget.notifyListeners(anra.EVENT.DragStart, e);
+                if (this.dragTarget != this.mouseOnTarget && this.mouseOnTarget.notifyListeners){
+                    this.mouseOnTarget.notifyListeners(anra.EVENT.DragStart, e);    
+                }
             }
             if (this.dragTarget.enable)
                 this.dragTarget.disableEvent();
         } else {
             this.mouseState = anra.EVENT.MouseMove;
             e = new anra.event.Event(anra.EVENT.MouseMove);
-            e.x = location[0];
-            e.y = location[1];
+            e.canvasX = e.x = location[0];
+            e.canvasY = e.y = location[1];
+            if (this.mouseOnTarget != this.display) {
+                e.x -= this.mouseOnTarget.getAttr('x', parseFloat);
+                e.y -= this.mouseOnTarget.getAttr('y', parseFloat);
+            }
+            
             this.mouseOnTarget.notifyListeners(anra.EVENT.MouseMove, e);
         }
         if (this.dragTarget != null && (this.mouseState == anra.EVENT.MouseDrag)) {
             e = new anra.event.Event(anra.EVENT.MouseDrag);
-            e.x = location[0];
-            e.y = location[1];
+            e.canvasX = e.x = location[0];
+            e.canvasY = e.y = location[1];
+            
+            if (this.mouseOnTarget != this.display) {
+                e.x -= this.mouseOnTarget.getAttr('x', parseFloat);
+                e.y -= this.mouseOnTarget.getAttr('y', parseFloat); 
+            }
+            
             e.prop = {drag: this.dragTarget, target: this.mouseOnTarget};
             this.dragTarget.notifyListeners && this.dragTarget.notifyListeners(anra.EVENT.MouseDrag, e);
             if (this.dragTarget != this.mouseOnTarget && this.mouseOnTarget.notifyListeners)
@@ -1011,9 +1044,19 @@ anra.svg.EventDispatcher = Base.extend({
         var location = this.getRelativeLocation(event);
         var notified = false;
         if (this.mouseState == anra.EVENT.MouseDrag) {
-            var e = new anra.event.Event(anra.EVENT.DragEnd, location);
+            var e = new anra.event.Event(anra.EVENT.DragEnd);
             e.prop = {drag: this.dragTarget, target: widget};
             e.button = event.button;
+            
+            //fix
+            e.canvasX = e.x = location[0];
+            e.canvasY = e.y = location[1];
+            
+            if (this.mouseOnTarget != this.display) {
+                e.x -= this.mouseOnTarget.getAttr('x', parseFloat);
+                e.y -= this.mouseOnTarget.getAttr('y', parseFloat);
+            }
+            
             if (this.dragTarget instanceof anra.svg.Control) {
                 this.dragTarget.notifyListeners(anra.EVENT.Dropped, e);
                 this.dragTarget.enableEvent();
@@ -1023,28 +1066,105 @@ anra.svg.EventDispatcher = Base.extend({
         }
         this.mouseState = anra.EVENT.MouseUp;
         if (!notified) {
-            e = new anra.event.Event(anra.EVENT.MouseUp, location);
+            e = new anra.event.Event(anra.EVENT.MouseUp);
+            
+            e.canvasX = e.x = location[0];
+            e.canvasY = e.x = location[1];
+            
             e.button = event.button;
-            if (this.mouseOnTarget != null)
-                this.mouseOnTarget.notifyListeners(anra.EVENT.MouseUp, e);
-            else
-                this.focusTarget.notifyListeners(anra.EVENT.MouseUp, e);
+            
+            widget = widget || this.focusTarget;
+            
+            if (widget != this.display) {
+                e.x -= widget.getAttr('x', parseFloat);
+                e.y -= widget.getAttr('y', parseFloat);
+            }
+                
+            widget.notifyListeners(anra.EVENT.MouseUp, e);
         }
         this.dragTarget = null;
     },
     dispatchMouseIn: function (event) {
         var location = this.getRelativeLocation(event);
-        var e = new anra.event.Event(anra.EVENT.MouseIn, location);
+        var e = new anra.event.Event(anra.EVENT.MouseIn);
+        
+        e.x = e.canvasX = location[0];
+        e.y = e.canvasY = location[1];
+        if (this.display != event.figure) {
+            e.x -= event.figure.getAttr('x', parseFloat);
+            e.y -= event.figure.getAttr('y', parseFloat);
+        }
+        
         e.button = event.button;
-        if (this.dragTarget != event.figure)
+        if (this.dragTarget != event.figure){
             this.mouseOnTarget = event.figure;
+        }
         event.figure.notifyListeners(anra.EVENT.MouseIn, e);
     },
     dispatchMouseOut: function (event) {
-        var loc = this.getRelativeLocation(event);
-        if (anra.Rectangle.contains(this.focusTarget.bounds, loc[0], loc[1]))
-            return;
-        var e = new anra.event.Event(anra.EVENT.MouseOut, loc);
+        var loc = this.getRelativeLocation(event),
+            relatedTarget = event.toElement,
+            //relatedTarget = event.relatedTarget,
+            contains = anra.Rectangle.contains,
+            eb = event.figure.bounds,
+            b;
+
+        try {
+            if (relatedTarget) {
+                switch (relatedTarget.nodeName) {
+                    case 'svg':
+                        break;
+                    case 'DIV':
+                        break;
+                    case 'image':
+                    case 'rect':
+                        b = {
+                            x: parseFloat(relatedTarget.getAttribute('x')),
+                            y: parseFloat(relatedTarget.getAttribute('y')),
+                            width: parseFloat(relatedTarget.getAttribute('width')),
+                            height: parseFloat(relatedTarget.getAttribute('height'))
+                        }
+                        
+                        if (contains(eb, b.x, b.y) && (b.x + b.width) < (eb.x + eb.width) && (b.y + b.height) < (eb.y + eb.height) &&
+                            contains(eb, loc[0], loc[1])) {
+                            return;
+                        }
+                        break;
+                    case 'ellipse':
+                        b.rx = parseFloat(relatedTarget.getAttribute('rx'));
+                        b.ry = parseFloat(relatedTarget.getAttribute('ry'))
+                    case 'circle':
+                        if (b == null) {
+                            b.rx = b.ry = relatedTarget['r'].value;
+                        }
+                        
+                        b.cx = parseFloat(relatedTarget.getAttribute('cx'))
+                        b.cy = parseFloat(relatedTarget.getAttribute('cy'))
+
+                        if (!contains(eb, b.cx, b.cy) || (b.cx - b.rx) < eb.x || (b.cx + b.rx) > (eb.x + eb.width) ||
+                            (b.cy - b.ry) < eb.y || (b.cy + b.ry) > (eb.y + eb.height)) {
+                            break;
+                        }
+                    case 'marker':
+                    case 'line':
+                    case 'path':
+                        if (contains(eb, loc[0], loc[1])) {
+                            return;
+                        }
+                        
+                        break;
+                    case 'text':
+                    default:
+                        console.log(relatedTarget)
+                }
+            }
+        } catch (e) {
+            console.warn(relatedTarget)
+        }
+
+        var e = new anra.event.Event(anra.EVENT.MouseOut);
+        e.canvasX = loc[0];
+        e.canvasY = loc[1];
         event.figure.notifyListeners(anra.EVENT.MouseOut, e);
     },
     dispatchMouseOutScreen: function (event) {

@@ -1306,12 +1306,14 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
     },
     activate: function () {
         //根控制器激活连线模式，展示UI
+        //原先代码
         var policy = this.editor.rootEditPart.getConnectionPolicy();
         if (policy != null)
             policy.showSourceFeedback({type: constants.REQ_CONNECTION_MOD});
     },
     deactivate: function () {
         //清除连线模式的UI
+        //原先代码
         var policy = this.editor.rootEditPart.getConnectionPolicy();
         if (policy != null)
             policy.eraseSourceFeedback({type: constants.REQ_CONNECTION_MOD});
@@ -1377,6 +1379,9 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                 this.guideLine.setSourceAnchor(anchor);
                 this.guideLine.disableEvent();
             }
+            //无法连接同一节点的锚点
+            this.editor.rootEditPart.figure.dispatcher.dragTarget = this.guideLine.figure;
+            
             if (p instanceof anra.gef.NodeEditPart)
                 anchor = p.getTargetAnchor(req);
             this.guideLine.setTargetAnchor(anchor);
@@ -1413,6 +1418,7 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                 anchor: p.getSourceAnchor({event: e}),
                 model: this.model
             };
+            
             if (policy != null) {
                 this.command = policy.getCommand(req);
                 policy.eraseSourceFeedback(req);
@@ -1428,10 +1434,31 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
         }
     },
     mouseDrag: function (e, p) {
+        if (this.type == constants.REQ_CONNECTION_START) {
+            return;
+        }
+        
+        if (this.type == constants.REQ_RECONNECT_SOURCE || this.type == constants.REQ_RECONNECT_TARGET) {
+            var handles = this.linePart.policies.get('line selection').handles;
+            if (handles) {
+                handles.forEach(function (item) {
+                    item.disableEvent();
+                });
+            }
+        }
         this.mouseMove(e, p);
         return true;
     },
     dragEnd: function (e, p) {
+        if (this.type == constants.REQ_RECONNECT_SOURCE || this.type == constants.REQ_RECONNECT_TARGET) {
+            var handles = this.linePart.policies.get('line selection').handles;
+            if (handles) {
+                handles.forEach(function (item) {
+                    item.enableEvent();
+                });
+            }
+        }
+        
         this.mouseUp(e, p);
         return true;
     },
@@ -1439,11 +1466,19 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
         if (p instanceof anra.gef.NodeEditPart &&
             (this.type == constants.REQ_CONNECTION_END || this.type == constants.REQ_RECONNECT_TARGET || this.type == constants.REQ_RECONNECT_SOURCE)) {
             var policy = p.getConnectionPolicy();
-            var v = this;
+            var v = this, anchor;
 
-            var anchor = this.type == constants.REQ_RECONNECT_TARGET ? this.guideLine.targetAnchor :
-                (this.type == constants.REQ_RECONNECT_SOURCE ? this.guideLine.sourceAnchor :
-                    p.getTargetAnchor({event: e}));
+            if (this.guideLine) {
+                anchor = this.type == constants.REQ_RECONNECT_TARGET ? this.guideLine.targetAnchor :
+                        (this.type == constants.REQ_RECONNECT_SOURCE ? this.guideLine.sourceAnchor :
+                            p.getTargetAnchor({
+                                event: e
+                            }));
+            } else {
+                anchor = p.getTargetAnchor({
+                    event: e
+                });
+            }
 
             var req = {
                 editPart: p,
@@ -1459,8 +1494,13 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                 policy.eraseSourceFeedback(req);
                 policy.eraseTargetFeedback(req);
             }
-            if (this.command != null)
+            if (this.command != null){
                 p.getRoot().editor.execute(this.command);
+            }
+        }
+        
+        if (this.type == constants.REQ_RECONNECT_TARGET || this.type == constants.REQ_RECONNECT_SOURCE) {
+            this.editor.setActiveTool(this.editor.getDefaultTool());
         }
         this.reset();
         return true;
@@ -1818,6 +1858,7 @@ anra.gef.ReconnectSourceCommand = anra.Command.extend({
         if (this.oldSource != this.source) {
             this.line.setSource(this.source);
             this.line.attachSource();
+            this.oldSource.removeSourceConnection(this.line)
         }
         this.oldTerminal = this.line.model.get('exit');
         this.line.model.set('exit', this.terminal);
@@ -1839,10 +1880,24 @@ anra.gef.ReconnectTargetCommand = anra.Command.extend({
         if (this.oldTarget != this.target) {
             this.line.setTarget(this.target);
             this.line.attachTarget();
+            this.oldTarget.removeTargetConnection(this.line);
         }
         this.oldTerminal = this.line.model.get('entr');
         this.line.model.set('entr', this.terminal);
         this.line.refresh();
+        
+/*        this.oldTarget = this.line.target;
+        this.oldTerminal = this.line.model.get('entr');
+        
+        console.log(this.oldTerminal != this.terminal)
+        if (this.oldTarget != this.target || this.oldTerminal != this.terminal) {
+            this.line.setTarget(this.target);
+            this.line.attachTarget();
+            this.oldTarget.removeTargetConnection(this.line);
+        }
+        this.line.model.set('entr', this.terminal);
+        this.line.refresh();*/
+        
     },
     undo: function () {
         if (this.oldTarget != this.target) {
