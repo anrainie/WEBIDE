@@ -136,7 +136,13 @@ anra.ResizeHandle = Control.extend({
         this.direction = direction;
         var model = editPart.model;
         if (model != null) {
-            this.setLocator(editPart.getFigure().bounds);
+            var figure = editPart.getFigure();
+            this.setLocator({
+                x: figure.getAttr('x', parseFloat),
+                y: figure.getAttr('y', parseFloat),
+                width: figure.getAttr('width', parseFloat),
+                height: figure.getAttr('height', parseFloat)
+            });
             this.setStyle({
                 'stroke':'#000000',
                 'fill':'#FFFFFF'
@@ -201,7 +207,11 @@ anra.ResizeHandle = Control.extend({
         });
     },
     refreshLocation:function (f) {
-        this.setLocator(f.bounds,true);
+        this.setLocator({
+            x: f.getAttr('x', parseFloat),
+            y: f.getAttr('y', parseFloat),
+            width: f.getAttr('width', parseFloat),
+            height: f.getAttr('height', parseFloat)}, true);
     },
     getResizeTracker:function (direction) {
         return  anra.gef.ResizeTracker.getInstance(direction);

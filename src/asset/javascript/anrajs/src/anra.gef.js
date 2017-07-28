@@ -128,13 +128,16 @@ anra.gef.Figure = anra.svg.Composite.extend({
     },
     paint: function () {
         this.applyBounds();
-        if (this.layoutManager != null)
-            this.layout();
+        /*if (this.layoutManager != null)
+            this.layout();*/
         this.fireRepaintListener();
         if (this.children)
             for (var i = 0; i < this.children.length; i++) {
                 this.children[i].paint();
             }
+        
+        if (this.layoutManager != null)
+            this.layout();
     },
     fireRepaintListener: function () {
         if (this.repaintListeners != null) {
@@ -1265,7 +1268,7 @@ anra.gef.CreationTool = anra.gef.Tool.extend({
         var parent = p;
         while (policy == null && parent != null) {
             policy = parent.getLayoutPolicy();
-            parent = p.parent;
+            parent = parent.parent;
         }
         return policy;
     },
@@ -1604,21 +1607,20 @@ anra.gef.RootDragTracker = Base.extend({
             event: me,
             type: constants.REQ_DRAG_START
         };
-        editPart.showSourceFeedback(req);
+        
+        editPart.showTargetFeedback(req);
     },
     mouseDrag: function (me, editPart) {
-        var v = this;
         var req = {
             editPart: editPart,
             target: me.prop.drag,
             event: me,
             type: constants.REQ_MOVE
         };
-        if (req.type == null)return false;
+        
         editPart.showTargetFeedback(req);
     },
     dragEnd: function (me, editPart) {
-        var v = this;
         var req = {
             editPart: editPart,
             target: me.prop.drag,
@@ -1648,10 +1650,12 @@ anra.gef.DragTracker = anra.gef.RootDragTracker.extend({
     },
 
     dragStart: function (me, editPart) {
-        return true;
+        var bounds = editPart.figure.getClientArea();
+        me.offsetX = bounds[0] - me.x;
+        me.offsetY = bounds[1] - me.y;
+        return false;
     },
     dragEnd: function (me, editPart) {
-        var v = this;
         var req = {
             editPart: editPart,
             target: me.prop.drag,
@@ -1678,7 +1682,7 @@ anra.gef.RelocalCommand = anra.Command.extend({
         this.sp = sp;
         this.ep = ep;
         this.model = editPart.model;
-        this.root = editPart.getRoot();
+        this.editPart = editPart;
     },
     dispose: function () {
         this.editPart = null;
@@ -1687,20 +1691,24 @@ anra.gef.RelocalCommand = anra.Command.extend({
         return this.model != null && this.sp != null && this.ep != null;
     },
     execute: function () {
-        this.editPart = this.root.getEditPart(this.model);
-        var b = this.editPart.model.get('bounds');
-        /*this.editPart.model.get('bounds')[0] = this.ep.x;
-        this.editPart.model.get('bounds')[1] = this.ep.y;*/
+        var b = this.editPart.model.get('bounds'), parent = this.editPart.parent;
         
-        this.editPart.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
+        if (parent instanceof anra.gef.RootEditPart) {
+            this.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
+        } else {
+            var loc = [parent.getFigure().getAttr('x', parseFloat),
+                       parent.getFigure().getAttr('y', parseFloat)];
+            this.model.set('bounds', [this.ep.x - loc[0],
+                                      this.ep.y - loc[1],
+                                      b[2],
+                                      b[3]]);
+        }
         
         this.editPart.refresh();
     },
     undo: function () {
-        var b = this.editPart.model.get('bounds');
-        /*this.editPart.model.get('bounds')[0] = this.sp.x;
-        this.editPart.model.get('bounds')[1] = this.sp.y;*/
-        this.editPart.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
+        var b = this.model.get('bounds');
+        this.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
         this.editPart.refresh();
     }
 

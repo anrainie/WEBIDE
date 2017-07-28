@@ -1,4 +1,5 @@
 import {$AG} from './anra.flow'
+import Base from '../lib/Base'
 import {anra} from './anra.gef'
 import * as constants from './anra.constants'
 import {ReaderListener} from './smoothRouter'
@@ -369,12 +370,93 @@ var ContainerLayoutPolicy = anra.gef.LayoutPolicy.extend({
         return f;
     },
     getCreateCommand: function (request) {
-        var model = request.event.prop.drag.model;
-        var b = model.get('bounds'), pb = this.getHost().model.get('bounds');
-        model.set('bounds', [request.event.x - pb[0] - b[2] / 2, request.event.y - pb[1] - b[3] / 2, b[2], b[3]]);
+        var model = request.event.prop.drag.model,
+            type = model.get('type'),
+            b = model.get('bounds'), parent = request.editPart;
+                
+        while (parent && (parent.config.children == null || parent.config.children[type] == null)) {
+            parent = parent.parent;
+        }
+        
+        if (parent == null) {
+            return null;
+        }
+        
+        var pb = parent instanceof anra.gef.RootEditPart ? [0, 0] : parent.model.get('bounds');
+        
+        model.set('bounds', [request.event.x - pb[0], request.event.y - pb[1], b[2], b[3]]);
         return new anra.gef.CreateNodeCommand(this.getHost(), model);
     }
 });
 $AG.ContainerLayoutPolicy = ContainerLayoutPolicy;
+
+
+/***************关于布局****************/
+var Layout = Base.extend({
+    layout: function (comp) {
+    }
+});
+
+var fillLayout = Layout.extend({
+    horizontal: true,
+    marginWidth: 0,
+    marginHeight: 0,
+    spacing: 0,
+    layout: function(comp) {
+        var children = comp.children, bounds = comp.getClientArea(), count;
+        
+        if (children == null || children.length == 0) {
+            return;
+        }
+        count = children.length;
+        
+        var width = bounds[2] - 2*this.marginWidth,
+            height = bounds[3] - 2*this.marginHeight;
+        
+        if (this.horizontal) {
+            width -= (count - 1) * this.spacing;
+            
+            var x = this.marginWidth, extra = width % count,
+                y = this.marginHeight, cellWidth = width / count,
+                childWidth;
+            
+            for (var i = 0; i < count; i++) {
+                childWidth = cellWidth;
+                if (i == 0) {
+                    childWidth += cellWidth;
+                } else if (i == count - 1) {
+                    childWidth += (extra + 1) / 2;
+                }
+                children[i].setBounds({
+                    x: x,
+                    y: y,
+                    width: childWidth,
+                    height: height
+                });
+                x += childWidth + this.spacing
+            }
+        } else {
+            var x = this.marginWidth, extra = width % count,
+                y = this.marginHeight, cellHeight = width / count,
+                childHeight;
+            
+            for (var i = 0; i < count; i++) {
+                if (i == 0) {
+                    childHeight += cellHeight;
+                } else if (i == count - 1) {
+                    childHeight += (extra + 1) / 2;
+                }
+                children[i].setBounds({
+                    x: x,
+                    y: y,
+                    width: width,
+                    height: cellHeight
+                });
+                y += childHeight + this.spacing;
+            }
+        }
+    }
+});
+anra.svg.Image.layoutManager = new fillLayout();
 
 export {$AG}

@@ -134,7 +134,7 @@ var commonCpt = {
     size: [160, 46],
     
     //特性
-    canDrag: true,
+    canDrag: false,
     linkable: true,
     selectable: true,
     refresh : refresh,
@@ -202,30 +202,7 @@ var serviceNodeConfig = {
 };
 
 //组三
-var start = {
-    name: 'start',
-    url: 'assets/image/editor/event_component_nodeStart.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeStart.gif',
-    type: $AG.IMAGE,
-    size: [50, 50],
-    canDrag: true,
-    linkable: true,
-    selectable: true,
-    anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
-    ],
-    refresh: refresh,
-    policies: {
-        'layoutPolicy' : $AG.ContainerLayoutPolicy
-    },
-    children: {
-        '1': end,
-        '2': eend
-    }
-};
+
 
 var end = {
     name: 'end',
@@ -279,6 +256,31 @@ var error = {
             {id: 3, dir: 'w', offset: 0}
     ],
     refresh : refresh
+};
+
+var start = {
+    name: 'start',
+    url: 'assets/image/editor/event_component_nodeStart.gif',
+    paletteUrl: 'assets/image/editor/palette_component_nodeStart.gif',
+    type: $AG.IMAGE,
+    size: [200, 200],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+            {id: 0, dir: 'n', offset: 0},
+            {id: 1, dir: 's', offset: 0},
+            {id: 2, dir: 'e', offset: 0},
+            {id: 3, dir: 'w', offset: 0}
+    ],
+    refresh: refresh,
+    policies: {
+        'layoutPolicy' : $AG.ContainerLayoutPolicy
+    },
+    children: {
+        '7': end,
+        '8': eend
+    }
 };
 
 var context = {
@@ -342,7 +344,8 @@ var FlowEditor = {
         '5': commonCpt,
         '6': start,
         /*有点问题*/
-        '7': end
+        '7': end,
+        '8': eend
     },
     lines: {
         0 : manhattanRoute

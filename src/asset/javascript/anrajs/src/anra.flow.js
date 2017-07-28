@@ -76,6 +76,8 @@ import Base from '../lib/Base'
 
 anra.addExtend('./anra.policy')
 
+anra.svg.Image.layoutManager = new anra.svg.FillLayout();
+
 var $AG = {
     CIRCLE: anra.svg.Circle,
     RECT: anra.svg.Rect,
