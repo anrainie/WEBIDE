@@ -221,7 +221,7 @@
             doOpenEditor:function (item,content) {
                 var editorDecorator = this.getEditorDecorator(item.model.resId);
                 if(!editorDecorator){
-                    console.error("can not found editorDecorator with : " + item.model.resId);
+                    debug.error("can not found editorDecorator with : " + item.model.resId);
                     return;
                 }
 

@@ -196,6 +196,9 @@
             var self = this;
             this.config = this.config || {};
             this.config.callback = this.config.callback || {};
+            if(this.config.width){
+                this.$el.style.width = this.config.width + "px";
+            }
             this.msgHub.$on("deleteItem", function (item) {
                 self.deleteItem(item);
             });

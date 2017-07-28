@@ -88,9 +88,7 @@
     import io from 'socket.io-client';
     import navContextMenus from '../../action/afa.navi.contextmenu';
     import menuData from '../../action/ide.menu';
-    import debug from '../../utils/debug';
 
-    window.debug = debug;
 
     export default{
         data(){
@@ -256,7 +254,7 @@
                                     }
                                     callback(naviItems);
                                 } else {
-                                    console.info('emit getNaviItems : ', result.errorMsg);
+                                    debug.error('emit getNaviItems fail , ' + result.errorMsg);
                                 }
                             }
                             IDE.shade.hide();
@@ -264,6 +262,7 @@
                     },
                     data: {
                         config: {
+                            width:200,
                             check: false,
                             async: true,
                             callback: {
