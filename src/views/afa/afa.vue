@@ -297,7 +297,7 @@
                                     }
                                 },
                                 click: function (item) {
-                                },
+                              },
                                 dblclick: function (item) {
                                     if (!item.model.isParent) {
                                         let editor = IDE.editorPart.getEditor(item);
@@ -332,7 +332,7 @@
                                         if (data) {
                                             let result = JSON.parse(data);
                                             if (result.state === 'success') {
-                                                let newItems = navContextMenus.merge(result.data);
+                                                let newItems = navContextMenus.match(result.data);
                                                 IDE.contextmenu.setItems(newItems);
                                                 if (IDE.contextmenu.isActive()) {
                                                     IDE.contextmenu.hide();
