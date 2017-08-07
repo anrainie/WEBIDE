@@ -396,6 +396,7 @@
                 return $("#" + p);
             },
             keyPress:function (event) {
+                var that = this;
                 if(event.ctrlKey){
                     switch(event.which){
                         case 19:{
@@ -408,19 +409,21 @@
                                         content:this.activeEditor.input,
                                         event: 'saveFile',
                                     }, function (data) {
-                                        let result = JSON.parse(data);
-                                        if (result.state === 'success') {
-                                            item.$notify({
-                                                title: '保存',
-                                                message: '保存成功',
-                                                type: 'success'
-                                            });
-                                        } else {
-                                            item.$notify({
-                                                title: '保存',
-                                                message: '保存失败：' + result.errorMsg,
-                                                type: 'error'
-                                            });
+                                        if(data) {
+                                            let result = JSON.parse(data);
+                                            if (result.state === 'success') {
+                                                that.$notify({
+                                                    title: '保存',
+                                                    message: '保存成功',
+                                                    type: 'success'
+                                                });
+                                            } else {
+                                                that.$notify({
+                                                    title: '保存',
+                                                    message: '保存失败：' + result.errorMsg,
+                                                    type: 'error'
+                                                });
+                                            }
                                         }
                                     });
                                 }
