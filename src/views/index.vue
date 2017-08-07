@@ -12,6 +12,8 @@
     import ElementUI from 'element-ui';
     //    import 'https://unpkg.com/element-ui/lib/index.js';
 
+
+
     Vue.use(ElementUI);
     export default{
         data: function () {
@@ -21,6 +23,16 @@
             window.IDE = new function () {
                 let listeners = {};
                 let keyStore = {};
+
+                $(window).on('keypress',function (e) {
+                    var key = e.which || window.event.keyCode;
+
+                    //TODO 委托给活动状态的viewer
+                    if(IDE.editorPart){
+                        IDE.editorPart.keyPress(e);
+                    }
+                });
+
                 return {
                     on(key, callback){
                         //确保前置执行

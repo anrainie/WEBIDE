@@ -26,8 +26,13 @@ module.exports =  {
             handler:function () {
                 console.info('run afa localService: local1');
             }
-        },{
+        },
+        {
             id:'afaCompile',
+            type:'IOService',
+            handler:ioService
+        },{
+            id:'saveFile',
             type:'IOService',
             handler:ioService
         }

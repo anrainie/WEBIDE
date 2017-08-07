@@ -40,6 +40,7 @@ function IDESocket() {
 }
 
 IDESocket.prototype.emit = function (eventId,data,callback) {
+    debug.info("IDESocket emit,event:" + data.event);
     if(this.socket.connected){
         this.socket.emit(eventId,data,callback);
     }else{

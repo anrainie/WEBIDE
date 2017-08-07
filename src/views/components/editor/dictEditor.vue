@@ -95,7 +95,8 @@
 
             },
             save(){
-
+                debug.info("dictEditor save");
+                return true;
             }
         },
         mounted(){
