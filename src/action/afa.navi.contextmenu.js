@@ -157,7 +157,8 @@ var items = {
   'cn.com.agree.ide.afa.compile.action.CompileBCptAction': {
     id: 'cn.com.agree.ide.afa.compile.action.CompileBCptAction',
     name: '编译业务组件',
-    type: 'item'
+    type: 'item',
+    handler:compileBcpt
   },
   'cn.com.agree.ide.afa.compile.deployAction.CompileAndDeployBcptAction': {
     id: 'cn.com.agree.ide.afa.compile.deployAction.CompileAndDeployBcptAction',
@@ -353,7 +354,8 @@ var items = {
   'cn.com.agree.ide.afa.compile.action.CompileTradeAction': {
     id: 'cn.com.agree.ide.afa.compile.action.CompileTradeAction',
     name: '编译服务',
-    type: 'item'
+    type: 'item',
+      handler:compileService
   },
   'cn.com.agree.ide.afa.compile.deployAction.CompileAndDeployTradeAction': {
     id: 'cn.com.agree.ide.afa.compile.deployAction.CompileAndDeployTradeAction',
@@ -475,14 +477,81 @@ function match (originalItems, newItems) {
           newItem.resourceId = resourceId
         }
       }
-
-      newItems.push(newItem)
-      if (oItem.children) {
-        newItem.children = []
-        match(oItem.children, newItem.children)
+      if(newItem) {
+          newItems.push(newItem)
+          if (oItem.children) {
+              newItem.children = []
+              match(oItem.children, newItem.children)
+          }
       }
     }
   }
+}
+
+function compileService(selection, item) {
+    var resources = [];
+    if (selection.length > 0) {
+        for (let i = 0; i < selection.length; i++) {
+            resources[i] = selection[i].model.path;
+        }
+        IDE.shade.open("正在编译");
+        IDE.socket.emit("afaCompile", {
+            type: IDE.type,
+            path: resources,
+            event: 'afaCompile',
+            resourceType: 'service'
+        }, function (data) {
+            IDE.shade.hide();
+            let result = JSON.parse(data);
+            if (result.state === 'success') {
+                item.$notify({
+                    title: '编译',
+                    message: '编译成功',
+                    type: 'success'
+                });
+            } else {
+                item.$notify({
+                    title: '编译',
+                    message: '编译失败',
+                    type: 'error'
+                });
+            }
+
+        });
+    }
+}
+
+function compileBcpt(selection, item) {
+    var resources = [];
+    if (selection.length > 0) {
+        for (let i = 0; i < selection.length; i++) {
+            resources[i] = selection[i].model.path;
+        }
+        IDE.shade.open("正在编译");
+        IDE.socket.emit("afaCompile", {
+            type: IDE.type,
+            path: resources,
+            event: 'afaCompile',
+            resourceType: 'bcpt'
+        }, function (data) {
+            IDE.shade.hide();
+            let result = JSON.parse(data);
+            if (result.state === 'success') {
+                item.$notify({
+                    title: '编译',
+                    message: '编译成功',
+                    type: 'success'
+                });
+            } else {
+                item.$notify({
+                    title: '编译',
+                    message: '编译失败',
+                    type: 'error'
+                });
+            }
+        });
+    }
+
 }
 
 module.exports = {

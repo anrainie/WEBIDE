@@ -16,6 +16,7 @@
         ></contextMenu>
 
         <shade ref="ide_shade"></shade>
+
     </div>
 </template>
 <style>
@@ -85,7 +86,7 @@
     import contextMenu from "../components/contextMenu.vue";
     import shade from "../components/shade.vue";
     import toolbar from "../components/toolbar.vue"
-    import io from 'socket.io-client';
+    import IDESocket from "../../core/IDESocket"
     import navContextMenus from '../../action/afa.navi.contextmenu';
     import menuData from '../../action/ide.menu';
 
@@ -201,33 +202,11 @@
         methods: {},
         mounted(){
             var self = this;
-
             IDE.type = 'afa';
             IDE.contextmenu = self.$refs.ide_contextMenu;
             IDE.shade = self.$refs.ide_shade;
             IDE.menu = self.$refs.ide_menu;
-
-            let first = true;
-
-            let socket = io("http://localhost:8080");
-            socket.on('connect_error', function (err) {
-                console.info('connect_error');
-                IDE.socket = null;
-            });
-
-            socket.on('connect', function () {
-                if (first) {
-                    IDE.emit('connected success', true);
-                    first = false;
-                }
-            });
-
-            socket.on('reconnect_error', function (data) {
-                console.info("reconnect_error:", data);
-            })
-
-            IDE.socket = socket;
-
+            IDE.socket = new IDESocket();
         },
         beforeCreate(){
             var self = this;
@@ -337,7 +316,7 @@
                                                 if (IDE.contextmenu.isActive()) {
                                                     IDE.contextmenu.hide();
                                                 }
-                                                IDE.contextmenu.show(event.x, event.y);
+                                                IDE.contextmenu.show(event.x, event.y,IDE.navigator.selection);
                                             } else {
                                                 console.info('getNaviMenu : ', result.errorMsg);
                                             }

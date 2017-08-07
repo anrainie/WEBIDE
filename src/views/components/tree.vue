@@ -205,6 +205,7 @@
             this.msgHub.$on("setSelected", function (item, event) {
                 self.setSelection(item, event);
             });
+
         },
         created: function () {
         },
