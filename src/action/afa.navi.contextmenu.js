@@ -1,4 +1,38 @@
-var items = {
+import  wizardtext from '../../src/action/wizardtext'
+import  wizardVue from '../views/components/wizards/NewCreateWizard.vue'
+import Vue from 'vue';
+
+var items
+
+function getNewWizard () {
+  let split = this.id.split('/')
+  let id = split[split.length - 1]
+  let newItem = wizardtext.match1(id)[0]
+  //將newItem屬性賦值給wizard
+  if (this.resourceId instanceof Array) {
+    for (let idIndex in resourceId) {
+      for (let strIndex in split) {
+        if (resourceId[idIndex] === split[strIndex]) {
+          resourceId = resourceId[idIndex]
+        }
+      }
+    }
+  }
+
+  var newWizard = new Vue(wizardVue)
+  newWizard.wizardtitle = newItem.wizardtitle
+  newWizard.pagedesc = newItem.pagedesc
+  newWizard.pagetitle = newItem.pagetitle
+  newWizard.namelabel = newItem.namelabel
+  newWizard.desclabel = newItem.desclabel
+  var oDiv = document.createElement('div');
+  oDiv.id = "wizard"
+  document.body.appendChild(oDiv);
+  newWizard.$mount('#wizard')
+  return newWizard
+}
+
+items = {
   'new': {
     id: 'new',
     name: '新建',
@@ -11,26 +45,35 @@ var items = {
     name: '应用',
     type: 'item',
     handler: function () {
-      // console.info(this.type)
+      return getNewWizard.call(this)
     }
   },
   'solutionAction': {
     id: 'solutionAction',
     resourceId: 'solution',
     name: '解决方案',
-    'type': 'item'
+    'type': 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'workflowProjectAction': {
     id: 'workflowProjectAction',
-    resourceId: 'project',
+    resourceId: 'workflowProject',
     name: '工作流项目',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'projectAction': {
     id: 'projectAction',
     resourceId: 'project',
     name: '项目',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   // /**
   //  * 数据模型
@@ -41,7 +84,11 @@ var items = {
     id: 'dictAction',
     resourceId: 'dict',
     name: '数据字典',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
+
   },
 
   // 数据接口
@@ -55,7 +102,10 @@ var items = {
     id: 'interParAction',
     resourceId: 'interPar',
     name: '接口参数定义',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   // 数据实体
 
@@ -63,7 +113,10 @@ var items = {
     id: 'dataEntityAction',
     resourceId: ['dataEntity', 'srcFolder', 'dataEntities'],
     name: '数据实体分类',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'cn.com.agree.ide.afa.navigation.action.CreateGeneratorConfigAction': {
     id: 'cn.com.agree.ide.afa.navigation.action.CreateGeneratorConfigAction',
@@ -89,7 +142,10 @@ var items = {
     id: 'edmAction',
     resourceId: 'edm',
     name: '数据实体类包',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'cn.com.agree.ide.afa.tc.java.action.PackageNewWizardAction': {
     id: 'cn.com.agree.ide.afa.tc.java.action.PackageNewWizardAction',
@@ -102,22 +158,28 @@ var items = {
   'catalogAction': {
     id: 'catalogAction',
     resourceId:
-    [
-      'databaseModuleCatalog',
-      'businessTemplateCatalog',
-      'technologyTemplateCatalog',
-      'tradeTemplateCatalog',
-      'serviceRecognCatalog',
-      'workflowConf'
-    ],
+      [
+        'databaseModuleCatalog',
+        'businessTemplateCatalog',
+        'technologyTemplateCatalog',
+        'tradeTemplateCatalog',
+        'serviceRecognCatalog',
+        'workflowConf'
+      ],
     name: '分类',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'dbtfAction': {
     id: 'dbtfAction',
     resourceId: 'dbtf',
     name: '表文件',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'cn.com.agree.ide.database.reverse.action.DataTableToDictAction': {
     id: 'cn.com.agree.ide.database.reverse.action.DataTableToDictAction',
@@ -194,13 +256,19 @@ var items = {
     id: 'componentGroupAction',
     resourceId: 'componentGroup',
     name: '组件组',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'tcptAction': {
     id: 'tcptAction',
     resourceId: 'tcpt',
     name: '技术组件',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   // 业务组件
 
@@ -208,13 +276,19 @@ var items = {
     id: 'componentPackageAction',
     resourceId: 'componentPackage',
     name: '组件包',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'bcptAction': {
     id: 'bcptAction',
     resourceId: 'bcpt',
     name: '业务组件',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   // 流程模型
 
@@ -222,21 +296,30 @@ var items = {
     id: 'btAction',
     resourceId: 'bt',
     name: '业务模板定义',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
 
   'ttAction': {
     id: 'ttAction',
     resourceId: 'tt',
     name: '技术模板定义',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
 
   'trtAction': {
     id: 'trtAction',
     resourceId: 'trt',
     name: '交易模板定义',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'cn.com.agree.ide.afa.xmlconvert.action.FormatFlowModuleArgAction': {
     id: 'cn.com.agree.ide.afa.xmlconvert.action.FormatFlowModuleArgAction',
@@ -265,7 +348,10 @@ var items = {
     id: 'bpmnAction',
     resourceId: 'workflowConf',
     name: 'bpmn文件',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   /**
    * 公共服务
@@ -275,37 +361,55 @@ var items = {
     id: 'serviceCatalogAction',
     resourceId: 'serviceCatalog',
     name: '服务分类',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'serviceAction': {
     id: 'serviceAction',
     resourceId: 'service',
     name: '服务',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'serviceRecognitionAction': {
     id: 'serviceRecognitionAction',
     resourceId: 'serviceRecognition',
     name: '服务识别',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'fcAction': {
     id: 'fcAction',
     resourceId: 'fc',
     name: '流程配置',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'fpckAction': {
     id: 'fpckAction',
     resourceId: ['performanceTest', 'functionTest'],
     name: '自由格式报文',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'natpAction': {
     id: 'natpAction',
     resourceId: ['performanceTest', 'functionTest'],
     name: 'NATP报文',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   // 服务对外发布
 
@@ -317,7 +421,10 @@ var items = {
     id: 'parentServiceAction',
     resourceId: 'parentService',
     name: '父服务',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
 
   /**
@@ -329,7 +436,10 @@ var items = {
     id: 'childServiceAction',
     resourceId: 'childService',
     name: '子服务',
-    type: 'item'
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
   },
   'class galaxy.ide.configurable.navigator.action.ExploreFilePathAction': {
     id: 'class galaxy.ide.configurable.navigator.action.ExploreFilePathAction',
@@ -438,6 +548,11 @@ var items = {
     handler: function () {
 
     }
+  },
+  'org.eclipse.ui.PasteAction': {
+    id: 'org.eclipse.ui.PasteAction',
+    name: '粘贴',
+    type: 'item'
   }
 }
 
