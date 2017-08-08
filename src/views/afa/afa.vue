@@ -241,33 +241,56 @@
                     },
                     data: {
                         config: {
-                            width:200,
+                            width:300,
                             check: false,
                             async: true,
                             callback: {
-                                asyncLoadItem: function (item) {
+                                asyncLoadItem: function (item,level) {
+                                    if(!level){
+                                        level = 1;
+                                    }
                                     IDE.socket.emit('getNaviItems', {
                                         type: IDE.type,
                                         event: 'getNaviItems',
                                         data: {
                                             path: item.model.path,
-                                            level: 1
+                                            level: level
                                         }
-                                    }, function (data) {
-                                        let result = JSON.parse(data);
-                                        if (result.state === 'success') {
-                                            let oldChildren = item.model.children.concat([]);
-                                            for (let index in result.data) {
-                                                let newChild = result.data[index];
-                                                //如果已存在的子元素，被删除的子元素都不做处理
-                                                if (!item.getChild(newChild.name)) {
-                                                    item.addChild(result.data[index]);
+                                    }, (function(){
+                                            var getChild = function (children,name) {
+                                                for(let i = 0 ; i < children.length ; i++){
+                                                    let child = children[i];
+                                                    if(child.name === name){
+                                                        return child;
+                                                    }
                                                 }
-                                            }
-                                        } else {
-                                            console.info(result);
-                                        }
-                                    });
+                                                return null;
+                                            };
+                                            var combine = function (parent,newChildren) {
+                                                for (let index in newChildren) {
+                                                    let newChild = newChildren[index];
+                                                    if (!getChild(parent.children,newChild.name)) {
+                                                        parent.children.push(newChild);
+                                                    }
+                                                    if(newChild.children && newChild.children.length > 0){
+                                                        let child = getChild(parent.children,newChild.name);
+                                                        if(child == null){
+                                                            console.info("dd");
+                                                        }
+                                                        combine(child,newChild.children);
+                                                    }
+                                                }
+                                            };
+                                            return function (data) {
+                                                let result = JSON.parse(data);
+                                                if (result.state === 'success') {
+                                                    combine(item.model,result.data);
+                                                } else {
+                                                    console.info(result);
+                                                }
+                                            };
+                                        })()
+                                    );
                                 },
                                 delete: function (item) {
                                     var editor = IDE.editorPart.getEditor(item);

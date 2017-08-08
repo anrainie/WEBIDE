@@ -35,13 +35,13 @@
                 console.log(editor.getValue());
             },
             save(){
-
+                return true;
             },
             focus(){
 
             },
             isDirty(){
-
+                return true;
             }
         },
         components: {

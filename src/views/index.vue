@@ -31,6 +31,7 @@
                     if(IDE.editorPart){
                         IDE.editorPart.keyPress(e);
                     }
+
                 });
 
                 return {

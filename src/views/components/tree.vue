@@ -177,7 +177,7 @@
                     }
                 }
             },
-            refresh: function (path) {
+            refresh: function (path,level) {
                 if (path == null) {
                     let self = this;
                     self.init(function (m) {
@@ -187,7 +187,7 @@
                 }
                 let item = this.getItem(path);
                 if (item) {
-                    item.refresh();
+                    item.refresh(level);
                 }
             },
 

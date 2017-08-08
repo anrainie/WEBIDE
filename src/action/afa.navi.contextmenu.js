@@ -1,5 +1,6 @@
 import  wizardtext from '../../src/action/wizardtext'
 import  wizardVue from '../views/components/wizards/NewCreateWizard.vue'
+import  showCompileErrorMsgDialog from '../views/components/dialog/ShowCompileErrorMsg.vue'
 import Vue from 'vue';
 
 var items
@@ -624,12 +625,11 @@ function compileService(selection, item) {
                     message: '编译成功',
                     type: 'success'
                 });
+                for (let i = 0; i < selection.length; i++) {
+                    selection[i].refresh(-1);
+                }
             } else {
-                item.$notify({
-                    title: '编译',
-                    message: '编译失败',
-                    type: 'error'
-                });
+                showCompileError(JSON.parse(result.errorMsg));
             }
 
         });
@@ -637,6 +637,7 @@ function compileService(selection, item) {
 }
 
 function compileBcpt(selection, item) {
+    var that = this;
     var resources = [];
     if (selection.length > 0) {
         for (let i = 0; i < selection.length; i++) {
@@ -658,15 +659,20 @@ function compileBcpt(selection, item) {
                     type: 'success'
                 });
             } else {
-                item.$notify({
-                    title: '编译',
-                    message: '编译失败',
-                    type: 'error'
-                });
+                showCompileError(JSON.parse(result.errorMsg));
             }
         });
     }
 
+}
+
+function showCompileError(errorMsgs) {
+    var newWizard = new Vue(showCompileErrorMsgDialog);
+    newWizard.$props.errorMsgs = errorMsgs;
+    var container = document.createElement('div');
+    container.id = "compileErrorMsg"
+    document.body.appendChild(container);
+    newWizard.$mount('#compileErrorMsg')
 }
 
 module.exports = {

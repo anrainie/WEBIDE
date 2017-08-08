@@ -87,12 +87,12 @@
                     this.loaded = true;
                 }
             },
-            refresh(){
+            refresh(level){
                 var self = this;
                 var asyncConfig = this.config.async;
                 if(asyncConfig) {
                     if(this.config.callback.asyncLoadItem){
-                        this.config.callback.asyncLoadItem(this);
+                        this.config.callback.asyncLoadItem(this,level);
                     }else{
                         console.error("tree's config don't have asyncLoadItem function");
                     }
