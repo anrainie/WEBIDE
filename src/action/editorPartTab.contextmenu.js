@@ -2,19 +2,19 @@ var items = [{
         id:'Close',
         name:'Close',
         type:'item',
-        handler:function () {
-            IDE.editorPart.closeEditor(IDE.editorPart.activeEditor);
+        handler:function (selectedEditor) {
+            IDE.editorPart.closeEditor(selectedEditor.file);
         }
     },
     {
         id:'Close Other',
         name:'Close Other',
         type:'item',
-        handler:function () {
+        handler:function (selectedEditor) {
             let copy = IDE.editorPart.editors.concat([]);
             for(let key in copy){
                 let editor = copy[key];
-                if(editor.file.model.path != IDE.editorPart.activeEditor.model.path) {
+                if(editor.file.model.path !=selectedEditor.file.model.path) {
                     IDE.editorPart.closeEditor(editor.file);
                 }
             }
@@ -24,7 +24,7 @@ var items = [{
         id: 'Close All',
         name: 'Close All',
         type: 'item',
-        handler: function () {
+        handler: function (selectedEditor) {
             let copy = IDE.editorPart.editors.concat([]);
             for(let key in copy){
                 let editor = copy[key];

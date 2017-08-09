@@ -1,6 +1,6 @@
 <template>
     <div class="toolbar">
-        <div v-for="item in items"
+        <div :title="item.tooltip" v-for="item in items"
              :class="{'toolbar-item contextmenu-dropdown':item.type !='separator','toolbar-separator':item.type ==='separator'}"
              @click="execute(item,$event)" v-show="item.enable"
         >

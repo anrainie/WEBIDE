@@ -605,7 +605,8 @@ function match (originalItems, newItems) {
   }
 }
 
-function compileService(selection, item) {
+function compileService(selection) {
+    var self = this;
     var resources = [];
     if (selection.length > 0) {
         for (let i = 0; i < selection.length; i++) {
@@ -621,7 +622,7 @@ function compileService(selection, item) {
             IDE.shade.hide();
             let result = JSON.parse(data);
             if (result.state === 'success') {
-                item.$notify({
+                self.$notify({
                     title: '编译',
                     message: '编译成功',
                     type: 'success'
@@ -632,12 +633,12 @@ function compileService(selection, item) {
             } else {
                 showCompileError(JSON.parse(result.errorMsg));
             }
-
         });
     }
 }
 
-function compileBcpt(selection, item) {
+
+function compileBcpt(selection) {
     var that = this;
     var resources = [];
     if (selection.length > 0) {
@@ -654,7 +655,7 @@ function compileBcpt(selection, item) {
             IDE.shade.hide();
             let result = JSON.parse(data);
             if (result.state === 'success') {
-                item.$notify({
+                that.$notify({
                     title: '编译',
                     message: '编译成功',
                     type: 'success'

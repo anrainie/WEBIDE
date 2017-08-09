@@ -27,7 +27,22 @@
             }
         },
         methods: {
-            setSelection: function (item, event) {
+            /**
+             * 选中某节点并展开改节点
+             * @param item
+             */
+            setSelection:function (item) {
+                this.expandItem(item);
+                item.handleClick();
+            },
+
+            /**
+             * 选中事件
+             * @param item
+             * @param event
+             * @private
+             */
+            _setSelection: function (item, event) {
                 var needAdd = false;
                 if (event && (event.ctrlKey || event.metaKey)) {
                     var exist = false;
@@ -60,6 +75,9 @@
                     needAdd = true;
                 }
                 if (needAdd) {
+                    if(!item.selected){
+                        item.selected = true;
+                    }
                     this.selection.push(item);
                     if (this.config.callback.click) {
                         this.config.callback.click(item);
@@ -142,9 +160,33 @@
             getChildren: function () {
                 return this.$children;
             },
+
+            /**
+             * 展开节点
+             * @param item
+             */
+            expandItem:function (item) {
+                let parent = item.getParent();
+                while(parent && parent !== this){
+                    if(!parent.open) {
+                        parent.toggle();
+                    }
+                    parent = parent.getParent();
+                }
+            },
+
+            /**
+             * 展开所有节点
+             */
             expandAll: function () {
                 this.expandToLevel(this.ALL_LEVELS)
             },
+
+            /**
+             * 从item节点开始展开指定层数
+             * @param level
+             * @param item
+             */
             expandToLevel: function (level, item) {
                 item = item || this;
                 this._internalExpandToLevel(item, level);
@@ -161,12 +203,17 @@
                 }
             },
             collapseAll: function () {
-                this.collapseToLevel(this, this.ALL_LEVELS);
+                this.collapseToLevel(this.ALL_LEVELS,this);
             },
-            collapseToLevel: function (item, level) {
-                this._internalCollapseToLevel(item, level);
+            /**
+             * 从item节点开始收缩
+             * @param item
+             * @param level
+             */
+            collapseToLevel: function (level,item) {
+                this._internalCollapseToLevel(level,item);
             },
-            _internalCollapseToLevel(item, level){
+            _internalCollapseToLevel(level,item){
                 if (level === this.ALL_LEVELS || level > 0) {
                     var children = item.getChildren();
                     for (var index in children) {
@@ -177,6 +224,11 @@
                     }
                 }
             },
+            /**
+             * 刷新节点，可指定刷新层数。如果是异步加载刷新行为取决于config中的asyncLoadItem接口
+             * @param path
+             * @param level
+             */
             refresh: function (path,level) {
                 if (path == null) {
                     let self = this;
@@ -203,7 +255,7 @@
                 self.deleteItem(item);
             });
             this.msgHub.$on("setSelected", function (item, event) {
-                self.setSelection(item, event);
+                self._setSelection(item, event);
             });
 
         },

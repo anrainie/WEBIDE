@@ -83,6 +83,7 @@
                 //TODO 使用栈
                 editors : [],
                 activeEditor:null,
+                //TODO 使用变量标志，需重写
                 collapsedEditors:[],
                 maxIndicateCharNum:15,
                 defaultIndicateWidth:30,
@@ -92,6 +93,11 @@
         computed:{
         },
         methods:{
+            /**
+             * 根据item获取editor
+             * @param item
+             * @returns {*}
+             */
             getEditor:function (item) {
                 for(var i = 0 ; i < this.editors.length ; i ++){
                     var editor = this.editors[i];
@@ -346,6 +352,9 @@
                 }
                 return name;
             },
+            /**
+             * 打开收缩editors的右键菜单
+             */
             openCollapseMenu:function($event){
                 let self = this;
                 let collMenuItems = [];
@@ -365,10 +374,17 @@
                 IDE.contextmenu.setItems(collMenuItems);
                 IDE.contextmenu.show($event.x - 250,$event.y);
             },
+            /**
+             * 打开头标签的右键菜单
+             */
             openIndicatorMenu:function ($event,item) {
+                this.showEditor(item);
                 IDE.contextmenu.setItems(editorPartTab);
-                IDE.contextmenu.show($event.clientX,$event.clientY);
+                IDE.contextmenu.show($event.clientX,$event.clientY,this.activeEditor);
             },
+            /**
+             * 隐藏所有editor
+             */
             hideAllEditor:function () {
                 for(var i = 0 ; i < this.editors.length ; i++){
                     var editor = this.editors[i];
@@ -377,6 +393,9 @@
                     }
                 }
             },
+            /**
+             * 把所有头标签设置为不活动状态
+             */
             unActiveAllTabIndicate:function () {
                 var indicates = $('.editor-tab-active');
                 for(var i = 0 ; i < indicates.length ; i ++){
@@ -384,13 +403,59 @@
                     indicate.className = 'editor-tab-unactive';
                 }
             },
+            /**
+             *获取editor头标签
+             */
             getEditorIndicate:function (path) {
                 let p = this.revisePath(path);
                 return $("li span[href='#"+ p + "']").parent();
             },
+            /**
+             * 获取editor的Element
+             * @param path
+             * @returns {jQuery|HTMLElement}
+             */
             getEditorElement:function (path) {
                 let p = this.revisePath(path);
                 return $("#" + p);
+            },
+            handleKeyPress:function (event) {
+                var that = this;
+                if(event.ctrlKey){
+                    switch(event.which){
+                        case 19:{
+                            //TODO  临时代码，需要判断dirty ： this.activeEditor.isDirty()
+                            if(this.activeEditor ){
+                                if(this.activeEditor.save()) {
+                                    IDE.socket.emit("saveFile", {
+                                        type: IDE.type,
+                                        path: this.activeEditor.file.model.path,
+                                        content:this.activeEditor.input,
+                                        event: 'saveFile',
+                                    }, function (data) {
+                                        if(data) {
+                                            let result = JSON.parse(data);
+                                            if (result.state === 'success') {
+                                                that.$notify({
+                                                    title: '保存',
+                                                    message: '保存成功',
+                                                    type: 'success'
+                                                });
+                                            } else {
+                                                that.$notify({
+                                                    title: '保存',
+                                                    message: '保存失败：' + result.errorMsg,
+                                                    type: 'error'
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
             }
         },
         mounted(){

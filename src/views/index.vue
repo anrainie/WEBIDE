@@ -29,7 +29,7 @@
 
                     //TODO 委托给活动状态的viewer
                     if(IDE.editorPart){
-                        IDE.editorPart.keyPress(e);
+                        IDE.editorPart.handleKeyPress(e);
                     }
 
                 });
