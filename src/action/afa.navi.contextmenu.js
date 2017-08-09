@@ -8,18 +8,10 @@ function getNewWizard () {
   let split = this.id.split('/')
   let id = split[split.length - 1]
   let newItem = wizardtext.match1(id)[0]
-  //將newItem屬性賦值給wizard
-  if (this.resourceId instanceof Array) {
-    for (let idIndex in resourceId) {
-      for (let strIndex in split) {
-        if (resourceId[idIndex] === split[strIndex]) {
-          resourceId = resourceId[idIndex]
-        }
-      }
-    }
-  }
 
   var newWizard = new Vue(wizardVue)
+  newWizard.path = this.path
+  newWizard.resourceId = newItem.resourceId
   newWizard.wizardtitle = newItem.wizardtitle
   newWizard.pagedesc = newItem.pagedesc
   newWizard.pagetitle = newItem.pagetitle
@@ -42,6 +34,7 @@ items = {
   'applicationAction': {
     id: 'applicationAction',
     resourceId: 'application',
+    path: '',
     name: '应用',
     type: 'item',
     handler: function () {
@@ -51,6 +44,7 @@ items = {
   'solutionAction': {
     id: 'solutionAction',
     resourceId: 'solution',
+    path: '',
     name: '解决方案',
     'type': 'item',
     handler: function () {
@@ -60,6 +54,7 @@ items = {
   'workflowProjectAction': {
     id: 'workflowProjectAction',
     resourceId: 'workflowProject',
+    path: '',
     name: '工作流项目',
     type: 'item',
     handler: function () {
@@ -69,6 +64,7 @@ items = {
   'projectAction': {
     id: 'projectAction',
     resourceId: 'project',
+    path: '',
     name: '项目',
     type: 'item',
     handler: function () {
@@ -83,6 +79,7 @@ items = {
   'dictAction': {
     id: 'dictAction',
     resourceId: 'dict',
+    path: '',
     name: '数据字典',
     type: 'item',
     handler: function () {
@@ -101,6 +98,7 @@ items = {
   'interParAction': {
     id: 'interParAction',
     resourceId: 'interPar',
+    path: '',
     name: '接口参数定义',
     type: 'item',
     handler: function () {
@@ -112,6 +110,7 @@ items = {
   'dataEntityAction': {
     id: 'dataEntityAction',
     resourceId: ['dataEntity', 'srcFolder', 'dataEntities'],
+    path: '',
     name: '数据实体分类',
     type: 'item',
     handler: function () {
@@ -166,6 +165,7 @@ items = {
         'serviceRecognCatalog',
         'workflowConf'
       ],
+    path: '',
     name: '分类',
     type: 'item',
     handler: function () {
@@ -175,6 +175,7 @@ items = {
   'dbtfAction': {
     id: 'dbtfAction',
     resourceId: 'dbtf',
+    path: '',
     name: '表文件',
     type: 'item',
     handler: function () {
@@ -254,6 +255,7 @@ items = {
   'componentGroupAction': {
     id: 'componentGroupAction',
     resourceId: 'componentGroup',
+    path: '',
     name: '组件组',
     type: 'item',
     handler: function () {
@@ -263,6 +265,7 @@ items = {
   'tcptAction': {
     id: 'tcptAction',
     resourceId: 'tcpt',
+    path: '',
     name: '技术组件',
     type: 'item',
     handler: function () {
@@ -274,6 +277,7 @@ items = {
   'componentPackageAction': {
     id: 'componentPackageAction',
     resourceId: 'componentPackage',
+    path: '',
     name: '组件包',
     type: 'item',
     handler: function () {
@@ -283,6 +287,7 @@ items = {
   'bcptAction': {
     id: 'bcptAction',
     resourceId: 'bcpt',
+    path: '',
     name: '业务组件',
     type: 'item',
     handler: function () {
@@ -294,6 +299,7 @@ items = {
   'btAction': {
     id: 'btAction',
     resourceId: 'bt',
+    path: '',
     name: '业务模板定义',
     type: 'item',
     handler: function () {
@@ -304,6 +310,7 @@ items = {
   'ttAction': {
     id: 'ttAction',
     resourceId: 'tt',
+    path: '',
     name: '技术模板定义',
     type: 'item',
     handler: function () {
@@ -314,6 +321,7 @@ items = {
   'trtAction': {
     id: 'trtAction',
     resourceId: 'trt',
+    path: '',
     name: '交易模板定义',
     type: 'item',
     handler: function () {
@@ -346,6 +354,7 @@ items = {
   'bpmnAction': {
     id: 'bpmnAction',
     resourceId: 'workflowConf',
+    path: '',
     name: 'bpmn文件',
     type: 'item',
     handler: function () {
@@ -359,6 +368,7 @@ items = {
   'serviceCatalogAction': {
     id: 'serviceCatalogAction',
     resourceId: 'serviceCatalog',
+    path: '',
     name: '服务分类',
     type: 'item',
     handler: function () {
@@ -368,6 +378,7 @@ items = {
   'serviceAction': {
     id: 'serviceAction',
     resourceId: 'service',
+    path: '',
     name: '服务',
     type: 'item',
     handler: function () {
@@ -377,6 +388,7 @@ items = {
   'serviceRecognitionAction': {
     id: 'serviceRecognitionAction',
     resourceId: 'serviceRecognition',
+    path: '',
     name: '服务识别',
     type: 'item',
     handler: function () {
@@ -386,6 +398,7 @@ items = {
   'fcAction': {
     id: 'fcAction',
     resourceId: 'fc',
+    path: '',
     name: '流程配置',
     type: 'item',
     handler: function () {
@@ -395,6 +408,7 @@ items = {
   'fpckAction': {
     id: 'fpckAction',
     resourceId: ['performanceTest', 'functionTest'],
+    path: '',
     name: '自由格式报文',
     type: 'item',
     handler: function () {
@@ -404,6 +418,7 @@ items = {
   'natpAction': {
     id: 'natpAction',
     resourceId: ['performanceTest', 'functionTest'],
+    path: '',
     name: 'NATP报文',
     type: 'item',
     handler: function () {
@@ -419,6 +434,7 @@ items = {
   'parentServiceAction': {
     id: 'parentServiceAction',
     resourceId: 'parentService',
+    path: '',
     name: '父服务',
     type: 'item',
     handler: function () {
@@ -434,6 +450,7 @@ items = {
   'childServiceAction': {
     id: 'childServiceAction',
     resourceId: 'childService',
+    path: '',
     name: '子服务',
     type: 'item',
     handler: function () {
@@ -572,23 +589,7 @@ function match (originalItems, newItems) {
       if (item) {
         newItem = $.extend(true, {}, item)
         newItem.id = oItem.id
-        let resourceId = newItem.resourceId
-        if (resourceId) {
-          // wizardAction相同resourceId不同，如分类
-          if (resourceId instanceof Array) {
-            for (let idIndex in resourceId) {
-              for (let strIndex in arrStr) {
-                if (resourceId[idIndex] === arrStr[strIndex]) {
-                  resourceId = id
-                }
-              }
-            }
-          }
-          for (let index in arrStr) {
-            resourceId = arrStr[index] + '/' + resourceId
-          }
-          newItem.resourceId = resourceId
-        }
+        newItem.path = oItem.path
       }
 
       newItems.push(newItem)
