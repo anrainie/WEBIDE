@@ -294,6 +294,7 @@
             },
             hide () {
                 this.$el.style.display = "none";
+                this.selection = null;
                 for(var key in this.subMenus){
                     var subMenu = this.subMenus[key];
                     this.delSubMenu(subMenu);
@@ -302,8 +303,9 @@
             },
             click (item) {
                 if(item.type === 'item' || item.disabled != true){
+                    item.handler.call(this,this.selection);
                     this.msgHub.$emit("hide");
-                    item.handler(this.selection,this);
+
                 }
             }
         }

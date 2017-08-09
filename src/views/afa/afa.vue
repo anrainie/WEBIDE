@@ -362,6 +362,7 @@
                             name: 'refresh',
                             type: 'item',
                             img: "assets/image/file_awb.gif",
+                            tooltip:'refresh',
                             validate(){
                                 return true;
                             },
@@ -372,6 +373,22 @@
                                     }
                                 }
 
+                            }
+                        },
+                        {
+                            id:'linkedWithEditorAction',
+                            name:"LinkedWithEditor",
+                            type:'item',
+                            img:'assets/image/file_awb.gif',
+                            tooltip:"linkedWithEditor",
+                            validate(){
+                                return true;
+                            },
+                            onclick(selection){
+                                let editor = IDE.editorPart.getActiveEditor();
+                                if(editor) {
+                                    IDE.navigator.setSelection(editor.file);
+                                }
                             }
                         }
                     ],

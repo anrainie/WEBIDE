@@ -13,7 +13,7 @@
            :autosize="{ minRows: 5, maxRows: 8}"
            placeholder="点击表格查看详细错误"
            disabled
-           v-model="selectedError">
+           v-model="selectedErrorMsg">
     </el-input>
    </div>
  </el-dialog>
@@ -25,12 +25,20 @@
         data:function () {
             return {
                 dialogVisible:true,
-                selectedError:""
+                selected:null
+            }
+        },
+        computed:{
+            selectedErrorMsg(){
+                if(this.selected){
+                    return this.selected.msg;
+                }
+                return "";
             }
         },
         methods:{
             rowClick(selection){
-                this.selectedError = selection.msg;
+                this.selected = selection;
             },
             close(){
                 this.$el.parentElement.removeChild(this.$el);
