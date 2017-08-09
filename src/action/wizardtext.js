@@ -2,6 +2,7 @@ var items = {
   'applicationAction': {
     id: 'applicationAction',
     resourceId: 'application',
+    path: '',
     wizardtitle: '新建应用',
     pagetitle: '新建应用',
     pagedesc: '请输入应用名称',
@@ -12,6 +13,7 @@ var items = {
   'solutionAction': {
     id: 'solutionAction',
     resourceId: 'solution',
+    path: '',
     wizardtitle: '新建解决方案',
     pagetitle: '新建解决方案',
     pagedesc: '请输入解决方案名称',
@@ -22,6 +24,7 @@ var items = {
   'workflowProjectAction': {
     id: 'workflowProjectAction',
     resourceId: 'workflowProject',
+    path: '',
     wizardtitle: '新建工作流项目',
     pagetitle: '新建工作流项目',
     pagedesc: '请输入工作流项目名称',
@@ -32,6 +35,7 @@ var items = {
   'projectAction': {
     id: 'projectAction',
     resourceId: 'project',
+    path: '',
     wizardtitle: '新建项目',
     pagetitle: '新建项目',
     pagedesc: '请输入项目名称',
@@ -47,6 +51,7 @@ var items = {
   'dictAction': {
     id: 'dictAction',
     resourceId: 'dict',
+    path: '',
     wizardtitle: '新建数据字典文件',
     pagetitle: '新建数据字典',
     pagedesc: '请输入数据字典名称',
@@ -59,6 +64,7 @@ var items = {
   'interParAction': {
     id: 'interParAction',
     resourceId: 'interPar',
+    path: '',
     wizardtitle: '新建接口参数定义',
     pagetitle: '新建接口参数定义',
     pagedesc: '请输入接口参数定义名称',
@@ -70,7 +76,8 @@ var items = {
 
   'dataEntityAction': {
     id: 'dataEntityAction',
-    resourceId: ['dataEntity', 'srcFolder', 'dataEntities'],
+    resourceId: 'dataEntity',
+    path: '',
     wizardtitle: '新建分类',
     pagetitle: '信件分类',
     pagedesc: '请输入分类名称',
@@ -81,6 +88,7 @@ var items = {
   'edmAction': {
     id: 'edmAction',
     resourceId: 'edm',
+    path: '',
     wizardtitle: '新建数据实体类包',
     pagetitle: '新建数据实体类包',
     pagedesc: '请输入数据实体类包名',
@@ -102,15 +110,8 @@ var items = {
 
   'catalogAction': {
     id: 'catalogAction',
-    resourceId:
-      [
-        'databaseModuleCatalog',
-        'businessTemplateCatalog',
-        'technologyTemplateCatalog',
-        'tradeTemplateCatalog',
-        'serviceRecognCatalog',
-        'workflowConf'
-      ],
+    resourceId:'catalog',
+    path: '',
     wizardtitle: '新建分类',
     pagetitle: '信件分类',
     pagedesc: '请输入分类名称',
@@ -121,6 +122,7 @@ var items = {
   'dbtfAction': {
     id: 'dbtfAction',
     resourceId: 'dbtf',
+    path: '',
     wizardtitle: '新建表文件',
     pagetitle: '新建表文件',
     pagedesc: '请输入表文件名称',
@@ -135,6 +137,7 @@ var items = {
   'componentGroupAction': {
     id: 'componentGroupAction',
     resourceId: 'componentGroup',
+    path: '',
     wizardtitle: '新建组件组',
     pagetitle: '新建组件组',
     pagedesc: '请输入组件组名称',
@@ -145,6 +148,7 @@ var items = {
   'tcptAction': {
     id: 'tcptAction',
     resourceId: 'tcpt',
+    path: '',
     wizardtitle: '新建技术组件',
     pagetitle: '新建技术组件',
     pagedesc: '请输入技术组件名称',
@@ -157,6 +161,7 @@ var items = {
   'componentPackageAction': {
     id: 'componentPackageAction',
     resourceId: 'componentPackage',
+    path: '',
     wizardtitle: '新建组件包',
     pagetitle: '新建组件包',
     pagedesc: '请输入组件包名称',
@@ -167,6 +172,7 @@ var items = {
   'bcptAction': {
     id: 'bcptAction',
     resourceId: 'bcpt',
+    path: '',
     wizardtitle: '新建业务组件文件',
     pagetitle: '新建业务组件',
     pagedesc: '请输入业务组件名称',
@@ -179,6 +185,7 @@ var items = {
   'btAction': {
     id: 'btAction',
     resourceId: 'bt',
+    path: '',
     wizardtitle: '新建业务模板定义',
     pagetitle: '新建业务模板定义',
     pagedesc: '请输入业务模板名称',
@@ -190,6 +197,7 @@ var items = {
   'ttAction': {
     id: 'ttAction',
     resourceId: 'tt',
+    path: '',
     wizardtitle: '新建技术模板定义',
     pagetitle: '新建技术模板定义',
     pagedesc: '请输入技术模板名称',
@@ -201,6 +209,7 @@ var items = {
   'trtAction': {
     id: 'trtAction',
     resourceId: 'trt',
+    path: '',
     wizardtitle: '新建交易模板定义',
     pagetitle: '新建交易模板定义',
     pagedesc: '请输入交易模板名称',
@@ -214,6 +223,7 @@ var items = {
   'bpmnAction': {
     id: 'bpmnAction',
     resourceId: 'workflowConf',
+    path: '',
     wizardtitle: '新建bpmn文件',
     pagetitle: '新建bpmn文件',
     pagedesc: '请输入bpmn文件名称',
@@ -228,6 +238,7 @@ var items = {
   'serviceCatalogAction': {
     id: 'serviceCatalogAction',
     resourceId: 'serviceCatalog',
+    path: '',
     wizardtitle: '新建服务分类',
     pagetitle: '新建服务分类',
     pagedesc: '请输入服务分类名称',
@@ -238,6 +249,7 @@ var items = {
   'serviceAction': {
     id: 'serviceAction',
     resourceId: 'service',
+    path: '',
     wizardtitle: '新建服务',
     pagetitle: '新建服务',
     pagedesc: '请输入服务名称',
@@ -248,6 +260,7 @@ var items = {
   'serviceRecognitionAction': {
     id: 'serviceRecognitionAction',
     resourceId: 'serviceRecognition',
+    path: '',
     wizardtitle: '新建服务识别',
     pagetitle: '新建服务识别',
     pagedesc: '请输入服务识别名称',
@@ -258,6 +271,7 @@ var items = {
   'fcAction': {
     id: 'fcAction',
     resourceId: 'fc',
+    path: '',
     wizardtitle: '新建流程配置',
     pagetitle: '新建流程配置',
     pagedesc: '请输入流程配置文件的名称',
@@ -267,7 +281,8 @@ var items = {
   },
   'fpckAction': {
     id: 'fpckAction',
-    resourceId: ['performanceTest', 'functionTest'],
+    resourceId: 'fpck',
+    path: '',
     wizardtitle: '新建自由格式报文',
     pagetitle: '新建自由格式报文',
     pagedesc: '请输入自由格式报文的名称',
@@ -277,7 +292,8 @@ var items = {
   },
   'natpAction': {
     id: 'natpAction',
-    resourceId: ['performanceTest', 'functionTest'],
+    resourceId: 'natp',
+    path: '',
     wizardtitle: '新建NATP报文',
     pagetitle: '新建NATP报文',
     pagedesc: '请输入NATP报文的名称',
@@ -294,6 +310,7 @@ var items = {
   'parentServiceAction': {
     id: 'parentServiceAction',
     resourceId: 'parentService',
+    path: '',
     wizardtitle: '新建父服务',
     pagetitle: '新建父服务',
     pagedesc: '请输入父服务的名称',
@@ -310,6 +327,7 @@ var items = {
   'childServiceAction': {
     id: 'childServiceAction',
     resourceId: 'childService',
+    path: '',
     wizardtitle: '新建子服务',
     pagetitle: '新建子服务',
     pagedesc: '请输入子服务的名称',
@@ -320,13 +338,13 @@ var items = {
 }
 
 function match1 (id,newItems) {
-      let item = items[id]
-      if (item) {
-       let newItem = $.extend(true, {}, item)
-        if (newItem){
-          newItems.push(newItem)
-        }
-      }
+  let item = items[id]
+  if (item) {
+    let newItem = $.extend(true, {}, item)
+    if (newItem){
+      newItems.push(newItem)
+    }
+  }
 }
 
 module.exports = {
