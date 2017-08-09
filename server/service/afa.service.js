@@ -3,29 +3,35 @@
  */
 var ioService = require('./IOService');
 module.exports =  {
-    type:'afa',
-    services:[
-        {
-            id:'getNaviItems',
-            type:'IOService',
-            handler:ioService
-        },
-        {
-            id:'getNaviMenu',
-            type:'IOService',
-            handler:ioService
-        },
-        {
-            id:'getFile',
-            type:'IOService',
-            handler:ioService
-        },
-        {
-            id:'local1',
-            type:'localService',
-            handler:function () {
-                console.info('run afa localService: local1');
-            }
-        }
-    ]
+  type:'afa',
+  services:[
+    {
+      id:'getNaviItems',
+      type:'IOService',
+      handler:ioService
+    },
+    {
+      id:'getNaviMenu',
+      type:'IOService',
+      handler:ioService
+    },
+    {
+      id:'createNewResource',
+      type:'IOService',
+      handler:ioService
+    },
+    {
+      id:'getFile',
+      type:'IOService',
+      handler:ioService
+    },
+    {
+      id:'local1',
+      type:'localService',
+      handler:function () {
+        console.info('run afa localService: local1');
+      }
+    },
+
+  ]
 }
