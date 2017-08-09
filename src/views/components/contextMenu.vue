@@ -117,7 +117,8 @@
                 level:1,
                 subMenus:null,
                 msgHub:null,
-                collapsed:false
+                collapsed:false,
+                selection:null
             }
         },
         mounted(){
@@ -204,6 +205,7 @@
                 newMenu.$data.level = this.level + 1;
                 newMenu.$data.subMenus = this.subMenus;
                 newMenu.$data.msgHub = this.msgHub;
+                newMenu.$data.selection = this.selection;
                 newMenu.$props.items = parent.children;
                 newMenu.$props.config = this.config;
 
@@ -266,7 +268,7 @@
             isActive(){
                 return this.$el.style.display != "none";
             },
-            show (x,y) {
+            show (x,y,selection) {
                 this.$el.style.display = "block";
                 if( (y + this.$el.clientHeight) > document.body.clientHeight){
                     y = document.body.clientHeight - this.$el.clientHeight;
@@ -278,7 +280,7 @@
 
                 this.$el.style.top = y + "px";
                 this.$el.style.left = x + "px";
-
+                this.selection = selection;
                 $(document).one('click.ide.contextmenu-hide.data-api', $.proxy(this.hide, this));
             },
             needCollapse:function (y,vueComponent) {
@@ -301,7 +303,7 @@
             click (item) {
                 if(item.type === 'item' || item.disabled != true){
                     this.msgHub.$emit("hide");
-                    item.handler();
+                    item.handler(this.selection,this);
                 }
             }
         }

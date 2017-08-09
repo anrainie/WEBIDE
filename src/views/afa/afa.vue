@@ -16,6 +16,7 @@
         ></contextMenu>
 
         <shade ref="ide_shade"></shade>
+
     </div>
 </template>
 <style>
@@ -85,7 +86,7 @@
     import contextMenu from "../components/contextMenu.vue";
     import shade from "../components/shade.vue";
     import toolbar from "../components/toolbar.vue"
-    import io from 'socket.io-client';
+    import IDESocket from "../../core/IDESocket"
     import navContextMenus from '../../action/afa.navi.contextmenu';
     import menuData from '../../action/ide.menu';
 
@@ -201,33 +202,11 @@
         methods: {},
         mounted(){
             var self = this;
-
             IDE.type = 'afa';
             IDE.contextmenu = self.$refs.ide_contextMenu;
             IDE.shade = self.$refs.ide_shade;
             IDE.menu = self.$refs.ide_menu;
-
-            let first = true;
-
-            let socket = io("http://localhost:8080");
-            socket.on('connect_error', function (err) {
-                console.info('connect_error');
-                IDE.socket = null;
-            });
-
-            socket.on('connect', function () {
-                if (first) {
-                    IDE.emit('connected success', true);
-                    first = false;
-                }
-            });
-
-            socket.on('reconnect_error', function (data) {
-                console.info("reconnect_error:", data);
-            })
-
-            IDE.socket = socket;
-
+            IDE.socket = new IDESocket();
         },
         beforeCreate(){
             var self = this;
@@ -262,33 +241,56 @@
                     },
                     data: {
                         config: {
-                            width:200,
+                            width:300,
                             check: false,
                             async: true,
                             callback: {
-                                asyncLoadItem: function (item) {
+                                asyncLoadItem: function (item,level) {
+                                    if(!level){
+                                        level = 1;
+                                    }
                                     IDE.socket.emit('getNaviItems', {
                                         type: IDE.type,
                                         event: 'getNaviItems',
                                         data: {
                                             path: item.model.path,
-                                            level: 1
+                                            level: level
                                         }
-                                    }, function (data) {
-                                        let result = JSON.parse(data);
-                                        if (result.state === 'success') {
-                                            let oldChildren = item.model.children.concat([]);
-                                            for (let index in result.data) {
-                                                let newChild = result.data[index];
-                                                //如果已存在的子元素，被删除的子元素都不做处理
-                                                if (!item.getChild(newChild.name)) {
-                                                    item.addChild(result.data[index]);
+                                    }, (function(){
+                                            var getChild = function (children,name) {
+                                                for(let i = 0 ; i < children.length ; i++){
+                                                    let child = children[i];
+                                                    if(child.name === name){
+                                                        return child;
+                                                    }
                                                 }
-                                            }
-                                        } else {
-                                            console.info(result);
-                                        }
-                                    });
+                                                return null;
+                                            };
+                                            var combine = function (parent,newChildren) {
+                                                for (let index in newChildren) {
+                                                    let newChild = newChildren[index];
+                                                    if (!getChild(parent.children,newChild.name)) {
+                                                        parent.children.push(newChild);
+                                                    }
+                                                    if(newChild.children && newChild.children.length > 0){
+                                                        let child = getChild(parent.children,newChild.name);
+                                                        if(child == null){
+                                                            console.info("dd");
+                                                        }
+                                                        combine(child,newChild.children);
+                                                    }
+                                                }
+                                            };
+                                            return function (data) {
+                                                let result = JSON.parse(data);
+                                                if (result.state === 'success') {
+                                                    combine(item.model,result.data);
+                                                } else {
+                                                    console.info(result);
+                                                }
+                                            };
+                                        })()
+                                    );
                                 },
                                 delete: function (item) {
                                     var editor = IDE.editorPart.getEditor(item);
@@ -337,7 +339,7 @@
                                                 if (IDE.contextmenu.isActive()) {
                                                     IDE.contextmenu.hide();
                                                 }
-                                                IDE.contextmenu.show(event.x, event.y);
+                                                IDE.contextmenu.show(event.x, event.y,IDE.navigator.selection);
                                             } else {
                                                 console.info('getNaviMenu : ', result.errorMsg);
                                             }

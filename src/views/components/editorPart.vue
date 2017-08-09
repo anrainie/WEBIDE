@@ -92,6 +92,9 @@
         computed:{
         },
         methods:{
+            test:function () {
+              console.info("test");
+            },
             getEditor:function (item) {
                 for(var i = 0 ; i < this.editors.length ; i ++){
                     var editor = this.editors[i];
@@ -391,6 +394,44 @@
             getEditorElement:function (path) {
                 let p = this.revisePath(path);
                 return $("#" + p);
+            },
+            keyPress:function (event) {
+                var that = this;
+                if(event.ctrlKey){
+                    switch(event.which){
+                        case 19:{
+                            //TODO  临时代码，需要判断dirty ： this.activeEditor.isDirty()
+                            if(this.activeEditor ){
+                                if(this.activeEditor.save()) {
+                                    IDE.socket.emit("saveFile", {
+                                        type: IDE.type,
+                                        path: this.activeEditor.file.model.path,
+                                        content:this.activeEditor.input,
+                                        event: 'saveFile',
+                                    }, function (data) {
+                                        if(data) {
+                                            let result = JSON.parse(data);
+                                            if (result.state === 'success') {
+                                                that.$notify({
+                                                    title: '保存',
+                                                    message: '保存成功',
+                                                    type: 'success'
+                                                });
+                                            } else {
+                                                that.$notify({
+                                                    title: '保存',
+                                                    message: '保存失败：' + result.errorMsg,
+                                                    type: 'error'
+                                                });
+                                            }
+                                        }
+                                    });
+                                }
+                            }
+                            break;
+                        }
+                    }
+                }
             }
         },
         mounted(){
