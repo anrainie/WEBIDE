@@ -1,10 +1,10 @@
 <template>
-    <div>
-        <div :id="masterId" class="content" style="position:relative;width:50%;height:100%;float:left">
+    <el-row>
+        <el-col :span='12' :id="masterId"  >
             <dtable :tableConfig="tableConfig" :toolbarConfig="toolbarConfig" :searchConfig="searchConfig"
-                    :model="input.DataField"></dtable>
-        </div>
-        <div :id="detailId" class="content" style="position:relative;width:50%;height:100%;float:right">
+                    :model="tableModel"></dtable>
+        </el-col>
+        <el-col :span='12' :id="detailId" >
             <el-form ref="form" :model="selection" label-width="80px" v-if="selection">
                 <el-col :span="11">
                     <el-form-item label="英文名称">
@@ -17,8 +17,8 @@
                     </el-form-item>
                 </el-col>
             </el-form>
-        </div>
-    </div>
+        </el-col>
+    </el-row>
 </template>
 <style>
 </style>
@@ -27,13 +27,20 @@
     import  Split from "split.js";
 
     export default{
-        props: ['file','msgHub','input', 'toolbarConfig', 'searchConfig'],
+        props: ['file', 'msgHub', 'input', 'toolbarConfig', 'searchConfig'],
         data(){
             return {
                 selection: null,
             }
         },
-        computed: {},
+        computed: {
+            tableModel(){
+                if (this.input.DataField instanceof Array) {
+                    return this.input.DataField;
+                } else return [this.input.DataField];
+
+            }
+        },
         components: {
             dtable: table
         },
@@ -87,10 +94,10 @@
             }
 
         },
-        methods:{
-           isDirty(){
-               return false;
-           },
+        methods: {
+            isDirty(){
+                return false;
+            },
             focus(){
 
             },

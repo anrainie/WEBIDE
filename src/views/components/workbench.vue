@@ -59,7 +59,8 @@
                         txt: flowEditor,
                         sql: flowEditor,
                         dict: dictEditor,
-                        java: javaEditor
+                        java: javaEditor,
+                        fc:flowEditor,
                     }
                 },
             }

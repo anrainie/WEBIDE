@@ -1,14 +1,5 @@
 <template>
     <div>
-        <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :page-sizes="tableConfig.pageSizes"
-                :page-size="tableConfig.pageSize"
-                v-if="tableConfig.showPagination"
-                :layout="tableConfig.paginationLayout"
-                :total="total">
-        </el-pagination>
         <el-table
                 :data="model"
                 stripe
@@ -38,6 +29,15 @@
 
             </el-table-column>
         </el-table>
+        <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :page-sizes="tableConfig.pageSizes"
+                :page-size="tableConfig.pageSize"
+                v-if="tableConfig.showPagination&&tableConfig.pageSize<1"
+                :layout="tableConfig.paginationLayout"
+                :total="total">
+        </el-pagination>
     </div>
 </template>
 <style> 
@@ -57,7 +57,7 @@
 </style>
 <script>
     export  default{
-        props: ['columnConfig', 'model', 'tableConfig'],
+        props: ['model', 'tableConfig'],
         data(){
             return {
                 visible: false,
