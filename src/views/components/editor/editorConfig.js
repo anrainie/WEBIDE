@@ -2,7 +2,7 @@ import {$AG} from 'anrajs/src/anra.flow'
 import * as constants from 'anrajs/src/anra.constants'
 import srouter from 'anrajs/src/smoothRouter'
 
-var refresh = function() {
+var refresh = function () {
     if (this.model != null && this.figure != null) {
         var b = this.model.get('bounds');
         this.figure.bounds = {
@@ -35,7 +35,8 @@ var textPolicy = $AG.policy.TextPolicy('desp', function (figure) {
     //位置计算
     this.bounds = {
         x: figure.fattr('x'),
-        y: figure.fattr('y')};
+        y: figure.fattr('y')
+    };
 });
 
 
@@ -45,7 +46,7 @@ var selectAll = {
     name: '全选',
     type: constants.ACTION_SELECTION,
     key: 'ctrl+a',
-    run: function() {
+    run: function () {
         this.host.rootEditPart.setSelection(this.host.rootEditPart.children);
     }
 };
@@ -57,8 +58,8 @@ var deleteItem = {
     key: 'delete',
     check: function () {
         return this.selection instanceof $AG.NodeEditPart ||
-               this.selection instanceof $AG.LineEditPart ||
-               (this.selection instanceof Array && this.selection.length > 0);
+            this.selection instanceof $AG.LineEditPart ||
+            (this.selection instanceof Array && this.selection.length > 0);
     },
     run: function () {
         var cmd, selection = this.selection,
@@ -82,10 +83,10 @@ var undo = {
     name: '撤销',
     type: constants.ACTION_STACK,
     key: 'ctrl+z',
-    check: function() {
+    check: function () {
         return this.host.cmdStack.canUndo();
     },
-    run: function() {
+    run: function () {
         this.host.cmdStack.undo();
     }
 };
@@ -95,10 +96,10 @@ var redo = {
     name: '重做',
     type: constants.ACTION_STACK,
     key: 'ctrl+y',
-    check: function() {
+    check: function () {
         return this.host.cmdStack.canRedo();
     },
-    run: function() {
+    run: function () {
         this.host.redo();
     }
 };
@@ -108,19 +109,20 @@ var save = {
     name: '保存',
     type: constants.ACTION_STACK,
     key: 'ctrl+s',
-    check: function() {
+    check: function () {
         return this.host.isDirty();
     },
-    run: function() {
+    run: function () {
         this.host.doSave();
     }
 };
 
 /***************************************  节点  ***************************************/
+
 var commonCpt = {
     name: 'common',
     paletteUrl: "assets/image/editor/palette_component_stepCommonCpt.gif",
-    url:'assets/image/editor/event_component_stepCommonCpt.gif',
+    url: 'assets/image/editor/event_component_stepCommonCpt.gif',
     type: $AG.IMAGE,
     bounds: [0, 0, 160, 46],
     anchor: [
@@ -131,24 +133,39 @@ var commonCpt = {
         {id: 'W', dir: 'w', offset: 0},
         {id: 'C', dir: 'c', offset: 0}
     ],
+    policies: {
+        'doubleclick': {
+            activate(){
+                let self = this;
+                this.lisn = function () {
+                    self.emit('openDialog', self.getHost());
+                };
+                this.getHostFigure().on('dblclick', this.lisn);
+
+            },
+            deactivate(){
+                this.getHostFigure().off('dblclick', this.lisn);
+            }
+        }
+    },
     size: [160, 46],
-    
+
     //特性
     canDrag: false,
     linkable: true,
     selectable: true,
-    refresh : refresh,
-    
-    
-/*    policies: {
-        'TextPolicy': textPolicy
-    }*/
+    refresh: refresh,
+
+
+    /*    policies: {
+     'TextPolicy': textPolicy
+     }*/
 };
 
 var serviceCpt = {
     name: 'service',
     paletteUrl: 'assets/image/editor/palette_component_ServiceInvoke.gif',
-    url:'assets/image/editor/event_component_ServiceInvokdEntered.gif',
+    url: 'assets/image/editor/event_component_ServiceInvokdEntered.gif',
     type: $AG.IMAGE,
     anchor: [
         {id: 'N', dir: 'n', offset: 0},
@@ -158,12 +175,12 @@ var serviceCpt = {
         {id: 'W', dir: 'w', offset: 0}
     ],
     size: [160, 46],
-    
+
     //特性
     canDrag: true,
     linkable: true,
     selectable: true,
-    refresh : refresh
+    refresh: refresh
 };
 
 var commonNodeConfig = {
@@ -193,12 +210,12 @@ var serviceNodeConfig = {
     linkable: true,
     selectable: true,
     anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
+        {id: 0, dir: 'n', offset: 0},
+        {id: 1, dir: 's', offset: 0},
+        {id: 2, dir: 'e', offset: 0},
+        {id: 3, dir: 'w', offset: 0}
     ],
-    refresh : refresh
+    refresh: refresh
 };
 
 //组三
@@ -214,12 +231,12 @@ var end = {
     linkable: true,
     selectable: true,
     anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
+        {id: 0, dir: 'n', offset: 0},
+        {id: 1, dir: 's', offset: 0},
+        {id: 2, dir: 'e', offset: 0},
+        {id: 3, dir: 'w', offset: 0}
     ],
-    refresh : refresh
+    refresh: refresh
 };
 
 var eend = {
@@ -232,12 +249,12 @@ var eend = {
     linkable: true,
     selectable: true,
     anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
+        {id: 0, dir: 'n', offset: 0},
+        {id: 1, dir: 's', offset: 0},
+        {id: 2, dir: 'e', offset: 0},
+        {id: 3, dir: 'w', offset: 0}
     ],
-    refresh : refresh
+    refresh: refresh
 };
 
 var error = {
@@ -250,12 +267,12 @@ var error = {
     linkable: true,
     selectable: true,
     anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
+        {id: 0, dir: 'n', offset: 0},
+        {id: 1, dir: 's', offset: 0},
+        {id: 2, dir: 'e', offset: 0},
+        {id: 3, dir: 'w', offset: 0}
     ],
-    refresh : refresh
+    refresh: refresh
 };
 
 var start = {
@@ -268,14 +285,14 @@ var start = {
     linkable: true,
     selectable: true,
     anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
+        {id: 0, dir: 'n', offset: 0},
+        {id: 1, dir: 's', offset: 0},
+        {id: 2, dir: 'e', offset: 0},
+        {id: 3, dir: 'w', offset: 0}
     ],
     refresh: refresh,
     policies: {
-        'layoutPolicy' : $AG.ContainerLayoutPolicy
+        'layoutPolicy': $AG.ContainerLayoutPolicy
     },
     children: {
         '7': end,
@@ -293,12 +310,12 @@ var context = {
     linkable: true,
     selectable: true,
     anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
+        {id: 0, dir: 'n', offset: 0},
+        {id: 1, dir: 's', offset: 0},
+        {id: 2, dir: 'e', offset: 0},
+        {id: 3, dir: 'w', offset: 0}
     ],
-    refresh : refresh
+    refresh: refresh
 };
 
 var serivceX = {
@@ -311,12 +328,12 @@ var serivceX = {
     linkable: true,
     selectable: true,
     anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
+        {id: 0, dir: 'n', offset: 0},
+        {id: 1, dir: 's', offset: 0},
+        {id: 2, dir: 'e', offset: 0},
+        {id: 3, dir: 'w', offset: 0}
     ],
-    refresh : refresh
+    refresh: refresh
 };
 
 var mid = {
@@ -329,12 +346,12 @@ var mid = {
     linkable: true,
     selectable: true,
     anchor: [
-            {id: 0, dir: 'n', offset: 0},
-            {id: 1, dir: 's', offset: 0},
-            {id: 2, dir: 'e', offset: 0},
-            {id: 3, dir: 'w', offset: 0}
+        {id: 0, dir: 'n', offset: 0},
+        {id: 1, dir: 's', offset: 0},
+        {id: 2, dir: 'e', offset: 0},
+        {id: 3, dir: 'w', offset: 0}
     ],
-    refresh : refresh
+    refresh: refresh
 };
 
 var FlowEditor = {
@@ -348,7 +365,7 @@ var FlowEditor = {
         '8': eend
     },
     lines: {
-        0 : manhattanRoute
+        0: manhattanRoute
     },
     group: {
         0: {
@@ -394,7 +411,7 @@ var AnthorEditor = {
         '6': mid
     },
     lines: {
-        0 : manhattanRoute
+        0: manhattanRoute
     },
     group: {
         0: {

@@ -1,19 +1,21 @@
 <template>
     <div style="overflow: hidden">
-        <div @click="dialogTableVisible=true" class="left-editor" v-show="leftEditor" v-bind:style="leftStyle" @click.ctrl="right" @click.shift="test1(leftEditor)" @click.meta="test2(leftEditor)">
+        <div class="left-editor" v-show="leftEditor" v-bind:style="leftStyle" @click.ctrl="right"
+             @click.shift="test1(leftEditor)" @click.meta="test2(leftEditor)">
             <palette :editor='leftEditor'></palette>
         </div>
 
-        <div class="right-editor" v-show="rightEditor" v-bind:style="rightStyle" @click.alt="left" @click.shift="test1(rightEditor)" @click.meta="test2(rightEditor)">
+        <div class="right-editor" v-show="rightEditor" v-bind:style="rightStyle" @click.alt="left"
+             @click.shift="test1(rightEditor)" @click.meta="test2(rightEditor)">
             <palette :editor='rightEditor'></palette>
         </div>
 
-        <el-dialog title="组件属性" :visible.sync="dialogTableVisible">
-            <el-collapse >
-                <el-collapse-item title="基本信息" >
-                    <basicInfo type="0" ></basicInfo>
+        <el-dialog title="组件属性" :visible.sync="showProperties">
+            <el-collapse>
+                <el-collapse-item title="基本信息">
+                    <basicInfo type="0"></basicInfo>
                 </el-collapse-item>
-                <el-collapse-item  title="伪执行">
+                <el-collapse-item title="伪执行">
                     <skipInfo :branch="2"></skipInfo>
                 </el-collapse-item>
             </el-collapse>
@@ -23,8 +25,8 @@
 </template>
 <style>
     /*@import '~element-ui/lib/theme-default/index.css';*/
-    
     @import url("//unpkg.com/element-ui@1.3.7/lib/theme-default/index.css");
+
     .left-editor {
         position: relative;
         left: 0px;
@@ -35,7 +37,7 @@
         float: left;
         overflow: hidden;
     }
-    
+
     .right-editor {
         position: relative;
         left: 0;
@@ -46,14 +48,17 @@
         float: left;
         overflow: hidden;
     }
-    
+
     .el-row {
         margin-bottom: 10px;
-        &:last-child {
-            margin-bottom: 0;
-        }
+
+    &
+    :last-child {
+        margin-bottom: 0;
     }
-    
+
+    }
+
     .el-col {
         border-radius: 4px;
     }
@@ -65,15 +70,15 @@
     import config from 'anrajs/src/config'
     import skipGroup from '../flowPropDialog/skipGroup.vue';
     import basicInfo from '../flowPropDialog/basicPropsGroup.vue';
-    
+
     export default {
         name: 'flowEditor',
         props: ['file', 'msgHub', 'input'],
-        data: function() {
+        data: function () {
             return {
                 leftEditor: null,
                 rightEditor: null,
-                dialogTableVisible:false,
+                showProperties: false,
             }
         },
         mounted() {
@@ -84,14 +89,14 @@
         computed: {
             leftStyle: function () {
                 var width = this.rightEditor ? "50%" : "100%";
-                
+
                 return {
                     width: width
                 };
             },
-            rightStyle: function() {
+            rightStyle: function () {
                 var width = this.leftEditor ? "50%" : "100%";
-                
+
                 return {
                     width: width
                 }
@@ -103,7 +108,7 @@
                 if (editor == null) {
                     alert("编辑器为空")
                 }
-                
+
                 editor.showMap1();
             },
 
@@ -111,7 +116,7 @@
                 if (editor == null) {
                     alert("编辑器为空")
                 }
-                
+
                 editor.deleteHandle();
             },
             left() {
@@ -121,7 +126,7 @@
                     this.createLeftEditor(FlowEditor)
                 }
             },
-            
+
             right() {
                 if (this.rightEditor) {
                     this.closeRightEdior();
@@ -130,7 +135,7 @@
                     console.log(this.rightEditor)
                 }
             },
-            
+
             /***********immobilization***********/
             isDirty() {
                 return this.isDirtyWithEditor(this.leftEditor) | this.isDirtyWithEditor(this.rightEditor);
@@ -160,9 +165,10 @@
             },
             dirtyStateChange(dirtyState) {
             },
-            focus() {},
+            focus() {
+            },
 
-            
+
             /***********standard***********/
             initFlowEditor() {
                 //TODO 新建流程图的情况
@@ -171,7 +177,7 @@
                     console.warn('input null')
                     return;
                 }
-                
+
                 this.createLeftEditor(FlowEditor, input);
             },
             createLeftEditor(editorConfig, modelConfig) {
@@ -190,13 +196,18 @@
 
                 try {
                     this.leftEditor = new $AG.Editor(cfg);
+                    let self = this;
+                    this.leftEditor.rootEditPart.$on('openDialog', function (editPart) {
+                        self.dialogTarget = editPart.model;
+                        self.showProperties = true;
+                    });
                 } catch (e) {
                     console.error('配置内容可能有问题:');
                     console.error(e)
                 }
             },
 
-            closeLeftEditor: function() {
+            closeLeftEditor: function () {
                 if (this.leftEditor == null) {
                     return;
                 }
@@ -212,7 +223,7 @@
                     //TODO 保存的工作
                     this.closeLeftEditor();
                 }
-                
+
                 //暂时使用文件名作为div id
                 var cfg, id = this.pathName + '-rightEditor';
 
@@ -220,16 +231,16 @@
 
                 cfg = $AG.resolveData(editorConfig, modelConfig);
                 cfg.id = id;
-                
-                try{
+
+                try {
                     this.rightEditor = new $AG.Editor(cfg);
-                } catch(e) {
+                } catch (e) {
                     console.error('配置内容可能有问题:');
                     console.error(e)
                 }
             },
 
-            closeRightEdior: function() {
+            closeRightEdior: function () {
                 if (this.rightEditor == null) {
                     return;
                 }
@@ -238,24 +249,24 @@
                 $('#' + id).children().last().remove();
                 this.rightEditor = null;
             },
-            
+
             /***********extension***********/
-            revisePath: function(path) {
+            revisePath: function (path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
             },
         },
         components: {
-            skipInfo:skipGroup,
-            basicInfo:basicInfo,
+            skipInfo: skipGroup,
+            basicInfo: basicInfo,
             palette: {
                 props: {
                     editor: {
-                        validator: function (value){
+                        validator: function (value) {
                             return value && value instanceof $AG.Editor;
                         }
                     }
                 },
-                data: function() {
+                data: function () {
                     return {
                         activeNames: [0]
                     }
@@ -273,27 +284,27 @@
                         if (this.editor == null) {
                             return false;
                         }
-                        
+
                         return this.editor.config.group != null
                     }
                 },
                 directives: {
                     drag: {
-                        bind: function(el, binding, vnode) {
+                        bind: function (el, binding, vnode) {
                             //统一的验证 todo
                             var editor = binding.value.editor,
                                 item = binding.value.item,
                                 type = binding.value.type;
 
                             el.onmousedown = editor.createNodeWithPalette(type, item);
-                            el.ondragstart = function() {
+                            el.ondragstart = function () {
                                 return false;
                             };
                             el.setAttribute('src', item.paletteUrl);
                         }
                     },
                     selectTool: {
-                        bind: function(el, binding, vnode) {
+                        bind: function (el, binding, vnode) {
                             var editor = binding.value;
                             if (editor == null) {
                                 return;
@@ -304,13 +315,13 @@
                             }
 
 
-                            el.onmousedown = function() {
+                            el.onmousedown = function () {
                                 editor.setActiveTool(editor.getDefaultTool());
                             };
                         }
                     },
                     linkTool: {
-                        bind: function(el, binding, vnode) {
+                        bind: function (el, binding, vnode) {
                             var editor = binding.value;
                             if (editor == null) {
                                 return;
@@ -328,7 +339,7 @@
                                 exit: 6
                             });
 
-                            el.onmousedown = function() {
+                            el.onmousedown = function () {
                                 if (editor.getActiveTool() == lineTool) {
                                     editor.setActiveTool(editor.getDefaultTool());
                                 } else {
@@ -362,7 +373,7 @@
                             </el-collapse>
                         </el-col>
                     </el-row>
-                </div>` 
+                </div>`
             }
         }
     }
