@@ -119,12 +119,12 @@ var save = {
 
 /***************************************  节点  ***************************************/
 
+//默认组件
 var commonCpt = {
     name: 'common',
     paletteUrl: "assets/image/editor/palette_component_stepCommonCpt.gif",
     url: 'assets/image/editor/event_component_stepCommonCpt.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 160, 46],
     anchor: [
         {id: 'N', dir: 'n', offset: 0},
         {id: '0', dir: 's', offset: -25},
@@ -146,20 +146,40 @@ var commonCpt = {
             deactivate(){
                 this.getHostFigure().off('dblclick', this.lisn);
             }
+        },
+        
+        'despText': $AG.policy.TextPolicy('Desp', function(figure){
+            this.setBounds({
+                x: figure.bounds.x + 80,
+                y: figure.bounds.y + 30,
+                width: figure.bounds.width,
+                height: figure.bounds.height
+            })
+        }),
+        
+        'implement': {
+            activate() {
+                let self = this;
+                this.listener = new $AG.EditPartListener();
+                this.listener.selectedStateChanged = function(editPart) {
+                    if (editPart.getSelected() != constants.SELECTED) return;
+                    
+                    self.emit('openRightEditor');
+                }
+            },
+            
+            deactivate() {
+                this.getHostFigure.off('click', this.listener);
+            }
         }
     },
-    size: [160, 46],
+    size: [160, 60],
 
     //特性
-    canDrag: false,
+    canDrag: true,
     linkable: true,
     selectable: true,
     refresh: refresh,
-
-
-    /*    policies: {
-     'TextPolicy': textPolicy
-     }*/
 };
 
 var serviceCpt = {
@@ -174,7 +194,7 @@ var serviceCpt = {
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0}
     ],
-    size: [160, 46],
+    size: [160, 60],
 
     //特性
     canDrag: true,
@@ -183,42 +203,9 @@ var serviceCpt = {
     refresh: refresh
 };
 
-var commonNodeConfig = {
-    name: 'common',
-    url: 'assets/image/editor/palette_component_ServiceInvoke.gif',
-    paletteUrl: 'assets/image/editor/palette_component_ServiceInvoke.gif',
-    type: $AG.IMAGE,
-    canDrag: true,
-    linkable: true,
-    selectable: true,
-    anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
-    ],
-    refresh: refresh
-};
 
-var serviceNodeConfig = {
-    name: 'service',
-    url: 'assets/image/editor/palette_component_stepCommonCpt.gif',
-    paletteUrl: 'assets/image/editor/palette_component_stepCommonCpt.gif',
-    type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
-    canDrag: true,
-    linkable: true,
-    selectable: true,
-    anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
-    ],
-    refresh: refresh
-};
 
-//组三
+//基本组件
 
 
 var end = {
@@ -227,7 +214,7 @@ var end = {
     paletteUrl: 'assets/image/editor/palette_component_nodeEnd.gif',
     type: $AG.IMAGE,
     size: [25, 25],
-    canDrag: false,
+    canDrag: true,
     linkable: true,
     selectable: true,
     anchor: [
@@ -359,37 +346,25 @@ var FlowEditor = {
     children: {
         '3': serviceCpt,
         '5': commonCpt,
-        '6': start,
-        /*有点问题*/
-        '7': end,
-        '8': eend
     },
     lines: {
         0: manhattanRoute
     },
     group: {
         0: {
-            name: '一',
+            name: '默认组件',
             items: {
                 '3': serviceCpt,
                 '5': commonCpt,
             }
         },
         1: {
-            name: '二',
-            items: {
-                '6': start,
-                '7': end,
-                '8': eend,
-                '9': error,
-                '10': context,
-                '11': serivceX,
-                '12': mid
-            }
+            name: '银行',
+            items: {}
         },
         2: {
-            name: '三',
-            items: []
+            name: '应用',
+            items: {}
         }
     },
     operations: [
@@ -415,7 +390,7 @@ var AnthorEditor = {
     },
     group: {
         0: {
-            name: 'test',
+            name: '基本组件',
             items: {
                 '0': start,
                 '1': end,
@@ -425,6 +400,15 @@ var AnthorEditor = {
                 '5': serivceX,
                 '6': mid
             }
+        },
+        '1': {
+            name: '平台',
+        },
+        '2': {
+            name: '银行'
+        },
+        '3': {
+            name: '应用'
         }
     },
     operations: [

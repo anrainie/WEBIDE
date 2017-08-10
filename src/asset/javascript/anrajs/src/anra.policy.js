@@ -577,29 +577,36 @@ anra.gef.SelectionPolicy = anra.gef.AbstractEditPolicy.extend({
 });
 
 anra.gef.LineSelectionPolicy = anra.gef.SelectionPolicy.extend({
-//    showPrimarySelection:function (selection) {
-//        anra.gef.SelectionPolicy.prototype.showPrimarySelection.call(this, selection);
-//        this.getHost().getRoot().  editor.setActiveTool(new anra.gef.LinkLineTool());
-//    },
-//    hideSelection:function(selection){
-//        anra.gef.SelectionPolicy.prototype.hideSelection.call(this, selection);
-//        console.log(selection)
-//    },
-    unselected: function (editPart) {
-        this.getHostFigure().setStyle({
-            stroke: this.color,
-            'stroke-width': this.sw
-        });
-    },
-    selected: function (editPart) {
+    /*保证selected与unselected成对出现*/
+    _selected: false, 
+    selected: function(editPart) {
+        if (this._selected) {
+            return;
+        }
         this.color = this.getHostFigure().getStyle('stroke');
         if(this.color==null)
             this.color=this.getHostFigure().attr['stroke'];
         this.sw = this.getHostFigure().getStyle('stroke-width');
-        this.getHostFigure().setStyle('stroke', 'blue');
+        this.getHostFigure().setStyle('stroke', 'red');
+        this.getHostFigure().paint();
+        
+        this._selected = true;
     },
-    createSelectionHandles: function (selection) {
-        return [new anra.gef.LineHandle(this.getHost(), constants.REQ_RECONNECT_SOURCE), new anra.gef.LineHandle(this.getHost(), constants.REQ_RECONNECT_TARGET)];
+    unselected: function(editPart) {
+        if (!this._selected) {
+            return;
+        }
+        this.getHostFigure().setStyle({
+            stroke: this.color,
+            'stroke-width': this.sw
+        });
+        this.getHostFigure().paint();
+        
+        this._selected = false;
+    },
+    createSelectionHandles: function(selection) {
+        var handle = anra.gef.LineHandle;
+        return [new handle(this.getHost(), constants.REQ_RECONNECT_SOURCE), new handle(this.getHost(), constants.REQ_RECONNECT_TARGET)];
     }
 });
 

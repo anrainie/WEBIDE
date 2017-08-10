@@ -75,29 +75,40 @@ anra.Handle = Control.extend({
 });
 
 
-anra.gef.LineHandle = anra.Handle.extend({
-    constructor:function (editPart, type, style) {
+anra.gef.LineHandle = anra.Handle.extend(anra.svg.Circle).extend({
+    constructor: function(editPart, type, style) {
         Control.prototype.constructor.call(this);
-        this.editPart = editPart;
-        this.setStyle(style);
         this.type = type;
+        this.editPart = editPart;
+        
+        if (style) {
+            this.setStyle(style);
+        }
     },
-    _init:function () {
-        this.bds = {'x':0, 'y':0, 'width':100, 'height':100};
-        if (this.init != null)this.init();
-    },
-    dragStart:function (e, p) {
-        var tool = new anra.gef.LinkLineTool();
-        tool.linePart = this.editPart;
-        tool.type = this.type;
-        tool.oldAnchor = this.type == constants.REQ_RECONNECT_SOURCE ? this.editPart.figure.sourceAnchor : this.editPart.figure.targetAnchor;
-        this.editPart.getRoot().editor.setActiveTool(tool);
-        return true;
-    },
-    dragDropped:function (e, p) {
-//        var editor = this.editPart.getRoot().editor;
-//        editor.setActiveTool(editor.getDefaultTool());
-//        return true;
+    initProp: function() {
+        var anchor;
+        if (this.type == constants.REQ_RECONNECT_SOURCE) {
+            anchor = this.editPart.getSourceAnchor();
+        } else if (this.type == constants.REQ_RECONNECT_TARGET) {
+            anchor = this.editPart.getTargetAnchor();
+        } else {
+            console.error('chuan ru type cuo wu')
+        }
+        
+        this.setOpacity(1);
+        
+        this.setAttribute({
+            fill:'white',
+            stroke:'blue'
+        });
+        this.setStyle({'cursor':'move'});
+        
+        this.setBounds({
+            x: anchor.x,
+            y: anchor.y,
+            width: 10
+        }, true);
+        
     },
     refreshLocation:function (figure) {
         var points = figure.points;
@@ -107,18 +118,16 @@ anra.gef.LineHandle = anra.Handle.extend({
         } else if (this.type == constants.REQ_RECONNECT_TARGET) {
             p = points[points.length - 1];
         }
-        var w = 6;
-        var hf = w / 2;
+        var w = 10;
         
-        this.setBounds({x:p.x, y:p.y - hf, width:w, height:w}, true);
-//        this.paint();
+        this.setBounds({x:p.x, y:p.y, width:w, height:w}, true);
     },
-    initProp:function () {
-        this.setAttribute({
-            fill:'white',
-            stroke:'blue'
-        });
-        this.setStyle({'cursor':'move'});
+    dragStart: function() {
+        var tool = new anra.gef.LinkLineTool();
+        tool.linePart = this.editPart;
+        tool.type = this.type;
+        this.editPart.getRoot().editor.setActiveTool(tool);
+        return true;
     }
 });
 

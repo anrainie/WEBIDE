@@ -329,6 +329,7 @@ $AG.policy = {
                 this.handle = new anra.gef.TextHandle(this.getHost());
                 if (loc)
                     this.handle.refreshLocation = loc;
+                console.log(this.getHost().model.get(key))
                 this.handle.setText(this.getHost().model.get(key));
                 this.getHandleLayer().addChild(this.handle);
             },
