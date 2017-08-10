@@ -34,7 +34,6 @@
     import view from "../components/viewPart.vue";
     import workbench from "../components/workbench.vue";
     import EDITOR_PART from "../components/editorPart.vue";
-    import flowEditor from "../components/floweditor.vue";
     import contextMenu from "../components/contextMenu.vue";
     import shade from "../components/shade.vue";
 

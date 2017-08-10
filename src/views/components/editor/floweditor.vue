@@ -1,12 +1,24 @@
 <template>
     <div style="overflow: hidden">
-        <div class="left-editor" v-show="leftEditor" v-bind:style="leftStyle" @click.ctrl="right" @click.shift="test1(leftEditor)" @click.meta="test2(leftEditor)">
+        <div @click="dialogTableVisible=true" class="left-editor" v-show="leftEditor" v-bind:style="leftStyle" @click.ctrl="right" @click.shift="test1(leftEditor)" @click.meta="test2(leftEditor)">
             <palette :editor='leftEditor'></palette>
         </div>
 
         <div class="right-editor" v-show="rightEditor" v-bind:style="rightStyle" @click.alt="left" @click.shift="test1(rightEditor)" @click.meta="test2(rightEditor)">
             <palette :editor='rightEditor'></palette>
         </div>
+
+        <el-dialog title="组件属性" :visible.sync="dialogTableVisible">
+            <el-collapse >
+                <el-collapse-item title="基本信息" >
+                    <basicInfo type="0" ></basicInfo>
+                </el-collapse-item>
+                <el-collapse-item  title="伪执行">
+                    <skipInfo :branch="2"></skipInfo>
+                </el-collapse-item>
+            </el-collapse>
+
+        </el-dialog>
     </div>
 </template>
 <style>
@@ -49,8 +61,10 @@
 </style>
 <script type="text/javascript">
     import {$AG} from 'anrajs/index.js'
-    import {FlowEditor, AnthorEditor} from 'anrajs/src/editorConfig'
+    import {FlowEditor, AnthorEditor} from './editorConfig'
     import config from 'anrajs/src/config'
+    import skipGroup from '../flowPropDialog/skipGroup.vue';
+    import basicInfo from '../flowPropDialog/basicPropsGroup.vue';
     
     export default {
         name: 'flowEditor',
@@ -58,7 +72,8 @@
         data: function() {
             return {
                 leftEditor: null,
-                rightEditor: null
+                rightEditor: null,
+                dialogTableVisible:false,
             }
         },
         mounted() {
@@ -230,6 +245,8 @@
             },
         },
         components: {
+            skipInfo:skipGroup,
+            basicInfo:basicInfo,
             palette: {
                 props: {
                     editor: {

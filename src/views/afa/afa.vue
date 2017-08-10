@@ -82,7 +82,6 @@
     import navi from "../components/tree.vue";
     import menu from "../components/menubar.vue";
     import editorPage from "../components/editorPart.vue";
-    import flowEditor from "../components/floweditor.vue";
     import contextMenu from "../components/contextMenu.vue";
     import shade from "../components/shade.vue";
     import toolbar from "../components/toolbar.vue"

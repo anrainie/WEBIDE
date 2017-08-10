@@ -42,7 +42,7 @@
     import Vue from "vue";
     import viewpart from "./viewPart.vue";
     import editorPart from "../components/editorPart.vue";
-    import flowEditor from "../components/floweditor.vue";
+    import flowEditor from "../components/editor/floweditor.vue";
     import dictEditor from "./editor/dictEditor.vue";
     import javaEditor from "./editor/javaEditor.vue";
     import Vuex from 'vuex';

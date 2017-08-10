@@ -1,6 +1,6 @@
-import {$AG} from './anra.flow'
-import * as constants from './anra.constants'
-import srouter from './smoothRouter'
+import {$AG} from 'anrajs/src/anra.flow'
+import * as constants from 'anrajs/src/anra.constants'
+import srouter from 'anrajs/src/smoothRouter'
 
 var refresh = function() {
     if (this.model != null && this.figure != null) {
