@@ -84,6 +84,7 @@
         mounted() {
             this.pathName = this.revisePath(this.file.model.path);
             this.initFlowEditor();
+            console.log(this.leftEditor)
         },
         computed: {
             leftStyle: function () {
@@ -200,12 +201,6 @@
                         self.dialogTarget = editPart.model;
                         self.showProperties = true;
                     });
-                    
-                    /*打开实现编辑器*/
-                    this.leftEditor.rootEditPart.$on('openRightEditor', function(editPart) {
-                        self.right();
-                    });
-                    
                 } catch (e) {
                     console.error('配置内容可能有问题:');
                     console.error(e)
