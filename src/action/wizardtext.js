@@ -10,6 +10,17 @@ var items = {
     desclabel: '应用描述',
     type:'folder'
   },
+  'productAction': {
+    id: 'productAction',
+    resourceId: 'product',
+    path: '',
+    wizardtitle: '新建产品',
+    pagetitle: '新建产品',
+    pagedesc: '请输入产品名称',
+    namelabel: '产品名称',
+    desclabel: '产品描述',
+    type: 'folder'
+  },
   'solutionAction': {
     id: 'solutionAction',
     resourceId: 'solution',
@@ -19,7 +30,7 @@ var items = {
     pagedesc: '请输入解决方案名称',
     namelabel: '解决方案名称',
     desclabel: '解决方案描述',
-    type:'folder'
+    type:'project'
   },
   'workflowProjectAction': {
     id: 'workflowProjectAction',
@@ -30,7 +41,7 @@ var items = {
     pagedesc: '请输入工作流项目名称',
     namelabel: '工作流项目名称',
     desclabel: '工作流项目描述',
-    type:'folder'
+    type:'project'
   },
   'projectAction': {
     id: 'projectAction',
@@ -41,7 +52,7 @@ var items = {
     pagedesc: '请输入项目名称',
     namelabel: '项目名称',
     desclabel: '项目描述',
-    type:'folder'
+    type:'project'
   },
   // /**
   //  * 数据模型

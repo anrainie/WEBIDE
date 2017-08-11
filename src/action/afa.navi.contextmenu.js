@@ -6,13 +6,14 @@ import Vue from 'vue';
 var items
 
 function getNewWizard () {
-  let split = this.id.split('/')
-  let id = split[split.length - 1]
-  let newItem = wizardtext.match1(id)[0]
+  var split = this.id.split('/')
+  var id = split[split.length - 1]
+  var newItem = wizardtext.match1(id)[0]
 
   var newWizard = new Vue(wizardVue)
   newWizard.path = this.path
   newWizard.resourceId = newItem.resourceId
+  newWizard.type = newItem.type;
   newWizard.wizardtitle = newItem.wizardtitle
   newWizard.pagedesc = newItem.pagedesc
   newWizard.pagetitle = newItem.pagetitle
@@ -42,14 +43,24 @@ items = {
       return getNewWizard.call(this)
     }
   },
+  'productAction': {
+    id: 'productAction',
+    resourceId: 'product',
+    path: '',
+    name: '产品',
+    type: 'item',
+    handler: function () {
+      return getNewWizard.call(this)
+    }
+  },
   'solutionAction': {
     id: 'solutionAction',
     resourceId: 'solution',
     path: '',
     name: '解决方案',
     'type': 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'workflowProjectAction': {
@@ -58,8 +69,8 @@ items = {
     path: '',
     name: '工作流项目',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'projectAction': {
@@ -68,8 +79,8 @@ items = {
     path: '',
     name: '项目',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   // /**
@@ -83,8 +94,8 @@ items = {
     path: '',
     name: '数据字典',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
 
   },
@@ -102,8 +113,8 @@ items = {
     path: '',
     name: '接口参数定义',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   // 数据实体
@@ -114,8 +125,8 @@ items = {
     path: '',
     name: '数据实体分类',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'cn.com.agree.ide.afa.navigation.action.CreateGeneratorConfigAction': {
@@ -143,8 +154,8 @@ items = {
     resourceId: 'edm',
     name: '数据实体类包',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'cn.com.agree.ide.afa.tc.java.action.PackageNewWizardAction': {
@@ -169,8 +180,8 @@ items = {
     path: '',
     name: '分类',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'dbtfAction': {
@@ -179,8 +190,8 @@ items = {
     path: '',
     name: '表文件',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'cn.com.agree.ide.database.reverse.action.DataTableToDictAction': {
@@ -260,8 +271,8 @@ items = {
     path: '',
     name: '组件组',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'tcptAction': {
@@ -270,8 +281,8 @@ items = {
     path: '',
     name: '技术组件',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   // 业务组件
@@ -282,8 +293,8 @@ items = {
     path: '',
     name: '组件包',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'bcptAction': {
@@ -292,8 +303,8 @@ items = {
     path: '',
     name: '业务组件',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   // 流程模型
@@ -304,8 +315,8 @@ items = {
     path: '',
     name: '业务模板定义',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
 
@@ -315,8 +326,8 @@ items = {
     path: '',
     name: '技术模板定义',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
 
@@ -326,8 +337,8 @@ items = {
     path: '',
     name: '交易模板定义',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'cn.com.agree.ide.afa.xmlconvert.action.FormatFlowModuleArgAction': {
@@ -359,8 +370,8 @@ items = {
     path: '',
     name: 'bpmn文件',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   /**
@@ -373,8 +384,8 @@ items = {
     path: '',
     name: '服务分类',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'serviceAction': {
@@ -383,8 +394,8 @@ items = {
     path: '',
     name: '服务',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'serviceRecognitionAction': {
@@ -393,8 +404,8 @@ items = {
     path: '',
     name: '服务识别',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'fcAction': {
@@ -403,8 +414,8 @@ items = {
     path: '',
     name: '流程配置',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'fpckAction': {
@@ -413,8 +424,8 @@ items = {
     path: '',
     name: '自由格式报文',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'natpAction': {
@@ -423,8 +434,8 @@ items = {
     path: '',
     name: 'NATP报文',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   // 服务对外发布
@@ -439,8 +450,8 @@ items = {
     path: '',
     name: '父服务',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
 
@@ -455,8 +466,8 @@ items = {
     path: '',
     name: '子服务',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'class galaxy.ide.configurable.navigator.action.ExploreFilePathAction': {
