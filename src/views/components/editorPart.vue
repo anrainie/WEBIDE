@@ -87,7 +87,7 @@
                 collapsedEditors:[],
                 maxIndicateCharNum:15,
                 defaultIndicateWidth:30,
-                eachCharWidth:12
+                eachCharWidth:16
             }
         },
         computed:{
@@ -281,7 +281,7 @@
                 var newEditor = new Vue(editorDecorator);
 
                 if(!newEditor.hasOwnProperty("input") || !newEditor.hasOwnProperty("file") || !newEditor.hasOwnProperty("msgHub")){
-                    debug.error("$props of editor must has three methods : isDirty,save,focus");
+                    debug.error("$props must has three properties : input,file,msgHub");
                     return;
                 }
 
@@ -338,15 +338,7 @@
                 return num * this.eachCharWidth;
             },
             getIndicateName:function (name) {
-                var num = 0;
-                for (var i = 0; i < name.length; i++) {
-                    var c = name.charCodeAt(i);
-                    if (c >= 0 && c <= 128)
-                        num += 1;
-                    else
-                        num += 2;
-                }
-                if(num > this.maxIndicateCharNum){
+                if(name.length > this.maxIndicateCharNum){
                     name = name.substring(0,this.maxIndicateCharNum);
                     name += "...";
                 }

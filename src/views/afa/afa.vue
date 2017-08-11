@@ -240,7 +240,7 @@
                     },
                     data: {
                         config: {
-                            width:300,
+                            width:'100%',
                             check: false,
                             async: true,
                             callback: {
@@ -273,9 +273,6 @@
                                                     }
                                                     if(newChild.children && newChild.children.length > 0){
                                                         let child = getChild(parent.children,newChild.name);
-                                                        if(child == null){
-                                                            console.info("dd");
-                                                        }
                                                         combine(child,newChild.children);
                                                     }
                                                 }
@@ -375,11 +372,11 @@
                             }
                         },
                         {
-                            id:'linkedWithEditorAction',
-                            name:"LinkedWithEditor",
+                            id:'linkWithEditorAction',
+                            name:"linkWithEditor",
                             type:'item',
                             img:'assets/image/file_awb.gif',
-                            tooltip:"linkedWithEditor",
+                            tooltip:"LinkWithEditor",
                             validate(){
                                 return true;
                             },

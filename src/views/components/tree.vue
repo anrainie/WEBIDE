@@ -28,7 +28,7 @@
         },
         methods: {
             /**
-             * 选中某节点并展开改节点
+             * 展开到该节点并选中该节点
              * @param item
              */
             setSelection:function (item) {
@@ -249,7 +249,7 @@
             this.config = this.config || {};
             this.config.callback = this.config.callback || {};
             if(this.config.width){
-                this.$el.style.width = this.config.width + "px";
+                this.$el.style.width = this.config.width;
             }
             this.msgHub.$on("deleteItem", function (item) {
                 self.deleteItem(item);
