@@ -29,6 +29,7 @@
         desc:'',
         resourceId:'',
         path:'',
+        type: '',
         wizardtitle: '',
         pagetitle: '',
         pagedesc: '',
@@ -44,23 +45,37 @@
             done();
           })
           .catch(_ => {});
+
       },
       handleOk(){
         this.dialogFormVisible = false;
         IDE.socket.emit("createNewResource",{
           type: IDE.type,
           event: 'createNewResource',
-          data: {path: this.path,resourceId:this.resourceId,name:this.name,desc:this.desc}
+          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name,desc:this.desc}
         }, function (data) {
           if (data) {
             let result = JSON.parse(data);
             if (result.state === 'success') {
               let path = result.data.path;
-              IDE.navigator.refresh(path);
+              //刷新
+              if(path)
+                IDE.navigator.refresh(path);
+              else
+                IDE.navigator.refresh(null);
+              let type = result.data.type;
+              if (type === 'file') {
+                let item = IDE.navigator.getItem(path);
+                let input = result.data.input;
+                if(input){
+                    //打开编辑器
+                  IDE.editorPart.openEditor(item,input);
+                }
+              }
             }
           }
         });
-      }
+      },
     }
   }
 </script>
