@@ -11,9 +11,9 @@
         </div>
 
         <el-dialog title="组件属性" :visible.sync="showProperties">
-            <el-collapse>
-                <el-collapse-item title="基本信息">
-                    <basicInfo type="0"></basicInfo>
+            <el-collapse accordion value="1">
+                <el-collapse-item title="基本信息" name="1">
+                    <basicInfo type="1"></basicInfo>
                 </el-collapse-item>
                 <el-collapse-item title="伪执行">
                     <skipInfo :branch="2"></skipInfo>

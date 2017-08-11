@@ -853,6 +853,7 @@ anra.svg.Image = {
             'http://www.w3.org/1999/xlink',
             'xlink:href',
             this.url);
+        this.owner.setAttribute('preserveAspectRatio','none');
     }
 };
 /**
