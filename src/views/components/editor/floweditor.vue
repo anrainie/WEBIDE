@@ -1,12 +1,10 @@
 <template>
     <div style="overflow: hidden">
-        <div class="left-editor" v-show="leftEditor" v-bind:style="leftStyle" @click.ctrl="right"
-             @click.shift="test1(leftEditor)" @click.meta="test2(leftEditor)">
+        <div class="left-editor" v-show="leftEditor" v-bind:style="leftStyle">
             <palette :editor='leftEditor'></palette>
         </div>
 
-        <div class="right-editor" v-show="rightEditor" v-bind:style="rightStyle" @click.alt="left"
-             @click.shift="test1(rightEditor)" @click.meta="test2(rightEditor)">
+        <div class="right-editor" v-show="rightEditor" v-bind:style="rightStyle">
             <palette :editor='rightEditor'></palette>
         </div>
 
@@ -24,7 +22,6 @@
     </div>
 </template>
 <style>
-    /*@import '~element-ui/lib/theme-default/index.css';*/
     @import url("//unpkg.com/element-ui@1.3.7/lib/theme-default/index.css");
 
     .left-editor {
@@ -66,8 +63,8 @@
 </style>
 <script type="text/javascript">
     import {$AG} from 'anrajs/index.js'
-    import {FlowEditor, AnthorEditor} from './editorConfig'
-    import config from 'anrajs/src/config'
+    import {leftEditorConfig, rightEditorConfig} from './editorConfig'
+    import {resolveLeftEditor, resolveRightEditor} from './modelConfig'
     import skipGroup from '../flowPropDialog/skipGroup.vue';
     import basicInfo from '../flowPropDialog/basicPropsGroup.vue';
 
@@ -78,24 +75,54 @@
             return {
                 leftEditor: null,
                 rightEditor: null,
+                screenSize: 'left',
                 showProperties: false,
             }
         },
         mounted() {
             this.pathName = this.revisePath(this.file.model.path);
+            this.editorBuffer = new $AG.editorBuffer();
             this.initFlowEditor();
-            console.log(this.leftEditor)
+            console.log(IDE)
         },
         computed: {
             leftStyle: function () {
-                var width = this.rightEditor ? "50%" : "100%";
+                var width;
+                
+                switch(this.screenSize) {
+                    case 'left':
+                        width = "100%";
+                        break;
+                    case 'both':
+                        width = "50%";
+                        break;
+                    case 'right':
+                        width = "0%"
+                        break;
+                    default:
+                        console.error("screenSize 错误")
+                }
 
                 return {
                     width: width
                 };
             },
             rightStyle: function () {
-                var width = this.leftEditor ? "50%" : "100%";
+                var width;
+                
+                switch(this.screenSize) {
+                    case 'left':
+                        width = "0%";
+                        break;
+                    case 'both':
+                        width = "50%";
+                        break;
+                    case 'right':
+                        width = "100%"
+                        break;
+                    default:
+                        console.error("screenSize 错误")
+                }
 
                 return {
                     width: width
@@ -103,63 +130,41 @@
             }
         },
         methods: {
-            /***********for test***********/
-            test1(editor) {
-                if (editor == null) {
-                    alert("编辑器为空")
-                }
-
-                editor.showMap1();
-            },
-
-            test2(editor) {
-                if (editor == null) {
-                    alert("编辑器为空")
-                }
-
-                editor.deleteHandle();
-            },
-            left() {
-                if (this.leftEditor) {
-                    this.closeLeftEditor();
-                } else {
-                    this.createLeftEditor(FlowEditor)
-                }
-            },
-
-            right() {
-                if (this.rightEditor) {
-                    this.closeRightEdior();
-                } else {
-                    this.createRightEditor(AnthorEditor)
-                    console.log(this.rightEditor)
-                }
-            },
-
             /***********immobilization***********/
             isDirty() {
-                return this.isDirtyWithEditor(this.leftEditor) | this.isDirtyWithEditor(this.rightEditor);
-            },
-            isDirtyWithEditor(editor) {
-                if (editor) {
-                    return editor.isDirty();
+                var dirtyOfLeft = this.leftEditor.isDirty(), dirtyOfRight = false, rightEditors = this.editorBuffer.valuesOfBuffer;
+                
+                /*遍历所有缓冲的编辑器*/
+                if (rightEditors) {
+                    rightEditors.forEach(function(item) {
+                        dirtyOfRight |= item.isDirty(); 
+                    });
                 }
-
-                return false;
+                
+                return dirtyOfLeft | dirtyOfRight;
             },
             save() {
-                var leftState = this.isDirtyWithEditor(this.leftEditor),
-                    rightState = this.isDirtyWithEditor(this.rightEditor);
-                if (leftState) {
+                var dirty = false, rightEditors = this.editorBuffer.valuesOfBuffer;
+                
+                //left
+                if (this.leftEditor.isDirty()) {
                     this.leftEditor.doSave();
+                    dirty = true;
                 }
-
-                if (rightState) {
-                    this.rightEditor.doSave();
+                
+                //right
+                if (rightEditors) {
+                    rightEditors.forEach(function(item) {
+                        if (item.isDirty()) {
+                            item.doSave();
+                            dirty = true;
+                        }
+                    });
                 }
 
                 //???
-                if (leftState | rightState) {
+                if (dirty) {
+                    this.editorBuffer.clear();
                     this.msgHub.$emit('dirtyStateChange', this.file, false);
                 }
             },
@@ -178,7 +183,8 @@
                     return;
                 }
 
-                this.createLeftEditor(FlowEditor, input);
+                this.createLeftEditor(leftEditorConfig, input);
+                this.screenSize = "left";
             },
             createLeftEditor(editorConfig, modelConfig) {
                 if (this.leftEditor) {
@@ -191,20 +197,59 @@
 
                 $('#' + this.pathName).find('.left-editor').attr('id', id);
 
-                cfg = $AG.resolveData(editorConfig, modelConfig);
+                cfg = resolveLeftEditor(editorConfig, modelConfig);
                 cfg.id = id;
 
-                try {
-                    this.leftEditor = new $AG.Editor(cfg);
-                    let self = this;
-                    this.leftEditor.rootEditPart.$on('openDialog', function (editPart) {
-                        self.dialogTarget = editPart.model;
-                        self.showProperties = true;
-                    });
-                } catch (e) {
-                    console.error('配置内容可能有问题:');
-                    console.error(e)
-                }
+                this.leftEditor = new $AG.Editor(cfg);
+                
+                let self = this;
+                /**/
+                
+                this.leftEditor.rootEditPart.$on('openDialog', function (editPart) {
+                    self.dialogTarget = editPart.model;
+                    self.showProperties = true;
+                });
+                    
+                /*打开实现编辑器*/
+                this.leftEditor.rootEditPart.$on('nodeImplement', function(modelConfig, id) {
+                    var onlyLeftEditor = self.screenSize == 'left';
+                    
+                    /*全频左编辑器*/
+                    if (onlyLeftEditor) return;
+                    
+                    /*不在缓冲中，直接创建*/
+                    if (!self.editorBuffer.isBuffer(id)) {
+                        self.createRightEditor(rightEditorConfig, modelConfig);
+                        self.editorBuffer.put(id, self.rightEditor);
+                        return;
+                    }
+                    
+                    /*激活同样的*/
+                    if (self.editorBuffer.isActivateEditor(id)) return;
+                    
+                    /*从缓冲取出编辑器实例*/
+                    self.closeRightEditor();
+                    self.rightEditor = self.editorBuffer.activateEditor(id);
+                    self.rightEditor.createContent(self.rightEditor.id);
+                });
+                
+                
+                this.leftEditor.canvas.element.addEventListener('dblclick', function(e){
+                    if(e.target.parentNode.isEqualNode(this)) {
+                        switch(self.screenSize) {
+                            case 'left':
+                                self.screenSize = 'both';
+                                break;
+                            case 'both':
+                                self.screenSize = 'left';
+                                break;
+                            default:
+                                console.error('sreenSize 错误')
+                        }    
+                    }
+                     
+                    return false;
+                });
             },
 
             closeLeftEditor: function () {
@@ -215,32 +260,44 @@
                 var id = this.pathName + '-leftEditor';
                 $('#' + id).children().last().remove();
                 this.leftEditor = null;
-
             },
 
             createRightEditor(editorConfig, modelConfig) {
                 if (this.rightEditor) {
                     //TODO 保存的工作
-                    this.closeLeftEditor();
+                    this.closeRightEditor();
                 }
 
                 //暂时使用文件名作为div id
-                var cfg, id = this.pathName + '-rightEditor';
+                var config, id = this.pathName + '-rightEditor';
 
                 $('#' + this.pathName).find('.right-editor').attr('id', id);
 
-                cfg = $AG.resolveData(editorConfig, modelConfig);
-                cfg.id = id;
+                config = resolveRightEditor(editorConfig, modelConfig);
+                config.id = id;
 
-                try {
-                    this.rightEditor = new $AG.Editor(cfg);
-                } catch (e) {
-                    console.error('配置内容可能有问题:');
-                    console.error(e)
-                }
+                this.rightEditor = new $AG.Editor(config);
+                
+                let self = this;
+                this.rightEditor.canvas.element.addEventListener('dblclick', function(e){
+                    if(e.target.parentNode.isEqualNode(this)) {
+                        switch(self.screenSize) {
+                            case 'right':
+                                self.screenSize = 'both';
+                                break;
+                            case 'both':
+                                self.screenSize = 'right';
+                                break;
+                            default:
+                                console.error('sreenSize 错误')
+                        }    
+                    }
+                     
+                    return false;
+                });
             },
 
-            closeRightEdior: function () {
+            closeRightEditor() {
                 if (this.rightEditor == null) {
                     return;
                 }
@@ -249,7 +306,7 @@
                 $('#' + id).children().last().remove();
                 this.rightEditor = null;
             },
-
+            
             /***********extension***********/
             revisePath: function (path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/, "-");

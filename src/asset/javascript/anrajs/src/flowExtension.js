@@ -5,126 +5,13 @@ import * as constants from './anra.constants'
 import {ReaderListener} from './smoothRouter'
 import {Map, Util} from './anra.common'
 
+$AG.EditPartListener = anra.gef.EditPartListener;
+
 $AG.Editor.prototype.initRootEditPart = function (editPart) {
     editPart.addEditPartListener(new ReaderListener());
     editPart.config = this.config;
-    /*add 增加对应的节点有效地子节点
-    var config = this.config, available = config.available, children = this.config.children;
-    if (available == null) {
-        return;
-    }
-
-    for (var type in available) {
-        if (children[type] == null) {
-            console.error(type + '类型节点不对')
-        }
-
-        if (available[type] == null || available[type].length < 1) {
-            continue;
-        }
-        
-        children[type].available = {};
-
-        for (var i in available[type]) {
-            if (children[available[type][i]] == null) {
-                console.error(type + '类型节点不对')
-            }
-
-            children[type].available[i] = available[type][i];
-        }
-    }*/
-    
     editPart.addNotify();
 };
-
-/*关于json传入转出输入形式*/
-//仅仅初始化生成图 粗糙版
-var resolveData = function(editorConfig, modelConfig) {
-    //TODO 错误判断
-    var ec = deepCopy(editorConfig),
-        mc = deepCopy(modelConfig);
-    
-    
-    //DateInfo
-    ec.DateInfo = mc.DateInfo || null;
-    
-    //NodeMaxnimum
-    ec.NodeMaxnimum = mc.NodeMaxnimum || null;
-    
-    //UUID
-    ec.UUID = mc.UUID || null;
-
-    //Regulation
-    if (mc.Regulation == null || mc.Regulation.Step == null) {
-        return ec;
-    }
-    
-    //Step 里面没有节点是null,只有一个节点的时候是Object，多节点是Array
-    var nodes = mc.Regulation.Step, location, size;
-    
-    ec.data = [];
-    ec.line = [];
-    
-    if (!(nodes instanceof Array) && nodes instanceof Object) {
-        nodes = [nodes];
-    }
-    
-    nodes.forEach(function (item, index, input) {
-        location = item.Constraint.Location.split(',');
-        size = item.Constraint.Size.split(',');
-        ec.data[index] = Object.assign({
-            id: item.Id,
-            type: item.Type,
-            bounds: [parseInt(location[0]), parseInt(location[1]),
-                         parseInt(size[0]), parseInt(size[1])],
-            desp: item.Desp
-        }, item);
-
-        if (item.SourceConnections &&
-            item.SourceConnections.Connection) {
-            
-            //单线为Object
-            if (!(item.SourceConnections.Connection instanceof Array)) {
-                item.SourceConnections.Connection = [item.SourceConnections.Connection];
-            }
-            
-            item.SourceConnections.Connection.forEach(function (item1, index1, input1) {
-                ec.line.push({
-                    //id问题 
-                    id: item.Id + '_' + item1.targetId,
-                    source: item.Id,
-                    type: 0,
-                    target: item1.targetId,
-                    exit: item1.SourceTerminal,
-                    entr: item1.TargetTerminal
-                });
-            });
-        }
-    });
-    
-    return ec;
-}
-$AG.resolveData = resolveData;
-
-var deepCopy= function(source) { 
-
-    var result;
-    
-    if (source instanceof Array) {
-        result = [];
-        for (var i = 0; i < source.length; i++) {
-            result[i] = source[i];
-        }
-    } else {
-        result = {};
-        for (var key in source) {
-            result[key] = source[key] instanceof Array ? deepCopy(source[key]) : typeof source[key]==='object'? deepCopy(source[key]): source[key];
-        }
-    }
-    
-   return result; 
-}
-$AG.deepCopy = deepCopy;
 
 var createID = (function () {
     var count = 100;
@@ -157,209 +44,6 @@ $AG.Editor.prototype.createNodeWithPalette = function(type, item) {
         return true;
     }
 };
-
-
-//打印地图节点
-$AG.Editor.prototype.showMap = function() {
-    var root = this.rootEditPart, reader = root.getReader(),
-        layer = root.getLineLayer();
-    
-    reader.structure();
-    reader.struct.forEach(function(value, key) {
-        if (value.count == 0) {
-            if (value.figure) {
-                layer.removeChild(value.figure)
-                delete value.figure;
-            }
-        } else if (value.count > 0) {
-            if (value.figure == null) {
-                value.figure = new mapHandle(key);
-                layer.addChild(value.figure, false)
-            }
-        } else {
-            console.warn('count 负数')
-        }
-    });
-}
-
-$AG.Editor.prototype.showMapMap = [];
-$AG.Editor.prototype.showMap1 = function(){
-     var root = this.rootEditPart, reader = root.getReader(),
-         layer = root.getLineLayer(), arr = this.showMapMap;
-     
-    if (arr.length > 0) {
-        arr.forEach(function(item, index, input) {
-            layer.removeChild(item);
-        });
-    }
-    
-    reader.structure();
-    
-    reader.struct.forEach(function(value, key) {
-        if (value.count > 0) {
-            arr.push(new mapHandle(key))
-            layer.addChild(Util.last.call(arr), false);
-        } else if (value.count == 0) {
-            console.warn('count 为0')
-        } else {
-            console.warn('count 负数')
-        }
-    });
-}
-
-$AG.Editor.prototype.deleteHandle = function() {
-    var layer = this.rootEditPart.getLineLayer(), arr = this.showMapMap;
-     
-    if (arr.length > 0) {
-        arr.forEach(function(item, index, input) {
-            layer.removeChild(item);
-        });
-    }
-}
-
-$AG.Editor.prototype.changePos = function() {
-    var root = this.rootEditPart, models = root.model.children;
-    for(var node in models) {
-        models[node].set('bounds', [Math.random()*1000,Math.random()*1000,50,50]);
-    }
-    
-    root.children.forEach(function(item, index, input) {
-        if (item instanceof anra.gef.NodeEditPart) {
-            item.refresh();
-        }
-    })
-}
-
-var mapHandle = anra.svg.Composite.extend({
-    constructor: function (key) {
-        anra.svg.Control.prototype.constructor.call(this);
-        this.setAttribute({
-            'stroke-width': 1,
-            stroke: 'red'
-        });
-        this.setOpacity(0.5);
-        
-        var temp, x, y;
-        if (key) {
-            temp = key.split('_');
-            x = parseInt(temp[0]);
-            y = parseInt(temp[1]);
-        }
-        
-        this.setBounds({
-            x: x * 25,
-            y: y * 25,
-            width: 25,
-            height: 25
-        });
-    }
-});
-
-var Platform = {
-    main : null,
-    assist : null,
-    pool : new Map(),
-    isAssist : function(id) {
-        return this.pool.get(id) == this.assist;
-    }
-};
-
-//this.editor.rootEditPart.figure.dispatcher.dragTarget = this.linePart.figure;
-
-
-//重新连线的测试策略
-var testSelectionPolicy = anra.gef.SelectionPolicy.extend({
-    _selected: false, 
-    selected: function(editPart) {
-        if (this._selected) {
-            return;
-        }
-        this.color = this.getHostFigure().getStyle('stroke');
-        if(this.color==null)
-            this.color=this.getHostFigure().attr['stroke'];
-        this.sw = this.getHostFigure().getStyle('stroke-width');
-        this.getHostFigure().setStyle('stroke', 'red');
-        this.getHostFigure().paint();
-        
-        this._selected = true;
-    },
-    unselected: function(editPart) {
-        if (!this._selected) {
-            return;
-        }
-        this.getHostFigure().setStyle({
-            stroke: this.color,
-            'stroke-width': this.sw
-        });
-        this.getHostFigure().paint();
-        
-        this._selected = false;
-    },
-    createSelectionHandles: function(selection) {
-        return [new testLineHandle(this.getHost(), constants.REQ_RECONNECT_SOURCE), new testLineHandle(this.getHost(), constants.REQ_RECONNECT_TARGET)];
-    }
-});
-
-anra.gef.LineSelectionPolicy = testSelectionPolicy;
-
-var Control = anra.svg.Control;
-var testLineHandle = anra.Handle.extend(anra.svg.Circle).extend({
-    constructor: function(editPart, type) {
-        Control.prototype.constructor.call(this);
-        this.type = type;
-        this.editPart = editPart;
-    },
-    initProp: function() {
-        var anchor;
-        if (this.type == constants.REQ_RECONNECT_SOURCE) {
-            anchor = this.editPart.getSourceAnchor();
-        } else if (this.type == constants.REQ_RECONNECT_TARGET) {
-            anchor = this.editPart.getTargetAnchor();
-        } else {
-            console.error('chuan ru type cuo wu')
-        }
-        
-        this.setOpacity(1);
-        
-        this.setAttribute({
-            fill:'white',
-            stroke:'blue'
-        });
-        this.setStyle({'cursor':'move'});
-        
-        this.setBounds({
-            x: anchor.x,
-            y: anchor.y,
-            width: 10
-        }, true);
-        
-    },
-    refreshLocation:function (figure) {
-        var points = figure.points;
-        var p;
-        if (this.type == constants.REQ_RECONNECT_SOURCE) {
-            p = points[0];
-        } else if (this.type == constants.REQ_RECONNECT_TARGET) {
-            p = points[points.length - 1];
-        }
-        var w = 10;
-        
-        this.setBounds({x:p.x, y:p.y, width:w, height:w}, true);
-    },
-    dragStart: function() {
-        var tool = new $AG.LineTool({
-            id: 3,
-            type: 0,
-            target: 5,
-            entr: 7,
-            exit: 6
-        });
-        tool.linePart = this.editPart;
-        tool.type = this.type;
-        this.editPart.getRoot().editor.setActiveTool(tool);
-        return true;
-    }
-});
 
 //test layoutPolicy
 var ContainerLayoutPolicy = anra.gef.LayoutPolicy.extend({
@@ -457,6 +141,441 @@ var fillLayout = Layout.extend({
         }
     }
 });
+
+const center = 0;
+const begin = 1;
+const end = 2;
+const fill = 3
+
+var gridData = Base.extend({
+    constructor: function (width, height) {
+        var arg = {
+                horizontalSpan: 1,
+                verticalSpan: 1,
+
+                verticalAlignment: fill,
+                horizontalAlignment: fill,
+                widthHint: width,
+                heightHint: height
+            },
+            createDes = function (argument, argName) {
+                return {
+                    set: function (value) {
+                        if (argument[argName] == value) return;
+
+                        argument[argName] = value;
+
+                    },
+
+                    get: function () {
+                        return argument[argName];
+                    },
+
+                    enumerable: true,
+                    configurable: false
+                }
+            },
+            dirty = false,
+            descriptors = {};
+
+        for (var i in arg) {
+            descriptors[i] = createDes(arg, i);
+        }
+        Object.defineProperties(this, descriptors);
+
+        this.isDirty = function () {
+            return dirty;
+        }
+
+        this.compute = function (size, location) {
+            dirty = false;
+            return this._compute(size, location);
+        }
+    },
+    _compute: function (size, location) {
+        if (size == null || !(size instanceof Array)) {
+            console.error('no size')
+        }
+
+        if (location == null || !(location instanceof Array)) {
+            console.error('no location')
+        }
+
+        var result = {}, width = this.widthHint*this.horizontalSpacing, height = this.heightHint*this.verticalSpacing;
+
+        if (size[0] > width && this.horizontalAlignment != fill) {
+            switch (this.horizontalAlignment) {
+                case center:
+                    result.x = location[0] + (size[0] - width) / 2;
+                    break;
+                case begin:
+                    result.x = location[0];
+                    break;
+                case end:
+                    result.x = location[0] + (size[0] - width);
+                    break;
+                default:
+                    console.error();
+            }
+            result.width = this.width;
+        } else {
+            result.x = location[0];
+            result.width = size[0];
+        }
+
+        if (size[1] > height && this.verticalAlignment != fill) {
+            switch (this.verticalAlignment) {
+                case center:
+                    result.y = location[1] + (size[1] - height) / 2;
+                    break;
+                case begin:
+                    result.y = location[1];
+                    break;
+                case end:
+                    result.y = location[1] + (size[1] - height);
+                    break;
+                default:
+                    console.error()
+            }
+            result.height = this.height;
+        } else {
+            result.y = location[1];
+            result.height = size[1]
+        }
+
+        return result;
+    }
+});
+   
+
+var gridLayout = Layout.extend({    
+    constructor: function(numColumns, makeColumnsEqualWidth) {
+        /*参数列表*/
+        var arg = {
+            numColumns: 10, //列数目
+            numRows: NaN, //默认undefined
+            makeColumnsEqualWidth: true,//列是否具有相同的宽度
+            makeRowsEqualHeight: true,
+            marginLeft: 2,
+            marginTop: 2,
+            marginRight: 2,
+            marginBottom: 2,
+            horizontalSpacing: 15,
+            verticalSpacing: 15,
+            width: 0,
+            height: 0,
+            autoAdapt: false
+        }, v = this, dirty = false;
+        
+        /*arg不可重写*/
+        Object.defineProperty(v, "arg", {
+            value: {},
+            writable: false,
+            enumerable: true,
+            configurable: false
+        });
+        
+        /*辅助函数，返回属性配置对象*/
+        var createDes = function(argument, argName) {
+            return {
+                /*记录改变参数的状态*/
+                set: function(value) {
+                    if (value == argument[argName]) return;
+                    
+                    argument[argName] = value;
+                    dirty = true;
+                },
+                
+                get: function() {
+                    return argument[argName];
+                },
+                enumerable: true,
+                configurable: false
+            }
+        }
+        
+        var descriptors = {};
+        
+        for (var i in arg) {
+            descriptors[i] = createDes(arg, i);
+        };
+        Object.defineProperties(v.arg, descriptors)
+        
+        /*只读*/
+        this.isDirty = function() {
+            return dirty;
+        }
+        
+        /*dirty状态在layout后刷新*/
+        this.layout = function(comp) {
+            v._layout(comp);
+            dirty = false;
+        } 
+    },
+    
+    _layout: function(comp) {
+        if (comp.children == null || (comp.children instanceof Array && comp.children.length < 1)) {
+            return;
+        }
+        
+        var children = comp.children, arg = this.arg, 
+            /*layout参数、data参数、children顺序、长度*/
+            dirty;
+        
+        dirty = this.isDirty();
+        
+        /*暂时初始化layoutdata*/
+        for (var i in children) {
+            if (children[i].layoutData) {
+                dirty = dirty | children[i].layoutData.dirty | !(i == children[i].layoutData.sequence);
+            } else {
+                children[i].layoutData = new gridData(children[i].model.props.bounds[2], children[i].model.props.bounds[3]);
+                children[i].layoutData.sequence = i;
+                dirty = true;
+            }
+        }
+        
+        dirty = dirty | arg.height != comp.bounds['height'] | arg.width != comp.bounds['width'];
+        
+        /*拦截计算*/
+        if (!dirty) return;
+        
+        arg.height = comp.bounds['height'];
+        arg.width = comp.bounds['width'];
+        
+        /*计算控件分布*/
+        var grid = this.computeGrid(children),
+            widthList = this.computeLengthList(true, grid), 
+            heightList = this.computeLengthList(false, grid);
+        
+        //获取参数
+        var width = arg.width, height = arg.height, columnCount = arg.numColumns, rowCount = arg.numRows;
+        
+        var x = arg.marginLeft, y = arg.marginTop, max = Math.max, min = Math.min, item, size;
+        
+        var tempMap = new Map(), v = this;
+        
+        for (var i = 0; i < rowCount; y+=(heightList[i++] + arg.verticalSpacing)) {
+            for (var j = 0; j < columnCount; x+=(widthList[j++] + arg.horizontalSpacing)) {
+                if (grid[i][j] == null) continue;
+                
+                if (!tempMap.has(grid[i][j])) {
+                    tempMap.put(grid[i][j], {size: [widthList[j], heightList[i]], location: [x, y], first: i, current: i});
+                    continue;
+                }
+                
+                item = tempMap.get(grid[i][j]);
+                if (item.first == i) {
+                    item.size[0] += (widthList[j] + arg.horizontalSpacing); 
+                } 
+                
+                if (item.current != i) {
+                    item.size[1] += (heightList[i] + arg.verticalSpacing);
+                    item.current = i;
+                }
+            }
+            x = arg.marginLeft;
+        }
+        
+        tempMap.forEach(function(value, key) {
+            key.setBounds(key.layoutData.compute(value.size, value.location))
+            v.refreshModel(key, key.bounds)
+        });
+    },
+    
+    computeGrid: function(children) {
+        var count = children.length, max = Math.max, min = Math.min;
+        
+        var row = 0, column = 0, rowCount = 0, columnCount = this.arg.numColumns,
+            grid = [[]];
+        
+        var hSpan, vSpan, endCount, index;
+        
+        for (var i = 0; i <　count; i++) {
+            hSpan = max(1, min(children[i].layoutData.horizontalSpan, columnCount));
+            vSpan = max(1, children[i].layoutData.verticalSpan);
+            
+            //寻找足够大的区域
+            while (true) {
+                if (grid[row] == null) {
+                    grid[row] = [];
+                }
+                
+                while(column < columnCount && grid[row][column]) column++;
+                
+                endCount = column + hSpan;
+                if (endCount <= columnCount) {
+                    index = column;
+                    
+                    while (index < endCount && grid[row][index] == null) index++;
+                    
+                    if (index == endCount) {
+                        break;
+                    }
+                    
+                    column = index;
+                }
+                
+                if (column + hSpan >= columnCount) {
+                    column = 0;
+                    row++;
+                }
+            }
+            
+            
+            for (var j = 0; j <　vSpan; j++) {
+                if (grid[row + j] == null) {
+                    grid[row + j] = [];
+                }
+                
+                for (var k = 0; k < hSpan; k++) {
+                    grid[row + j][column + k] = children[i];
+                }
+            }
+            
+            rowCount = max (rowCount, row + vSpan);
+            column += hSpan;
+        }
+        
+        this.arg.numRows = rowCount;
+        return grid;
+    },
+    
+    computeLengthList: function(isHorizontal, grid) {
+        /*初始化*/
+        var arg = this.arg, column, row, equal, spacing ,length, columnSpan, rowSpan, hint, g;
+        if (isHorizontal) {
+            column = arg.numColumns;
+            row = arg.numRows;
+            equal = arg.makeColumnsEqualWidth;
+            spacing = arg.horizontalSpacing;
+            length = arg.width - spacing*(column - 1) - (arg.marginLeft + arg.marginRight);
+            columnSpan = "horizontalSpan";
+            rowSpan = "verticalSpan";
+            hint = "widthHint";
+            g = function(x, y) {
+                return grid[x][y];
+            }
+        } else {
+            column = arg.numRows;
+            row = arg.numColumns;
+            equal = arg.makeRowsEqualHeight;
+            spacing = arg.verticalSpacing;
+            length = arg.height - spacing*(column - 1) - (arg.marginTop + arg.marginBottom);
+            columnSpan = "verticalSpan";
+            rowSpan = "horizontalSpan";
+            hint = "heightHint";
+            g = function(x, y) {
+                return grid[y][x];
+            }
+        }
+        
+        var lengthList = new Array(column);
+        
+        lengthList.fill(0);
+        
+        var data, cSpan;
+        var max = Math.max, min = Math.min;
+        
+        /*计算单位距离单占据最大长度*/
+        for (var i = 0; i < column; i++) {
+            for (var j = 0; j < row; j++) {
+                
+                if (g(j, i) == null) continue;
+                
+                data = g(j, i).layoutData;
+                cSpan = max(1, min(data[columnSpan], column));
+                
+                if (cSpan == 1) {
+                    lengthList[i] = max(lengthList[i], data[hint]);
+                }
+            }
+        }
+        
+        /*多占据*/
+        for (var i = 0; i < row; i++) {
+            for (var j = 0; j < column; j++) {
+                
+                if (g(i, j) == null) continue;
+                
+                data = g(i, j).layoutData;
+                cSpan = max(1, min(data[columnSpan], column));
+                
+                if (cSpan <= 1) continue;
+                
+                for (var k = j; k < j + cSpan - 1; k++) {
+                    lengthList[k] = max(data[hint], lengthList[k]);
+                }
+                
+                j += cSpan - 1;
+            }
+        }
+        
+        var total = 0;
+        
+        for (var i = 0; i < column; i++) {
+            total += lengthList[i];
+        }
+        
+        /*单位距离都相等*/
+        if (equal) {
+            var cellLenght = ~~(length / column) , maxLength = 0;
+            
+            lengthList.forEach(function(item) {
+                maxLength = max(maxLength, item);
+            });
+            
+            lengthList.fill(arg.autoAdapt ? cellLenght : min(maxLength, cellLenght));
+            
+            return lengthList;
+        }
+        
+        if (total > length || arg.autoAdapt) {
+            lengthList.forEach(function(item, index, input) {
+                input[index] = item*length/total;
+            });
+        }
+         
+        return lengthList;
+    }
+});
+
 anra.svg.Image.layoutManager = new fillLayout();
+
+
+/*编辑器缓冲*/
+var editorBuffer = function() {
+    var pool = new Map(), activateEditorKey = null;
+    
+    this.put = function(id, editor) {
+        pool.put(id, editor);
+        activateEditorKey = id;
+    }
+    
+    this.isBuffer = function(id) {
+        return pool.has(id);
+    }
+    
+    this.isActivateEditor = function(id) {
+        return id == activateEditorKey;
+    }
+
+    this.activateEditor = function(id) {
+        activateEditorKey = id;
+        return pool.get(id); 
+    }
+    
+    this.valuesOfBuffer = function() {
+        return pool.values();
+    }
+    
+    
+    this.clear = function() {
+        activateEditorKey = null;
+        pool.clear();
+    }
+};
+$AG.editorBuffer = editorBuffer;
+
 
 export {$AG}

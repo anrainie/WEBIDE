@@ -119,12 +119,31 @@ var save = {
 
 /***************************************  节点  ***************************************/
 
-var commonCpt = {
+/*暂时使用的desp位置*/
+var location = function (figure) {
+    var text = this.text,
+        length;
+
+    if (text == null) {
+        length = 0
+    } else {
+        if (typeof text != "string") text += "";
+
+        length = text.replace(/[^\x00-\xff]/g, "01").length;
+    }
+
+    this.setBounds({
+        x: figure.bounds.x + (figure.bounds.width - 7.5 * length) / 2,
+        y: figure.bounds.y + 15 + (figure.bounds.height - 15) / 2,
+    })
+};
+
+//默认组件
+var stepCommonCpt = {
     name: 'common',
     paletteUrl: "assets/image/editor/palette_component_stepCommonCpt.gif",
     url: 'assets/image/editor/event_component_stepCommonCpt.gif',
     type: $AG.IMAGE,
-    bounds: [0, 0, 160, 46],
     anchor: [
         {id: 'N', dir: 'n', offset: 0},
         {id: '0', dir: 's', offset: -25},
@@ -146,23 +165,41 @@ var commonCpt = {
             deactivate(){
                 this.getHostFigure().off('dblclick', this.lisn);
             }
+        },
+        
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        
+        'nodeImplement': {
+            activate() {
+                let self = this;
+                
+                this.listener = function() {
+                    var host = self.getHost(), unSelected = host.getSelected() == constants.SELECTED_NONE; 
+                    
+                    /*单击且选中*/
+                    if (unSelected) return;
+                    
+                    self.emit('nodeImplement', host.model.get('Implementation'), host.model.get('UUID'));
+                }
+                
+                this.getHostFigure().on('click', this.listener);
+            },
+            
+            deactivate() {
+                this.getHostFigure().off('click', this.lisn);
+            }
         }
     },
-    size: [160, 46],
+    size: [160, 60],
 
     //特性
-    canDrag: false,
+    canDrag: true,
     linkable: true,
     selectable: true,
     refresh: refresh,
-
-
-    /*    policies: {
-     'TextPolicy': textPolicy
-     }*/
 };
 
-var serviceCpt = {
+var serviceInvokdEntered = {
     name: 'service',
     paletteUrl: 'assets/image/editor/palette_component_ServiceInvoke.gif',
     url: 'assets/image/editor/event_component_ServiceInvokdEntered.gif',
@@ -174,222 +211,202 @@ var serviceCpt = {
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0}
     ],
-    size: [160, 46],
+    size: [160, 60],
 
     //特性
     canDrag: true,
     linkable: true,
     selectable: true,
-    refresh: refresh
+    refresh: refresh,
+    
+    policies : {
+       'despText': $AG.policy.TextPolicy('Desp', location) 
+    }
 };
 
-var commonNodeConfig = {
-    name: 'common',
-    url: 'assets/image/editor/palette_component_ServiceInvoke.gif',
-    paletteUrl: 'assets/image/editor/palette_component_ServiceInvoke.gif',
-    type: $AG.IMAGE,
-    canDrag: true,
-    linkable: true,
-    selectable: true,
-    anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
-    ],
-    refresh: refresh
-};
-
-var serviceNodeConfig = {
-    name: 'service',
-    url: 'assets/image/editor/palette_component_stepCommonCpt.gif',
-    paletteUrl: 'assets/image/editor/palette_component_stepCommonCpt.gif',
-    type: $AG.IMAGE,
-    bounds: [0, 0, 50, 50],
-    canDrag: true,
-    linkable: true,
-    selectable: true,
-    anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
-    ],
-    refresh: refresh
-};
-
-//组三
 
 
-var end = {
-    name: 'end',
-    url: 'assets/image/editor/event_component_nodeEnd.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeEnd.gif',
-    type: $AG.IMAGE,
-    size: [25, 25],
-    canDrag: false,
-    linkable: true,
-    selectable: true,
-    anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
-    ],
-    refresh: refresh
-};
-
-var eend = {
-    name: 'eend',
-    url: 'assets/image/editor/event_component_nodeAbnormalEnd.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeAbnormalEnd.gif',
-    type: $AG.IMAGE,
-    size: [50, 50],
-    canDrag: true,
-    linkable: true,
-    selectable: true,
-    anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
-    ],
-    refresh: refresh
-};
-
-var error = {
-    name: 'error',
-    url: 'assets/image/editor/palette_component_nodeErrorDelegate.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeErrorDelegate.gif',
-    type: $AG.IMAGE,
-    size: [50, 50],
-    canDrag: true,
-    linkable: true,
-    selectable: true,
-    anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
-    ],
-    refresh: refresh
-};
-
-var start = {
+//基本组件
+var nodeStart = {
     name: 'start',
     url: 'assets/image/editor/event_component_nodeStart.gif',
     paletteUrl: 'assets/image/editor/palette_component_nodeStart.gif',
     type: $AG.IMAGE,
-    size: [200, 200],
+    size: [63, 63],
     canDrag: true,
     linkable: true,
     selectable: true,
     anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '1', dir: 's', offset: 0},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
     ],
     refresh: refresh,
-    policies: {
-        'layoutPolicy': $AG.ContainerLayoutPolicy
-    },
-    children: {
-        '7': end,
-        '8': eend
+    
+    policies : {
+       'despText': $AG.policy.TextPolicy('Desp', location) 
     }
 };
 
-var context = {
+var nodeEnd = {
+    name: 'end',
+    url: 'assets/image/editor/event_component_nodeEnd.gif',
+    paletteUrl: 'assets/image/editor/palette_component_nodeEnd.gif',
+    type: $AG.IMAGE,
+    size: [63, 63],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '1', dir: 's', offset: 0},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh: refresh,
+    
+    policies : {
+       'despText': $AG.policy.TextPolicy('Desp', location) 
+    }
+};
+
+var nodeAbnormalEnd = {
+    name: 'eend',
+    url: 'assets/image/editor/event_component_nodeAbnormalEnd.gif',
+    paletteUrl: 'assets/image/editor/palette_component_nodeAbnormalEnd.gif',
+    type: $AG.IMAGE,
+    size: [63, 63],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '1', dir: 's', offset: 0},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh: refresh,
+    
+    policies : {
+       'despText': $AG.policy.TextPolicy('Desp', location) 
+    }
+};
+
+var nodeErrorDelegate = {
+    name: 'error',
+    url: 'assets/image/editor/event_component_nodeErrorDelegate.gif',
+    paletteUrl: 'assets/image/editor/palette_component_nodeErrorDelegate.gif',
+    type: $AG.IMAGE,
+    size: [160, 54],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh: refresh,
+    
+    policies : {
+       'despText': $AG.policy.TextPolicy('Desp', location) 
+    }
+};
+
+
+var componentInvoke = {
     name: 'context',
-    url: 'assets/image/editor/palette_component_ComponentInvoke.gif',
+    url: 'assets/image/editor/event_component_ComponentInvoke.gif',
     paletteUrl: 'assets/image/editor/palette_component_ComponentInvoke.gif',
     type: $AG.IMAGE,
-    size: [50, 50],
+    size: [160, 44],
     canDrag: true,
     linkable: true,
     selectable: true,
     anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
     ],
-    refresh: refresh
+    refresh: refresh,
+    
+    policies : {
+       'despText': $AG.policy.TextPolicy('Desp', location) 
+    }
 };
 
-var serivceX = {
+var tradeInvoke = {
     name: 'serivceX',
-    url: 'assets/image/editor/palette_component_TradeInvoke.gif',
+    url: 'assets/image/editor/event_node_component_TradeInvoke.gif',
     paletteUrl: 'assets/image/editor/palette_component_TradeInvoke.gif',
     type: $AG.IMAGE,
-    size: [50, 50],
+    size: [160, 44],
     canDrag: true,
     linkable: true,
     selectable: true,
     anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
     ],
-    refresh: refresh
+    refresh: refresh,
+    
+    policies : {
+       'despText': $AG.policy.TextPolicy('Desp', location) 
+    }
 };
 
-var mid = {
+var transfer = {
     name: 'mid',
-    url: 'assets/image/editor/palette_component_transfer.gif',
+    url: 'assets/image/editor/event_component_transfer.gif',
     paletteUrl: 'assets/image/editor/palette_component_transfer.gif',
     type: $AG.IMAGE,
-    size: [50, 50],
+    size: [63, 63],
     canDrag: true,
     linkable: true,
     selectable: true,
     anchor: [
-        {id: 0, dir: 'n', offset: 0},
-        {id: 1, dir: 's', offset: 0},
-        {id: 2, dir: 'e', offset: 0},
-        {id: 3, dir: 'w', offset: 0}
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '1', dir: 's', offset: 0},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
     ],
-    refresh: refresh
+    refresh: refresh,
+    
+    policies : {
+       'despText': $AG.policy.TextPolicy('Desp', location) 
+    }
 };
 
-var FlowEditor = {
+var leftEditorConfig = {
     id: 'mainEditor',
     children: {
-        '3': serviceCpt,
-        '5': commonCpt,
-        '6': start,
-        /*有点问题*/
-        '7': end,
-        '8': eend
+        '3': serviceInvokdEntered,
+        '5': stepCommonCpt,
     },
     lines: {
         0: manhattanRoute
     },
     group: {
         0: {
-            name: '一',
+            name: '默认组件',
             items: {
-                '3': serviceCpt,
-                '5': commonCpt,
+                '3': serviceInvokdEntered,
+                '5': stepCommonCpt,
             }
         },
         1: {
-            name: '二',
-            items: {
-                '6': start,
-                '7': end,
-                '8': eend,
-                '9': error,
-                '10': context,
-                '11': serivceX,
-                '12': mid
-            }
+            name: '银行',
+            items: {}
         },
         2: {
-            name: '三',
-            items: []
+            name: '应用',
+            items: {}
         }
     },
     operations: [
@@ -401,30 +418,41 @@ var FlowEditor = {
     ]
 };
 
-var AnthorEditor = {
-    id: 'gg',
+var rightEditorConfig = {
+    id: 'leftEditor',
     children: {
-        '0': start,
-        '3': error,
-        '4': context,
-        '5': serivceX,
-        '6': mid
+        '2': nodeStart,
+        '3': nodeEnd,
+        '4': nodeAbnormalEnd,
+        '6': nodeErrorDelegate,
+        '7': componentInvoke,
+        '11': tradeInvoke,
+        '10': transfer
     },
     lines: {
         0: manhattanRoute
     },
     group: {
         0: {
-            name: 'test',
+            name: '基本组件',
             items: {
-                '0': start,
-                '1': end,
-                '2': eend,
-                '3': error,
-                '4': context,
-                '5': serivceX,
-                '6': mid
+                '2': nodeStart,
+                '3': nodeEnd,
+                '4': nodeAbnormalEnd,
+                '6': nodeErrorDelegate,
+                '7': componentInvoke,
+                '11': tradeInvoke,
+                '10': transfer
             }
+        },
+        '1': {
+            name: '平台',
+        },
+        '2': {
+            name: '银行'
+        },
+        '3': {
+            name: '应用'
         }
     },
     operations: [
@@ -436,4 +464,4 @@ var AnthorEditor = {
     ]
 }
 
-export {FlowEditor, AnthorEditor}
+export {leftEditorConfig, rightEditorConfig}
