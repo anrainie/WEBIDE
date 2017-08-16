@@ -80,10 +80,7 @@
             }
         },
         mounted() {
-            this.pathName = this.revisePath(this.file.model.path);
-            this.editorBuffer = new $AG.editorBuffer();
             this.initFlowEditor();
-            console.log(IDE)
         },
         computed: {
             leftStyle: function () {
@@ -132,15 +129,13 @@
         methods: {
             /***********immobilization***********/
             isDirty() {
-                var dirtyOfLeft = this.leftEditor.isDirty(), dirtyOfRight = false, rightEditors = this.editorBuffer.valuesOfBuffer;
+                var dirtyOfLeft = this.leftEditor.isDirty(), dirtyOfRight = false, rightEditors = this.editorBuffer.valuesOfBuffer();
                 
                 /*遍历所有缓冲的编辑器*/
                 if (rightEditors) {
-                    rightEditors.forEach(function(item) {
-                        dirtyOfRight |= item.isDirty(); 
-                    });
+                    rightEditors.forEach((item) => { dirtyOfRight |= item.isDirty() });
                 }
-                
+    
                 return dirtyOfLeft | dirtyOfRight;
             },
             save() {
@@ -154,7 +149,7 @@
                 
                 //right
                 if (rightEditors) {
-                    rightEditors.forEach(function(item) {
+                    rightEditors.forEach((item) => {
                         if (item.isDirty()) {
                             item.doSave();
                             dirty = true;
@@ -182,6 +177,8 @@
                     console.warn('input null')
                     return;
                 }
+                this.pathName = this.revisePath(this.file.model.path);
+                this.editorBuffer = new $AG.editorBuffer();
 
                 this.createLeftEditor(leftEditorConfig, input);
                 this.screenSize = "left";
@@ -252,7 +249,7 @@
                 });
             },
 
-            closeLeftEditor: function () {
+            closeLeftEditor() {
                 if (this.leftEditor == null) {
                     return;
                 }
@@ -308,7 +305,7 @@
             },
             
             /***********extension***********/
-            revisePath: function (path) {
+            revisePath(path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
             },
         },
@@ -347,47 +344,19 @@
                 },
                 directives: {
                     drag: {
-                        bind: function (el, binding, vnode) {
-                            //统一的验证 todo
-                            var editor = binding.value.editor,
-                                item = binding.value.item,
-                                type = binding.value.type;
-
+                        bind (el, {value : {editor, item, type}}, vnode) {
                             el.onmousedown = editor.createNodeWithPalette(type, item);
-                            el.ondragstart = function () {
-                                return false;
-                            };
+                            el.ondragstart = () => false;
                             el.setAttribute('src', item.paletteUrl);
                         }
                     },
                     selectTool: {
-                        bind: function (el, binding, vnode) {
-                            var editor = binding.value;
-                            if (editor == null) {
-                                return;
-                            }
-
-                            if (!editor instanceof $AG.Editor) {
-                                console.error('参数不是编辑器');
-                            }
-
-
-                            el.onmousedown = function () {
-                                editor.setActiveTool(editor.getDefaultTool());
-                            };
+                        bind (el, {value: editor}, vnode) {
+                            el.onmousedown = () => { editor.setActiveTool(editor.getDefaultTool())};
                         }
                     },
                     linkTool: {
-                        bind: function (el, binding, vnode) {
-                            var editor = binding.value;
-                            if (editor == null) {
-                                return;
-                            }
-
-                            if (!editor instanceof $AG.Editor) {
-                                console.error('参数不是编辑器');
-                            }
-
+                        bind (el, {value: editor}, vnode) {
                             var lineTool = new $AG.LineTool({
                                 id: 3,
                                 type: 0,
@@ -396,13 +365,8 @@
                                 exit: 6
                             });
 
-                            el.onmousedown = function () {
-                                if (editor.getActiveTool() == lineTool) {
-                                    editor.setActiveTool(editor.getDefaultTool());
-                                } else {
-                                    editor.setActiveTool(lineTool);
-                                }
-
+                            el.onmousedown = () => {
+                                editor.setActiveTool(editor.getActiveTool() == lineTool ? editor.getDefaultTool() : lineTool);
                                 return false;
                             };
                         }

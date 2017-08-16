@@ -5,6 +5,11 @@ import * as constants from './anra.constants'
 import {ReaderListener} from './smoothRouter'
 import {Map, Util} from './anra.common'
 
+/*用于参数忽略的时候*/
+function throwIfMissing() {
+  throw new Error('Missing parameter');
+}
+
 $AG.EditPartListener = anra.gef.EditPartListener;
 
 $AG.Editor.prototype.initRootEditPart = function (editPart) {
@@ -13,11 +18,9 @@ $AG.Editor.prototype.initRootEditPart = function (editPart) {
     editPart.addNotify();
 };
 
-var createID = (function () {
+var createID = (() => {
     var count = 100;
-    return function () {
-        return count++;
-    }
+    return () => count++
 })();
 
 //暂时性
@@ -47,13 +50,13 @@ $AG.Editor.prototype.createNodeWithPalette = function(type, item) {
 
 //test layoutPolicy
 var ContainerLayoutPolicy = anra.gef.LayoutPolicy.extend({
-    createFeedback: function (ep) {
+    createFeedback(ep) {
         var f = anra.FigureUtil.createGhostFigure(ep);
         var b = f.bounds;
         f.bounds = {width: b.width / 2, height: b.height / 2};
         return f;
     },
-    getCreateCommand: function (request) {
+    getCreateCommand(request) {
         var model = request.event.prop.drag.model,
             type = model.get('type'),
             b = model.get('bounds'), parent = request.editPart;
@@ -77,7 +80,7 @@ $AG.ContainerLayoutPolicy = ContainerLayoutPolicy;
 
 /***************关于布局****************/
 var Layout = Base.extend({
-    layout: function (comp) {
+    layout(comp) {
     }
 });
 
@@ -86,7 +89,7 @@ var fillLayout = Layout.extend({
     marginWidth: 0,
     marginHeight: 0,
     spacing: 0,
-    layout: function(comp) {
+    layout(comp) {
         var children = comp.children, bounds = comp.getClientArea(), count;
         
         if (children == null || children.length == 0) {
@@ -95,49 +98,53 @@ var fillLayout = Layout.extend({
         count = children.length;
         
         var width = bounds[2] - 2*this.marginWidth,
-            height = bounds[3] - 2*this.marginHeight;
+            height = bounds[3] - 2*this.marginHeight,
+            x = this.marginWidth, 
+            y = this.marginHeight,
+            spacing = this.spacing;
         
         if (this.horizontal) {
-            width -= (count - 1) * this.spacing;
+            width -= (count - 1) * spacing;
             
-            var x = this.marginWidth, extra = width % count,
-                y = this.marginHeight, cellWidth = width / count,
+            var extra = width % count, cellWidth = ~~(width / count),
                 childWidth;
             
-            for (var i = 0; i < count; i++) {
+            /*每个子节点bounds设置*/
+            children.forEach((item, index) => {
+                
+                /*宽度取整, 多余的分至左右两侧*/
                 childWidth = cellWidth;
-                if (i == 0) {
-                    childWidth += cellWidth;
-                } else if (i == count - 1) {
-                    childWidth += (extra + 1) / 2;
-                }
-                children[i].setBounds({
+                childWidth += index == 0 ? ~~(extra / 2) : index == count - 1 ? ~~(extra + 1) / 2 : 0; 
+                
+                item.setBounds({
                     x: x,
                     y: y,
                     width: childWidth,
                     height: height
                 });
-                x += childWidth + this.spacing
-            }
+                
+                x += childWidth + spacing
+            });
+            
         } else {
-            var x = this.marginWidth, extra = width % count,
-                y = this.marginHeight, cellHeight = width / count,
+            var extra = width % count, cellHeight = width / count,
                 childHeight;
             
-            for (var i = 0; i < count; i++) {
-                if (i == 0) {
-                    childHeight += cellHeight;
-                } else if (i == count - 1) {
-                    childHeight += (extra + 1) / 2;
-                }
-                children[i].setBounds({
+            children.forEach((item, index) => {
+                
+                /*高度取整， 多余的分至上下两侧*/
+                childHeight = cellHeight;
+                childHeight += index == 0 ? extra / 2 : index == count - 1 ? (extra + 1) / 2 : 0;
+                
+                item.setBounds({
                     x: x,
                     y: y,
                     width: width,
-                    height: cellHeight
+                    height: childHeight
                 });
-                y += childHeight + this.spacing;
-            }
+                
+                y += childHeight + spacing;
+            })
         }
     }
 });
@@ -148,59 +155,51 @@ const end = 2;
 const fill = 3
 
 var gridData = Base.extend({
-    constructor: function (width, height) {
-        var arg = {
-                horizontalSpan: 1,
-                verticalSpan: 1,
-
-                verticalAlignment: fill,
-                horizontalAlignment: fill,
-                widthHint: width,
-                heightHint: height
-            },
-            createDes = function (argument, argName) {
-                return {
-                    set: function (value) {
-                        if (argument[argName] == value) return;
-
-                        argument[argName] = value;
-
-                    },
-
-                    get: function () {
-                        return argument[argName];
-                    },
-
-                    enumerable: true,
-                    configurable: false
-                }
-            },
-            dirty = false,
+    constructor({horizontalSpan = 1, verticalSpan = 1, verticalAlignment = fill,
+                    horizontalAlignment = fill, widthHint = 10, heightHint = 10} = {}) {
+        const argumentData = {
+                horizontalSpan,
+                verticalSpan,
+                verticalAlignment,
+                horizontalAlignment,
+                widthHint,
+                heightHint
+            }
+        var dirty = false,
             descriptors = {};
+    
 
-        for (var i in arg) {
-            descriptors[i] = createDes(arg, i);
+        /*设置arguments里面属性改变调整dirty*/
+        for (var key in argumentData) {            
+            descriptors[key] = ((attributeName) => ({
+                //为key制造一个上下文
+                set(value) {
+                    if (argumentData[attributeName] == value) return;
+                    
+                    dirty = true;
+                    argumentData[attributeName] = value;
+                },
+                
+                get() {
+                    return argumentData[attributeName];
+                },
+                
+                enumerable: true,
+                configurable: false
+            }))(key);
         }
         Object.defineProperties(this, descriptors);
 
-        this.isDirty = function () {
-            return dirty;
-        }
+        
+        this.isDirty = () => dirty;
 
-        this.compute = function (size, location) {
+        /*这里严格规定compute调用后, dirty刷新*/
+        this.compute = (size, location) => {
             dirty = false;
             return this._compute(size, location);
         }
     },
-    _compute: function (size, location) {
-        if (size == null || !(size instanceof Array)) {
-            console.error('no size')
-        }
-
-        if (location == null || !(location instanceof Array)) {
-            console.error('no location')
-        }
-
+    _compute(size = throwIfMissing(), location = throwIfMissing()) {
         var result = {}, width = this.widthHint*this.horizontalSpacing, height = this.heightHint*this.verticalSpacing;
 
         if (size[0] > width && this.horizontalAlignment != fill) {
@@ -215,6 +214,7 @@ var gridData = Base.extend({
                     result.x = location[0] + (size[0] - width);
                     break;
                 default:
+                    /*todo*/
                     console.error();
             }
             result.width = this.width;
@@ -235,6 +235,7 @@ var gridData = Base.extend({
                     result.y = location[1] + (size[1] - height);
                     break;
                 default:
+                    /*todo*/
                     console.error()
             }
             result.height = this.height;
@@ -249,90 +250,80 @@ var gridData = Base.extend({
    
 
 var gridLayout = Layout.extend({    
-    constructor: function(numColumns, makeColumnsEqualWidth) {
+    constructor: function({ numColumns = 10, numRows, makeColumnsEqualWidth = true, makeRowsEqualHeight = true,
+                           marginLeft = 2, marginTop = 2, marginRight = 2, marginBottom = 2, horizontalSpacing = 15,
+                           verticalSpacing = 15, width = 0, height = 0, autoAdapt = false} = {}) {
         /*参数列表*/
-        var arg = {
-            numColumns: 10, //列数目
-            numRows: NaN, //默认undefined
-            makeColumnsEqualWidth: true,//列是否具有相同的宽度
-            makeRowsEqualHeight: true,
-            marginLeft: 2,
-            marginTop: 2,
-            marginRight: 2,
-            marginBottom: 2,
-            horizontalSpacing: 15,
-            verticalSpacing: 15,
-            width: 0,
-            height: 0,
-            autoAdapt: false
-        }, v = this, dirty = false;
+        const argumentData = {
+            numColumns, //列数目
+            numRows, //默认undefined
+            makeColumnsEqualWidth,//列是否具有相同的宽度
+            makeRowsEqualHeight,
+            marginLeft,
+            marginTop,
+            marginRight,
+            marginBottom,
+            horizontalSpacing,
+            verticalSpacing,
+            width,
+            height,
+            autoAdapt
+        };
+        var v = this, dirty = false;
+    
+        /*属性特性*/
+        var descriptors = {};
         
-        /*arg不可重写*/
-        Object.defineProperty(v, "arg", {
-            value: {},
-            writable: false,
-            enumerable: true,
-            configurable: false
-        });
-        
-        /*辅助函数，返回属性配置对象*/
-        var createDes = function(argument, argName) {
-            return {
+        for (var key in argumentData) {
+            descriptors[key] = ((attributeName) => ({
                 /*记录改变参数的状态*/
-                set: function(value) {
-                    if (value == argument[argName]) return;
+                set(value) {
+                    if (value == argumentData[attributeName]) return;
                     
-                    argument[argName] = value;
+                    argumentData[attributeName] = value;
                     dirty = true;
                 },
                 
                 get: function() {
-                    return argument[argName];
+                    return argumentData[attributeName];
                 },
                 enumerable: true,
                 configurable: false
-            }
-        }
-        
-        var descriptors = {};
-        
-        for (var i in arg) {
-            descriptors[i] = createDes(arg, i);
+            }))(key);
         };
         Object.defineProperties(v.arg, descriptors)
         
         /*只读*/
-        this.isDirty = function() {
-            return dirty;
-        }
+        this.isDirty = () => dirty;
         
         /*dirty状态在layout后刷新*/
-        this.layout = function(comp) {
-            v._layout(comp);
+        this.layout = (comp) => {
+            v._layout();
             dirty = false;
-        } 
+        }
     },
     
-    _layout: function(comp) {
+    _layout(comp) {
         if (comp.children == null || (comp.children instanceof Array && comp.children.length < 1)) {
             return;
         }
         
-        var children = comp.children, arg = this.arg, 
+        var children = comp.children, arg = this.argumentData, 
             /*layout参数、data参数、children顺序、长度*/
             dirty;
         
         dirty = this.isDirty();
         
         /*暂时初始化layoutdata*/
-        for (var i in children) {
-            if (children[i].layoutData) {
-                dirty = dirty | children[i].layoutData.dirty | !(i == children[i].layoutData.sequence);
-            } else {
-                children[i].layoutData = new gridData(children[i].model.props.bounds[2], children[i].model.props.bounds[3]);
-                children[i].layoutData.sequence = i;
-                dirty = true;
+        for (let [index, elem] of children.entries()) {
+            if (elem.layoutData) {
+                dirty = dirty | elem.layoutData.dirty | !(index == elem.layoutData.sequence);
+                continue;
             }
+            
+            elem.layoutData = new gridData(elem.model.props.bounds[2], elem.model.props.bounds[3]);
+            elem.layoutData.sequence = i;
+            dirty = true;
         }
         
         dirty = dirty | arg.height != comp.bounds['height'] | arg.width != comp.bounds['width'];
@@ -377,23 +368,23 @@ var gridLayout = Layout.extend({
             x = arg.marginLeft;
         }
         
-        tempMap.forEach(function(value, key) {
+        tempMap.forEach((value, key) => {
             key.setBounds(key.layoutData.compute(value.size, value.location))
             v.refreshModel(key, key.bounds)
         });
     },
     
-    computeGrid: function(children) {
+    computeGrid(children) {
         var count = children.length, max = Math.max, min = Math.min;
         
-        var row = 0, column = 0, rowCount = 0, columnCount = this.arg.numColumns,
+        var row = 0, column = 0, rowCount = 0, columnCount = this.argumentData.numColumns,
             grid = [[]];
         
         var hSpan, vSpan, endCount, index;
         
-        for (var i = 0; i <　count; i++) {
-            hSpan = max(1, min(children[i].layoutData.horizontalSpan, columnCount));
-            vSpan = max(1, children[i].layoutData.verticalSpan);
+        for (let [index, child] of children.entries()) {
+            hSpan = max(1, min(child.layoutData.horizontalSpan, columnCount));
+            vSpan = max(1, child.layoutData.verticalSpan);
             
             //寻找足够大的区域
             while (true) {
@@ -428,9 +419,7 @@ var gridLayout = Layout.extend({
                     grid[row + j] = [];
                 }
                 
-                for (var k = 0; k < hSpan; k++) {
-                    grid[row + j][column + k] = children[i];
-                }
+                grid[row + j].fill(child, column, column + hSpan - 1);
             }
             
             rowCount = max (rowCount, row + vSpan);
@@ -441,9 +430,9 @@ var gridLayout = Layout.extend({
         return grid;
     },
     
-    computeLengthList: function(isHorizontal, grid) {
+    computeLengthList(isHorizontal, grid) {
         /*初始化*/
-        var arg = this.arg, column, row, equal, spacing ,length, columnSpan, rowSpan, hint, g;
+        var arg = this.argumentData, column, row, equal, spacing ,length, columnSpan, rowSpan, hint, getCell;
         if (isHorizontal) {
             column = arg.numColumns;
             row = arg.numRows;
@@ -453,9 +442,7 @@ var gridLayout = Layout.extend({
             columnSpan = "horizontalSpan";
             rowSpan = "verticalSpan";
             hint = "widthHint";
-            g = function(x, y) {
-                return grid[x][y];
-            }
+            getCell = (x, y) => grid[x][y];
         } else {
             column = arg.numRows;
             row = arg.numColumns;
@@ -465,9 +452,7 @@ var gridLayout = Layout.extend({
             columnSpan = "verticalSpan";
             rowSpan = "horizontalSpan";
             hint = "heightHint";
-            g = function(x, y) {
-                return grid[y][x];
-            }
+            g = (x, y) => grid[y][x];
         }
         
         var lengthList = new Array(column);
@@ -481,9 +466,9 @@ var gridLayout = Layout.extend({
         for (var i = 0; i < column; i++) {
             for (var j = 0; j < row; j++) {
                 
-                if (g(j, i) == null) continue;
+                if (getCell(j, i) == null) continue;
                 
-                data = g(j, i).layoutData;
+                data = getCell(j, i).layoutData;
                 cSpan = max(1, min(data[columnSpan], column));
                 
                 if (cSpan == 1) {
@@ -496,9 +481,9 @@ var gridLayout = Layout.extend({
         for (var i = 0; i < row; i++) {
             for (var j = 0; j < column; j++) {
                 
-                if (g(i, j) == null) continue;
+                if (getCell(i, j) == null) continue;
                 
-                data = g(i, j).layoutData;
+                data = getCell(i, j).layoutData;
                 cSpan = max(1, min(data[columnSpan], column));
                 
                 if (cSpan <= 1) continue;
@@ -511,19 +496,12 @@ var gridLayout = Layout.extend({
             }
         }
         
-        var total = 0;
-        
-        for (var i = 0; i < column; i++) {
-            total += lengthList[i];
-        }
+        var total = lengthList.reduce((prev, next) => prev + next);
         
         /*单位距离都相等*/
         if (equal) {
-            var cellLenght = ~~(length / column) , maxLength = 0;
-            
-            lengthList.forEach(function(item) {
-                maxLength = max(maxLength, item);
-            });
+            var cellLenght = ~~(length / column),
+                maxLength = lengthList.reduce((prev, next) => max(prev, next));
             
             lengthList.fill(arg.autoAdapt ? cellLenght : min(maxLength, cellLenght));
             
@@ -531,9 +509,7 @@ var gridLayout = Layout.extend({
         }
         
         if (total > length || arg.autoAdapt) {
-            lengthList.forEach(function(item, index, input) {
-                input[index] = item*length/total;
-            });
+            lengthList.forEach((item, index, input) => {input[index] = item*length/total})
         }
          
         return lengthList;
@@ -544,38 +520,34 @@ anra.svg.Image.layoutManager = new fillLayout();
 
 
 /*编辑器缓冲*/
-var editorBuffer = function() {
-    var pool = new Map(), activateEditorKey = null;
-    
-    this.put = function(id, editor) {
-        pool.put(id, editor);
-        activateEditorKey = id;
-    }
-    
-    this.isBuffer = function(id) {
-        return pool.has(id);
-    }
-    
-    this.isActivateEditor = function(id) {
-        return id == activateEditorKey;
-    }
+class editorBuffer {
+    constructor() {
+        /*封装私有变量*/
+        var pool = new Map(),
+            activateEditorKey = null;
 
-    this.activateEditor = function(id) {
-        activateEditorKey = id;
-        return pool.get(id); 
+        this.isBuffer = id => pool.has(id);
+
+        this.isActivateEditor = id => id == activateEditorKey;
+
+        this.valuesOfBuffer = () => pool.values();
+        
+        this.activateEditor = id => {
+            activateEditorKey = id;
+            return pool.get(id);
+        }
+        
+        this.put = (id, editor) => {
+            pool.put(id, editor);
+            activateEditorKey = id;
+        }
+
+        this.clear = () => {
+            activateEditorKey = null;
+            pool.clear();
+        }
     }
-    
-    this.valuesOfBuffer = function() {
-        return pool.values();
-    }
-    
-    
-    this.clear = function() {
-        activateEditorKey = null;
-        pool.clear();
-    }
-};
+}
 $AG.editorBuffer = editorBuffer;
-
 
 export {$AG}
