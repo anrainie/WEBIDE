@@ -3,6 +3,9 @@
         <router-link :to="'afa'" class="entry">
             <p>AFA</p>
         </router-link>
+        <router-link :to="'afe'" class = "entry">
+            <p>AFE</p>
+        </router-link>
         <router-link :to="'aweb'" class = "entry">
             <p>AWEB</p>
         </router-link>

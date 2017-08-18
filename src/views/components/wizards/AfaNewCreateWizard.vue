@@ -6,13 +6,21 @@
         <!--<div>{{pagetitle}}</div>-->
         <!--<div>{{pagedesc}}</div>-->
         <el-form >
-            <el-form-item :label="namelabel" :label-width="labelWidth">
-                <el-input v-model="name" auto-complete="off"></el-input>
+            <el-form-item :label="namelabel.label" :label-width="labelWidth">
+                <el-input v-model="name" auto-complete="off">{{namelabel.value}}</el-input>
+            </el-form-item >
+            <el-form-item :label-width="labelWidth">
+                <!--<el-cascader-->
+                        <!--:options="reference"-->
+                        <!--v-model="selectedOptions"-->
+                        <!--@change="handleChange">-->
+                <!--</el-cascader>-->
             </el-form-item>
             <el-form-item :label="desclabel" :label-width="labelWidth">
                 <el-input v-model="desc" auto-complete="off"></el-input>
             </el-form-item>
         </el-form>
+        <el-form-item></el-form-item>
         <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取 消</el-button>
             <el-button type="primary" @click="handleOk">确 定</el-button>
@@ -20,10 +28,12 @@
     </el-dialog>
 </template>
 <script>
+
   export default {
     data() {
       return {
         dialogFormVisible : true,
+        template : false,
         labelWidth: '140px',
         name:'',
         desc:'',
@@ -33,8 +43,21 @@
         wizardtitle: '',
         pagetitle: '',
         pagedesc: '',
-        namelabel: '',
-        desclabel: ''
+        namelabel: {
+          label:'',
+          value:''
+        },
+        catelog:'',
+        group:{
+          label:'',
+          value:''
+        },
+        reference:{
+          label:'',
+          value:''
+        },
+        desclabel: '',
+        refLabel: ''
       }
     },
     component: {},
@@ -76,6 +99,19 @@
           }
         });
       },
+      handleBroswer(){
+        //获取相关引用
+        IDE.socket.emit("getWizardReference",{
+          type: IDE.type,
+          event: 'getWizardReference',
+          data:{path:this.path,resourceId:this.resourceId}
+        },function (data) {
+          if (result.state === 'success') {
+
+          }
+        });
+
+      }
     }
   }
 </script>
