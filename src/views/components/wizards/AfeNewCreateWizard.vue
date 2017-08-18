@@ -1,0 +1,123 @@
+<template>
+    <el-dialog
+            :title="wizardtitle"
+            :visible.sync="dialogFormVisible"
+            :before-close="handleClose">
+        <!--<div>{{pagetitle}}</div>-->
+        <!--<div>{{pagedesc}}</div>-->
+        <el-form >
+            <el-form-item :label="namelabel.label" :label-width="labelWidth">
+                <el-input v-model="name" auto-complete="off">{{namelabel.value}}</el-input>
+            </el-form-item>
+
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item :label="groupsLabel" :label-width="labelWidth">
+                        <el-cascader
+                                :options="groups"
+                                v-model="selectedGroup"
+                                @change="handleChange"
+                        >
+                        </el-cascader>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item :label="refLabel" :label-width="labelWidth">
+                        <el-cascader
+                                :options="reference"
+                                v-model="selectedRef"
+                                @change="handleChange"
+                        >
+                        </el-cascader>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
+            <el-form-item :label="desclabel" :label-width="labelWidth">
+                <el-input v-model="desc" auto-complete="off"></el-input>
+            </el-form-item>
+        </el-form>
+        <el-form-item></el-form-item>
+        <div slot="footer" class="dialog-footer">
+            <el-button @click="dialogFormVisible = false">取 消</el-button>
+            <el-button type="primary" @click="handleOk">确 定</el-button>
+        </div>
+    </el-dialog>
+</template>
+<script>
+
+
+  export default {
+    data() {
+      return {
+        dialogFormVisible : true,
+        template : false,
+        labelWidth: '140px',
+        name:'',
+        desc:'',
+        resourceId:'',
+        path:'',
+        type: '',
+        wizardtitle: '',
+        pagetitle: '',
+        pagedesc: '',
+        namelabel: {
+          label:'',
+          value:''
+        },
+        catelog:'',
+        groupsLabel:'',
+        groups:[],
+        refLabel:'',
+        reference:[],
+        desclabel: '',
+
+        selectedGroup:'',
+        selectedRef:''
+      }
+    },
+    component: {},
+    methods:{
+      handleClose(done){
+        this.$confirm('确认关闭？')
+          .then(_ => {
+            done();
+          })
+          .catch(_ => {});
+
+      },
+      handleOk(){
+        this.dialogFormVisible = false;
+        IDE.socket.emit("createNewResource",{
+          type: IDE.type,
+          event: 'createNewResource',
+          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name,desc:this.desc,group:this.selectedGroup,ref:this.selectedRef}
+        }, function (data) {
+          if (data) {
+            let result = JSON.parse(data);
+            if (result.state === 'success') {
+              let path = result.data.path;
+              //刷新
+              if(path)
+                IDE.navigator.refresh(path);
+              else
+                IDE.navigator.refresh(null);
+              let type = result.data.type;
+              if (type === 'file') {
+                let item = IDE.navigator.getItem(path);
+                let input = result.data.input;
+                if(input){
+                  //打开编辑器
+                  IDE.editorPart.openEditor(item,input);
+                }
+              }
+            }
+          }
+        });
+      },
+      handleChange(value) {
+        console.log(value);
+      }
+    }
+  }
+</script>
