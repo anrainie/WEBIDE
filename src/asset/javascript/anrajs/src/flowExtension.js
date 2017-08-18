@@ -342,7 +342,7 @@ var gridLayout = Layout.extend({
         //获取参数
         var width = arg.width, height = arg.height, columnCount = arg.numColumns, rowCount = arg.numRows;
         
-        var x = arg.marginLeft, y = arg.marginTop, max = Math.max, min = Math.min, item, size;
+        var x = arg.marginLeft, y = arg.marginTop, {max, min} = Math, item, size;
         
         var tempMap = new Map(), v = this;
         
@@ -375,7 +375,7 @@ var gridLayout = Layout.extend({
     },
     
     computeGrid(children) {
-        var count = children.length, max = Math.max, min = Math.min;
+        var count = children.length, {max, min} = Math;
         
         var row = 0, column = 0, rowCount = 0, columnCount = this.argumentData.numColumns,
             grid = [[]];
@@ -460,7 +460,7 @@ var gridLayout = Layout.extend({
         lengthList.fill(0);
         
         var data, cSpan;
-        var max = Math.max, min = Math.min;
+        var {max, min} = Max;
         
         /*计算单位距离单占据最大长度*/
         for (var i = 0; i < column; i++) {
@@ -537,6 +537,8 @@ class editorBuffer {
             return pool.get(id);
         }
         
+        this.getEditor = id => pool.get(id);
+        
         this.put = (id, editor) => {
             pool.put(id, editor);
             activateEditorKey = id;
@@ -549,5 +551,96 @@ class editorBuffer {
     }
 }
 $AG.editorBuffer = editorBuffer;
+
+/**
+ * return [] 
+ */
+
+const arr = ['Skip', 'Terminals',
+            'Type',
+            'UUID',
+            'Constraint',
+            'RefImpl',
+            'Remarks',
+            'Implementation',
+            'False',
+            'Desp',
+            'Security',
+            'Quote',
+            'SourceConnections',
+            'True',
+            'Id',
+            'HasSq'];
+var commonDoSave = function () {
+    var nodeStore = this.store.node,
+        lineStore = this.store.line,
+        result, attrs;
+
+    
+    //更新数据库位置和线
+    nodeStore().each(({Constraint, bounds}) => {
+        Constraint.Location = bounds.slice(0, 2);
+    });
+    
+    nodeStore().update({SourceConnections: undefined});
+    
+    lineStore().each(({source, target, exit, entr}) => {
+        var hasSourceConnections, connect, node;
+        
+        hasSourceConnections = nodeStore({Id: source}).filter({SourceConnections: {isUndefined: false}}).count() == 1;
+        connect = {
+            targetId: target,
+            SourceTerminal: exit,
+            TargetTerminal: entr
+        };
+        
+        if (!hasSourceConnections) {
+            nodeStore({Id: source}).update({SourceConnections:　{
+                Connection : [
+                    connect
+                ]
+            }});
+        } else {
+            var {SourceConnections: {Connection: storeConnect}} = nodeStore({Id: source}).first();
+            
+            storeConnect.push(connect);
+        }
+    });
+    
+
+    
+    this.cmdStack.markSaveLocation();
+}
+$AG.Editor.prototype.doSave = commonDoSave;
+
+$AG.Editor.prototype.nodeDataByAttrs = function(attrs = arr) {
+    var nodeStore = this.store.node, result, attrs;
+    
+    result = nodeStore().select.apply(nodeStore(), attrs).map((item) => {
+        attrs = {}
+        for (let [index, elem] of item.entries()) {
+            if (elem) attrs[attrs[index]] = elem;
+        }
+
+        return attrs;
+    });
+    
+    return result;
+}
+
+$AG.Editor.prototype.getSaveData = function(editorBuffer, attrs = arr) {
+    var Step = this.nodeDataByAttrs(attrs);
+                    
+    Step.forEach(({UUID, Implementation}) => {
+        if(editorBuffer.isBuffer(UUID)) {
+            Implementation.Node = editorBuffer.getEditor(UUID).nodeDataByAttrs(attrs);
+        }
+    })
+                    
+    editorBuffer.clear();
+    
+    return Step;
+}
+
 
 export {$AG}

@@ -139,28 +139,33 @@
                 return dirtyOfLeft | dirtyOfRight;
             },
             save() {
-                var dirty = false, rightEditors = this.editorBuffer.valuesOfBuffer;
+                var dirty = false, rightEditors = this.editorBuffer.valuesOfBuffer();
+                
+                //right
+                if (rightEditors) {
+                    rightEditors.forEach((item) => {
+                        if (item.isDirty()) {
+                            item.doSave()
+                            dirty = true;
+                        }
+                    });
+                }
                 
                 //left
                 if (this.leftEditor.isDirty()) {
                     this.leftEditor.doSave();
                     dirty = true;
                 }
-                
-                //right
-                if (rightEditors) {
-                    rightEditors.forEach((item) => {
-                        if (item.isDirty()) {
-                            item.doSave();
-                            dirty = true;
-                        }
-                    });
-                }
 
                 //???
                 if (dirty) {
-                    this.editorBuffer.clear();
+                    //...
+                    let { Root: { Regulation:{Step} } } = this.input;
+                    Step = this.leftEditor.getSaveData(this.editorBuffer);
+                    
                     this.msgHub.$emit('dirtyStateChange', this.file, false);
+                    
+                    return true;
                 }
             },
             dirtyStateChange(dirtyState) {
@@ -177,6 +182,7 @@
                     console.warn('input null')
                     return;
                 }
+                
                 this.pathName = this.revisePath(this.file.model.path);
                 this.editorBuffer = new $AG.editorBuffer();
 

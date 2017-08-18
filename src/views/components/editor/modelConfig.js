@@ -24,139 +24,133 @@ var deepCopy= function(source) {
    return result; 
 };
 
-var resolveLeftEditor = function(editorConfig, modelConfig) {
-    //TODO 错误判断
-    var ec = deepCopy(editorConfig),
-        mc = deepCopy(modelConfig);
-    
-    
-    //DateInfo
-    ec.DateInfo = mc.DateInfo || null;
-    
-    //NodeMaxnimum
-    ec.NodeMaxnimum = mc.NodeMaxnimum || null;
-    
-    //UUID
-    ec.UUID = mc.UUID || null;
 
-    //Regulation
-    if (mc.Regulation == null || mc.Regulation.Step == null) {
-        return ec;
-    }
+var resolveEditorData = function(nodesConfig, modelsConfig) {
+    var data, location, size; 
+    var {values, assign} = Object;
     
-    //Step 里面没有节点是null,只有一个节点的时候是Object，多节点是Array
-    var nodes = mc.Regulation.Step, location, size;
-    
-    ec.data = [];
-    ec.line = [];
-    
-    if (!(nodes instanceof Array) && nodes instanceof Object) {
-        nodes = [nodes];
-    }
-    
-    if (nodes.length == 0) {
-        return ec;
-    }
-    
-    nodes.forEach(function (item, index, input) {
-        location = item.Constraint.Location.split(',');
-        //size = item.Constraint.Size.split(',');
-        
-        size = leftEditorConfig.children[item.Type].size;
-        
-        ec.data[index] = Object.assign({
-            id: item.Id,
-            type: item.Type,
-            bounds: [parseInt(location[0]), parseInt(location[1]),
+    try {
+        data = values(nodesConfig).map((node, index) => {
+            location = node.Constraint.Location.split(',');
+            size = modelsConfig[node.Type].size;
+            
+            return assign({
+                id: node.Id,
+                type: node.Type,
+                bounds: [parseInt(location[0]), parseInt(location[1]),
                      size[0], size[1]]
-        }, item);
-
-        if (item.SourceConnections &&
-            item.SourceConnections.Connection) {
-            
-            //单线为Object
-            if (!(item.SourceConnections.Connection instanceof Array)) {
-                item.SourceConnections.Connection = [item.SourceConnections.Connection];
-            }
-            
-            item.SourceConnections.Connection.forEach(function (item1, index1, input1) {
-                ec.line.push({
-                    //id问题 
-                    id: item.Id + '_' + item1.targetId,
-                    source: item.Id,
-                    type: 0,
-                    target: item1.targetId,
-                    exit: item1.SourceTerminal,
-                    entr: item1.TargetTerminal
-                });
-            });
-        }
-    });
+            }, node);
+        });
+    } catch (e) {
+        //todo throw warn
+        data = [];
+    }
     
+    return data;
+}
+
+var resolveEditorLine = function(nodesConfig, modelsConfig) {
+    var line = [], {values} = Object, connection;
+    
+    try {
+        values(nodesConfig).forEach(({Id, SourceConnections}) => {
+            if (SourceConnections == null) return;
+            
+            connection = SourceConnections.Connection;
+            
+            if (connection) {
+                connection = connection instanceof Array ? connection : [connection];
+                
+                connection.forEach((item) => {line.push({
+                    //id问题 
+                    id: Id +　'.' + item.SourceTerminal + '_' + item.targetId + '.' + item.TargetTerminal, 
+                    source: Id,
+                    type: 0,
+                    target: item.targetId,
+                    exit: item.SourceTerminal,
+                    entr: item.TargetTerminal
+                })})
+            }
+        })
+    } catch(e) {
+        line = [];
+    }
+    
+    return line
+}
+
+var resolveLeftEditor = function (editorConfig, modelConfig) {
+    var ec = deepCopy(editorConfig),
+        mc = deepCopy(modelConfig),
+        nodes;
+    
+    /*为了减少代码判断*/
+    try {
+        ({
+            Root: {
+                DateInfo: ec.DateInfo,
+                NodeMaxnimum: ec.NodeMaxnimum,
+                UUID: ec.UUID,
+                Regulation: {
+                    Step: nodes
+                }
+            }
+        } = mc)
+    } catch (e) {
+        return ec;
+    }
+
+    if (nodes) {
+        nodes = nodes instanceof Array ? nodes : [nodes];
+
+        ec.data = resolveEditorData(nodes, editorConfig.children);
+        ec.line = resolveEditorLine(nodes);
+    }
+
     return ec;
 }
 
 var resolveRightEditor = function(editorConfig, modelConfig) {
     var copyEditorCfg = deepCopy(editorConfig),
-        copyModelCfg = deepCopy(modelConfig);
+        copyModelCfg = deepCopy(modelConfig), 
+        nodes;
     
-    if (copyModelCfg == null) {
-        return editorConfig;
-    }
-    
-    copyEditorCfg.Usage = copyEditorCfg.Usage;
-    
-    var nodes = copyModelCfg.Node, location, size;
-    
-    if (nodes == null) {
+    try {
+        ({Usage: copyEditorCfg.Usage, Node: nodes} = copyModelCfg);
+    } catch(e) {
         return copyEditorCfg;
     }
-    
-    copyEditorCfg.data = [];
-    copyEditorCfg.line = [];
-    
+        
     /*因为单节点是Object类型,多节点是Array类型*/
-    if (!(nodes instanceof Array) && nodes instanceof Object) {
-        nodes = [nodes];
-    }
     
-    nodes.forEach(function (item, index, input) {        
-        location = item.Constraint.Location.split(',');
-        //size = item.Constraint.Size.split(',');
+    if (nodes) {
+        nodes = nodes instanceof Array ? nodes : [nodes];
         
-        //从已知数据匹配
-        size = rightEditorConfig.children[item.Type].size;
-        
-        copyEditorCfg .data[index] = Object.assign({
-            id: item.Id,
-            type: item.Type,
-            bounds: [parseInt(location[0]), parseInt(location[1]),
-                     size[0], size[1]],
-        }, item);
-
-        if (item.SourceConnections &&
-            item.SourceConnections.Connection) {
-            
-            //单线为Object
-            if (!(item.SourceConnections.Connection instanceof Array)) {
-                item.SourceConnections.Connection = [item.SourceConnections.Connection];
-            }
-            
-            item.SourceConnections.Connection.forEach(function (item1, index1, input1) {
-                copyEditorCfg.line.push({
-                    //id问题 
-                    id: item.Id + '_' + item1.targetId,
-                    source: item.Id,
-                    type: 0,
-                    target: item1.targetId,
-                    exit: item1.SourceTerminal,
-                    entr: item1.TargetTerminal
-                });
-            });
-        }
-    });
+        copyEditorCfg.data = resolveEditorData(nodes, editorConfig.children)
+        copyEditorCfg.line = resolveEditorLine(nodes)
+    }
     
     return copyEditorCfg;
 }
+
+
+/*{
+    0: "Skip",
+    1: "Terminals",
+    2: "Type",
+    3: "UUID",
+    4: "Constraint",
+    5: "RefImpl",
+    6: "Remarks",
+    7: "Implementation",
+    8: "False",
+    9: "Desp"
+    10: "Security",
+    11: "Quote",
+    12: "SourceConnections",
+    13: "True",
+    14: "Id",
+    15: "HasSql"
+}*/
 
 export {resolveLeftEditor, resolveRightEditor}

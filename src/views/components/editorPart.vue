@@ -132,10 +132,9 @@
                        if (!confirm("编辑器未保存，先保存再关闭？")){
                            return;
                        }
-                       editor.save();
-                       if(editor.isDirty()){
-                           //TODO 保存失败
-                           return;
+                       this._dosave();
+                       if(!editor.isDirty()){
+                            return 
                        }
                    }
                    if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path)){
@@ -411,14 +410,10 @@
                 let p = this.revisePath(path);
                 return $("#" + p);
             },
-            handleKeyPress:function (event) {
-                var that = this;
-                if(event.ctrlKey){
-                    switch(event.which){
-                        case 19:{
-                            //TODO  临时代码，需要判断dirty ： this.activeEditor.isDirty()
-                            if(this.activeEditor ){
-                                if(this.activeEditor.save()) {
+            _dosave(){
+                 var that = this;
+                if(this.activeEditor){
+                                if(this.activeEditor.isDirty() && this.activeEditor.save()) {
                                     IDE.socket.emit("saveFile", {
                                         type: IDE.type,
                                         path: this.activeEditor.file.model.path,
@@ -444,6 +439,12 @@
                                     });
                                 }
                             }
+            },
+            handleKeyPress:function (event) {
+                if(event.ctrlKey){
+                    switch(event.which){
+                        case 19:{
+                            this._dosave();
                             break;
                         }
                     }
