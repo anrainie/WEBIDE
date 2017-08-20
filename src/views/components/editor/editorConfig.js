@@ -178,7 +178,7 @@ var stepCommonCpt = {
                     /*单击且选中*/
                     if (unSelected) return;
                     
-                    self.emit('nodeImplement', host.model.get('Implementation'), host.model.get('UUID'));
+                    self.emit('openRightEditor', host.model.get('Implementation'), host.model.get('UUID'));
                 }
                 
                 this.getHostFigure().on('click', this.listener);

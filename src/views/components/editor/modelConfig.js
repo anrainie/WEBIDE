@@ -133,24 +133,4 @@ var resolveRightEditor = function(editorConfig, modelConfig) {
     return copyEditorCfg;
 }
 
-
-/*{
-    0: "Skip",
-    1: "Terminals",
-    2: "Type",
-    3: "UUID",
-    4: "Constraint",
-    5: "RefImpl",
-    6: "Remarks",
-    7: "Implementation",
-    8: "False",
-    9: "Desp"
-    10: "Security",
-    11: "Quote",
-    12: "SourceConnections",
-    13: "True",
-    14: "Id",
-    15: "HasSql"
-}*/
-
 export {resolveLeftEditor, resolveRightEditor}

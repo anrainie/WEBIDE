@@ -556,32 +556,37 @@ $AG.editorBuffer = editorBuffer;
  * return [] 
  */
 
-const arr = ['Skip', 'Terminals',
-            'Type',
-            'UUID',
-            'Constraint',
-            'RefImpl',
-            'Remarks',
-            'Implementation',
-            'False',
-            'Desp',
-            'Security',
-            'Quote',
-            'SourceConnections',
-            'True',
-            'Id',
-            'HasSq'];
+const arr = ['Skip', 
+             'Terminals',
+             'Type',
+             'UUID',
+             'Constraint',
+             'RefImpl',
+             'Remarks',
+             'Implementation',
+             'False',
+             'Desp',
+             'Security',
+             'Quote',
+             'SourceConnections',
+             'True',
+             'Id',
+             'HasSq'];
+
+/*将位置和连线信息更新至taffyDB中*/
 var commonDoSave = function () {
     var nodeStore = this.store.node,
         lineStore = this.store.line,
         result, attrs;
 
     
-    //更新数据库位置和线
+    //更新节点位置
     nodeStore().each(({Constraint, bounds}) => {
-        Constraint.Location = bounds.slice(0, 2);
+        Constraint.Location = bounds.slice(0, 2).toString();
     });
     
+    
+    //更新连线
     nodeStore().update({SourceConnections: undefined});
     
     lineStore().each(({source, target, exit, entr}) => {
@@ -607,15 +612,16 @@ var commonDoSave = function () {
         }
     });
     
-
-    
     this.cmdStack.markSaveLocation();
-}
+} 
 $AG.Editor.prototype.doSave = commonDoSave;
 
+
+/*从数据库中提取对应属性名字的数据*/
 $AG.Editor.prototype.nodeDataByAttrs = function(attrs = arr) {
     var nodeStore = this.store.node, result, attrs;
     
+    /*遍历DB所有record, 筛选属性数据*/
     result = nodeStore().select.apply(nodeStore(), attrs).map((item) => {
         attrs = {}
         for (let [index, elem] of item.entries()) {
@@ -628,6 +634,9 @@ $AG.Editor.prototype.nodeDataByAttrs = function(attrs = arr) {
     return result;
 }
 
+/**
+ * @Temp: 关于Implementation属性的特殊性
+ */
 $AG.Editor.prototype.getSaveData = function(editorBuffer, attrs = arr) {
     var Step = this.nodeDataByAttrs(attrs);
                     
@@ -641,6 +650,5 @@ $AG.Editor.prototype.getSaveData = function(editorBuffer, attrs = arr) {
     
     return Step;
 }
-
 
 export {$AG}

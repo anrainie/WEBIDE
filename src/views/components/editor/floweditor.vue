@@ -97,7 +97,8 @@
                         width = "0%"
                         break;
                     default:
-                        console.error("screenSize 错误")
+                        //TODO throw error
+                        //console.error("screenSize 错误")
                 }
 
                 return {
@@ -118,7 +119,8 @@
                         width = "100%"
                         break;
                     default:
-                        console.error("screenSize 错误")
+                        //TODO throw error
+                        //console.error("screenSize 错误")
                 }
 
                 return {
@@ -159,7 +161,7 @@
 
                 //???
                 if (dirty) {
-                    //...
+                    //TOFIX 不能够利用VUE封装object的特殊性
                     let { Root: { Regulation:{Step} } } = this.input;
                     Step = this.leftEditor.getSaveData(this.editorBuffer);
                     
@@ -179,14 +181,18 @@
                 //TODO 新建流程图的情况
                 var input = this.input;
                 if (input == null) {
-                    console.warn('input null')
+                    //TOWARN
                     return;
                 }
                 
                 this.pathName = this.revisePath(this.file.model.path);
                 this.editorBuffer = new $AG.editorBuffer();
+                
+                //TEMP: 只有两个配置
+                this.leftEditorConfig = leftEditorConfig;
+                this.rightEditorConfig = rightEditorConfig;
 
-                this.createLeftEditor(leftEditorConfig, input);
+                this.createLeftEditor(this.leftEditorConfig, input);
                 this.screenSize = "left";
             },
             createLeftEditor(editorConfig, modelConfig) {
@@ -196,17 +202,13 @@
                 }
 
                 //暂时使用文件名作为div id
-                var cfg, id = this.pathName + '-leftEditor';
+                var cfg = Object.assign(resolveLeftEditor(editorConfig, modelConfig), {id: this.getLeftEditorID()});
 
-                $('#' + this.pathName).find('.left-editor').attr('id', id);
-
-                cfg = resolveLeftEditor(editorConfig, modelConfig);
-                cfg.id = id;
+                $('#' + this.pathName).find('.left-editor').attr('id', cfg.id);
 
                 this.leftEditor = new $AG.Editor(cfg);
                 
                 let self = this;
-                /**/
                 
                 this.leftEditor.rootEditPart.$on('openDialog', function (editPart) {
                     self.dialogTarget = editPart.model;
@@ -214,7 +216,7 @@
                 });
                     
                 /*打开实现编辑器*/
-                this.leftEditor.rootEditPart.$on('nodeImplement', function(modelConfig, id) {
+                this.leftEditor.rootEditPart.$on('openRight', function(modelConfig, id) {
                     var onlyLeftEditor = self.screenSize == 'left';
                     
                     /*全频左编辑器*/
@@ -222,7 +224,7 @@
                     
                     /*不在缓冲中，直接创建*/
                     if (!self.editorBuffer.isBuffer(id)) {
-                        self.createRightEditor(rightEditorConfig, modelConfig);
+                        self.createRightEditor(this.rightEditorConfig, modelConfig);
                         self.editorBuffer.put(id, self.rightEditor);
                         return;
                     }
@@ -247,7 +249,8 @@
                                 self.screenSize = 'left';
                                 break;
                             default:
-                                console.error('sreenSize 错误')
+                                //TODO throw error
+                                //console.error('sreenSize 错误')
                         }    
                     }
                      
@@ -260,8 +263,7 @@
                     return;
                 }
 
-                var id = this.pathName + '-leftEditor';
-                $('#' + id).children().last().remove();
+                $('#' + this.getLeftEditorID()).children().last().remove();
                 this.leftEditor = null;
             },
 
@@ -272,12 +274,9 @@
                 }
 
                 //暂时使用文件名作为div id
-                var config, id = this.pathName + '-rightEditor';
+                var config = Object.assign(resolveRightEditor(editorConfig, modelConfig), {id: this.getRightEditorID()});
 
-                $('#' + this.pathName).find('.right-editor').attr('id', id);
-
-                config = resolveRightEditor(editorConfig, modelConfig);
-                config.id = id;
+                $('#' + this.pathName).find('.right-editor').attr('id', config.id);
 
                 this.rightEditor = new $AG.Editor(config);
                 
@@ -292,7 +291,8 @@
                                 self.screenSize = 'right';
                                 break;
                             default:
-                                console.error('sreenSize 错误')
+                                //TODO throw error
+                                //console.error('sreenSize 错误')
                         }    
                     }
                      
@@ -305,8 +305,7 @@
                     return;
                 }
 
-                var id = this.pathName + '-rightEditor';
-                $('#' + id).children().last().remove();
+                $('#' + this.getRightEditorID()).children().last().remove();
                 this.rightEditor = null;
             },
             
@@ -314,6 +313,12 @@
             revisePath(path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
             },
+            getLeftEditorID() {
+                return this.pathName + '-LeftEditor';
+            },
+            getRightEditorID() {
+                return this.pathName + '-rightEditor';
+            }
         },
         components: {
             skipInfo: skipGroup,
