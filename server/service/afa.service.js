@@ -21,6 +21,11 @@ module.exports =  {
             handler:ioService
         },
         {
+            id:'createNewResource',
+            type:'IOService',
+            handler:ioService
+        },
+        {
             id:'local1',
             type:'localService',
             handler:function () {

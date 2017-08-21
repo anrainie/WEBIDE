@@ -6,7 +6,7 @@
 
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
-            <workbench id="ide_workbench_center" :views="views" ref="workbench" :editors="editors"></workbench>
+            <workbench id="ide_workbench_center" :views="views" ref="workbench" :editorPartConfig="editorPartConfig"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
@@ -88,13 +88,24 @@
     import IDESocket from "../../core/IDESocket"
     import navContextMenus from '../../action/afa.navi.contextmenu';
     import menuData from '../../action/ide.menu';
+    import flowEditor from "../components/editor/floweditor.vue";
+    import dictEditor from "../components/editor/dictEditor.vue";
+    import javaEditor from "../components/editor/javaEditor.vue";
 
 
     export default{
         data(){
             var self = this;
             return {
-                editors: {},
+                editorPartConfig: {
+                    editorRefs: {
+                        txt: flowEditor,
+                        sql: flowEditor,
+                        dict: dictEditor,
+                        java: javaEditor,
+                        fc:flowEditor,
+                    }
+                },
                 vertical: false,
                 horizontal: true,
                 pageName: "pageName",

@@ -6,13 +6,38 @@
         <!--<div>{{pagetitle}}</div>-->
         <!--<div>{{pagedesc}}</div>-->
         <el-form >
-            <el-form-item :label="namelabel" :label-width="labelWidth">
-                <el-input v-model="name" auto-complete="off"></el-input>
+            <el-form-item :label="namelabel.label" :label-width="labelWidth">
+                <el-input v-model="name" auto-complete="off">{{namelabel.value}}</el-input>
             </el-form-item>
+
+            <el-row>
+                <el-col :span="12">
+                    <el-form-item :label="groupsLabel" :label-width="labelWidth">
+                        <el-cascader
+                                :options="groups"
+                                v-model="selectedGroup"
+                                @change="handleChange"
+                        >
+                        </el-cascader>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="12">
+                    <el-form-item :label="refLabel" :label-width="labelWidth">
+                        <el-cascader
+                                :options="reference"
+                                v-model="selectedRef"
+                                @change="handleChange"
+                        >
+                        </el-cascader>
+                    </el-form-item>
+                </el-col>
+            </el-row>
+
             <el-form-item :label="desclabel" :label-width="labelWidth">
                 <el-input v-model="desc" auto-complete="off"></el-input>
             </el-form-item>
         </el-form>
+        <el-form-item></el-form-item>
         <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取 消</el-button>
             <el-button type="primary" @click="handleOk">确 定</el-button>
@@ -20,10 +45,13 @@
     </el-dialog>
 </template>
 <script>
+
+
   export default {
     data() {
       return {
         dialogFormVisible : true,
+        template : false,
         labelWidth: '140px',
         name:'',
         desc:'',
@@ -33,8 +61,19 @@
         wizardtitle: '',
         pagetitle: '',
         pagedesc: '',
-        namelabel: '',
-        desclabel: ''
+        namelabel: {
+          label:'',
+          value:''
+        },
+        catelog:'',
+        groupsLabel:'',
+        groups:[],
+        refLabel:'',
+        reference:[],
+        desclabel: '',
+
+        selectedGroup:'',
+        selectedRef:''
       }
     },
     component: {},
@@ -52,7 +91,7 @@
         IDE.socket.emit("createNewResource",{
           type: IDE.type,
           event: 'createNewResource',
-          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name,desc:this.desc}
+          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name,desc:this.desc,group:this.selectedGroup,ref:this.selectedRef}
         }, function (data) {
           if (data) {
             let result = JSON.parse(data);
@@ -68,7 +107,7 @@
                 let item = IDE.navigator.getItem(path);
                 let input = result.data.input;
                 if(input){
-                    //打开编辑器
+                  //打开编辑器
                   IDE.editorPart.openEditor(item,input);
                 }
               }
@@ -76,6 +115,9 @@
           }
         });
       },
+      handleChange(value) {
+        console.log(value);
+      }
     }
   }
 </script>

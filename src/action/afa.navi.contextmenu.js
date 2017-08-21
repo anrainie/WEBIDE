@@ -1,5 +1,5 @@
 import  wizardtext from '../../src/action/wizardtext'
-import  wizardVue from '../views/components/wizards/NewCreateWizard.vue'
+import  wizardVue from '../views/components/wizards/AfaNewCreateWizard.vue'
 import  showCompileErrorMsgDialog from '../views/components/dialog/ShowCompileErrorMsg.vue'
 import Vue from 'vue';
 

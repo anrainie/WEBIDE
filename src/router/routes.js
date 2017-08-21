@@ -28,6 +28,11 @@ const routes = [
         require(['../views/afa/afa.vue'], resolve)
     }, name: 'afa'
     },
+    {
+        path:'/afe',meta: {requireAuth: true},component: resolve =>{
+            require(['../views/afe/afe.vue'],resolve)
+    },name: 'afe'
+    },
     {path: '/aweb', meta: {requireAuth: true}, component: aweb, name: 'aweb'}
 ];
 

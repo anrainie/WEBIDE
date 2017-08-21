@@ -37,15 +37,21 @@ app.use(session);
 require('./route/routes')(app);
 
 var afaServices = require('./service/afa.service');
+var afeServices = require('./service/afe.service');
 
-var servlet = new Servlet([afaServices], session, http);
+var servlet = new Servlet([afaServices,afeServices], session, http);
 servlet.start();
 global.Servlet = servlet;
 
 global.Products = {};
+
 var afaProduct = new Product('afa', config.IDE_HOST, config.IDE_PORT, afaServices);
 afaProduct.connect();
 Products[afaProduct.name] = afaProduct;
+
+var afeProduct = new Product('afe', config.IDE_HOST, config.IDE_PORT, afeServices);
+afeProduct.connect();
+Products[afeProduct.name] = afeProduct;
 
 function Server() {
 

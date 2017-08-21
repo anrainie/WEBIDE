@@ -225,7 +225,7 @@
                 }
             },
             /**
-             * 刷新节点，可指定刷新层数。如果是异步加载刷新行为取决于config中的asyncLoadItem接口
+             * 刷新节点，可指定刷新层数。如果是异步加载刷新行为取决于config中的asyncLoadItem接口的实现
              * @param path
              * @param level
              */

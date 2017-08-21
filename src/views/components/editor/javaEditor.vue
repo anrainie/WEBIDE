@@ -1,8 +1,8 @@
 <template>
     <div class="hello">
         <monacoeditor
-                width="100%"
-                height="100%"
+                :width="width"
+                :height="width"
                 language="java"
                 :code="input"
                 :editorOptions="options"
@@ -25,7 +25,9 @@
             return {
                 options: {
                     selectOnLineNumbers: false
-                }
+                },
+                width: '100%',
+                height: '100%',
             };
         },
         mounted(){
@@ -33,13 +35,13 @@
         },
         methods: {
             onMounted(editor) {
-
+                window.java=this;
                 editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.US_SLASH, function (e) {
                     alert("提示啦", e);
                 });
                 this.editor = editor;
                 monaco.languages.registerCompletionItemProvider('java', {
-                    triggerCharacters: ['∮','.'],
+                    triggerCharacters: ['∮', '.'],
                     provideCompletionItems(model, position){
                         var textUntilPosition = model.getValueInRange({
                             startLineNumber: 1,
@@ -88,7 +90,7 @@
 
             },
             isDirty(){
-                return true;
+                return false;
             }
         },
         components: {
