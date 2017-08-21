@@ -474,12 +474,14 @@ anra.gef.ConnectionPolicy = anra.gef.AbstractEditPolicy.extend({
         cmd.line.set('exit', req.anchor.id);
         cmd.rootEditPart = this.getHost().getRoot();
         cmd.sourceId = this.getHost().model.get('id');
+        cmd.line.set('source', cmd.sourceId);
         return cmd;
     },
     getConnectionCompleteCommand: function (req) {
         var cmd = req.command;
         if (cmd == null)return null;
         cmd.targetId = this.getHost().model.get('id');
+        cmd.line.set('target', cmd.targetId)
         cmd.line.set('entr', req.anchor.id);
         return cmd;
     }

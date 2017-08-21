@@ -241,7 +241,7 @@ $AG.Editor = anra.gef.Editor.extend({
     //额外添加的，操作数据库
     setInput: function (input) {
         this.input = input;
-        this.storeId = anra.Store.newStore(input.uuid);
+        this.storeId = anra.Store.newStore(input.UUID);
         this.store = anra.Store.get(this.storeId);
         this.rootModel = this.createRootModel(input);
         this.rootModel.storeId = this.storeId;

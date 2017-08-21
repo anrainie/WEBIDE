@@ -108,7 +108,7 @@ var save = {
     id: 'save',
     name: '保存',
     type: constants.ACTION_STACK,
-    key: 'ctrl+s',
+/*    key: 'ctrl+s',*/
     check: function () {
         return this.host.isDirty();
     },
@@ -150,7 +150,6 @@ var stepCommonCpt = {
         {id: '1', dir: 's', offset: 25},
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0},
-        {id: 'C', dir: 'c', offset: 0}
     ],
     policies: {
         'doubleclick': {
@@ -179,7 +178,7 @@ var stepCommonCpt = {
                     /*单击且选中*/
                     if (unSelected) return;
                     
-                    self.emit('nodeImplement', host.model.get('Implementation'), host.model.get('UUID'));
+                    self.emit('openRightEditor', host.model.get('Implementation'), host.model.get('UUID'));
                 }
                 
                 this.getHostFigure().on('click', this.listener);
@@ -306,6 +305,8 @@ var nodeErrorDelegate = {
         {id: 'N', dir: 'n', offset: 0},
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
     ],
     refresh: refresh,
     

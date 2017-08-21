@@ -1430,7 +1430,7 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                 event: e,
                 type: v.type,
                 anchor: p.getSourceAnchor({event: e}),
-                model: this.model
+                model: v.model
             };
 
             if (policy != null) {
@@ -1881,6 +1881,7 @@ anra.gef.ReconnectSourceCommand = anra.Command.extend({
         }
         this.oldTerminal = this.line.model.get('exit');
         this.line.model.set('exit', this.terminal);
+        this.line.model.set('source', this.line.source.model.get('id'))
         this.line.refresh();
     },
     undo: function () {
@@ -1903,6 +1904,7 @@ anra.gef.ReconnectTargetCommand = anra.Command.extend({
         }
         this.oldTerminal = this.line.model.get('entr');
         this.line.model.set('entr', this.terminal);
+        this.line.model.set('target', this.line.target.model.get('id'))
         this.line.refresh();
 
         /*        this.oldTarget = this.line.target;
@@ -2426,7 +2428,14 @@ anra.gef.BaseModel = Base.extend({
     },
     set: function (key, value, unfire) {
         var o = this.props[key];
-        this.props[key] = value;
+        
+        if (this.store) {
+            var _tj = {};
+            _tj[key] = value;
+            this.props = this.store.update(_tj).first();
+        } else
+            this.props[key] = value;
+        
         if (this.pls && !unfire)
             this.pls.firePropertyChanged(key, o, value);
     },
