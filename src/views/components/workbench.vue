@@ -42,16 +42,29 @@
     import Vue from "vue";
     import viewpart from "./viewPart.vue";
     import editorPart from "../components/editorPart.vue";
-
+    import flowEditor from "../components/editor/floweditor.vue";
+    import dictEditor from "./editor/dictEditor.vue";
+    import javaEditor from "./editor/javaEditor.vue";
+    import tcptEditor from "./editor/TcptEditor.vue";
     import Vuex from 'vuex';
 
     Vue.use(Vuex);
 
     export default{
-        props: ['views', 'editorPartConfig'],
+        props: ['views', 'editors'],
         data(){
             return {
                 cache: {},
+                editorPartConfig: {
+                    editorRefs: {
+                        txt: flowEditor,
+                        sql: flowEditor,
+                        dict: dictEditor,
+                        java: javaEditor,
+                        fc: flowEditor,
+                        tcpt: tcptEditor,
+                    }
+                },
             }
         },
         computed: {

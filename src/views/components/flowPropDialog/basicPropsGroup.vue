@@ -37,17 +37,20 @@
 
         <!--服务调用-->
         <el-form v-if="type==1" ref="form" label-width="80px">
-            <el-form-item label="在当前线程执行">
+            <el-row >
+                <el-col :span="8">在当前线程执行</el-col>
+                <el-col :span="8">
                 <el-switch
                         v-model="model.refImpl"
-                        on-color="#13ce66"
+                        on-color="#44ffaa"
                         off-color="#114949"
                         :on-value="0"
                         :off-value="1"
                         on-text="开启"
                         off-text="关闭">
                 </el-switch>
-
+                </el-col>
+                <el-col :span="8">
                 <el-switch
                         v-if="model.refImpl"
                         v-model="model.async"
@@ -58,7 +61,8 @@
                         on-text="同步"
                         off-text="异步">
                 </el-switch>
-            </el-form-item>
+                </el-col>
+            </el-row>
 
         </el-form>
 
