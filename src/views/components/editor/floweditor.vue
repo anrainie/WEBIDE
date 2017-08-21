@@ -166,6 +166,7 @@
                     Step = this.leftEditor.getSaveData(this.editorBuffer);
                     
                     this.msgHub.$emit('dirtyStateChange', this.file, false);
+                    console.log(this.input)
                     
                     return true;
                 }

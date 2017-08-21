@@ -18,8 +18,8 @@ $AG.Editor.prototype.initRootEditPart = function (editPart) {
     editPart.addNotify();
 };
 
-var createID = (() => {
-    var count = 100;
+let createID = (() => {
+    let count = 100;
     return () => count++
 })();
 
@@ -290,7 +290,7 @@ var gridLayout = Layout.extend({
                 enumerable: true,
                 configurable: false
             }))(key);
-        };
+        }
         Object.defineProperties(v.arg, descriptors)
         
         /*只读*/
@@ -582,7 +582,7 @@ var commonDoSave = function () {
     
     //更新节点位置
     nodeStore().each(({Constraint, bounds}) => {
-        Constraint.Location = bounds.slice(0, 2).toString();
+        Constraint.Location = [bounds[0], bounds[1]].toString();
     });
     
     
