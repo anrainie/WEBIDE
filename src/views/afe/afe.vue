@@ -6,7 +6,7 @@
 
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
-            <workbench id="ide_workbench_center" :views="views" ref="workbench" :editors="editors"></workbench>
+            <workbench id="ide_workbench_center" :views="views" ref="workbench" :editorPartConfig="editorPartConfig"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
@@ -88,7 +88,7 @@
   import IDESocket from "../../core/IDESocket"
   import navContextMenus from '../../action/afe.navi.contextmenu';
   import menuData from '../../action/afe.menu';
-
+    import planEditor from '../afe/editor/planEditor.vue'
 
   export default{
     data(){
@@ -96,7 +96,7 @@
       return {
         editorPartConfig: {
           editorRefs:{
-
+                pml:planEditor
           }
         },
         vertical: false,
