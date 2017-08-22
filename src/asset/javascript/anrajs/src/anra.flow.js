@@ -205,13 +205,13 @@ $AG.Editor = anra.gef.Editor.extend({
                 }
 
                 l.onCreateFigure = function (figure) {
-                    figure.router = (function(r) {
-                        if (r.length == 2) {
+                    figure.router = (function(routerFunc) {
+                        if (routerFunc.length == 2) {
                             return function(line) {
-                                return r(line, root.getReader());
+                                return routerFunc(line, root.getReader());
                             }
-                        } else if (r.length == 1) {
-                            return r;
+                        } else if (routerFunc.length == 1) {
+                            return routerFunc;
                         }
                     })(l.config.router);
                     
