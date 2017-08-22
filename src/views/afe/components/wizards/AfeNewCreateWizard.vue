@@ -7,10 +7,13 @@
         <!--<div>{{pagedesc}}</div>-->
         <el-form >
             <el-form-item :label="namelabel.label" :label-width="labelWidth">
-                <el-input v-model="name" auto-complete="off">{{namelabel.value}}</el-input>
+                <el-input :disabled="namelabel.value.length>0" v-model="name" auto-complete="off" placeholder="test">{{namelabel.value}}</el-input>
+            </el-form-item>
+            <el-form-item v-if="directoryLabel.label" :label="directoryLabel.label" :label-width="labelWidth">
+                <el-input v-model="directory" auto-complete="off">{{directoryLabel.value}}</el-input>
             </el-form-item>
 
-            <el-row>
+            <el-row v-if="groupsLabel">
                 <el-col :span="12">
                     <el-form-item :label="groupsLabel" :label-width="labelWidth">
                         <el-cascader
@@ -21,7 +24,7 @@
                         </el-cascader>
                     </el-form-item>
                 </el-col>
-                <el-col :span="12">
+                <el-col v-if="reference.length>0" :span="12">
                     <el-form-item :label="refLabel" :label-width="labelWidth">
                         <el-cascader
                                 :options="reference"
@@ -33,11 +36,10 @@
                 </el-col>
             </el-row>
 
-            <el-form-item :label="desclabel" :label-width="labelWidth">
-                <el-input v-model="desc" auto-complete="off"></el-input>
+            <el-form-item v-if="desclabel.label" :label="desclabel.label" :label-width="labelWidth">
+                <el-input v-model="desc" auto-complete="off">{{desclabel.value}}</el-input>
             </el-form-item>
         </el-form>
-        <el-form-item></el-form-item>
         <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取 消</el-button>
             <el-button type="primary" @click="handleOk">确 定</el-button>
@@ -51,10 +53,13 @@
     data() {
       return {
         dialogFormVisible : true,
-        template : false,
         labelWidth: '140px',
+        //资源名
         name:'',
+        //描述信息
         desc:'',
+        //目录
+        directory:'',
         resourceId:'',
         path:'',
         type: '',
@@ -65,15 +70,23 @@
           label:'',
           value:''
         },
-        catelog:'',
         groupsLabel:'',
+        //所在组
         groups:[],
         refLabel:'',
+        //引用
         reference:[],
-        desclabel: '',
+        desclabel: {
+          label:'',
+          value:''
+        },
+        directoryLabel:{
+          label:'',
+          value:''
+        },
 
-        selectedGroup:'',
-        selectedRef:''
+        selectedGroup:[],
+        selectedRef:[]
       }
     },
     component: {},
@@ -91,7 +104,7 @@
         IDE.socket.emit("createNewResource",{
           type: IDE.type,
           event: 'createNewResource',
-          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name,desc:this.desc,group:this.selectedGroup,ref:this.selectedRef}
+          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name==""?name=this.namelabel.value:name=this.name,desc:this.desc,directory:this.directory,group:this.selectedGroup[0],ref:this.selectedRef[0]}
         }, function (data) {
           if (data) {
             let result = JSON.parse(data);

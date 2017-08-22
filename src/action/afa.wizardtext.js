@@ -8,6 +8,7 @@ var items = {
     pagedesc: '请输入应用名称',
     namelabel: '应用名称',
     desclabel: '应用描述',
+    reference: false,
     type:'folder'
   },
   'productAction': {
@@ -19,6 +20,7 @@ var items = {
     pagedesc: '请输入产品名称',
     namelabel: '产品名称',
     desclabel: '产品描述',
+    reference: false,
     type: 'folder'
   },
   'solutionAction': {
@@ -30,6 +32,7 @@ var items = {
     pagedesc: '请输入解决方案名称',
     namelabel: '解决方案名称',
     desclabel: '解决方案描述',
+    reference: false,
     type:'project'
   },
   'workflowProjectAction': {
@@ -41,6 +44,7 @@ var items = {
     pagedesc: '请输入工作流项目名称',
     namelabel: '工作流项目名称',
     desclabel: '工作流项目描述',
+    reference: false,
     type:'project'
   },
   'projectAction': {
@@ -52,6 +56,7 @@ var items = {
     pagedesc: '请输入项目名称',
     namelabel: '项目名称',
     desclabel: '项目描述',
+    reference: false,
     type:'project'
   },
   // /**
@@ -68,6 +73,7 @@ var items = {
     pagedesc: '请输入数据字典名称',
     namelabel: '字典名称',
     desclabel: '字典描述',
+    reference: false,
     type:'file'
   },
 
@@ -81,6 +87,7 @@ var items = {
     pagedesc: '请输入接口参数定义名称',
     namelabel: '接口参数定义名称',
     desclabel: '接口参数定义描述',
+    reference: false,
     type:'file'
   },
   // 数据实体
@@ -94,6 +101,7 @@ var items = {
     pagedesc: '请输入分类名称',
     namelabel: '分类名称',
     desclabel: '分类描述',
+    reference: false,
     type:'folder'
   },
   'edmAction': {
@@ -105,6 +113,7 @@ var items = {
     pagedesc: '请输入数据实体类包名',
     namelabel: '名称',
     desclabel: '描述',
+    reference: false,
     type:'file'
   },
   'cn.com.agree.ide.afa.tc.java.action.PackageNewWizardAction': {
@@ -114,6 +123,7 @@ var items = {
     pagedesc: '请输入package名称',
     namelabel: 'package名称',
     desclabel: 'package描述',
+    reference: false,
     type:'folder'
   },
 
@@ -128,6 +138,7 @@ var items = {
     pagedesc: '请输入分类名称',
     namelabel: '分类名称',
     desclabel: '分类描述',
+    reference: false,
     type:'folder'
   },
   'dbtfAction': {
@@ -139,6 +150,7 @@ var items = {
     pagedesc: '请输入表文件名称',
     namelabel: '表文件名称',
     desclabel: '表文件描述',
+    reference: false,
     type:'file'
   },
   /**
@@ -154,6 +166,7 @@ var items = {
     pagedesc: '请输入组件组名称',
     namelabel: '组件组名称',
     desclabel: '组件组描述',
+    reference: false,
     type:'folder'
   },
   'tcptAction': {
@@ -165,6 +178,7 @@ var items = {
     pagedesc: '请输入技术组件名称',
     namelabel: '技术组件名称',
     desclabel: '技术组件描述',
+    reference: false,
     type:'file'
   },
   // 业务组件
@@ -178,6 +192,7 @@ var items = {
     pagedesc: '请输入组件包名称',
     namelabel: '组件包名称',
     desclabel: '组件包描述',
+    reference: false,
     type:'folder'
   },
   'bcptAction': {
@@ -189,6 +204,7 @@ var items = {
     pagedesc: '请输入业务组件名称',
     namelabel: '实现名称',
     desclabel: '组件名称',
+    reference: false,
     type:'file'
   },
   // 流程模型
@@ -202,6 +218,7 @@ var items = {
     pagedesc: '请输入业务模板名称',
     namelabel: '业务模板定义名称',
     desclabel: '业务模板定义描述',
+    reference: false,
     type:'file'
   },
 
@@ -214,6 +231,7 @@ var items = {
     pagedesc: '请输入技术模板名称',
     namelabel: '技术模板定义名称',
     desclabel: '技术模板定义描述',
+    reference: false,
     type:'file'
   },
 
@@ -226,6 +244,7 @@ var items = {
     pagedesc: '请输入交易模板名称',
     namelabel: '交易模板定义名称',
     desclabel: '交易模板定义描述',
+    reference: false,
     type:'file'
   },
   /**
@@ -240,6 +259,7 @@ var items = {
     pagedesc: '请输入bpmn文件名称',
     namelabel: 'bpmn文件名称',
     desclabel: 'bpmn文件描述',
+    reference: false,
     type:'file'
   },
   /**
@@ -255,6 +275,7 @@ var items = {
     pagedesc: '请输入服务分类名称',
     namelabel: '服务分类名称',
     desclabel: '服务分类描述',
+    reference: false,
     type:'folder'
   },
   'serviceAction': {
@@ -266,6 +287,8 @@ var items = {
     pagedesc: '请输入服务名称',
     namelabel: '服务名称',
     desclabel: '服务描述',
+    reference: true,
+    refLabel: '模板',
     type:'folder'
   },
   'serviceRecognitionAction': {
@@ -277,6 +300,7 @@ var items = {
     pagedesc: '请输入服务识别名称',
     namelabel: '服务识别名称',
     desclabel: '服务识别描述',
+    reference: false,
     type:'folder'
   },
   'fcAction': {
@@ -288,6 +312,7 @@ var items = {
     pagedesc: '请输入流程配置文件的名称',
     namelabel: '流程配置名称',
     desclabel: '',
+    reference: false,
     type:'file'
   },
   'fpckAction': {
@@ -299,6 +324,7 @@ var items = {
     pagedesc: '请输入自由格式报文的名称',
     namelabel: '自由格式报文名称',
     desclabel: '自由格式报文描述',
+    reference: false,
     type:'file'
   },
   'natpAction': {
@@ -310,6 +336,7 @@ var items = {
     pagedesc: '请输入NATP报文的名称',
     namelabel: 'NATP报文名称',
     desclabel: 'NATP报文描述',
+    reference: false,
     type:'file'
   },
   // 服务对外发布
@@ -327,6 +354,8 @@ var items = {
     pagedesc: '请输入父服务的名称',
     namelabel: '父服务名称',
     desclabel: '父服务描述',
+    reference: true,
+    refLabel: '原型服务路径',
     type:'folder'
   },
 
@@ -344,6 +373,8 @@ var items = {
     pagedesc: '请输入子服务的名称',
     namelabel: '子服务名称',
     desclabel: '子服务描述',
+    reference: true,
+    refLabel: '原型服务路径',
     type:'folder'
   },
 }

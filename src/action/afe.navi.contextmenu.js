@@ -1,7 +1,7 @@
 
 import  showCompileErrorMsgDialog from '../views/components/dialog/ShowCompileErrorMsg.vue'
 import  wizardtext from  '../../src/action/afe.wizardtext'
-import  wizardVue from  '../views/components/wizards/AfeNewCreateWizard.vue'
+import  wizardVue from '../views/afe/components/wizards/AfeNewCreateWizard.vue'
 import Vue from 'vue';
 function getNewWizard () {
   var split = this.id.split('/')
@@ -30,7 +30,14 @@ function getNewWizard () {
   newWizard.pagetitle = newItem.pagetitle
   newWizard.namelabel.label = newItem.namelabel.label
   newWizard.namelabel.value = newItem.namelabel.value
-  newWizard.desclabel = newItem.desclabel
+  if(newItem.desclabel) {
+    newWizard.desclabel.label = newItem.desclabel.label
+    newWizard.desclabel.value = newItem.desclabel.value
+  }
+  if(newItem.directoryLabel) {
+    newWizard.directoryLabel.label = newItem.directoryLabel.label
+    newWizard.directoryLabel.value = newItem.directoryLabel.value
+  }
 
   var oDiv = document.createElement('div');
   oDiv.id = "wizard"
@@ -181,7 +188,7 @@ var items = {
         id: 'rcdAction',
         resourceId: 'rcd',
         path: '',
-        name: '报文格式配置',
+        name: '报文格式文件',
         type: 'item',
         handler: function (selection, item) {
           return getNewWizard.call(item)
@@ -282,6 +289,7 @@ var items = {
         resourceId:'multiStepGroup',
         path:'',
         name:'场景测试集',
+        type: 'item',
         handler: function (selection, item) {
           return getNewWizard.call(item)
         }
@@ -291,6 +299,17 @@ var items = {
         resourceId:'paraConfig',
         path:'',
         name:'动态参数配置',
+        type:'item',
+        handler: function (selection, item) {
+          return getNewWizard.call(item)
+        }
+      },
+      'pcfgAction':{
+        id:'pcfgAction',
+        resourceId:'pcfg',
+        path:'',
+        name:'动态参数文件',
+        type:'item',
         handler: function (selection, item) {
           return getNewWizard.call(item)
         }
@@ -300,6 +319,7 @@ var items = {
         resourceId:'mst',
         path:'',
         name:'场景测试文件',
+        type:'item',
         handler: function (selection, item) {
           return getNewWizard.call(item)
         }
@@ -328,7 +348,7 @@ var items = {
         id: 'trdAction',
         resourceId: 'trd',
         path: '',
-        name: '测试结果文件',
+        name: '测试记录文件',
         type: 'item',
         handler: function (selection, item) {
           return getNewWizard.call(item)

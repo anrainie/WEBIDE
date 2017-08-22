@@ -94,7 +94,11 @@
     data(){
       var self = this;
       return {
-        editors: {},
+        editorPartConfig: {
+          editorRefs:{
+
+          }
+        },
         vertical: false,
         horizontal: true,
         pageName: "pageName",
@@ -344,8 +348,10 @@
                 }
               },
               filter: function (item) {
-                if (item.model.name.startsWith(".")) {
-                  return true;
+                if(item.model.name) {
+                  if (item.model.name.startsWith(".")) {
+                    return true;
+                  }
                 }
                 return false;
               }

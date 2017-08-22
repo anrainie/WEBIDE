@@ -10,8 +10,14 @@ var items = {
         label:'名称',
         value: ''
       },
-      catelog:'目录',
-      desclabel: '描述',
+      directoryLabel:{
+        label:'目录',
+        value:''
+      },
+      desclabel: {
+        label:'描述',
+        value:''
+      },
       type:'folder'
     },
     'applicationAction': {
@@ -20,29 +26,35 @@ var items = {
       wizardtitle: '新建应用向导',
       pagetitle: '新建应用向导页',
       pagedesc: '请输入应用名称',
-      namelabel: {
-      label:'应用名称',
-      value: ''
-      },
       groupsLabel:'所在应用组',
       refLabel:'模板',
       reference: [
         {
-          value:'simple',
+          value:'简单应用',
           label:'简单应用',
         },
         {
-          value:'client',
+          value:'客户端应用',
           label:'客户端应用',
         },
         {
-          value:'server',
+          value:'服务端应用',
           label:'服务端应用'
         }
       ],
-      catelog:'目录名称',
+      namelabel: {
+        label:'应用名称',
+        value: ''
+      },
+      directoryLabel:{
+        label:'目录',
+        value:''
+      },
+      desclabel: {
+        label:'描述',
+        value:''
+      },
       groups: [],
-      desclabel: '描述',
       type:'folder'
     },
     'busAction': {
@@ -56,7 +68,10 @@ var items = {
         label:'总线文件名称',
         value: ''
       },
-      desclabel: '总线文件描述',
+      desclabel: {
+        label:'总线文件描述',
+        value:''
+      },
       type:'file'
     },
     'ctrlAction': {
@@ -70,7 +85,10 @@ var items = {
         label:'渠道控制器文件名称',
         value: ''
       },
-      desclabel: '渠道控制器文件描述',
+      desclabel: {
+        label:'渠道控制器文件描述',
+        value:''
+      },
       type:'file'
     },
     'rtAction': {
@@ -82,7 +100,7 @@ var items = {
       pagedesc: '请输入路由文件名称',
       namelabel: {
         label:'路由文件名称',
-        value: ''
+        value: 'route'
       },
       type:'file'
     },
@@ -97,7 +115,10 @@ var items = {
         label:'流量控制名称',
         value: ''
       },
-      desclabel: '流量控制描述',
+      desclabel: {
+        label:'流量控制描述',
+        value:''
+      },
       type:'file'
     },
     'tccAction': {
@@ -111,7 +132,10 @@ var items = {
         label:'交易控制名称',
         value: ''
       },
-      desclabel: '交易控制描述',
+      desclabel: {
+        label:'交易控制描述',
+        value:''
+      },
       type:'file'
     },
     'mapAction': {
@@ -138,7 +162,10 @@ var items = {
         label:'交易控制表文件名称',
         value: ''
       },
-      desclabel: '交易控制表文件描述',
+      desclabel: {
+        label:'交易控制表文件描述',
+        value:''
+      },
       type:'file'
     },
     'schAction': {
@@ -178,10 +205,16 @@ var items = {
         label:'交易名称',
         value: ''
       },
-      catelog:'目录名称',
+      directoryLabel:{
+        label:'目录名称',
+        value:''
+      },
+      desclabel: {
+        label:'描述信息',
+        value:''
+      },
       groupsLabel:'所在交易组',
       groups: [],
-      desclabel: '描述信息',
       type:'file'
     },
     'cwfAction': {
@@ -195,8 +228,11 @@ var items = {
         label:'工作流文件名称',
         value:''
       },
-      desclabel: '工作流文件描述',
-      type:'folder'
+      desclabel: {
+        label:'工作流文件描述',
+        value:''
+      },
+      type:'file'
     },
     'rcdAction': {
       id: 'rcdAction',
@@ -209,7 +245,10 @@ var items = {
         label:'报文格式文件名称',
         value: ''
       },
-      desclabel: '报文格式文件描述',
+      desclabel: {
+        label:'报文格式文件描述',
+        value:''
+      },
       type:'file'
     },
     'dataDictGroupAction': {
@@ -223,8 +262,14 @@ var items = {
         label:'名称',
         value:''
       },
-      catelog:'目录',
-      desclabel: '描述',
+      directoryLabel:{
+        label:'目录',
+        value:''
+      },
+      desclabel: {
+        label:'描述',
+        value:''
+      },
       type:'folder'
     },
     'dictAction': {
@@ -238,7 +283,10 @@ var items = {
         label:'名称',
         value: ''
       },
-      desclabel: '新建数据字典文件描述',
+      desclabel: {
+        label:'新建数据字典文件描述',
+        value:''
+      },
       type:'file'
     },
     'sqlDataDictGroupAction': {
@@ -252,8 +300,14 @@ var items = {
         label:'名称',
         value:''
       },
-      catelog:'目录',
-      desclabel: '描述',
+      directoryLabel:{
+        label:'目录',
+        value:''
+      },
+      desclabel: {
+        label:'描述',
+        value:''
+      },
       type:'folder'
     },
     'sqldictAction': {
@@ -267,8 +321,11 @@ var items = {
         label:'DB字典文件名称',
         value: ''
       },
-      desclabel: 'DB字典文件描述',
-      type:'file '
+      desclabel: {
+        label:'DB字典文件描述',
+        value:''
+      },
+      type:'file'
     },
     'vtfAction': {
       id: 'vtfAction',
@@ -281,7 +338,10 @@ var items = {
         label:'名称',
         value:''
       },
-      desclabel: '校验文件描述',
+      desclabel: {
+        label:'校验文件描述',
+        value:''
+      },
       type:'file'
     },
     'fdAction':{
@@ -295,25 +355,36 @@ var items = {
         label:'文件格式文件名称',
         value:''
       },
-      desclabel: '文件格式文件描述',
+      desclabel: {
+        label:'文件格式文件描述',
+        value:''
+      },
       type:'file'
     },
     'templateGroupAction':{
       id:'templateGroupAction',
+      resourceId:'templateGroup',
       path: '',
       wizardtitle: '新建模板管理节点',
       pagetitle: '新建模板管理节点',
       pagedesc: '请输入模板管理节点名称',
       namelabel: {
-       label:'名称',
+       label:'模板管理名称',
        value:''
       },
-      catelog:'目录',
-      desclabel: '描述',
-      type:'file'
+      directoryLabel:{
+        label:'模板管理目录',
+        value:''
+      },
+      desclabel: {
+        label:'模板管理描述',
+        value:''
+      },
+      type:'folder'
     },
     'wftAction':{
       id:'wftAction',
+      resourceId:'wft',
       path: '',
       wizardtitle: '新建工作流模板',
       pagetitle: '新建工作流模板',
@@ -322,7 +393,10 @@ var items = {
         label:'工作流模板名称',
         value:''
       },
-      desclabel: '工作流模板描述',
+      desclabel: {
+        label:'工作流模板描述',
+        value:''
+      },
       type:'file'
     },
     'systemServerManageAction': {
@@ -336,8 +410,14 @@ var items = {
         label:'名称',
         value:''
       },
-      catelog:'目录',
-      desclabel: '描述',
+      directoryLabel:{
+        label:'目录',
+        value:''
+      },
+      desclabel: {
+        label:'描述',
+        value:''
+      },
       type:'folder'
     },
     'testtradeAction': {
@@ -348,11 +428,17 @@ var items = {
       pagetitle: '新建测试交易向导页',
       pagedesc: '请输入测试交易名称',
       namelabel: {
-        label:'名称',
+        label:'测试交易名称',
         value:''
       },
-      catelog:'目录',
-      desclabel: '描述',
+      directoryLabel:{
+        label:'测试交易名称',
+        value:''
+      },
+      desclabel: {
+        label:'测试交易描述',
+        value:''
+      },
       type:'folder'
     },
     'multiStepGroupAction':{
@@ -363,11 +449,17 @@ var items = {
       pagetitle: '新建场景测试集向导页',
       pagedesc: '请输入场景测试集名称',
       namelabel: {
-        label:'名称',
+        label:'场景测试集名称',
         value:''
       },
-      catelog:'目录',
-      desclabel: '描述',
+      directoryLabel:{
+        label:'场景测试集目录',
+        value:''
+      },
+      desclabel: {
+        label:'场景测试集描述',
+        value:''
+      },
       type:'folder'
     },
     'paraConfigAction':{
@@ -378,13 +470,36 @@ var items = {
       pagetitle: '新建动态参数向导页',
       pagedesc: '请输入动态参数名称',
       namelabel: {
-        label:'名称',
+        label:'动态参数名称',
         value:''
       },
-      catelog:'目录',
-      desclabel: '描述',
-      type:'file'
+      directoryLabel:{
+        label:'动态参数目录',
+        value:''
+      },
+      desclabel: {
+        label:'动态参数描述',
+        value:''
+      },
+      type:'folder'
     },
+  'pcfgAction':{
+    id:'pcfgAction',
+    resourceId:'pcfg',
+    path: '',
+    wizardtitle: '新建动态参数文件',
+    pagetitle: '新建动态参数文件',
+    pagedesc: '请输入动态参数文件名称',
+    namelabel: {
+      label:'动态参数文件名称',
+      value:''
+    },
+    desclabel: {
+      label:'动态参数文件描述',
+      value:''
+    },
+    type:'file'
+  },
     'mstAction':{
       id:'mstAction',
       resourceId:'mst',
@@ -396,7 +511,10 @@ var items = {
         label:'场景测试文件名称',
         value:''
       },
-      desclabel: '场景测试文件描述',
+      desclabel: {
+        label:'场景测试文件描述',
+        value:''
+      },
       type:'file'
     },
     'mesAction': {
@@ -410,11 +528,15 @@ var items = {
         label:'测试报文文件名称',
         value:''
       },
-      desclabel: '测试报文文件描述',
+      desclabel: {
+        label:'测试报文文件描述',
+        value:''
+      },
       type:'file'
     },
     'trdAction': {
       id: 'trdAction',
+      resourceId: 'trd',
       path: '',
       wizardtitle: '新建测试记录文件',
       pagetitle: '新建测试记录文件',
@@ -423,7 +545,10 @@ var items = {
         label:'测试记录文件名称',
         value:''
       },
-      desclabel: '测试记录文件描述',
+      desclabel: {
+        label:'测试记录文件描述',
+        value:''
+      },
       type:'file'
     }
 }

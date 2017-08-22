@@ -1,4 +1,4 @@
-import  wizardtext from '../../src/action/wizardtext'
+import  wizardtext from './afa.wizardtext'
 import  wizardVue from '../views/components/wizards/AfaNewCreateWizard.vue'
 import  showCompileErrorMsgDialog from '../views/components/dialog/ShowCompileErrorMsg.vue'
 import Vue from 'vue';
@@ -19,6 +19,9 @@ function getNewWizard () {
   newWizard.pagetitle = newItem.pagetitle
   newWizard.namelabel = newItem.namelabel
   newWizard.desclabel = newItem.desclabel
+  newWizard.reference = newItem.reference
+  if(newWizard.reference == true)
+     newWizard.refLabel = newItem.refLabel
   var oDiv = document.createElement('div');
   oDiv.id = "wizard"
   document.body.appendChild(oDiv);
@@ -39,8 +42,8 @@ items = {
     path: '',
     name: '应用',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'productAction': {
@@ -49,8 +52,8 @@ items = {
     path: '',
     name: '产品',
     type: 'item',
-    handler: function () {
-      return getNewWizard.call(this)
+    handler: function (selection,item) {
+      return getNewWizard.call(item)
     }
   },
   'solutionAction': {
