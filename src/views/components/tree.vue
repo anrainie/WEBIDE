@@ -9,13 +9,12 @@
     import Vue from 'vue'
     export default {
         name: 'tree',
-        props: ['config'],
+        props: ['model','config'],
         components: {
             item: item
         },
         data() {
             return {
-                model: [],
                 selection: [],
                 msgHub: new Vue(),
                 ALL_LEVELS: -1
@@ -27,6 +26,17 @@
             }
         },
         methods: {
+            setInput(input){
+                var self = this;
+                this.model.slice(0,this.model.length);
+                if($.isArray(input)){
+                    $.each(input,function (k,v) {
+                        this.self.model.push(v);
+                    })
+                }else{
+                    this.model.push(input);
+                }
+            },
             /**
              * 展开到该节点并选中该节点
              * @param item
@@ -248,6 +258,9 @@
             var self = this;
             this.config = this.config || {};
             this.config.callback = this.config.callback || {};
+            if(!this.model){
+                this.model = [];
+            }
             if(this.config.width){
                 this.$el.style.width = this.config.width;
             }

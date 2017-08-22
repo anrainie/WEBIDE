@@ -20,19 +20,27 @@
             return {}
         },
         mounted(){
+
+            //去除默认右键事件
+            document.oncontextmenu = function(){
+                return false;
+            }
+
+            $(window).on('keypress',function (e) {
+                var key = e.which || window.event.keyCode;
+
+                //TODO 委托给活动状态的viewer
+                if(IDE.editorPart){
+                    IDE.editorPart.handleKeyPress(e);
+                }
+
+            });
+
             window.IDE = new function () {
                 let listeners = {};
                 let keyStore = {};
 
-                $(window).on('keypress',function (e) {
-                    var key = e.which || window.event.keyCode;
 
-                    //TODO 委托给活动状态的viewer
-                    if(IDE.editorPart){
-                        IDE.editorPart.handleKeyPress(e);
-                    }
-
-                });
 
                 return {
                     on(key, callback){

@@ -33,6 +33,11 @@ module.exports =  {
       id:'saveFile',
       type:'IOService',
       handler:ioService
+    },
+    {
+      id:'loadPlanEditorArchitecture',
+      type:'IOService',
+      handler:ioService
     }
   ]
 }

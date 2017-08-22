@@ -250,6 +250,7 @@
                         });
                     },
                     data: {
+                        model:[],
                         config: {
                             width:'100%',
                             check: false,

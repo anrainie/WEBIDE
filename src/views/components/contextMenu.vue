@@ -28,6 +28,7 @@
         list-style: none;
         display: inline-block;
         background-color: white;
+        position: absolute;
     }
 
     .context-menu>div{

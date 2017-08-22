@@ -11,7 +11,6 @@
             <img class="item-image" v-bind:src="itemImageSrc">
             <span class="item-title">{{model.displayName? model.displayName: model.name}}</span>
             <span class="item-desp">{{model.desp}}</span>
-            <div class="item-button nav-delete" @click="deleteItem"></div>
         </div>
         <div class="item-children" v-show="open" v-if='isFolder' >
             <item v-for='child in model.children' :model='child,config,msgHub' :key="child.path" :ref="child.name">
@@ -32,7 +31,7 @@
                 selected:false,
                 loaded:false,
                 checked: this.model.checked ? this.model.checked :false ,
-                itemImageSrc: (this.model.icon ? ("/assets/image/" + this.model.icon) : "assets/image/nav-folder.png")
+                itemImageSrc: (this.model.icon ? ("/assets/image/" + this.model.icon) : "")
             }
         },
         computed: {
