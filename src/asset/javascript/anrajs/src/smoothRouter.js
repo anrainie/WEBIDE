@@ -1,5 +1,4 @@
 import {Map} from './anra.common'
-import Base from '../lib/Base'
 import {anra} from './anra.gef'
 
 function throwIfMissing() {
@@ -11,7 +10,7 @@ function throwIfMissing() {
  */
 let route = function(line, reader = throwIfMissing()) {
     
-    if (line.points == null || line.points.length < 2) {
+    if (line.points === null || line.points.length < 2) {
         return null;
     }
     
@@ -34,12 +33,12 @@ let route = function(line, reader = throwIfMissing()) {
     
     return path ? path : [source, target];
     
-}
+};
 
 /*搜索大致路径的部分*/
-var search = function(start, end, reader, line) {
+let search = function(start, end, reader, line) {
     //无法到达的情况下，仅仅处理相邻，暂时不包括斜角相邻
-    var pos = Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
+    let pos = Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
     
     switch(pos) {
         case 0:
@@ -50,7 +49,7 @@ var search = function(start, end, reader, line) {
             getPathFinder().finding(start, end, reader, line);
             return getPathFinder().getPath();
     }
-}
+};
 
 
 /*关于寻路算法的部分*/
@@ -66,43 +65,19 @@ const coefficient = 2.5;
 
 const dir = [[0, -1], [-1, 0], [0, 1], [1, 0]];
 
-
 class doubleAS {
     
     constructor() {
         
     }
 
-    finding(start, end, reader, line) {
-        var list = [],
-            blist = [],
-            current, bcurrent;
-
-        this.reset(start, end, reader, line);
-        this.addOpenList(start, end, list, forward);
-        this.addOpenList(end, start, blist, backward);
-
-        while (list.length * blist.length > 0) {
-            current = this.getMinPoint(list);
-            bcurrent = this.getMinPoint(blist);
-
-            if (this.flag = this.search(current, end, list, forward, reader)) {
-                break;
-            }
-
-            if (this.flag = this.search(bcurrent, start, blist, backward, reader)) {
-                break;
-            }
-        }
-    }
-
-    addOpenList(source, target, open, direction) {
+    static addOpenList(source, target, open, direction) {
         source.state = inOpen | direction;
-        source.f = source.g + (Math.abs(source.x - target.x) + Math.abs(source.y - target.y)) * (source.count == 0 ? RE : RE * coefficient);
-        this.insertByBinarySort(source, open);
+        source.f = source.g + (Math.abs(source.x - target.x) + Math.abs(source.y - target.y)) * (source.count === 0 ? RE : RE * coefficient);
+        doubleAS.insertByBinarySort(source, open);
     }
 
-    removeFromOpen(point, open) {
+    static removeFromOpen(point, open) {
         if (point.newG >= point.g)
             return;
 
@@ -116,159 +91,23 @@ class doubleAS {
         }
     }
 
-    getMinPoint(list) {
-        var p = list.pop();
+    static getMinPoint(list) {
+        let p = list.pop();
         p.state = (p.state - inOpen) | inClosed;
 
         return p;
     }
 
-    getPath() {
-        if (this.flag) {
-            var path = this.calculatePath(this.forwardPoint).concat(this.calculatePath(this.backwardPoint).reverse());
-
-            return path;
-        }
-        return null;
+    static isMeet(point, direction) {
+        return (point.state & direction) !== direction && (point.state & notFound) !== notFound;
     }
 
-    reset(start, end, reader, line) {
-        this.pool = new Map();
-
-        if (line) {
-            var startNormal = getDirection(line.model.sourceNode.get('bounds'), line.getStartPoint()),
-                endNormal = getDirection(line.model.targetNode.get('bounds'), line.getEndPoint())
-
-            //反向映射字典
-            start.dir = Math.abs(2 * startNormal.x + startNormal.y + 1);
-            end.dir = Math.abs(2 * endNormal.x + endNormal.y + 　1);
-
-        } else {
-            start.dir = 0;
-            end.dir = 0;
-        }
-
-        this.pool.put(start.x + '_' + start.y, start);
-        this.pool.put(end.x + '_' + end.y, end);
-
-        reader.structure();
-        this.flag = false;
-
-    }
-
-    getNeighbors(point, reader) {
-        if (point == null) {
-            return null;
-        }
-
-        var result = [],
-            x, y,
-            pool = this.pool,
-            key, index, d = point.dir,
-            count;
-
-
-        for (var i = 0; i < 4; i++) {
-            index = (d + i) % 4;
-            x = point.x + dir[index][0];
-            y = point.y + dir[index][1];
-            count = reader.getCount(x, y);
-
-            if (count != -1) {
-                key = x + '_' + y;
-
-                if (!pool.has(key)) {
-                    pool.put(key, {
-                        x: x,
-                        y: y,
-                        state: notFound,
-                        count: count
-                    });
-                }
-
-                pool.get(key).dir = index;
-                result.unshift(pool.get(key));
-            }
-        }
-
-        return result;
-    }
-
-    calculateG(node, srnode) {
-        var g, srg = srnode.g;
-
-        //计算node到srnode的距离
-        if (!this.diagonal) {
-            g = node.count == 0 ? RE : RE * coefficient;
-        } else {
-            g = (node.x != srnode.x && node.y != srnode.y ? BE : RE);
-        }
-
-        g += srnode.hasOwnProperty('g') ? srg : 0;
-
-        if (node.hasOwnProperty('g')) {
-            node.newG = g;
-        } else {
-            node.g = g;
-        }
-    }
-
-    search(point, target, open, direction, reader) {
-        var neighbors = this.getNeighbors(point, reader),
-            temp;
-
-        while (temp = neighbors.pop()) {
-            this.calculateG(temp, point);
-
-            if (this.isMeet(temp, direction)) {
-                var bestPoint = temp,
-                    host = this;
-                if (temp.count > 0) {
-                    neighbors.forEach(function (item, index, input) {
-                        if (host.isMeet(item, direction) &&
-                            item.count < bestPoint.count) {
-                            bestPoint = item;
-                        }
-                    });
-                }
-
-                if (direction == forward) {
-                    this.forwardPoint = point;
-                    this.backwardPoint = bestPoint;
-                } else {
-                    this.forwardPoint = bestPoint;
-                    this.backwardPoint = point;
-                }
-
-                return true;
-            }
-
-            if ((temp.state & inClosed) == inClosed) {
-                continue;
-            }
-
-            if ((temp.state & inOpen) == inOpen) {
-                this.removeFromOpen(temp, open);
-            }
-
-            if ((temp.state & notFound) == notFound) {
-                temp.parent = point;
-                this.addOpenList(temp, target, open, direction);
-            }
-        }
-        return false;
-    }
-
-    isMeet(point, direction) {
-        return (point.state & direction) != direction && (point.state & notFound) != notFound;
-    }
-
-    calculatePath(node) {
-        if (node == null) {
+    static calculatePath(node) {
+        if (node === null) {
             return [];
         }
 
-        var nodes = [];
+        let nodes = [];
 
         while (node.parent) {
             nodes.unshift(node);
@@ -279,8 +118,8 @@ class doubleAS {
         return nodes
     }
 
-    insertByBinarySort(node, list) {
-        var high = list.length - 1,
+    static insertByBinarySort(node, list) {
+        let high = list.length - 1,
             low = 0,
             mid;
 
@@ -302,6 +141,156 @@ class doubleAS {
         list.splice(low, 0, node);
     }
 
+    finding(start, end, reader, line) {
+        let list = [],
+            blist = [],
+            current, bcurrent;
+
+        this.reset(start, end, reader, line);
+        doubleAS.addOpenList(start, end, list, forward);
+        doubleAS.addOpenList(end, start, blist, backward);
+
+        while (list.length * blist.length > 0) {
+            current = doubleAS.getMinPoint(list);
+            bcurrent = doubleAS.getMinPoint(blist);
+
+            if (this.flag = this.search(current, end, list, forward, reader)) {
+                break;
+            }
+
+            if (this.flag = this.search(bcurrent, start, blist, backward, reader)) {
+                break;
+            }
+        }
+    }
+
+    getPath() {
+
+        return this.flag ? doubleAS.calculatePath(this.forwardPoint).concat(doubleAS.calculatePath(this.backwardPoint).reverse()) : null;
+    }
+
+    reset(start, end, reader, line) {
+        this.pool = new Map();
+
+        if (line) {
+            let startNormal = getDirection(line.model.sourceNode.get('bounds'), line.getStartPoint()),
+                endNormal = getDirection(line.model.targetNode.get('bounds'), line.getEndPoint());
+
+            //反向映射字典
+            start.dir = Math.abs(2 * startNormal.x + startNormal.y + 1);
+            end.dir = Math.abs(2 * endNormal.x + endNormal.y + 　1);
+
+        } else {
+            start.dir = 0;
+            end.dir = 0;
+        }
+
+        this.pool.put(start.x + '_' + start.y, start);
+        this.pool.put(end.x + '_' + end.y, end);
+
+        reader.structure();
+        this.flag = false;
+
+    }
+
+    getNeighbors(point = throwIfMissing(), reader) {
+        let result = [],
+            x, y,
+            pool = this.pool,
+            key, index, d = point.dir,
+            count;
+
+
+        for (let i = 0; i < 4; i++) {
+            index = (d + i) % 4;
+            x = point.x + dir[index][0];
+            y = point.y + dir[index][1];
+            count = reader.getCount(x, y);
+
+            if (count !== -1) {
+                key = x + '_' + y;
+
+                if (!pool.has(key)) {
+                    pool.put(key, {
+                        x: x,
+                        y: y,
+                        state: notFound,
+                        count: count
+                    });
+                }
+
+                pool.get(key).dir = index;
+                result.unshift(pool.get(key));
+            }
+        }
+
+        return result;
+    }
+
+    calculateG(node, srnode) {
+        let g, srg = srnode.g;
+
+        //计算node到srnode的距离
+        if (this.hasOwnProperty("diagonal") && this.diagonal) {
+            g = (node.x !== srnode.x && node.y !== srnode.y ? BE : RE);
+        } else {
+            g = node.count === 0 ? RE : RE * coefficient;
+        }
+
+        g += srnode.hasOwnProperty('g') ? srg : 0;
+
+        if (node.hasOwnProperty('g')) {
+            node.newG = g;
+        } else {
+            node.g = g;
+        }
+    }
+
+    search(point, target, open, direction, reader) {
+        let neighbors = this.getNeighbors(point, reader),
+            temp;
+
+        while (temp = neighbors.pop()) {
+            this.calculateG(temp, point);
+
+            if (doubleAS.isMeet(temp, direction)) {
+                let bestPoint = temp;
+                if (temp.count > 0) {
+                    neighbors.forEach((item) => {
+                        if (doubleAS.isMeet(item, direction) &&
+                            item.count < bestPoint.count) {
+                            bestPoint = item;
+                        }
+                    });
+                }
+
+                if (direction === forward) {
+                    this.forwardPoint = point;
+                    this.backwardPoint = bestPoint;
+                } else {
+                    this.forwardPoint = bestPoint;
+                    this.backwardPoint = point;
+                }
+
+                return true;
+            }
+
+            if ((temp.state & inClosed) === inClosed) {
+                continue;
+            }
+
+            if ((temp.state & inOpen) === inOpen) {
+                doubleAS.removeFromOpen(temp, open);
+            }
+
+            if ((temp.state & notFound) === notFound) {
+                temp.parent = point;
+                doubleAS.addOpenList(temp, target, open, direction);
+            }
+        }
+        return false;
+    }
+
 }
 
 let getPathFinder = (function() {
@@ -321,30 +310,24 @@ let optimizePath = function(path, line, reader) {
     removeCollinearPoint(path);
     
     /*转成绝对路径*/
-    pathToAbsolute(path, reader);
+    path = reader.relativeToAbsolute(path);
     
     /*平滑处理*/
     return smoothStrategy.smooth(path.length)(path, line, reader);
-}
+};
 
 let removeCollinearPoint = function(path = throwIfMissing()) {
     let i = 0;
     
     while (i < path.length - 2) {
-        if ((path[i + 1].x == path[i].x && path[i].x == path[i + 2].x) || 
-            (path[i + 1].y == path[i].y && path[i].y == path[i + 2].y)) {
+        if ((path[i + 1].x === path[i].x && path[i].x === path[i + 2].x) ||
+            (path[i + 1].y === path[i].y && path[i].y === path[i + 2].y)) {
             path.splice(i + 1, 1);
         } else {
             i++;
         }
     }
-}
-
-let pathToAbsolute = function(path = throwIfMissing(), reader = throwIfMissing()) {
-    path.forEach((item) => {
-        item = reader.relativeToAbsolute(item)
-    })
-}
+};
 
 let smoothStrategy = {
     smooth(length) {
@@ -358,15 +341,14 @@ let smoothStrategy = {
         }
     },
     oneNodeStrategy(path, line, reader) {
-        var s = line.getStartPoint(),
-            e = line.getEndPoint(),
-            node = path[0];
+        let s = line.getStartPoint(),
+            e = line.getEndPoint();
 
-        if ((s.x - e.x) * (s.y - e.y) == 0) {
+        if ((s.x - e.x) * (s.y - e.y) === 0) {
             return [s, e];
         }
 
-        var sourceb = line.model.sourceNode.get('bounds'),
+        let sourceb = line.model.sourceNode.get('bounds'),
             targetb = line.model.targetNode.get('bounds'),
             sVector = getVector(s, {
                 x: sourceb[0] + sourceb[2] / 2,
@@ -390,54 +372,52 @@ let smoothStrategy = {
             bendpoint;
 
 
-        p1 = sVector.x == 0 ? (sVector.y == vector.y ? 11 : 2) : (sVector.x == vector.x ? 12 : 1);
-        p2 = eVector.x == 0 ? (sourceb.y == vector.y ? 1 : 12) : (eVector.x == vector.x ? 2 : 11);
-        bendpoint = table[p1 % 10 == p2 % 10 ? p1 % 10 : Math.max(p1, p2) % 10];
+        p1 = sVector.x === 0 ? (sVector.y === vector.y ? 11 : 2) : (sVector.x === vector.x ? 12 : 1);
+        p2 = eVector.x === 0 ? (sourceb.y === vector.y ? 1 : 12) : (eVector.x === vector.x ? 2 : 11);
+        bendpoint = table[p1 % 10 === p2 % 10 ? p1 % 10 : Math.max(p1, p2) % 10];
 
         return [s, bendpoint, e];
     },
     twoNodeStrategy(path, line, reader) {
-        var s = line.getStartPoint(),
+        let s = line.getStartPoint(),
             e = line.getEndPoint();
 
         //共线的情况
-        if ((s.x - e.x) * (s.y - e.y) == 0) {
+        if ((s.x - e.x) * (s.y - e.y) === 0) {
             return [s, e];
         }
 
         //方向参考
-        var startNormal = getDirection(line.model.sourceNode.get('bounds'), s),
+        let startNormal = getDirection(line.model.sourceNode.get('bounds'), s),
             endNormal = getDirection(line.model.targetNode.get('bounds'), e),
             abs_dir = getVector(e, s),
             rel_dir = {
                 x: path[1].x - path[0].x,
                 y: path[1].y - path[0].y
             },
-            horizontal = rel_dir.x == 0 ? 　0 : 1;
+            horizontal = rel_dir.x === 0 ? 　0 : 1;
 
         //数学函数
-        var max = Math.max,
-            min = Math.min,
-            abs = Math.abs;
+        let {abs} = Math;
 
-        var result = [],
+        let result = [],
             coff, p1, p2;
 
 
         //垂直情况下
-        if (dotProduct(startNormal, endNormal) == 0) {
+        if (dotProduct(startNormal, endNormal) === 0) {
 
             //确定与路径方向在一水平线上的点，并如果出现路径方向与Normal相反的情况，统一同向
             //与路径方向在一水平上的为参照点
             //coff大于0，说明参照点在另一点normal方向上正向偏移，反之为负向偏移
             //根据两点的相对位置选择拐点
-            if (abs(dotProduct(startNormal, rel_dir)) == 1) {
+            if (abs(dotProduct(startNormal, rel_dir)) === 1) {
                 startNormal.x = rel_dir.x;
                 startNormal.y = rel_dir.y;
 
                 coff = ((horizontal * (s.y - e.y) + (1 - horizontal) * (s.x - e.x))) * (endNormal.x + endNormal.y);
                 //coff = max(0, coff/abs(coff));// 
-                coff = coff == 1 ? 1 : 0;
+                coff = coff === 1 ? 1 : 0;
             } else {
 
                 endNormal.x = 0 - rel_dir.x;
@@ -446,7 +426,7 @@ let smoothStrategy = {
                 coff = ((horizontal * (e.y - s.y) + (1 - horizontal) * (e.x - s.x))) * (startNormal.x + startNormal.y);
 
                 //coff = abs(min(0, coff/abs(coff)));// 
-                coff = coff == 1 ? 0 : 1;
+                coff = coff === 1 ? 0 : 1;
             }
 
             result = [s, {
@@ -459,9 +439,9 @@ let smoothStrategy = {
         //平行的情况下
         else {
             //同向情况
-            if (dotProduct(startNormal, endNormal) == 1) {
+            if (dotProduct(startNormal, endNormal) === 1) {
                 // ↑ ↑
-                if (dotProduct(startNormal, rel_dir) == 0) {
+                if (dotProduct(startNormal, rel_dir) === 0) {
                     p1 = similarity(s, startNormal, path[0], reader); //
                     p2 = similarity(e, endNormal, path[1], reader);
                     abs_dir = getVector(p2, p1);
@@ -497,7 +477,7 @@ let smoothStrategy = {
             //反向情况
             else {
                 //选择间隙更大的中点
-                result = manhattanRoute(s, e);
+                result = ManhattanPath(s, e);
             }
 
         }
@@ -505,12 +485,12 @@ let smoothStrategy = {
         return result;
     },
     moreNodeStrategy (path, line, reader) {
-        var result = [], l = path.length;
-        var s = line.getStartPoint(), e = line.getEndPoint(),
+        let result = [], l = path.length;
+        let s = line.getStartPoint(), e = line.getEndPoint(),
             
             sx = s.x - path[0].x, sy = s.y - path[0].y,
             
-            i = 0, abs = Math.abs, min = Math.min, 
+            i = 0, {abs, min} = Math,
             
             startNode = reader.absoluteToRelative(s),
             endNode = reader.absoluteToRelative(e),
@@ -520,13 +500,13 @@ let smoothStrategy = {
             
             start, end = e;
         
-        if (dotProduct(startNormal, getVector(path[1], path[0])) == 0) {
+        if (dotProduct(startNormal, getVector(path[1], path[0])) === 0) {
             start = similarity(s, startNormal, startNode, reader);
             sx = start.x - path[0].x;
             sy = start.y - path[0].y;
         }
         
-        if (dotProduct(endNormal, getVector(path[l - 2], path[l - 1])) == 0) {
+        if (dotProduct(endNormal, getVector(path[l - 2], path[l - 1])) === 0) {
             end = similarity(e, endNormal, endNode, reader);
         }
         
@@ -534,24 +514,24 @@ let smoothStrategy = {
                 result.push({x: path[i].x + sx, y: path[i].y + sy});
         }
         
-        var sf = min(1, abs(path[i - 1].x - path[i].x)), ef = min(1, abs(path[i + 1].x - path[i].x));
+        let sf = min(1, abs(path[i - 1].x - path[i].x)), ef = min(1, abs(path[i + 1].x - path[i].x));
         
         result.push({x: ef*result[i - 1].x + sf*end.x,
                      y: sf*result[i - 1].y + ef*end.y});
         
         result.push(end);
             
-        if (start != null && (start.x != s.x || start.y != s.y)) {
+        if (start && (start.x !== s.x || start.y !== s.y)) {
             result.unshift(s);
         }
             
-        if (end != null && (end.x != e.x || end.y != e.y)) {
+        if (end && (end.x !== e.x || end.y !== e.y)) {
             result.push(e);
         }
         
         return result;
     }
-}
+};
 
 /*简单路径方式*/
 let ManhattanPath = function(start = throwIfMissing(), end = throwIfMissing()) {
@@ -565,43 +545,39 @@ let ManhattanPath = function(start = throwIfMissing(), end = throwIfMissing()) {
     }
             
     return [start, p1, p2, end];
-}
+};
 
 
 /*计算向量*/
-var getVector = function(p1, p2) {
+let getVector = function(p1, p2) {
     let {abs, max} = Math;
     return {x: (p1.x - p2.x)/max(1, abs(p1.x - p2.x)),
             y: (p1.y - p2.y)/max(1, abs(p1.y - p2.y))};
-}
+};
 
 /*叉乘*/
-var dotProduct = function(r1, r2) {
+let dotProduct = function(r1, r2) {
     return r1.x*r2.x + r1.y*r2.y;
-}
+};
 
-var similarity = function(point, direction, node, reader) {
-    var boundary, abs = Math.abs, max = Math.max, horizontal = abs(direction.x), gap;
+let similarity = function(point, direction, node, reader) {
+    let boundary, abs = Math.abs, max = Math.max, horizontal = abs(direction.x), gap;
     
     boundary = horizontal*(node.x + max(0, direction.x)) + (1 - horizontal)*(node.y + max(0, direction.y));
     boundary *= reader.w;
     
     gap = direction.x*(boundary - point.x) + direction.y*(boundary - point.y);
 
-    if (gap >= 10) {
-        return {x: point.x + 10*direction.x, y: point.y + 10*direction.y};
-    } else {
-        return point;
-    }
-}
+    return gap >= 10 ? {x: point.x + 10*direction.x, y: point.y + 10*direction.y} : point;
+};
 
 const LEFT = {x: -1, y: 0};
 const RIGHT = {x: 1, y: 0};
 const UP = {x: 0, y: -1};
 const DOWN = {x:0, y: 1};
 
-var getDirection = function(bounds, point) {
-    var i, x = bounds[0], y = bounds[1], right = bounds[0] + bounds[2], bottom = bounds[1] + bounds[3],
+let getDirection = function(bounds, point) {
+    let i, x = bounds[0], y = bounds[1], right = bounds[0] + bounds[2], bottom = bounds[1] + bounds[3],
         direction = {x:LEFT.x, y:LEFT.y}, abs = Math.abs, distance = abs(x - point.x);
     
     i = abs(y - point.y);
@@ -624,7 +600,6 @@ var getDirection = function(bounds, point) {
     
     i = abs(right - point.x);
     if (i < distance) {
-        distance = i;
         direction = {
             x: RIGHT.x,
             y: RIGHT.y
@@ -636,10 +611,10 @@ var getDirection = function(bounds, point) {
 
 
 /*监听器部分*/
-var ReaderListener = anra.gef.EditPartListener.extend({
+let ReaderListener = anra.gef.EditPartListener.extend({
     partActivated (editPart) {
         editPart.getReader = (function () {
-            var reader = null;
+            let reader = null;
             return function () {
                 if (!reader) {
                     reader = new Reader();
@@ -653,231 +628,181 @@ var ReaderListener = anra.gef.EditPartListener.extend({
         delete editpart.getReader;
     },
 
-    childAdded (child, index) {
+    childAdded (child) {
         // toadd 父子
         if (child instanceof anra.gef.NodeEditPart) {
-            var root = child.getRoot();
+            let root = child.getRoot();
             root.getReader().read(child);
             this.on(child);
         }
     },
 
-    removingChild (child, index) {
+    removingChild (child) {
         if (child instanceof anra.gef.NodeEditPart) {
             child.getRoot().getReader().remove(child);
         }
     },
 
     on (editPart) {
-        var model = editPart.model,
-            bounds = model.get('bounds'),
-            oldBounds = [
-                bounds[0],
-                bounds[1],
-                bounds[2],
-                bounds[3]
-            ],
+        let model = editPart.model,
+            oldBounds = model.get('bounds').map((item) => item),
             reader = editPart.getRoot().getReader(),
             newBounds;
         model.addPropertyListener(function () {
-            bounds = model.get('bounds');
-            newBounds = [
-                bounds[0],
-                bounds[1],
-                bounds[2],
-                bounds[3]
-            ];
+            newBounds = model.get('bounds').map((item) => item);
             reader.change(newBounds, oldBounds);
-            oldBounds = [
-                bounds[0],
-                bounds[1],
-                bounds[2],
-                bounds[3]
-            ];
+            oldBounds = newBounds.map((item) => item);
         }, 'bounds');
     }
 });
 
 
 /*预读器部分*/
-function Reader() {
-    this.struct = new Map();
+class Reader {
+    constructor() {
+        this.struct = new Map();
 
-    this._addList = [];
-    this._deleteList = [];
+        this._addList = [];
+        this._deleteList = [];
 
-    //暂时
-    this.w = 25;
-    this.maxWidth = 100;
-    this.maxHeight = 100;
-
-}
-Reader.prototype.read = function (editPart) {
-    if (!(editPart instanceof anra.gef.NodeEditPart)) {
-        return;
+        //暂时
+        this.w = 25;
+        this.maxWidth = 100;
+        this.maxHeight = 100;
     }
 
-    var list = this._addList,
-        b;
+    read (editPart) {
+        if (!(editPart instanceof anra.gef.NodeEditPart)) {
+            return;
+        }
 
-    if (editPart instanceof anra.gef.RootEditPart) {
-        editPart.children.forEach(function (item, index, input) {
-            b = item.model.get('bounds');
-            list.push([
-                b[0],
-                b[1],
-                b[2],
-                b[3]
-            ]);
+        let list = this._addList;
+
+        if (editPart instanceof anra.gef.RootEditPart) {
+            editPart.children.forEach((item) => {
+                list.push(item.model.get('bounds').map((item) => item));
+            });
+        } else {
+            list.push(editPart.model.get('bounds').map((item) => item));
+        }
+    }
+
+    remove (editPart) {
+        if (editPart instanceof anra.gef.RootEditPart) {
+            this.clear();
+            return;
+        }
+
+        if (editPart instanceof anra.gef.NodeEditPart) {
+            this._deleteList.push(editPart.model.get('bounds').map((item) => item));
+        }
+    };
+    change (newBounds, oldBounds) {
+        this._addList.push(newBounds);
+        this._deleteList.push(oldBounds);
+    }
+
+    structure () {
+        if((this._addList.length + this._deleteList.length) === 0) {
+            return;
+        }
+
+        //先处理增加Bounds
+        this._addList.forEach((item) => {
+            this.process(item, 1)
         });
-    } else {
-        b = editPart.model.get('bounds');
-        list.push([
-            b[0],
-            b[1],
-            b[2],
-            b[3]
-        ]);
-    }
-};
-Reader.prototype.remove = function (editPart) {
-    if (editPart instanceof anra.gef.RootEditPart) {
-        this.clear();
-        return;
+
+        //处理删减的Bounds
+        this._deleteList.forEach((item) => {
+            this.process(item, -1)
+        });
+
+        this._addList = [];
+        this._deleteList = [];
     }
 
-    if (editPart instanceof anra.gef.NodeEditPart) {
-        var b = editPart.model.get('bounds');
-        this._deleteList.push([
-            b[0],
-            b[1],
-            b[2],
-            b[3]
-        ]);
-    }
-};
-Reader.prototype.change = function (newBounds, oldBounds) {
-    this._addList.push(newBounds);
-    this._deleteList.push(oldBounds);
-};
-Reader.prototype.structure = function () {    
-    if((this._addList.length + this._deleteList.length) == 0) {
-        return;
-    }
-    
-    //先处理增加Bounds
-    for (var i = 0; i < this._addList.length; i++) {
-        this.process(this._addList[i], 1);
-    }
+    process (bounds, unit) {
+        let w = this.w,
+            absolute_sx = bounds[0], absolute_sy = bounds[1],
+            absolute_ex = bounds[0] + bounds[2], absolute_ey = bounds[1] + bounds[3],
+            relative_sx = ~~(absolute_sx / w),
+            relative_sy = ~~(absolute_sy / w),
+            relative_ex = Math.ceil(absolute_ex / w),
+            relative_ey = Math.ceil(absolute_ey / w), key;
 
-    //处理删减的Bounds
-    for (var j = 0; j < this._deleteList.length; j++) {
-        this.process(this._deleteList[j], -1);
-    }
+        for (let i = relative_sx; i < relative_ex; i++) {
+            for (let j = relative_sy; j < relative_ey; j++) {
+                key = i + '_' + j;
 
-    this._addList = [];
-    this._deleteList = [];
-};
-Reader.prototype.process = function (bounds, unit) {
-    var w = this.w,
-        absolute_sx = bounds[0], absolute_sy = bounds[1],
-        absolute_ex = bounds[0] + bounds[2], absolute_ey = bounds[1] + bounds[3],
-        relative_sx = Math.floor(absolute_sx / w),
-        relative_sy = Math.floor(absolute_sy / w),
-        relative_ex = Math.ceil(absolute_ex / w),
-        relative_ey = Math.ceil(absolute_ey / w), key;
-    
-    for (var i = relative_sx; i < relative_ex; i++) {
-        for (var j = relative_sy; j < relative_ey; j++) {
-            key = i + '_' + j;
-            
-            if (!this.struct.has(key)) {
-                this.struct.put(key, {
-                    count: 0
-                });
-            }
-            
-            this.struct.get(key).count += unit;
-            
-            //添加一个删除节点的操作
-            if (this.struct.get(key).count == 0) {
-                this.struct.remove(key);
+                if (!this.struct.has(key)) {
+                    this.struct.put(key, {
+                        count: 0
+                    });
+                }
+
+                this.struct.get(key).count += unit;
+
+                //添加一个删除节点的操作
+                if (this.struct.get(key).count === 0) {
+                    this.struct.remove(key);
+                }
             }
         }
     }
-};
 
-Reader.prototype.isValid = function(x, y) {
-    if (x < -1 || x > this.maxWidth || y < -1 || y > this.maxHeight) {
-        return false;
+    isValid (x, y) {
+        return !(x < -1 || x > this.maxWidth || y < -1 || y > this.maxHeight);
     }
-    
-    return true;
-};
 
-Reader.prototype.isObstacle = function(x, y) {
-    if (!this.isValid(x, y)) {
-        return true;
-    }
-    
-    var key = x + '_' + y;
-    if (!this.struct.has(key)) {
-        return false;
-    }
-    
-    if (this.struct.get(key).count == 0) {
-        return false;
-    } else {
-        return true;
-    }
-};
+    isObstacle (x, y) {
+        if (!this.isValid(x, y)) {
+            return true;
+        }
 
-//返回节点覆盖次数
-Reader.prototype.getCount = function(x, y) {
-    if (!this.isValid(x, y)) {
-        return -1;
-    }
-    
-    var key = x + '_' + y;
-    if (!this.struct.has(key)) {
-        return 0;
-    } else {
-        return this.struct.get(key).count;
-    }
-};
+        let key = x + '_' + y;
+        if (!this.struct.has(key)) {
+            return false;
+        }
 
-Reader.prototype.absoluteToRelative = function(point) {
-    var x = Math.floor(point.x / this.w),
-        y = Math.floor(point.y / this.w);
-    
-    return {x : x, y : y};
-};
+        return this.struct.get(key).count !== 0;
+    }
 
-Reader.prototype.relativeToAbsolute = function(point) {
-    var x = point.x*this.w,
-        y = point.y*this.w;
-    
-    return {x : x, y : y};
+    //返回节点覆盖次数
+    getCount (x, y) {
+        if (!this.isValid(x, y)) {
+            return -1;
+        }
+
+        let key = x + '_' + y;
+        return this.struct.has(key) ? this.struct.get(key).count : 0;
+    }
+
+
+    absoluteToRelative (points) {
+        let width = this.w;
+
+        return points instanceof Array ? points.map(({x, y}) => ({
+            x: ~~(x / width),
+            y: ~~(y / width)
+        })) : {x: ~~(points.x / width), y: ~~(points.y / width)};
+    }
+
+
+    relativeToAbsolute (points = throwIfMissing()) {
+
+        let width = this.w;
+
+        return points instanceof Array ? points.map(({x, y}) => ({x: x * width, y: y * width })) : {x: points.x * width, y: points.y * width};
+    }
+
+    clear () {
+        this.struct = new Map();
+
+        this._addList = [];
+        this._deleteList = [];
+    }
+
 }
-
-Reader.prototype.getPath = function(path) {
-
-    
-    var result = [], w = this.w;
-    
-    for (var i = 0; i < path.length; i++) {
-        result[i] = {x:path[i].x*w, y:path[i].y*w};
-    }
-    
-    return result;
-}
-
-Reader.prototype.clear = function () {
-    this.struct = new Map();
-
-    this._addList = [];
-    this._deleteList = [];
-};
 
 export {ReaderListener}
 
