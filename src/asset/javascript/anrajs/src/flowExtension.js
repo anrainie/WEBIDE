@@ -627,7 +627,8 @@ $AG.Editor.prototype.nodeDataByAttrs = function(attrs = arr) {
             if (elem) {
                 attrsItem[attrs[index]] = elem;
             } else {
-                
+                //TODO 筛选除属性名相近的属性
+
             }
         }
 

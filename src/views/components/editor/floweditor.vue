@@ -279,7 +279,7 @@
                 $('#' + this.pathName).find('.right-editor').attr('id', config.id);
 
                 this.rightEditor = new $AG.Editor(config);
-                
+
                 let self = this;
                 this.rightEditor.canvas.element.addEventListener('dblclick', function(e){
                     if(e.target.parentNode.isEqualNode(this)) {
