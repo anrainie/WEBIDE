@@ -2,21 +2,24 @@
  * 关于解析后台的流程模型(图)数据
  *
  */
-import {leftEditorConfig, rightEditorConfig} from './editorConfig'
+/*用于参数忽略的时候*/
+function throwIfMissing() {
+    throw new Error('Missing parameter');
+}
 
 /*深复制*/
-var deepCopy= function(source) { 
+let deepCopy= function(source) {
 
-    var result;
+    let result;
     
     if (source instanceof Array) {
         result = [];
-        for (var i = 0; i < source.length; i++) {
+        for (let i = 0; i < source.length; i++) {
             result[i] = source[i];
         }
     } else {
         result = {};
-        for (var key in source) {
+        for (let key in source) {
             result[key] = source[key] instanceof Array ? deepCopy(source[key]) : typeof source[key]==='object'? deepCopy(source[key]): source[key];
         }
     }
@@ -25,9 +28,9 @@ var deepCopy= function(source) {
 };
 
 
-var resolveEditorData = function(nodesConfig, modelsConfig) {
-    var data, location, size; 
-    var {values, assign} = Object;
+let resolveEditorData = function(nodesConfig, modelsConfig = throwIfMissing()) {
+    let data, location, size;
+    let {values, assign} = Object;
     
     try {
         data = values(nodesConfig).map((node, index) => {
@@ -39,7 +42,7 @@ var resolveEditorData = function(nodesConfig, modelsConfig) {
                 type: node.Type,
                 bounds: [parseInt(location[0]), parseInt(location[1]),
                      size[0], size[1]]
-            }, node);
+            }, modelsConfig.data, node);
         });
     } catch (e) {
         //todo throw warn
@@ -47,14 +50,14 @@ var resolveEditorData = function(nodesConfig, modelsConfig) {
     }
     
     return data;
-}
+};
 
-var resolveEditorLine = function(nodesConfig, modelsConfig) {
+var resolveEditorLine = function(nodesConfig) {
     var line = [], {values} = Object, connection;
     
     try {
         values(nodesConfig).forEach(({Id, SourceConnections}) => {
-            if (SourceConnections == null) return;
+            if (SourceConnections === null) return;
             
             connection = SourceConnections.Connection;
             
@@ -126,7 +129,7 @@ var resolveRightEditor = function(editorConfig, modelConfig) {
     if (nodes) {
         nodes = nodes instanceof Array ? nodes : [nodes];
         
-        copyEditorCfg.data = resolveEditorData(nodes, editorConfig.children)
+        copyEditorCfg.data = resolveEditorData(nodes, editorConfig.children);
         copyEditorCfg.line = resolveEditorLine(nodes)
     }
     

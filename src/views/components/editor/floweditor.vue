@@ -67,6 +67,7 @@
     import {resolveLeftEditor, resolveRightEditor} from './modelConfig'
     import skipGroup from '../flowPropDialog/skipGroup.vue';
     import basicInfo from '../flowPropDialog/basicPropsGroup.vue';
+    import * as Constants from 'Constants'
 
     export default {
         name: 'flowEditor',
@@ -80,6 +81,7 @@
             }
         },
         mounted() {
+            ({Root: {Regulation: {Step: this.Step}}} = this.input);
             this.initFlowEditor();
         },
         computed: {
@@ -147,7 +149,7 @@
                 if (rightEditors) {
                     rightEditors.forEach((item) => {
                         if (item.isDirty()) {
-                            item.doSave()
+                            item.doSave();
                             dirty = true;
                         }
                     });
@@ -161,13 +163,10 @@
 
                 //???
                 if (dirty) {
-                    //TOFIX 不能够利用VUE封装object的特殊性
-                    let { Root: { Regulation:{Step} } } = this.input;
-                    Step = this.leftEditor.getSaveData(this.editorBuffer);
-                    
+                    this.setStepFromInput(this.leftEditor.getSaveData(this.editorBuffer));
+
                     this.msgHub.$emit('dirtyStateChange', this.file, false);
-                    console.log(this.input)
-                    
+
                     return true;
                 }
             },
@@ -181,7 +180,7 @@
             initFlowEditor() {
                 //TODO 新建流程图的情况
                 var input = this.input;
-                if (input == null) {
+                if (input === null) {
                     //TOWARN
                     return;
                 }
@@ -211,21 +210,21 @@
                 
                 let self = this;
                 
-                this.leftEditor.rootEditPart.$on('openDialog', function (editPart) {
+                this.leftEditor.rootEditPart.$on(Constants.OPEN_FLOWPROP_DIALOG, function (editPart) {
                     self.dialogTarget = editPart.model;
                     self.showProperties = true;
                 });
                     
                 /*打开实现编辑器*/
-                this.leftEditor.rootEditPart.$on('openRight', function(modelConfig, id) {
-                    var onlyLeftEditor = self.screenSize == 'left';
+                this.leftEditor.rootEditPart.$on(Constants.OPEN_RIGHT_EDITOR, function(modelConfig, id) {
+                    var onlyLeftEditor = self.screenSize === 'left';
                     
                     /*全频左编辑器*/
                     if (onlyLeftEditor) return;
                     
                     /*不在缓冲中，直接创建*/
                     if (!self.editorBuffer.isBuffer(id)) {
-                        self.createRightEditor(this.rightEditorConfig, modelConfig);
+                        self.createRightEditor(self.rightEditorConfig, modelConfig);
                         self.editorBuffer.put(id, self.rightEditor);
                         return;
                     }
@@ -260,7 +259,7 @@
             },
 
             closeLeftEditor() {
-                if (this.leftEditor == null) {
+                if (this.leftEditor === null) {
                     return;
                 }
 
@@ -302,7 +301,7 @@
             },
 
             closeRightEditor() {
-                if (this.rightEditor == null) {
+                if (this.rightEditor === null) {
                     return;
                 }
 
@@ -319,6 +318,10 @@
             },
             getRightEditorID() {
                 return this.pathName + '-rightEditor';
+            },
+            setStepFromInput(step) {
+                this.input.Root.Regulation.Step = step;
+
             }
         },
         components: {
@@ -339,7 +342,8 @@
                 },
                 methods: {
                     getGroup() {
-                        var e = this.editor
+                        console.log('getgroup')
+                        var e = this.editor;
                         if (e && e.hasOwnProperty('config')) {
                             return e.config.group;
                         }
@@ -356,7 +360,7 @@
                 },
                 directives: {
                     drag: {
-                        bind (el, {value : {editor, item, type}}, vnode) {
+                        bind (el, {value : {editor, item, type}}) {
                             el.onmousedown = editor.createNodeWithPalette(type, item);
                             el.ondragstart = () => false;
                             el.setAttribute('src', item.paletteUrl);

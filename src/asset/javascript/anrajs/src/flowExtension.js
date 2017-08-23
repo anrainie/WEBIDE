@@ -27,20 +27,20 @@ let createID = (() => {
 $AG.Editor.prototype.createID = createID;
 
 $AG.Editor.prototype.createNodeWithPalette = function(type, item) {
-    var editor = this, tool = new anra.gef.CreationTool();
+    let editor = this, tool = new anra.gef.CreationTool();
     
     if (!(item && type)) {
         return null;
     }
     
     return function () {
-        var node = new $AG.Node();
+        let node = new $AG.Node();
 
-        node.props = {
+        node.props = Object.assign({
             id: editor.createID(),
             type: type,
             bounds: [0, 0, item.size[0], item.size[1]]
-        };
+        }, item.data);
         tool.model = node;
         
         editor.setActiveTool(tool);
@@ -528,7 +528,7 @@ class editorBuffer {
 
         this.isBuffer = id => pool.has(id);
 
-        this.isActivateEditor = id => id == activateEditorKey;
+        this.isActivateEditor = id => id === activateEditorKey;
 
         this.valuesOfBuffer = () => pool.values();
         
@@ -576,15 +576,13 @@ const arr = ['Skip',
 /*将位置和连线信息更新至taffyDB中*/
 var commonDoSave = function () {
     var nodeStore = this.store.node,
-        lineStore = this.store.line,
-        result, attrs;
+        lineStore = this.store.line;
 
     
     //更新节点位置
     nodeStore().each(({Constraint, bounds}) => {
         Constraint.Location = [bounds[0], bounds[1]].toString();
     });
-    
     
     //更新连线
     nodeStore().update({SourceConnections: undefined});
@@ -613,22 +611,27 @@ var commonDoSave = function () {
     });
     
     this.cmdStack.markSaveLocation();
-} 
+};
 $AG.Editor.prototype.doSave = commonDoSave;
 
 
 /*从数据库中提取对应属性名字的数据*/
 $AG.Editor.prototype.nodeDataByAttrs = function(attrs = arr) {
-    var nodeStore = this.store.node, result, attrs;
+    var nodeStore = this.store.node, result, attrsItem;
     
     /*遍历DB所有record, 筛选属性数据*/
-    result = nodeStore().select.apply(nodeStore(), attrs).map((item) => {
-        attrs = {}
+
+    result = nodeStore().select.apply(nodeStore(), attrs).map((item, index) => {
+        attrsItem = {};
         for (let [index, elem] of item.entries()) {
-            if (elem) attrs[attrs[index]] = elem;
+            if (elem) {
+                attrsItem[attrs[index]] = elem;
+            } else {
+                
+            }
         }
 
-        return attrs;
+        return attrsItem;
     });
     
     return result;

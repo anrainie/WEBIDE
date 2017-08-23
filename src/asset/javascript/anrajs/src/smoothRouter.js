@@ -666,7 +666,7 @@ class Reader {
         this._deleteList = [];
 
         //暂时
-        this.w = 25;
+        this.w = 15;
         this.maxWidth = 100;
         this.maxHeight = 100;
     }
