@@ -99,7 +99,8 @@ module.exports = {
             'vue$': 'vue/dist/vue.common.js',
             assets: resolve('src/asset'),
             anrajs: resolve('src/asset/javascript/anrajs/'),
-            'vs$':'monaco-editor/min/vs'
+            'vs$':'monaco-editor/min/vs',
+            Constants: resolve('src/utils/constants.js')
         }
     },
     babel: {

@@ -1,9 +1,10 @@
 import {$AG} from 'anrajs/src/anra.flow'
 import * as constants from 'anrajs/src/anra.constants'
 import srouter from 'anrajs/src/smoothRouter'
+import * as globalConstants from 'Constants'
 
 var refresh = function () {
-    if (this.model != null && this.figure != null) {
+    if (this.model && this.figure) {
         var b = this.model.get('bounds');
         this.figure.bounds = {
             x: b[0],
@@ -138,6 +139,46 @@ var location = function (figure) {
     })
 };
 
+const arr = ['Skip',
+    'Terminals',
+    'Type',
+    'UUID',
+    'Constraint',
+    'RefImpl',
+    'Remarks',
+    'Implementation',
+    'False',
+    'Desp',
+    'Security',
+    'Quote',
+    'SourceConnections',
+    'True',
+    'Id',
+    'HasSq'];
+
+let defaultData = {
+    'UUID': undefined,
+    'Quote': '0',
+    'Type': undefined,
+    'Desp': 'DefaultName',
+    'RefImpl': 'DefaultName',
+    'Skip': {
+        'Enabled': '0',
+        'Branch': '1'
+    },
+    'HasSql': 'false',
+    'Constraint': {
+        'Location': null,
+        'Size': '160, 60'
+    },
+    'Terminals': {
+        'Name': '0',
+        'Desp': '失败'
+    },
+    'True': '0',
+    'False': '0'
+};
+
 //默认组件
 var stepCommonCpt = {
     name: 'common',
@@ -156,7 +197,7 @@ var stepCommonCpt = {
             activate(){
                 let self = this;
                 this.lisn = function () {
-                    self.emit('openDialog', self.getHost());
+                    self.emit(globalConstants.OPEN_FLOWPROP_DIALOG, self.getHost());
                 };
                 this.getHostFigure().on('dblclick', this.lisn);
 
@@ -178,7 +219,7 @@ var stepCommonCpt = {
                     /*单击且选中*/
                     if (unSelected) return;
                     
-                    self.emit('openRightEditor', host.model.get('Implementation'), host.model.get('UUID'));
+                    self.emit(globalConstants.OPEN_RIGHT_EDITOR, host.model.get('Implementation'), host.model.get('UUID'));
                 }
                 
                 this.getHostFigure().on('click', this.listener);
@@ -189,13 +230,16 @@ var stepCommonCpt = {
             }
         }
     },
-    size: [160, 60],
 
     //特性
     canDrag: true,
     linkable: true,
     selectable: true,
     refresh: refresh,
+
+    //数据
+    size: [160, 60],
+    data: defaultData
 };
 
 var serviceInvokdEntered = {
@@ -220,7 +264,11 @@ var serviceInvokdEntered = {
     
     policies : {
        'despText': $AG.policy.TextPolicy('Desp', location) 
-    }
+    },
+
+    //数据
+    size: [160, 60],
+    data: defaultData
 };
 
 
@@ -434,7 +482,7 @@ var rightEditorConfig = {
         0: manhattanRoute
     },
     group: {
-        0: {
+        '0': {
             name: '基本组件',
             items: {
                 '2': nodeStart,
