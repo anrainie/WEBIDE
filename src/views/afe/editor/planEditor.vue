@@ -1,5 +1,8 @@
 <template>
     <div class="planEditor">
+        <el-button @click="lock">lock</el-button>
+        <el-button @click="release">release</el-button>
+        <el-button @click="peek">peek</el-button>
         <tree class="left-side" :model="treeArchitecture" :config="treeConfig"></tree>
         <div class="right-side">
             <div class="planEditor-head">
@@ -184,6 +187,78 @@
             }
         },
         methods:{
+            lock(){
+                var self = this;
+                IDE.socket.emit('lockFile',
+                    {
+                        type:IDE.type,
+                        event:'lockFile',
+                        data:{
+                            uid:'123456',
+                            path:this.file.model.path
+                        }
+                    },function (respData) {
+                    console.info("respData",respData);
+                        var result = JSON.parse(respData);
+                        if(result.state === 'success'){
+                            self.$notify({
+                                title: '提示',
+                                message: '上锁成功',
+                            });
+                        }else if(result.state === 'error'){
+                            self.$notify({
+                                title: '提示',
+                                message: '上锁失败',
+                            });
+                        }
+                    }
+                );
+            },
+            release(){
+                var self = this;
+                IDE.socket.emit('releaseFilelock',
+                    {
+                        type:IDE.type,
+                        event:'releaseFilelock',
+                        data:{
+                            uid:'123456',
+                            path:this.file.model.path
+                        }
+                    },function (respData) {
+                        var result = JSON.parse(respData);
+                        if(result.state === 'success'){
+                            self.$notify({
+                                title: '提示',
+                                message: '解锁成功',
+                            });
+                        }else if(result.state === 'error'){
+                            self.$notify({
+                                title: '提示',
+                                message: '解锁失败',
+                            });
+                        }
+                    }
+                );
+            },
+            peek(){
+                var self = this;
+                IDE.socket.emit('peekFileLock',
+                    {
+                        type:IDE.type,
+                        event:'peekFileLock',
+                        data:{
+                            uid:'123456',
+                            path:this.file.model.path
+                        }
+                    },function (respData) {
+                        var result = JSON.parse(respData);
+                        self.$notify({
+                            title: '提示',
+                            message: result.data,
+                        });
+                    }
+                );
+            },
             init(){
                 this.getEditorArchitecture();
             },

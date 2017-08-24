@@ -53,6 +53,8 @@ var afeProduct = new Product('afe', config.IDE_HOST, config.IDE_PORT, afeService
 afeProduct.connect();
 Products[afeProduct.name] = afeProduct;
 
+
+
 function Server() {
 
 }

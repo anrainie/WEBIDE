@@ -60,18 +60,20 @@ Product.prototype.runHandler = function (reqData,callback) {
         callback(JSON.stringify({"state": "error", "errorMsg": "ide socket is off line"}));
     }else{
         if (!handler) {
-            callback(JSON.stringify({"state": "error", "returnMsg": "The service is unregisted"}));
+            callback(JSON.stringify({"state": "error", "returnMsg": "service is unregisted"}));
         } else {
             let data = JSON.stringify(reqData);
-            handler(reqData.event, data, this.socket, function (err, rspData) {
-                if (err) {
-                    callback(JSON.stringify({"state": "error", "errorMsg": "err"}));
-                } else {
-                    callback(rspData);
-                }
+            handler(reqData.event, data, this.socket, function (rspData) {
+                callback(rspData);
             });
         }
     }
+}
+
+Product.prototype.emit = function (eventId,reqData,callback) {
+    this.socket.emit(eventId, reqData, function (respData) {
+        callback(respData);
+    });
 }
 
 Product.prototype.registerService = function (service) {

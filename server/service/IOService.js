@@ -8,7 +8,7 @@ function IOService(eventId, data,socket, callback) {
     console.info("ioservice emit :" + eventId);
     socket.emit(eventId, data, function (respData) {
         console.info("ioservice callback successful:" + eventId);
-        callback(null, respData);
+        callback(respData);
     });
 }
 module.exports =  IOService;
