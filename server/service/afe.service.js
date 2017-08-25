@@ -23,6 +23,11 @@ module.exports = {
             handler: ioService
         },
         {
+            id:'beforeModify',
+            type:'IOService',
+            handler:ioService
+        },
+        {
             id: 'local1',
             type: 'localService',
             handler: function () {
