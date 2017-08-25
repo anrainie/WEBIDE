@@ -2,8 +2,10 @@
  * Created by zcn on 2017/6/15.
  */
 var Client = require('socket.io-client');
+var dbConstants = require('../constants/DBConstants');
 
-function Product(name,ip,port,serviceConfig) {
+function Product(id,name,ip,port,serviceConfig) {
+    this.id = id;
     this.name = name;
     this.ip = ip;
     this.port = port;
@@ -96,9 +98,47 @@ Product.prototype.registerService = function (service) {
     }
 }
 
+Product.prototype.lockFile = function (reqData,callback) {
+    let self = this;
+    let data = reqData.data;
+    let cb = callback;
+    this.emit("lockFile", JSON.stringify(reqData), function (respData) {
+        var result = JSON.parse(respData);
+        if(result.state === 'success'){
+            let filelocks = WebIDEDB.getCollection(dbConstants.filelocks);
+            filelocks.findAndRemove({pid:self.id,file:data.path});
+            filelocks.insert({pid:self.id,uid:data.uid,file:data.path,createtime:new Date()});
+        }
+        cb(result);
+    });
+}
 
-Product.prototype.disconnect = function () {
-    //TODO
+Product.prototype.releaseFile = function (reqData,callback) {
+    let self = this;
+    let cb = callback;
+    let data = reqData.data;
+    this.emit('releaseFilelock', JSON.stringify(reqData), function (respData) {
+        var result = JSON.parse(respData);
+        if(result.state === 'success'){
+            let filelocks = WebIDEDB.getCollection(dbConstants.filelocks);
+            filelocks.findAndRemove({pid:self.id,file:data.path});
+        }
+        cb(result);
+    });
+}
+
+Product.prototype.peekFileLock = function (reqData,callback) {
+    let cb = callback;
+    this.emit('peekFileLock', JSON.stringify(reqData), function (respData) {
+        var result = JSON.parse(respData);
+        cb(result);
+    });
+}
+
+
+Product.prototype.uninstall = function () {
+    let filelocks = WebIDEDB.getCollection(dbConstants.filelocks);
+    filelocks.findAndRemove({pid:self.id});
 }
 
 

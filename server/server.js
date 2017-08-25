@@ -8,9 +8,11 @@ var SiteDao = require("./dao/UserDao");
 var mongoose = require('mongoose');
 var config = require('./config');
 var Product = require('./product/Product');
+var WebIDEDB = require('./db/WebIDEDB');
+var dbConstants = require('./constants/DBConstants');
+
 mongoose.Promise = global.Promise;
 global.db = mongoose.connect(config.db);
-
 
 var app = express();
 var http = require('http').Server(app);
@@ -41,19 +43,24 @@ var afeServices = require('./service/afe.service');
 
 var servlet = new Servlet([afaServices,afeServices], session, http);
 servlet.start();
-global.Servlet = servlet;
 
-global.Products = {};
-
-var afaProduct = new Product('afa', config.IDE_HOST, config.IDE_PORT, afaServices);
+var products = {};
+var afaProduct = new Product('afa01','afa', config.IDE_HOST, config.IDE_PORT, afaServices);
 afaProduct.connect();
-Products[afaProduct.name] = afaProduct;
+products[afaProduct.name] = afaProduct;
 
-var afeProduct = new Product('afe', config.IDE_HOST, config.IDE_PORT, afeServices);
+var afeProduct = new Product('afe01','afe', config.IDE_HOST, config.IDE_PORT, afeServices);
 afeProduct.connect();
-Products[afeProduct.name] = afeProduct;
+products[afeProduct.name] = afeProduct;
 
+// database
+var webIDEDB = new WebIDEDB({dbpath:'webide.db'});
+webIDEDB.start();
+webIDEDB.getOrCreateCollection(dbConstants.filelocks);
 
+global.Servlet = servlet;
+global.Products = products;
+global.WebIDEDB = webIDEDB;
 
 function Server() {
 

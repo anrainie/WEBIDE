@@ -1,4 +1,5 @@
 var ioService = require('./IOService');
+var dbConstants = require('../constants/DBConstants');
 module.exports = {
     type: 'afe',
     services: [
@@ -48,15 +49,15 @@ module.exports = {
             id:'lockFile',
             type:'localService',
             handler:function (reqData,callback,service) {
-                let consumer = Products[reqData.type]
+                let consumer = Products[reqData.type];
+                let cb = callback;
                 if (consumer) {
-                    consumer.emit(service.id, JSON.stringify(reqData), function (respData) {
-                         var result = JSON.parse(respData);
-                         if(result.state === 'success'){
-                             callback(respData);
-                         }else if(result.state === 'error'){
-                             callback(respData);
-                         }
+                    consumer.lockFile(reqData,function (respData) {
+                        if(respData.state === 'success'){
+                            cb(respData);
+                        }else if(respData.state === 'error'){
+                            cb(respData);
+                        }
                     });
                 }
             }
@@ -65,14 +66,14 @@ module.exports = {
             id:'releaseFilelock',
             type:'localService',
             handler:function (reqData,callback,service) {
-                let consumer = Products[reqData.type]
+                let consumer = Products[reqData.type];
+                let cb = callback;
                 if (consumer) {
-                    consumer.emit(service.id, JSON.stringify(reqData), function (respData) {
-                        var result = JSON.parse(respData);
-                        if(result.state === 'success'){
-                            callback(respData);
-                        }else if(result.state === 'error'){
-                            callback(respData);
+                    consumer.releaseFile(reqData,function (respData) {
+                        if(respData.state === 'success'){
+                            cb(respData);
+                        }else if(respData.state === 'error'){
+                            cb(respData);
                         }
                     });
                 }
@@ -82,14 +83,14 @@ module.exports = {
             id:'peekFileLock',
             type:'localService',
             handler:function (reqData,callback,service) {
-                let consumer = Products[reqData.type]
+                let consumer = Products[reqData.type];
+                let cb = callback;
                 if (consumer) {
-                    consumer.emit(service.id, JSON.stringify(reqData), function (respData) {
-                        var result = JSON.parse(respData);
-                        if(result.state === 'success'){
-                            //callback(respData);
-                        }else if(result.state === 'error'){
-                            //callback(respData);
+                    consumer.peekFileLock(reqData,function (respData) {
+                        if(respData.state === 'success'){
+                            cb(respData);
+                        }else if(respData.state === 'error'){
+                            cb(respData);
                         }
                     });
                 }
