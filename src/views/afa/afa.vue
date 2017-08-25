@@ -87,7 +87,7 @@
     import toolbar from "../components/toolbar.vue"
     import IDESocket from "../../core/IDESocket"
     import navContextMenus from '../../action/afa.navi.contextmenu';
-    import menuData from '../../action/ide.menu';
+    import menuData from '../../action/afa.menu';
     import flowEditor from "../components/editor/floweditor.vue";
     import dictEditor from "../components/editor/dictEditor.vue";
     import javaEditor from "../components/editor/javaEditor.vue";

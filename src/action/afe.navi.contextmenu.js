@@ -3,46 +3,96 @@ import  showCompileErrorMsgDialog from '../views/components/dialog/ShowCompileEr
 import  wizardtext from  '../../src/action/afe.wizardtext'
 import  wizardVue from '../views/afe/components/wizards/AfeNewCreateWizard.vue'
 import Vue from 'vue';
-function getNewWizard () {
-  var split = this.id.split('/')
-  var id = split[split.length - 1]
-  var newItem = wizardtext.match1(id)[0]
+//根据resourceId获取wizard并根据向导配置信息将基本信息传给wizard
+function getWizardByResourceId (newItem, preName) {
 
   var newWizard = new Vue(wizardVue)
-  newWizard.path = this.path
-  if(this.groups){
-    for(var index in this.groups ){
-        var value = this.groups[index]
-        var label = this.groups[index]
-        var groupItem = {value,label}
-        newWizard.groups.push(groupItem)
+  if (newItem.groups) {
+    for (var index in newItem.groups) {
+      var value = newItem.groups[index]
+      var label = newItem.groups[index]
+      var groupItem = {value, label}
+      newWizard.groups.push(groupItem)
     }
     newWizard.groupsLabel = newItem.groupsLabel
   }
-  if(newItem.reference){
+  if (newItem.reference) {
     newWizard.reference = newItem.reference
     newWizard.refLabel = newItem.refLabel
   }
   newWizard.resourceId = newItem.resourceId
   newWizard.type = newItem.type;
-  newWizard.wizardtitle = newItem.wizardtitle
+  newWizard.wizardtitle = preName + newItem.wizardtitle
   newWizard.pagedesc = newItem.pagedesc
-  newWizard.pagetitle = newItem.pagetitle
+  newWizard.pagetitle = preName + newItem.pagetitle
   newWizard.namelabel.label = newItem.namelabel.label
   newWizard.namelabel.value = newItem.namelabel.value
-  if(newItem.desclabel) {
+  if (newItem.desclabel) {
     newWizard.desclabel.label = newItem.desclabel.label
     newWizard.desclabel.value = newItem.desclabel.value
   }
-  if(newItem.directoryLabel) {
+  if (newItem.directoryLabel) {
     newWizard.directoryLabel.label = newItem.directoryLabel.label
     newWizard.directoryLabel.value = newItem.directoryLabel.value
   }
-
+  return newWizard
+}
+// 调用dialog
+function mountDialog (newWizard) {
   var oDiv = document.createElement('div');
   oDiv.id = "wizard"
-  document.body.appendChild(oDiv);
+  document.body.appendChild(oDiv)
   newWizard.$mount('#wizard')
+}
+
+function getNewWizard () {
+  var newWizard
+  var path = this.path
+  var reourceId = this.resourceId;
+  var preName = "新建"
+  if(this.id=="cn.com.agree.eci.ide.navigation.action.AfeModifyAction"){
+    //修改
+     preName = "修改"
+    //根据path获取资源以及资源的相关信息，resourceId,name,desc,direcotry......
+    IDE.socket.emit("beforeModify",{
+      type: IDE.type,
+      event: 'beforeModify',
+      data: {path: this.path}
+    },function(data){
+      if (data) {
+        var result = JSON.parse(data);
+        if (result.state === 'success') {
+          var oldName,oldDescription,oldDirectory,oldGroup,oldRef
+          reourceId = result.data.resourceId
+          oldName = result.data.name?result.data.name:""
+          oldDescription = result.data.description?result.data.description:""
+          oldDirectory = result.data.directory?result.data.directory:""
+          oldGroup = result.data.applicationGroupName? result.data.applicationGroupName:result.data.tradeGroupName?result.data.tradeGroupName:""
+          oldRef = result.data.template?result.data.template:""
+          var newItem = wizardtext.match1(reourceId)[0]
+          newWizard = getWizardByResourceId.call(this,newItem, preName)
+          newWizard.style = 1 << 1
+          newWizard.name = oldName
+          newWizard.description = oldDescription
+          newWizard.directory = oldDirectory
+          if (newItem.groups) {
+            newWizard.selectedGroup = [oldGroup]
+          }
+          if (newItem.reference) {
+            newWizard.selectedRef = [oldRef]
+          }
+          newWizard.path = path
+          mountDialog(newWizard)
+        }
+
+      }
+    });
+  }else {
+    var newItem = wizardtext.match1(reourceId)[0]
+    newWizard = getWizardByResourceId.call(this,newItem,preName)
+    newWizard.path = path
+    mountDialog(newWizard)
+  }
   return newWizard
 }
 var items = {

@@ -7,10 +7,10 @@
         <!--<div>{{pagedesc}}</div>-->
         <el-form >
             <el-form-item :label="namelabel.label" :label-width="labelWidth">
-                <el-input :disabled="namelabel.value.length>0" v-model="name" auto-complete="off" placeholder="test">{{namelabel.value}}</el-input>
+                <el-input :disabled="namelabel.value.length>0" v-model="name" auto-complete="off" placeholder="test">{{name}}</el-input>
             </el-form-item>
             <el-form-item v-if="directoryLabel.label" :label="directoryLabel.label" :label-width="labelWidth">
-                <el-input v-model="directory" auto-complete="off">{{directoryLabel.value}}</el-input>
+                <el-input v-model="directory" auto-complete="off">{{directory}}</el-input>
             </el-form-item>
 
             <el-row v-if="groupsLabel">
@@ -20,7 +20,7 @@
                                 :options="groups"
                                 v-model="selectedGroup"
                                 @change="handleChange"
-                        >
+                        >{{selectedGroup[0]}}
                         </el-cascader>
                     </el-form-item>
                 </el-col>
@@ -30,14 +30,14 @@
                                 :options="reference"
                                 v-model="selectedRef"
                                 @change="handleChange"
-                        >
+                        >{{selectedRef[0]}}
                         </el-cascader>
                     </el-form-item>
                 </el-col>
             </el-row>
 
             <el-form-item v-if="desclabel.label" :label="desclabel.label" :label-width="labelWidth">
-                <el-input v-model="desc" auto-complete="off">{{desclabel.value}}</el-input>
+                <el-input v-model="description" auto-complete="off">{{description}}</el-input>
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -53,11 +53,13 @@
     data() {
       return {
         dialogFormVisible : true,
+        //新建：1，修改：2
+        style:1,
         labelWidth: '140px',
         //资源名
         name:'',
         //描述信息
-        desc:'',
+        description:'',
         //目录
         directory:'',
         resourceId:'',
@@ -101,10 +103,15 @@
       },
       handleOk(){
         this.dialogFormVisible = false;
+        //修改之前删掉旧资源
+        if(this.style == 2){
+          let item = IDE.navigator.getItem(this.path)
+          IDE.navigator.deleteItem(item);
+        }
         IDE.socket.emit("createNewResource",{
           type: IDE.type,
           event: 'createNewResource',
-          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name==""?name=this.namelabel.value:name=this.name,desc:this.desc,directory:this.directory,group:this.selectedGroup[0],ref:this.selectedRef[0]}
+          data: {style:this.style,path: this.path,resourceId:this.resourceId,type:this.type,name:this.name==""?name=this.namelabel.value:name=this.name,description:this.description,directory:this.directory,group:this.selectedGroup[0],ref:this.selectedRef[0]}
         }, function (data) {
           if (data) {
             let result = JSON.parse(data);
@@ -127,6 +134,9 @@
             }
           }
         });
+        //删除dialog
+//        var dialog = document.getElementById("wizard")
+//        document.body.removeChild(dialog)
       },
       handleChange(value) {
         console.log(value);

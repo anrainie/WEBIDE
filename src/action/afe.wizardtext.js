@@ -1,10 +1,10 @@
 var items = {
-    'applicationManageAction': {
+    'applicationManage': {
       id: 'applicationManageAction',
       resourceId: 'applicationManage',
       path: '',
-      wizardtitle: '新建管理节点向导',
-      pagetitle: '新建管理节点向导页',
+      wizardtitle: '管理节点向导',
+      pagetitle: '管理节点向导页',
       pagedesc: '请输入管理节点名称',
       namelabel: {
         label:'名称',
@@ -20,11 +20,11 @@ var items = {
       },
       type:'folder'
     },
-    'applicationAction': {
+    'application': {
       id: 'applicationAction',
       resourceId: 'application',
-      wizardtitle: '新建应用向导',
-      pagetitle: '新建应用向导页',
+      wizardtitle: '应用向导',
+      pagetitle: '应用向导页',
       pagedesc: '请输入应用名称',
       groupsLabel:'所在应用组',
       refLabel:'模板',
@@ -57,12 +57,12 @@ var items = {
       groups: [],
       type:'folder'
     },
-    'busAction': {
+    'bus': {
       id: 'busAction',
       resourceId: 'bus',
       path: '',
-      wizardtitle: '新建总线文件',
-      pagetitle: '新建总线文件',
+      wizardtitle: '总线文件',
+      pagetitle: '总线文件',
       pagedesc: '请输入总线文件名称',
       namelabel: {
         label:'总线文件名称',
@@ -74,12 +74,12 @@ var items = {
       },
       type:'file'
     },
-    'ctrlAction': {
+    'ctrl': {
       id: 'ctrlAction',
       resourceId: 'ctrl',
       path: '',
-      wizardtitle: '新建渠道控制器文件',
-      pagetitle: '新建渠道控制器文件',
+      wizardtitle: '渠道控制器文件',
+      pagetitle: '渠道控制器文件',
       pagedesc: '请输入渠道控制器文件名称',
       namelabel: {
         label:'渠道控制器文件名称',
@@ -91,12 +91,12 @@ var items = {
       },
       type:'file'
     },
-    'rtAction': {
+    'rt': {
       id: 'rtAction',
       resourceId: 'rt',
       path: '',
-      wizardtitle: '新建路由文件',
-      pagetitle: '新建路由文件',
+      wizardtitle: '路由文件',
+      pagetitle: '路由文件',
       pagedesc: '请输入路由文件名称',
       namelabel: {
         label:'路由文件名称',
@@ -104,12 +104,12 @@ var items = {
       },
       type:'file'
     },
-    'fmcAction': {
+    'fmc': {
       id: 'fmcAction',
       resourceId: 'fmc',
       path: '',
-      wizardtitle: '新建流量控制',
-      pagetitle: '新建流量控制',
+      wizardtitle: '流量控制',
+      pagetitle: '流量控制',
       pagedesc: '请输入流量控制名称',
       namelabel: {
         label:'流量控制名称',
@@ -121,12 +121,12 @@ var items = {
       },
       type:'file'
     },
-    'tccAction': {
+    'tcc': {
       id: 'tccAction',
       resourceId: 'tcc',
       path: '',
-      wizardtitle: '新建交易控制配置',
-      pagetitle: '新建交易控制配置',
+      wizardtitle: '交易控制配置',
+      pagetitle: '交易控制配置',
       pagedesc: '请输入交易控制名称',
       namelabel: {
         label:'交易控制名称',
@@ -138,12 +138,12 @@ var items = {
       },
       type:'file'
     },
-    'mapAction': {
+    'map': {
       id: 'mapAction',
       resourceId: 'map',
       path: '',
-      wizardtitle: '新建映射表文件',
-      pagetitle: '新建映射表文件',
+      wizardtitle: '映射表文件',
+      pagetitle: '映射表文件',
       pagedesc: '请输入映射表文件名称',
       namelabel: {
         label:'映射表文件名称',
@@ -151,12 +151,12 @@ var items = {
       },
       type:'file'
     },
-    'tcfAction': {
+    'tcf': {
       id: 'tcfAction',
       resourceId: 'tcf',
       path: '',
-      wizardtitle: '新建交易控制表文件',
-      pagetitle: '新建交易控制表文件',
+      wizardtitle: '交易控制表文件',
+      pagetitle: '交易控制表文件',
       pagedesc: '请输入交易控制表文件名称',
       namelabel: {
         label:'交易控制表文件名称',
@@ -168,12 +168,12 @@ var items = {
       },
       type:'file'
     },
-    'schAction': {
+    'sch': {
       id: 'schAction',
       resourceId: 'sch',
       path: '',
-      wizardtitle: '新建定时调度文件',
-      pagetitle: '新建定时调度文件',
+      wizardtitle: '定时调度文件',
+      pagetitle: '定时调度文件',
       pagedesc: '请输入定时调度文件名称',
       namelabel: {
         label:'定时调度文件名称',
@@ -181,12 +181,12 @@ var items = {
       },
       type:'file'
     },
-    'connAction': {
+    'conn': {
       id: 'connAction',
       resourceId: 'conn',
       path: '',
-      wizardtitle: '新建连接配置文件',
-      pagetitle: '新建连接配置文件',
+      wizardtitle: '连接配置文件',
+      pagetitle: '连接配置文件',
       pagedesc: '请输入连接配置文件名称',
       namelabel: {
         label:'连接配置文件名称',
@@ -194,12 +194,12 @@ var items = {
       },
       type:'file'
     },
-    'tradeAction': {
+    'trade': {
       id: 'tradeAction',
       resourceId: 'trade',
       path: '',
-      wizardtitle: '新建交易',
-      pagetitle: '新建交易',
+      wizardtitle: '交易',
+      pagetitle: '交易',
       pagedesc: '请输入交易名称',
       namelabel: {
         label:'交易名称',
@@ -217,12 +217,12 @@ var items = {
       groups: [],
       type:'file'
     },
-    'cwfAction': {
+    'cwf': {
       id: 'cwfAction',
       resourceId: 'cwf',
       path: '',
-      wizardtitle: '新建工作流文件',
-      pagetitle: '新建工作流文件',
+      wizardtitle: '工作流文件',
+      pagetitle: '工作流文件',
       pagedesc: '请输入工作流文件名称',
       namelabel:{
         label:'工作流文件名称',
@@ -234,12 +234,12 @@ var items = {
       },
       type:'file'
     },
-    'rcdAction': {
+    'rcd': {
       id: 'rcdAction',
       resourceId: 'rcd',
       path: '',
-      wizardtitle: '新建报文格式文件',
-      pagetitle: '新建报文格式文件',
+      wizardtitle: '报文格式文件',
+      pagetitle: '报文格式文件',
       pagedesc: '请输入报文格式文件名称',
       namelabel: {
         label:'报文格式文件名称',
@@ -251,12 +251,12 @@ var items = {
       },
       type:'file'
     },
-    'dataDictGroupAction': {
+    'dataDictGroup': {
       id: 'dataDictGroupAction',
       resourceId: 'dataDictGroup',
       path: '',
-      wizardtitle: '新建数据字典管理节点向导',
-      pagetitle: '新建数据字典管理节点向导页',
+      wizardtitle: '数据字典管理节点向导',
+      pagetitle: '数据字典管理节点向导页',
       pagedesc: '请输入数据字典管理节点名称',
       namelabel:{
         label:'名称',
@@ -272,29 +272,29 @@ var items = {
       },
       type:'folder'
     },
-    'dictAction': {
+    'dict': {
       id: 'dictAction',
       resourceId: 'dict',
       path: '',
-      wizardtitle: '新建数据字典文件',
-      pagetitle: '新建数据字典文件',
+      wizardtitle: '数据字典文件',
+      pagetitle: '数据字典文件',
       pagedesc: '请输入数据字典文件名称',
       namelabel: {
         label:'名称',
         value: ''
       },
       desclabel: {
-        label:'新建数据字典文件描述',
+        label:'数据字典文件描述',
         value:''
       },
       type:'file'
     },
-    'sqlDataDictGroupAction': {
+    'sqlDataDictGroup': {
       id: 'sqlDataDictGroupAction',
       resourceId: 'sqlDataDictGroup',
       path: '',
-      wizardtitle: '新建DB字典管理节点向导',
-      pagetitle: '新建DB字典管理节点向导页',
+      wizardtitle: 'DB字典管理节点向导',
+      pagetitle: 'DB字典管理节点向导页',
       pagedesc: '请输入DB字典管理节点名称',
       namelabel: {
         label:'名称',
@@ -310,12 +310,12 @@ var items = {
       },
       type:'folder'
     },
-    'sqldictAction': {
+    'sqldict': {
       id: 'sqldictAction',
       resourceId: 'sqldict',
       path: '',
-      wizardtitle: '新建DB字典文件',
-      pagetitle: '新建DB字典文件',
+      wizardtitle: 'DB字典文件',
+      pagetitle: 'DB字典文件',
       pagedesc: '请输入DB字典文件名称',
       namelabel: {
         label:'DB字典文件名称',
@@ -327,12 +327,12 @@ var items = {
       },
       type:'file'
     },
-    'vtfAction': {
+    'vtf': {
       id: 'vtfAction',
       resourceId: 'vtf',
       path: '',
-      wizardtitle: '新建校验文件',
-      pagetitle: '新建校验文件',
+      wizardtitle: '校验文件',
+      pagetitle: '校验文件',
       pagedesc: '请输入校验文件名称',
       namelabel: {
         label:'名称',
@@ -344,12 +344,12 @@ var items = {
       },
       type:'file'
     },
-    'fdAction':{
+    'fd':{
       id:'fdAction',
       resourceId:'fd',
       path: '',
-      wizardtitle: '新建文件格式文件',
-      pagetitle: '新建文件格式文件',
+      wizardtitle: '文件格式文件',
+      pagetitle: '文件格式文件',
       pagedesc: '请输入文件格式文件名称',
       namelabel: {
         label:'文件格式文件名称',
@@ -361,12 +361,12 @@ var items = {
       },
       type:'file'
     },
-    'templateGroupAction':{
+    'templateGroup':{
       id:'templateGroupAction',
       resourceId:'templateGroup',
       path: '',
-      wizardtitle: '新建模板管理节点',
-      pagetitle: '新建模板管理节点',
+      wizardtitle: '模板管理节点',
+      pagetitle: '模板管理节点',
       pagedesc: '请输入模板管理节点名称',
       namelabel: {
        label:'模板管理名称',
@@ -382,12 +382,12 @@ var items = {
       },
       type:'folder'
     },
-    'wftAction':{
+    'wft':{
       id:'wftAction',
       resourceId:'wft',
       path: '',
-      wizardtitle: '新建工作流模板',
-      pagetitle: '新建工作流模板',
+      wizardtitle: '工作流模板',
+      pagetitle: '工作流模板',
       pagedesc: '请输入工作流模板名称',
       namelabel: {
         label:'工作流模板名称',
@@ -399,12 +399,12 @@ var items = {
       },
       type:'file'
     },
-    'systemServerManageAction': {
+    'systemServerManage': {
       id: 'systemServerManageAction',
       resourceId: 'systemServerManage',
       path: '',
-      wizardtitle: '新建管理节点测试向导',
-      pagetitle: '新建管理节点向测试向导页',
+      wizardtitle: '管理节点测试向导',
+      pagetitle: '管理节点向测试向导页',
       pagedesc: '请输入管理节点测试名称',
       namelabel: {
         label:'名称',
@@ -420,12 +420,12 @@ var items = {
       },
       type:'folder'
     },
-    'testtradeAction': {
+    'testtrade': {
       id: 'testtradeAction',
       resourceId: 'testtrade',
       path: '',
-      wizardtitle: '新建测试交易向导',
-      pagetitle: '新建测试交易向导页',
+      wizardtitle: '测试交易向导',
+      pagetitle: '测试交易向导页',
       pagedesc: '请输入测试交易名称',
       namelabel: {
         label:'测试交易名称',
@@ -441,12 +441,12 @@ var items = {
       },
       type:'folder'
     },
-    'multiStepGroupAction':{
+    'multiStepGroup':{
       id:'multiStepGroupAction',
       resourceId:'multiStepGroup',
       path: '',
-      wizardtitle: '新建场景测试集向导',
-      pagetitle: '新建场景测试集向导页',
+      wizardtitle: '场景测试集向导',
+      pagetitle: '场景测试集向导页',
       pagedesc: '请输入场景测试集名称',
       namelabel: {
         label:'场景测试集名称',
@@ -462,12 +462,12 @@ var items = {
       },
       type:'folder'
     },
-    'paraConfigAction':{
+    'paraConfig':{
       id:'paraConfigAction',
       resourceId:'paraConfig',
       path: '',
-      wizardtitle: '新建动态参数向导',
-      pagetitle: '新建动态参数向导页',
+      wizardtitle: '动态参数向导',
+      pagetitle: '动态参数向导页',
       pagedesc: '请输入动态参数名称',
       namelabel: {
         label:'动态参数名称',
@@ -483,12 +483,12 @@ var items = {
       },
       type:'folder'
     },
-  'pcfgAction':{
+  'pcfg':{
     id:'pcfgAction',
     resourceId:'pcfg',
     path: '',
-    wizardtitle: '新建动态参数文件',
-    pagetitle: '新建动态参数文件',
+    wizardtitle: '动态参数文件',
+    pagetitle: '动态参数文件',
     pagedesc: '请输入动态参数文件名称',
     namelabel: {
       label:'动态参数文件名称',
@@ -500,12 +500,12 @@ var items = {
     },
     type:'file'
   },
-    'mstAction':{
+    'mst':{
       id:'mstAction',
       resourceId:'mst',
       path: '',
-      wizardtitle: '新建场景测试文件',
-      pagetitle: '新建场景测试文件',
+      wizardtitle: '场景测试文件',
+      pagetitle: '场景测试文件',
       pagedesc: '请输入场景测试文件名称',
       namelabel: {
         label:'场景测试文件名称',
@@ -517,12 +517,12 @@ var items = {
       },
       type:'file'
     },
-    'mesAction': {
+    'mes': {
       id: 'mesAction',
       resourceId: 'mes',
       path: '',
-      wizardtitle: '新建测试报文文件',
-      pagetitle: '新建测试报文文件',
+      wizardtitle: '测试报文文件',
+      pagetitle: '测试报文文件',
       pagedesc: '请输入测试报文文件名称',
       namelabel: {
         label:'测试报文文件名称',
@@ -534,12 +534,12 @@ var items = {
       },
       type:'file'
     },
-    'trdAction': {
+    'trd': {
       id: 'trdAction',
       resourceId: 'trd',
       path: '',
-      wizardtitle: '新建测试记录文件',
-      pagetitle: '新建测试记录文件',
+      wizardtitle: '测试记录文件',
+      pagetitle: '测试记录文件',
       pagedesc: '请输入测试记录文件名称',
       namelabel: {
         label:'测试记录文件名称',
