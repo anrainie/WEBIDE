@@ -29,23 +29,28 @@ module.exports = {
             handler:ioService
         },
         {
+            id: 'getAppAction',
+            type: 'IOService',
+            handler: ioService
+        },
+        {
             id: 'local1',
             type: 'localService',
             handler: function () {
                 console.info('run afe localService: local1');
             }
         },
-        {
-            id: 'saveFile',
+       {
+         id: 'saveFile',
+         type: 'IOService',
+         handler: ioService
+       },
+      {
+        id: 'loadPlanEditorArchitecture',
             type: 'IOService',
             handler: ioService
-        },
-        {
-            id: 'loadPlanEditorArchitecture',
-            type: 'IOService',
-            handler: ioService
-        },
-        {
+      },
+      {
             id:'lockFile',
             type:'localService',
             handler:function (reqData,callback,service) {
