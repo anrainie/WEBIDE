@@ -27,15 +27,6 @@ function getAppAction(){
 function getWizardByResourceId (newItem, preName) {
 
   var newWizard = new Vue(wizardVue)
-  if (newItem.groups) {
-    for (var index in newItem.groups) {
-      var value = newItem.groups[index]
-      var label = newItem.groups[index]
-      var groupItem = {value, label}
-      newWizard.groups.push(groupItem)
-    }
-    newWizard.groupsLabel = newItem.groupsLabel
-  }
   if (newItem.reference) {
     newWizard.reference = newItem.reference
     newWizard.refLabel = newItem.refLabel
@@ -96,6 +87,14 @@ function getNewWizard () {
           newWizard.description = oldDescription
           newWizard.directory = oldDirectory
           if (newItem.groups) {
+              for (var index in result.data.groups) {
+                var value = result.data.groups[index]
+                var label = result.data.groups[index]
+                var groupItem = {value, label}
+                newWizard.groups.push(groupItem)
+
+            }
+            newWizard.groupsLabel = newItem.groupsLabel
             newWizard.selectedGroup = [oldGroup]
           }
           if (newItem.reference) {
