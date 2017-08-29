@@ -58,7 +58,7 @@ Servlet.prototype.start = function () {
                             console.info('servlet capture socket event:', reqData.type, reqData.event)
                             let consumer = Products[reqData.type]
                             if (consumer) {
-                                consumer.runHandler(reqData, callback);
+                                consumer.runServiceHandler(reqData, callback);
                             } else {
                                 console.error('can not find consumer :' + reqData.type, reqData);
                             }

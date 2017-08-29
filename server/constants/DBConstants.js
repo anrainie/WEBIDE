@@ -1,3 +1,4 @@
 module.exports = {
-    filelocks:"filelocks"
+    filelock:'filelock',
+    product:'product'
 }

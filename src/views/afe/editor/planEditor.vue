@@ -30,10 +30,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="content-cell" v-if="selected && selected.nodeType && selected.nodeType.propertiesDesc && selected.nodeType.propertiesDesc.propertyDescCount > 0">
+                <div class="content-cell" v-if="selected && selected.nodeType
+                                                && selected.nodeType.propertiesDesc
+                                                && selected.nodeType.propertiesDesc.propertyDescCount > 0">
                     <div>
                         <img src="../../../asset/afe/plan_title.png"/>
-                        <div>title</div>
+                        <div>属性信息</div>
                     </div>
                     <div class="properties">
                         <div v-for="propertyDesc in selected.nodeType.propertiesDesc.propertyDesc">
@@ -42,14 +44,15 @@
                                 <div>{{propertyDesc.displayName}}</div>
                             </el-col>
                             <el-col :span="14">
-                                <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="propertyDesc.viewEnabled" v-model="getControlModel(propertyDesc)">
+                                <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="propertyDesc.viewEnabled"
+                                          v-model="getControlModel(propertyDesc)">
                                 </el-input>
                                 <el-select size="mini" v-if="propertyDesc.viewtype == 'ComboControl'"  v-model="getControlModel(propertyDesc)" placeholder="请选择">
                                     <el-option
-                                            v-for="item in options"
-                                            :key="item.value"
-                                            :label="item.label"
-                                            :value="item.value">
+                                            v-for="item in getComboList(propertyDesc)"
+                                            :key="item"
+                                            :label="item"
+                                            :value="item">
                                     </el-option>
                                 </el-select>
                             </el-col>
@@ -57,10 +60,12 @@
                         </div>
                     </div>
                 </div>
-                <div class="content-cell" v-if="selected && selected.nodeType && selected.nodeType.referencesDesc && selected.nodeType.referencesDesc.referenceDescCount > 0">
+                <div class="content-cell" v-if="selected && selected.nodeType
+                                                && selected.nodeType.referencesDesc
+                                                && selected.nodeType.referencesDesc.referenceDescCount > 0">
                     <div>
                         <img src="../../../asset/afe/plan_title.png"/>
-                        <div>title</div>
+                        <div>引用信息</div>
                     </div>
                     <div class="properties">
                         <div v-for="propertyDesc in selected.nodeType.referencesDesc.referenceDesc">
@@ -69,14 +74,15 @@
                                     <div>{{propertyDesc.displayName}}</div>
                                 </el-col>
                                 <el-col :span="14">
-                                    <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="propertyDesc.viewEnabled" v-model="getControlModel(propertyDesc)">
+                                    <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="propertyDesc.viewEnabled"
+                                              v-model="getControlModel(propertyDesc)">
                                     </el-input>
                                     <el-select size="mini" v-if="propertyDesc.viewtype == 'ComboControl'"  v-model="getControlModel(propertyDesc)" placeholder="请选择">
                                         <el-option
-                                                v-for="item in options"
-                                                :key="item.value"
-                                                :label="item.label"
-                                                :value="item.value">
+                                                v-for="item in getComboList(propertyDesc)"
+                                                :key="item"
+                                                :label="item"
+                                                :value="item">
                                         </el-option>
                                     </el-select>
                                 </el-col>
@@ -199,13 +205,12 @@
                         }
                     },function (respData) {
                     console.info("respData",respData);
-                        var result = JSON.parse(respData);
-                        if(result.state === 'success'){
+                        if(respData.state === 'success'){
                             self.$notify({
                                 title: '提示',
                                 message: '上锁成功',
                             });
-                        }else if(result.state === 'error'){
+                        }else if(respData.state === 'error'){
                             self.$notify({
                                 title: '提示',
                                 message: '上锁失败',
@@ -225,13 +230,12 @@
                             path:this.file.model.path
                         }
                     },function (respData) {
-                        var result = JSON.parse(respData);
-                        if(result.state === 'success'){
+                        if(respData.state === 'success'){
                             self.$notify({
                                 title: '提示',
                                 message: '解锁成功',
                             });
-                        }else if(result.state === 'error'){
+                        }else if(respData.state === 'error'){
                             self.$notify({
                                 title: '提示',
                                 message: '解锁失败',
@@ -251,10 +255,9 @@
                             path:this.file.model.path
                         }
                     },function (respData) {
-                        var result = JSON.parse(respData);
                         self.$notify({
                             title: '提示',
-                            message: result.data,
+                            message: respData.data,
                         });
                     }
                 );
@@ -272,6 +275,28 @@
                         }
                     }
                 }
+            },
+            getComboList(propertyDesc){
+                var value = propertyDesc.value;
+                var category = propertyDesc.category;
+                var items=[];
+                if(category){
+                    var relation = propertyDesc.relation;
+                    $.each(this.treeArchitecture,function (k,v) {
+                       if(v.nodeType && v.nodeType.name === relation){
+                           $.each(v.children,function (k,v) {
+                               items.push(v.name);
+                           });
+                       }
+                    });
+                }else{
+                    var result =  value.match(/\((\S+)\)/);
+                    if(result.length > 1){
+                        items = result[1].split(':');
+                    }
+                }
+
+                return items;
             },
             handleClick(item){
                 this.selected = item.model;
@@ -291,10 +316,23 @@
                 console.info("paste");
             },
             changeMenuItem(){
+                var self = this;
                 if(this.selected){
+                    let menuItems = [];
+                    var children = this.findChildren(this.selected.nodeType);
+                    $.each(children,function (k,chdNodeType) {
+                        let item = {
+                            id: chdNodeType.name,
+                            name: "新建" + chdNodeType.desc,
+                            type: 'item',
+                            nodeType:chdNodeType,
+                            handler: self.createChild
+                        }
+                        menuItems.push(item);
+                    });
+
                     var methodsDesc = this.selected.nodeType.methodsDesc.methodDesc;
                     if(methodsDesc){
-                        let menuItems = [];
                         if($.isArray(methodsDesc)){
                             for(let i = 0 ; i < methodsDesc.length; i ++){
                                 let methodDesc = methodsDesc[i];
@@ -320,9 +358,14 @@
                                 menuItems.push(item);
                             }
                         }
-                        this.menu.setItems(menuItems);
                     }
+                    this.menu.setItems(menuItems);
                 }
+            },
+            createChild(selection,item){
+                var nodeType = item.nodeType;
+                var gbean = {};
+
             },
             getEditorArchitecture(){
                 var self = this;

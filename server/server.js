@@ -56,7 +56,9 @@ products[afeProduct.name] = afeProduct;
 // database
 var webIDEDB = new WebIDEDB({dbpath:'webide.db'});
 webIDEDB.start();
-webIDEDB.getOrCreateCollection(dbConstants.filelocks);
+//init collections
+webIDEDB.getOrCreateCollection(dbConstants.filelock);
+webIDEDB.getOrCreateCollection(dbConstants.product);
 
 global.Servlet = servlet;
 global.Products = products;

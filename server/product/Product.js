@@ -13,7 +13,20 @@ function Product(id,name,ip,port,serviceConfig) {
     this.services = {};
     this.socket = null;
     this.online = false;
+}
 
+/**
+ * 注册产品，写入数据库
+ */
+Product.prototype.register = function () {
+    let product = WebIDEDB.getCollection(dbConstants.product);
+    product.insert({
+        id:this.id,
+        name:this.name,
+        ip:this.ip,
+        port:this.port,
+        createTime:new Date()
+    });
 }
 
 Product.prototype.connect = function () {
@@ -22,16 +35,29 @@ Product.prototype.connect = function () {
 
     this.socket.on('connect',function () {
         self.online = true;
+
         console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect success");
-        if(!self.inited && self.serviceConfig.services){
-            for(let key in self.serviceConfig.services){
-                self.registerService(self.serviceConfig.services[key]);
+
+        if(!self.initialized) {
+            self.initialized = true;
+
+            if (self.serviceConfig.services) {
+                for (let key in self.serviceConfig.services) {
+                    self.registerService(self.serviceConfig.services[key]);
+                }
             }
-            self.inited = true;
+
+            self.socket.on('removeFilelock',function (data) {
+                let filelock = WebIDEDB.getCollection(dbConstants.filelock);
+                filelock.findAndRemove({pid:self.id,file:data});
+            });
+
+            self.socket.emit("ready",null,function (data) {
+                console.info('====IDE链接初始化====');
+            });
+
         }
-        self.socket.emit("getNaviItems","{'type':'afa','event':'getNaviItems','data':{'path':'\\\\','level':1}}",function (data) {
-            console.info('====IDE链接初始化====');
-        });
+
     });
 
     this.socket.on('connect_failed',function () {
@@ -50,12 +76,10 @@ Product.prototype.connect = function () {
 
     this.socket.on('reconnect',function (data) {
         console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect");
-    })
-
-
+    });
 }
 
-Product.prototype.runHandler = function (reqData,callback) {
+Product.prototype.runServiceHandler = function (reqData, callback) {
     let handler = this.services[reqData.event];
 
     if(!this.socket.connected) {
@@ -98,21 +122,47 @@ Product.prototype.registerService = function (service) {
     }
 }
 
+/**
+ *
+ * @param reqData {uid:'',path:''}
+ * @param callback
+ */
 Product.prototype.lockFile = function (reqData,callback) {
     let self = this;
     let data = reqData.data;
     let cb = callback;
     this.emit("lockFile", JSON.stringify(reqData), function (respData) {
-        var result = JSON.parse(respData);
-        if(result.state === 'success'){
-            let filelocks = WebIDEDB.getCollection(dbConstants.filelocks);
-            filelocks.findAndRemove({pid:self.id,file:data.path});
-            filelocks.insert({pid:self.id,uid:data.uid,file:data.path,createtime:new Date()});
+        var result = respData;
+        let filelock = WebIDEDB.getCollection(dbConstants.filelock);
+        if (result.state === 'success') {
+            filelock.findAndRemove({pid: self.id, file: data.path});
+            filelock.insert({
+                pid: self.id,
+                uid: data.uid,
+                file: data.path,
+                createTime: new Date()
+            });
+        } else if (result.state === 'error' && result.lock) {
+            var lockinfo = result.lock;
+            if(data.uid !== lockinfo.uid){
+                filelock.findAndRemove({pid: self.id, file: data.path});
+                filelock.insert({
+                    pid: self.id,
+                    uid: lockinfo.uid,
+                    file: data.path,
+                    createTime: lockinfo.createTime
+                });
+            }
         }
         cb(result);
     });
 }
 
+/**
+ *
+ * @param reqData {uid:'',path:''}
+ * @param callback
+ */
 Product.prototype.releaseFile = function (reqData,callback) {
     let self = this;
     let cb = callback;
@@ -120,13 +170,18 @@ Product.prototype.releaseFile = function (reqData,callback) {
     this.emit('releaseFilelock', JSON.stringify(reqData), function (respData) {
         var result = JSON.parse(respData);
         if(result.state === 'success'){
-            let filelocks = WebIDEDB.getCollection(dbConstants.filelocks);
-            filelocks.findAndRemove({pid:self.id,file:data.path});
+            let filelock = WebIDEDB.getCollection(dbConstants.filelock);
+            filelock.findAndRemove({pid:self.id,file:data.path});
         }
         cb(result);
     });
 }
 
+/**
+ *
+ * @param reqData {path:''}
+ * @param callback
+ */
 Product.prototype.peekFileLock = function (reqData,callback) {
     let cb = callback;
     this.emit('peekFileLock', JSON.stringify(reqData), function (respData) {
@@ -136,9 +191,12 @@ Product.prototype.peekFileLock = function (reqData,callback) {
 }
 
 
-Product.prototype.uninstall = function () {
-    let filelocks = WebIDEDB.getCollection(dbConstants.filelocks);
-    filelocks.findAndRemove({pid:self.id});
+Product.prototype.unregister = function () {
+    let filelock = WebIDEDB.getCollection(dbConstants.filelock);
+    filelock.findAndRemove({pid:this.id});
+
+    let product = WebIDEDB.getCollection(dbConstants.product);
+    product.findAndRemove({id:this.id});
 }
 
 
