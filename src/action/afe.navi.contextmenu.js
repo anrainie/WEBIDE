@@ -3,19 +3,30 @@ import  showCompileErrorMsgDialog from '../views/components/dialog/ShowCompileEr
 import  wizardtext from  '../../src/action/afe.wizardtext'
 import  wizardVue from '../views/afe/components/wizards/AfeNewCreateWizard.vue'
 import Vue from 'vue';
+//导入
+function importResource(){
+}
+//对应用进行部署卸载等操作
+function getAppAction(){
+   IDE.socket.emit("getAppAction",{
+     type: IDE.type,
+     event: 'getAppAction',
+     data: {actionId:this.id,path: this.path}
+   },function (data) {
+      var result = JSON.parse(data)
+     if(result.state === 'success'){
+        IDE.navigator.refresh(result.data.path)
+       alert(result.data.content)
+     }else{
+       alert(result.errorMsg)
+     }
+   })
+
+}
 //根据resourceId获取wizard并根据向导配置信息将基本信息传给wizard
 function getWizardByResourceId (newItem, preName) {
 
   var newWizard = new Vue(wizardVue)
-  if (newItem.groups) {
-    for (var index in newItem.groups) {
-      var value = newItem.groups[index]
-      var label = newItem.groups[index]
-      var groupItem = {value, label}
-      newWizard.groups.push(groupItem)
-    }
-    newWizard.groupsLabel = newItem.groupsLabel
-  }
   if (newItem.reference) {
     newWizard.reference = newItem.reference
     newWizard.refLabel = newItem.refLabel
@@ -76,6 +87,14 @@ function getNewWizard () {
           newWizard.description = oldDescription
           newWizard.directory = oldDirectory
           if (newItem.groups) {
+              for (var index in result.data.groups) {
+                var value = result.data.groups[index]
+                var label = result.data.groups[index]
+                var groupItem = {value, label}
+                newWizard.groups.push(groupItem)
+
+            }
+            newWizard.groupsLabel = newItem.groupsLabel
             newWizard.selectedGroup = [oldGroup]
           }
           if (newItem.reference) {
@@ -410,7 +429,9 @@ var items = {
         name: '删除',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+          var path = item.getParent().path;
+          IDE.navigator.deleteItem(item)
+          IDE.navigator.refresh(path)
         }
       },
       'org.eclipse.ui.RefreshAction': {
@@ -419,7 +440,7 @@ var items = {
         name: '刷新',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+          IDE.navigator.refresh(this.path)
         }
       },
       'class galaxy.ide.configurable.navigator.action.ExploreFilePathAction': {
@@ -428,7 +449,7 @@ var items = {
         name: '浏览',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+
         }
       },
       'cn.com.agree.eci.ide.navigation.action.AfeModifyAction': {
@@ -446,7 +467,7 @@ var items = {
         name: '导出报文',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+
         }
       },
       'cn.com.agree.eci.ide.navigation.action.AfeImportAction': {
@@ -455,7 +476,7 @@ var items = {
         name: '导入',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+
         }
       },
       'cn.com.agree.eci.ide.navigation.action.AfeExportAction': {
@@ -464,7 +485,7 @@ var items = {
         name: '导出',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+
         }
       },
       'cn.com.agree.eci.ide.navigation.action.AfeDeployAction': {
@@ -473,7 +494,7 @@ var items = {
         name: '部署',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+          return getAppAction.call(item)
         }
       },
       'cn.com.agree.eci.ide.navigation.action.AfeStartAction': {
@@ -482,7 +503,7 @@ var items = {
         name: '开始',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+          return getAppAction.call(item)
         }
       },
       'cn.com.agree.eci.ide.navigation.action.AfeStopAction': {
@@ -491,7 +512,7 @@ var items = {
         name: '停止',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+          return getAppAction.call(item)
         }
       },
       'cn.com.agree.eci.ide.navigation.action.AfeRedeployAction': {
@@ -500,18 +521,18 @@ var items = {
         name: '重载',
         type: 'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+          return getAppAction.call(item)
         }
       },
-      'cn.com.agree.eci.ide.navigation.action.AfeUninstallAction': {
-        id: 'cn.com.agree.eci.ide.navigation.action.AfeUninstallAction',
-        path: '',
-        name: '卸载',
-        type: 'item',
-        handler: function (selection, item) {
-          return getNewWizard.call(item)
-        }
-      },
+    'cn.com.agree.eci.ide.navigation.action.AfeUninstallAction': {
+      id: 'cn.com.agree.eci.ide.navigation.action.AfeUninstallAction',
+      path: '',
+      name: '卸载',
+      type: 'item',
+      handler: function (selection, item) {
+        return getAppAction.call(item)
+      }
+    },
 }
 function match (originalItems, newItems) {
   for (let x in originalItems) {
