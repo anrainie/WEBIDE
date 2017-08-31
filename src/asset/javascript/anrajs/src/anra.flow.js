@@ -327,6 +327,7 @@ $AG.policy = {
         return {
             activate: function () {
                 this.handle = new anra.gef.TextHandle(this.getHost());
+                this.handle.disableEvent();
                 if (loc)
                     this.handle.refreshLocation = loc;
                 this.handle.setText(this.getHost().model.get(key));

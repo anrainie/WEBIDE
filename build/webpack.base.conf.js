@@ -15,7 +15,7 @@ module.exports = {
     //入口，只有一个入口起点（不包括 vendor）的单页应用程序，
     entry: {
         app: './src/main.js',
-        vendor: ['anrajs/index.js']
+        vendor: ['anrajs']
     },
   //出口，控制 webpack 如何向硬盘写入编译文件，不管入口起点有多少个，出口只有一个
     output: {
@@ -98,7 +98,7 @@ module.exports = {
             'jquery': 'jquery',
             'vue$': 'vue/dist/vue.common.js',
             assets: resolve('src/asset'),
-            anrajs: resolve('src/asset/javascript/anrajs/'),
+            anrajs: resolve('src/asset/javascript/anrajs/index.js'),
             'vs$':'monaco-editor/min/vs',
             Constants: resolve('src/utils/constants.js')
         }

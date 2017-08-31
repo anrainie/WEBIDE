@@ -1994,17 +1994,13 @@ anra.gef.ConstraintCommand = anra.Command.extend({
         return this.editPart != null && this.sp != null && this.ep != null;
     },
     execute: function () {
-        this.editPart.model.get('bounds')[0] = this.ep.x;
-        this.editPart.model.get('bounds')[1] = this.ep.y;
-        this.editPart.model.get('bounds')[2] = this.ep.width;
-        this.editPart.model.get('bounds')[3] = this.ep.height;
+        var bounds = [this.ep.x, this.ep.y, this.ep.width, this.ep.height];
+        this.editPart.model.set('bounds', bounds);
         this.editPart.refresh();
     },
     undo: function () {
-        this.editPart.model.get('bounds')[0] = this.sp.x;
-        this.editPart.model.get('bounds')[1] = this.sp.y;
-        this.editPart.model.get('bounds')[2] = this.sp.width;
-        this.editPart.model.get('bounds')[3] = this.sp.height;
+        var bounds = [this.sp.x, this.sp.y, this.sp.width, this.sp.height];
+        this.editPart.model.set('bounds', bounds);
         this.editPart.refresh();
     }
 });

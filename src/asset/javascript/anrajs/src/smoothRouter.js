@@ -1,4 +1,3 @@
-import {Map} from './anra.common'
 import {anra} from './anra.gef'
 
 function throwIfMissing() {
@@ -31,8 +30,7 @@ let route = function(line, reader = throwIfMissing()) {
     /*平滑绝对路径*/
     path = optimizePath(path, line, reader);
     
-    return path ? path : [source, target];
-    
+    return path || [source, target];
 };
 
 /*搜索大致路径的部分*/
@@ -46,8 +44,7 @@ let search = function(start, end, reader, line) {
         case 1:
             return [start, end];
         default:
-            getPathFinder().finding(start, end, reader, line);
-            return getPathFinder().getPath();
+            return getPathFinder().finding(start, end, reader, line).getPath();
     }
 };
 
@@ -162,6 +159,8 @@ class doubleAS {
                 break;
             }
         }
+
+        return this;
     }
 
     getPath() {
@@ -185,8 +184,8 @@ class doubleAS {
             end.dir = 0;
         }
 
-        this.pool.put(start.x + '_' + start.y, start);
-        this.pool.put(end.x + '_' + end.y, end);
+        this.pool.set(start.x + '_' + start.y, start);
+        this.pool.set(end.x + '_' + end.y, end);
 
         reader.structure();
         this.flag = false;
@@ -211,7 +210,7 @@ class doubleAS {
                 key = x + '_' + y;
 
                 if (!pool.has(key)) {
-                    pool.put(key, {
+                    pool.set(key, {
                         x: x,
                         y: y,
                         state: notFound,
@@ -293,6 +292,7 @@ class doubleAS {
 
 }
 
+/*获得单例寻路算法实例*/
 let getPathFinder = (function() {
     let finder = new doubleAS();
     
@@ -341,42 +341,32 @@ let smoothStrategy = {
         }
     },
     oneNodeStrategy(path, line, reader) {
-        let s = line.getStartPoint(),
-            e = line.getEndPoint();
+        let source = line.getStartPoint(),
+            target = line.getEndPoint();
 
-        if ((s.x - e.x) * (s.y - e.y) === 0) {
-            return [s, e];
+        /*共线*/
+        if ((source.x - target.x) * (source.y - target.y) === 0) {
+            return [source, target];
         }
 
-        let sourceb = line.model.sourceNode.get('bounds'),
-            targetb = line.model.targetNode.get('bounds'),
-            sVector = getVector(s, {
-                x: sourceb[0] + sourceb[2] / 2,
-                y: sourceb[1] + sourceb[3] / 2
-            }),
-            eVector = getVector(e, {
-                x: targetb[0] + targetb[2] / 2,
-                y: targetb[1] + targetb[3] / 2
-            }),
-            vector = getVector(e, s),
-            p1, p2, table = {
-                1: {
-                    x: s.x,
-                    y: e.y
-                },
-                2: {
-                    x: e.x,
-                    y: s.y
-                }
-            },
-            bendpoint;
+        let boundsOfSource = line.model.sourceNode.get('bounds'),
+            boundsOfTarget = line.model.targetNode.get('bounds');
 
+        let sourceNormal = getDirection(boundsOfSource, source), targetNormal = getDirection(boundsOfTarget, target),
+            vector = getVector(boundsOfTarget, boundsOfSource);
 
-        p1 = sVector.x === 0 ? (sVector.y === vector.y ? 11 : 2) : (sVector.x === vector.x ? 12 : 1);
-        p2 = eVector.x === 0 ? (sourceb.y === vector.y ? 1 : 12) : (eVector.x === vector.x ? 2 : 11);
-        bendpoint = table[p1 % 10 === p2 % 10 ? p1 % 10 : Math.max(p1, p2) % 10];
+        let bendPoint;
 
-        return [s, bendpoint, e];
+        /*根据向量情况选取拐点*/
+        if (dotProduct(sourceNormal, vector) > 0) {
+            bendPoint = sourceNormal.x*vector.x > 0 ? {x: source.x, y: target.y} : {x: target.x, y: source.y};
+        } else if (dotProduct(targetNormal, vector)) {
+            bendPoint = targetNormal.x*vector.x > 0 ? {x: target.x, y: source.y} : {x: source.x, y: target.y};
+        } else {
+            bendPoint = sourceNormal.x === 0 ? {x: source.x, y: target.y} : {x: target.x, y: source.y};
+        }
+
+       return [source, bendPoint, target];
     },
     twoNodeStrategy(path, line, reader) {
         let s = line.getStartPoint(),
@@ -401,6 +391,7 @@ let smoothStrategy = {
         let {abs} = Math;
 
         let result = [],
+            /*coff:中点选择参数, p1,p2:中点*/
             coff, p1, p2;
 
 
@@ -511,7 +502,7 @@ let smoothStrategy = {
         }
         
         for (; i < l - 2; i++) {
-                result.push({x: path[i].x + sx, y: path[i].y + sy});
+            result.push({x: path[i].x + sx, y: path[i].y + sy});
         }
         
         let sf = min(1, abs(path[i - 1].x - path[i].x)), ef = min(1, abs(path[i + 1].x - path[i].x));
@@ -624,8 +615,8 @@ let ReaderListener = anra.gef.EditPartListener.extend({
         })();
     },
 
-    partDeactivated (editpart) {
-        delete editpart.getReader;
+    partDeactivated (editPart) {
+        delete editPart.getReader;
     },
 
     childAdded (child) {
@@ -644,10 +635,12 @@ let ReaderListener = anra.gef.EditPartListener.extend({
     },
 
     on (editPart) {
-        let model = editPart.model,
-            oldBounds = model.get('bounds').map((item) => item),
-            reader = editPart.getRoot().getReader(),
-            newBounds;
+        let model, oldBounds, reader, newBounds;
+
+        model = editPart.model;
+        oldBounds = model.get('bounds').map((item) => item);
+        reader = editPart.getRoot().getReader();
+
         model.addPropertyListener(function () {
             newBounds = model.get('bounds').map((item) => item);
             reader.change(newBounds, oldBounds);
@@ -696,7 +689,8 @@ class Reader {
         if (editPart instanceof anra.gef.NodeEditPart) {
             this._deleteList.push(editPart.model.get('bounds').map((item) => item));
         }
-    };
+    }
+
     change (newBounds, oldBounds) {
         this._addList.push(newBounds);
         this._deleteList.push(oldBounds);
@@ -723,19 +717,17 @@ class Reader {
 
     process (bounds, unit) {
         let w = this.w,
-            absolute_sx = bounds[0], absolute_sy = bounds[1],
-            absolute_ex = bounds[0] + bounds[2], absolute_ey = bounds[1] + bounds[3],
-            relative_sx = ~~(absolute_sx / w),
-            relative_sy = ~~(absolute_sy / w),
-            relative_ex = Math.ceil(absolute_ex / w),
-            relative_ey = Math.ceil(absolute_ey / w), key;
+            relative_sx = ~~(bounds[0] / w),
+            relative_sy = ~~(bounds[1] / w),
+            relative_ex = Math.ceil((bounds[0] + bounds[2]) / w),
+            relative_ey = Math.ceil((bounds[1] + bounds[3]) / w), key;
 
         for (let i = relative_sx; i < relative_ex; i++) {
             for (let j = relative_sy; j < relative_ey; j++) {
                 key = i + '_' + j;
 
                 if (!this.struct.has(key)) {
-                    this.struct.put(key, {
+                    this.struct.set(key, {
                         count: 0
                     });
                 }
@@ -744,7 +736,7 @@ class Reader {
 
                 //添加一个删除节点的操作
                 if (this.struct.get(key).count === 0) {
-                    this.struct.remove(key);
+                    this.struct.delete(key);
                 }
             }
         }
@@ -759,12 +751,11 @@ class Reader {
             return true;
         }
 
-        let key = x + '_' + y;
-        if (!this.struct.has(key)) {
+        if (!this.struct.has(x + '_' + y)) {
             return false;
         }
 
-        return this.struct.get(key).count !== 0;
+        return this.struct.get(x + '_' + y).count !== 0;
     }
 
     //返回节点覆盖次数
@@ -796,7 +787,7 @@ class Reader {
     }
 
     clear () {
-        this.struct = new Map();
+        this.struct.clear();
 
         this._addList = [];
         this._deleteList = [];
