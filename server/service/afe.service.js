@@ -51,6 +51,23 @@ module.exports = {
             handler: ioService
       },
       {
+        id:'getMenuItem',
+        type:'IOService',
+        handler:ioService
+      },
+      {
+        //从后台获取全局变量信息
+        id: 'getConfigParameter',
+        type:'IOService',
+        handler:ioService
+      },
+      {
+        //将前端配置好的全局变量提交给后台
+        id:'commitConfigParameter',
+        type:'IOService',
+        handler:ioService
+      },
+      {
             id:'lockFile',
             type:'localService',
             handler:function (reqData,callback,service) {
@@ -84,22 +101,22 @@ module.exports = {
                 }
             }
         },
-        {
-            id:'peekFileLock',
-            type:'localService',
-            handler:function (reqData,callback,service) {
-                let consumer = Products[reqData.type];
-                let cb = callback;
-                if (consumer) {
-                    consumer.peekFileLock(reqData,function (respData) {
-                        if(respData.state === 'success'){
-                            cb(respData);
-                        }else if(respData.state === 'error'){
-                            cb(respData);
-                        }
-                    });
-                }
-            }
+      {
+        id: 'peekFileLock',
+        type: 'localService',
+        handler: function (reqData, callback, service) {
+          let consumer = Products[reqData.type];
+          let cb = callback;
+          if (consumer) {
+            consumer.peekFileLock(reqData, function (respData) {
+              if (respData.state === 'success') {
+                cb(respData);
+              } else if (respData.state === 'error') {
+                cb(respData);
+              }
+            });
+          }
         }
+      }
     ]
 }

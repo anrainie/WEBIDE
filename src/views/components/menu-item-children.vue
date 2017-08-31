@@ -70,6 +70,7 @@
 </style>
 <script>
     import Vue from 'vue'
+    import parameter from '../../views/afe/components/dialog/configParameter.vue'
     export default {
         name: 'menuItemChildren',
         props: ['children'],
@@ -82,7 +83,6 @@
         },
         mounted(){
             this.MItemChildren = require('./menu-item-children.vue');
-
         },
         methods: {
             expandSubMenu ($event, children){
@@ -116,7 +116,32 @@
             },
             click(children){
                 if(children.type && children.type == 'action' && children.id){
-                    alert('run ('+children.id+')');
+                  var id = children.id
+                  if(id === "syncLocalReource"){
+                    if(window.confirm('同步后，本地资源会被覆盖，是否继续？')){
+                      return true;
+                    }else{
+                      return false;
+                    }
+                  }else if(id === "configParameter"){
+                    var newConfigParameter = new Vue(parameter);
+                    //从后台获取全局变量配置信息
+                    IDE.socket.emit("getConfigParameter",{
+                      type: IDE.type,
+                      event: 'getConfigParameter',
+                      data: {tableData:newConfigParameter.tableData}
+                    },function(data){
+                      let result = JSON.parse(data);
+                      if (result.state === 'success') {
+                        newConfigParameter.tableData = result.data
+                        var container = document.createElement('div');
+                        container.id = "config"
+                        document.body.appendChild(container);
+                        newConfigParameter.$mount('#config')
+                      }
+                    })
+                  }
+//                  alert('run ('+children.id+')');
                 }
 
             }
