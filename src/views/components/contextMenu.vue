@@ -245,6 +245,7 @@
 
                 newMenu.$el.style.top = top +  "px";
                 newMenu.$el.style.left = left + "px";
+                newMenu.$el.style.float = 'right';
 
                 return newMenu;
             },
@@ -271,12 +272,16 @@
             },
             show (x,y,selection) {
                 this.$el.style.display = "block";
-                if( (y + this.$el.clientHeight) > document.body.clientHeight){
-                    y = document.body.clientHeight - this.$el.clientHeight;
-                    if(y < 0 ){
-                        y = 0;
-                        this.$el.style.height = document.body.clientHeight + "px";
-                    }
+
+                var height = this.items.length * 23;
+                if(height > document.body.clientHeight){
+                    height = document.body.clientHeight;
+                    //this.$el.style['overflow-y'] = 'auto';
+                }
+                this.$el.style.height = height + "px";
+
+                if( (y + height) > document.body.clientHeight){
+                    y = document.body.clientHeight - height;
                 }
 
                 this.$el.style.top = y + "px";

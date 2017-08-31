@@ -40,8 +40,7 @@
         </el-pagination>
     </div>
 </template>
-<style> 
-    @import '~element-ui/lib/theme-default/index.css';
+<style>
 
     .el-table td, .el-table th {
         height: 20px;

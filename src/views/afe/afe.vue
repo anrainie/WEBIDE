@@ -179,24 +179,24 @@
           right: [{
             id: 'console',
             subgroup: 1,
-            open: true,
+            open: false,
           }, {
             id: 'version',
             subgroup: 0,
-            open: true,
+            open: false,
           }],
           bottom: [{
             id: 'problem',
             subgroup: 1,
-            open: true,
+            open: false,
           }, {
             id: 'test1',
             subgroup: 0,
-            open: true,
+            open: false,
           }, {
             id: 'test2',
             subgroup: 0,
-            open: true,
+            open: false,
           }]
         },
         menuData: menuData

@@ -6,6 +6,7 @@
 
 <style>
     @import '~assets/style/style.css';
+    @import '~element-ui/lib/theme-default/index.css';
 </style>
 <script>
     import Vue from "vue";

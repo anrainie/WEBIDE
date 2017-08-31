@@ -411,34 +411,32 @@
                 return $("#" + p);
             },
             _dosave(){
-                 var that = this;
-                if(this.activeEditor){
-                                if(this.activeEditor.isDirty() && this.activeEditor.save()) {
-                                    IDE.socket.emit("saveFile", {
-                                        type: IDE.type,
-                                        path: this.activeEditor.file.model.path,
-                                        content:this.activeEditor.input,
-                                        event: 'saveFile',
-                                    }, function (data) {
-                                        if(data) {
-                                            let result = JSON.parse(data);
-                                            if (result.state === 'success') {
-                                                that.$notify({
-                                                    title: '保存',
-                                                    message: '保存成功',
-                                                    type: 'success'
-                                                });
-                                            } else {
-                                                that.$notify({
-                                                    title: '保存',
-                                                    message: '保存失败：' + result.errorMsg,
-                                                    type: 'error'
-                                                });
-                                            }
-                                        }
-                                    });
-                                }
+                var that = this;
+                if(this.activeEditor && this.activeEditor.isDirty() && this.activeEditor.save()) {
+                    IDE.socket.emit("saveFile", {
+                        type: IDE.type,
+                        path: this.activeEditor.file.model.path,
+                        content:this.activeEditor.input,
+                        event: 'saveFile',
+                    }, function (data) {
+                        if(data) {
+                            let result = JSON.parse(data);
+                            if (result.state === 'success') {
+                                that.$notify({
+                                    title: '保存',
+                                    message: '保存成功',
+                                    type: 'success'
+                                });
+                            } else {
+                                that.$notify({
+                                    title: '保存',
+                                    message: '保存失败：' + result.errorMsg,
+                                    type: 'error'
+                                });
                             }
+                        }
+                    });
+                }
             },
             handleKeyPress:function (event) {
                 if(event.ctrlKey){

@@ -1,9 +1,10 @@
 <template>
     <div class="planEditor">
-        <el-button @click="lock">lock</el-button>
+       <!-- <el-button @click="lock">lock</el-button>
         <el-button @click="release">release</el-button>
         <el-button @click="peek">peek</el-button>
-        <tree class="left-side" :model="treeArchitecture" :config="treeConfig"></tree>
+        -->
+        <tree ref="tree" class="left-side" :model="treeArchitecture" :config="treeConfig"></tree>
         <div class="right-side">
             <div class="planEditor-head">
                 <span>{{title}}</span>
@@ -23,7 +24,7 @@
                                     <div>名称</div>
                                 </el-col>
                                 <el-col :span="16">
-                                    <el-input size="mini" v-model="selected['name']">
+                                    <el-input size="mini" v-model="selected['name']" @change="inputChange()" v-on:input="setTitle($event)">
                                     </el-input>
                                 </el-col>
                             </el-row>
@@ -44,10 +45,16 @@
                                 <div>{{propertyDesc.displayName}}</div>
                             </el-col>
                             <el-col :span="14">
-                                <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="propertyDesc.viewEnabled"
-                                          v-model="getControlModel(propertyDesc)">
+                                <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="!propertyDesc.viewEnabled"
+                                          @change="inputChange()"
+                                          v-bind:value="getPropertyModel(propertyDesc)"
+                                          v-on:input="setPropertyModel($event,propertyDesc)"
+                                >
                                 </el-input>
-                                <el-select size="mini" v-if="propertyDesc.viewtype == 'ComboControl'"  v-model="getControlModel(propertyDesc)" placeholder="请选择">
+                                <el-select @change="inputChange()" size="mini" v-if="propertyDesc.viewtype == 'ComboControl'"
+                                           v-bind:value="getPropertyModel(propertyDesc)"
+                                           v-on:input="setPropertyModel($event,propertyDesc)"
+                                           placeholder="请选择">
                                     <el-option
                                             v-for="item in getComboList(propertyDesc)"
                                             :key="item"
@@ -74,10 +81,15 @@
                                     <div>{{propertyDesc.displayName}}</div>
                                 </el-col>
                                 <el-col :span="14">
-                                    <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="propertyDesc.viewEnabled"
-                                              v-model="getControlModel(propertyDesc)">
+                                    <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="!propertyDesc.viewEnabled"
+                                              v-bind:value="getReferenceModel(propertyDesc)"
+                                              @change="inputChange()"
+                                              v-on:input="setReferenceModel($event,propertyDesc)">
                                     </el-input>
-                                    <el-select size="mini" v-if="propertyDesc.viewtype == 'ComboControl'"  v-model="getControlModel(propertyDesc)" placeholder="请选择">
+                                    <el-select @change="inputChange()" size="mini" v-if="propertyDesc.viewtype == 'ComboControl'"
+                                               v-bind:value="getReferenceModel(propertyDesc)"
+                                               v-on:input="setReferenceModel($event,propertyDesc)"
+                                               placeholder="请选择">
                                         <el-option
                                                 v-for="item in getComboList(propertyDesc)"
                                                 :key="item"
@@ -93,12 +105,24 @@
             </div>
         </div>
         <contextMenu ref="menu" :items="menuItems" :config="menuConfig"></contextMenu>
+        <el-dialog
+                :title="dialogModel.title"
+                :visible.sync="dialogModel.visible"
+                size="tiny">
+            <el-input v-model="dialogModel.name">
+                <template slot="prepend">请输入名字</template>
+            </el-input>
+            <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogModel.visible = false">取 消</el-button>
+            <el-button type="primary" @click="handleDialogOK()">确 定</el-button>
+            </span>
+        </el-dialog>
     </div>
 </template>
 
 <style>
     .planEditor{
-
+        height: 100%;
     }
     .planEditor .left-side{
         display:inline-block;
@@ -160,6 +184,8 @@
         data(){
             var self = this;
             return {
+                dirty:false,
+                selectedItemVue:null,
                 selected:null,
                 editorArchitecture:null,
                 treeArchitecture:[],
@@ -167,7 +193,7 @@
                 treeConfig:{
                     callback: {
                         click: function (item) {
-                            self.handleClick(item);
+                            self.handleTreeItemClick(item);
                         },
                         rightClick: function (event, item) {
                             self.handleRightClick(event,item);
@@ -175,7 +201,12 @@
                     }
                 },
                 menuItems:[],
-                menuConfig:{}
+                menuConfig:{},
+                dialogModel:{
+                    title:"",
+                    visible:false,
+                    name:""
+                }
             };
         },
         computed:{
@@ -193,7 +224,7 @@
             }
         },
         methods:{
-            lock(){
+         /**   lock(){
                 var self = this;
                 IDE.socket.emit('lockFile',
                     {
@@ -262,16 +293,110 @@
                     }
                 );
             },
+          **/
             init(){
                 this.getEditorArchitecture();
             },
-            getControlModel(propertyDesc){
+            handleDialogOK(){
+                var self = this;
+                this.dialogModel.visible = false;
+                var item = this.dialogModel.selectedTreeItem;
+                var nodeType = item.nodeType;
+                var child = {
+                    isparent:false,
+                    nodeType :nodeType,
+                    path:nodeType.instanceName,
+                    name:this.dialogModel.name,
+                    gbean:{
+                        '-class':nodeType.clazz,
+                        '-name':this.dialogModel.name,
+                        attribute:[],
+                        reference:[]
+                    }
+                };
+
+                if(nodeType.propertiesDesc && nodeType.propertiesDesc.propertyDescCount > 0){
+                    $.each(nodeType.propertiesDesc.propertyDesc,function (k,propertyDesc) {
+                        var value = propertyDesc.value;
+                        if(propertyDesc.viewtype === 'ComboControl'){
+                            value =  value.replace(/(\S*)\((\S+)\)$/, '$1');
+                        }
+                        child.gbean.attribute.push({
+                            '-name':propertyDesc.name,
+                            '-type':propertyDesc.type,
+                            '#text':value
+                        });
+                    });
+                }
+
+                if(nodeType.referencesDesc && nodeType.referencesDesc.referenceDescCount > 0){
+                    $.each(nodeType.referencesDesc.referenceDesc,function (k,propertyDesc) {
+                        var value = propertyDesc.value;
+                        if(propertyDesc.viewtype === 'ComboControl'){
+                            value =  value.replace(/(\S*)\((\S+)\)$/, '$1');
+                        }
+                        child.gbean.reference.push({
+                            '-name':propertyDesc.name,
+                            '-type':propertyDesc.type,
+                            'name':value
+                        });
+                    });
+                }
+                this.selected.children.push(child);
+
+
+                setTimeout(function () {
+                    var chdVue = self.selectedItemVue.getChild(child.name);
+                    if(chdVue){
+                        self.tree.setSelection(chdVue);
+                    }
+                },500);
+
+                this.dirty = true;
+
+            },
+            setPropertyModel($event,propertyDesc){
+                let gbean = this.selected.gbean;
+                if(gbean && gbean.attribute){
+                    for(let i = 0 ; i < gbean.attribute.length ; i++){
+                        let attribute = gbean.attribute[i];
+                        if(attribute['-name'] === propertyDesc.name){
+                            attribute["#text"] = $event;
+                            break;
+                        }
+                    }
+                }
+            },
+            getPropertyModel(propertyDesc){
                 let gbean = this.selected.gbean;
                 if(gbean && gbean.attribute){
                     for(let i = 0 ; i < gbean.attribute.length ; i++){
                         let attribute = gbean.attribute[i];
                         if(attribute['-name'] === propertyDesc.name){
                             return attribute["#text"];
+                        }
+                    }
+                }
+            },
+            getReferenceModel(propertyDesc){
+                let gbean = this.selected.gbean;
+                if(gbean && gbean.reference){
+                    for(let i = 0 ; i < gbean.reference.length ; i++){
+                        let attribute = gbean.reference[i];
+                        if(attribute['-name'] === propertyDesc.name){
+                            return attribute["name"];
+                        }
+                    }
+                }
+            },
+            setReferenceModel($event,propertyDesc){
+                let gbean = this.selected.gbean;
+                if(gbean && gbean.reference){
+                    for(let i = 0 ; i < gbean.reference.length ; i++){
+                        let attribute = gbean.reference[i];
+                        if(attribute['-name'] === propertyDesc.name){
+                            attribute["name"] = $event;
+                            break;
                         }
                     }
                 }
@@ -298,13 +423,19 @@
 
                 return items;
             },
-            handleClick(item){
+            handleTreeItemClick(item){
                 this.selected = item.model;
-
+                this.selectedItemVue = item;
             },
             handleRightClick($event,item){
                 this.changeMenuItem();
                 this.menu.show($event.x,$event.y);
+            },
+            setTitle(newTitle){
+                this.selected.gbean['-name'] = newTitle;
+            },
+            inputChange(){
+              this.dirty = true;
             },
             copy(){
                 console.info("copy");
@@ -312,8 +443,19 @@
             paste(){
                 console.info("paste");
             },
-            delete(){
-                console.info("paste");
+            delete(selection,item){
+                var self = this;
+                var parent = this.selectedItemVue.$parent;
+                var name = this.selected.name;
+                $.each(parent.model.children,function (k,chd) {
+                    if(chd.name === name){
+                        parent.model.children.splice(k,1);
+                        self.selected = null;
+                        self.selectedItemVue = null;
+                        self.dirty = true;
+                        return true;
+                    }
+                });
             },
             changeMenuItem(){
                 var self = this;
@@ -326,7 +468,7 @@
                             name: "新建" + chdNodeType.desc,
                             type: 'item',
                             nodeType:chdNodeType,
-                            handler: self.createChild
+                            handler: self.openInputDialog
                         }
                         menuItems.push(item);
                     });
@@ -362,10 +504,12 @@
                     this.menu.setItems(menuItems);
                 }
             },
-            createChild(selection,item){
+            openInputDialog(selection,item){
                 var nodeType = item.nodeType;
-                var gbean = {};
-
+                this.dialogModel.title = "新建" + nodeType.desc;
+                this.dialogModel.name = nodeType.instanceName;
+                this.dialogModel.selectedTreeItem = item;
+                this.dialogModel.visible = true;
             },
             getEditorArchitecture(){
                 var self = this;
@@ -394,8 +538,7 @@
             },
             generateTreeArchitecture(){
                 var self = this;
-
-                $.each(self.inputObject.gbean,function (k,gbean) {
+                $.each(this.inputObject.module.gbean,function (k,gbean) {
                     var nodeType = self.getNodeTypeByClass(gbean['-class']);
                     if(nodeType){
                         gbean.nodeType = nodeType;
@@ -406,35 +549,40 @@
                     if(!$.isArray(this.editorArchitecture.nodetype)){
                         this.editorArchitecture['nodetype'] = [this.editorArchitecture.nodetype];
                     }
-                    $.each(this.editorArchitecture.nodetype,function(k,nodeType){
-                        if(nodeType.parent === 'planFile' && !nodeType.canCreate){
-                            var item = {
-                                name:nodeType.displayName,
-                                isParent:true,
-                                path:nodeType.displayName,
-                                nodeType:nodeType,
-                                children:[]
-                            }
-
-                            var children = self.findChildren(nodeType);
-                            $.each(children,function (k,chdNodeType) {
-                                $.each(self.inputObject.gbean,function (k,gbean) {
-                                    if(gbean.nodeType && gbean.nodeType.name === chdNodeType.name){
-                                        var chdItem = {
-                                            name:gbean['-name'],
-                                            isParent:false,
-                                            path:gbean['-name'],
-                                            nodeType:chdNodeType,
-                                            gbean:gbean
-                                        }
-                                        item.children.push(chdItem);
-                                    }
-                                });
-                            });
-                            self.treeArchitecture.push(item);
-                        }
-                    });
+                    this.generateBranchNode(self.treeArchitecture,"planFile");
                 }
+            },
+            generateBranchNode(parent,parentType){
+                var self = this;
+                $.each(this.editorArchitecture.nodetype,function(k,nodeType){
+                    if(nodeType.parent === parentType && !nodeType.canCreate){
+                        var item = {
+                            name:nodeType.displayName,
+                            isParent:true,
+                            path:nodeType.displayName,
+                            nodeType:nodeType,
+                            children:[]
+                        }
+
+                        var children = self.findChildren(nodeType);
+                        $.each(children,function (k,chdNodeType) {
+                            $.each(self.inputObject.module.gbean,function (k,gbean) {
+                                if(gbean.nodeType && gbean.nodeType.name === chdNodeType.name){
+                                    var chdItem = {
+                                        name:gbean['-name'],
+                                        isParent:false,
+                                        path:gbean['-name'],
+                                        nodeType:chdNodeType,
+                                        gbean:gbean
+                                    }
+                                    item.children.push(chdItem);
+                                }
+                            });
+                        });
+                        parent.push(item);
+                        self.generateBranchNode(item.children,nodeType.name);
+                    }
+                });
             },
             getNodeTypeByClass(className){
                 for(var i = 0 ; i < this.editorArchitecture.nodetype.length ; i++){
@@ -462,10 +610,31 @@
                 });
             },
             isDirty(){
-                return false;
+                return this.dirty;
             },
             save(){
-                return false;
+                var newModel = this.tree.model;
+                if($.type(this.input) === 'string'){
+                    this.input = JSON.parse(this.input);
+                }
+                this.input.module.gbean = [];
+                for(var i = 0 ; i < newModel.length ; i++){
+                    var firstLevel = newModel[i];
+                    this.saveTreeBranch(firstLevel);
+                }
+                this.dirty = false;
+                return true;
+            },
+            saveTreeBranch(parent){
+                if(parent.children && parent.children.length > 0){
+                    for(var j = 0 ; j < parent.children.length ; j ++){
+                        var chd = parent.children[j];
+                        var gbean = $.extend(true, {}, chd.gbean);
+                        delete gbean.nodeType;
+                        this.input.module.gbean.push(gbean);
+                        this.saveTreeBranch(chd);
+                    }
+                }
             },
             focus(){
 
@@ -474,11 +643,20 @@
         mounted(){
             this.init();
             this.menu = this.$refs.menu;
+            this.tree = this.$refs.tree;
             this.inputObject = this.deepParse2Json(this.input);
-            if(this.input.gbean){
-                if(!$.isArrag(this.input.gbean)){
-                    this.input.gbean = [this.input.gbean];
+            if(this.inputObject.module.gbean){
+                if(!$.isArray(this.inputObject.module.gbean)){
+                    this.inputObject.module.gbean = [this.inputObject.module.gbean];
                 }
+                $.each(this.inputObject.module.gbean,function (k,gbean) {
+                    if(!$.isArray(gbean.attribute)){
+                        gbean.attribute = [gbean.attribute];
+                    }
+                    if(!$.isArray(gbean.reference)){
+                        gbean.reference = [gbean.reference];
+                    }
+                });
             }
             this.menuHandlers = {
                 copy:this.copy,
