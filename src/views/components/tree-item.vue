@@ -1,7 +1,7 @@
 <template>
     <div v-show="enable" class="item">
         <div v-show="!isFolder" class="none-arrow"></div>
-        <div v-show="isFolder" @click='toggle' :class="[open?'down-arrow':'right-arrow']"></div>
+        <div v-show="isFolder && model.children && model.children.length > 0" @click='toggle' :class="[open?'down-arrow':'right-arrow']"></div>
         <input v-show="config.check" type="checkbox" v-model="checked" class="item-checkbox" @click="setCheck(true)">
         <div class="item-body"
              :class="[selected?'item-selected':'']"

@@ -88,7 +88,8 @@
   import IDESocket from "../../core/IDESocket"
   import navContextMenus from '../../action/afe.navi.contextmenu';
   import menuData from '../../action/afe.menu';
-    import planEditor from '../afe/editor/planEditor.vue'
+  import planEditor from '../afe/editor/planEditor.vue'
+  import sqldictEditor from '../afe/editor/sqldictEditor.vue'
 
   export default{
     data(){
@@ -96,7 +97,8 @@
       return {
         editorPartConfig: {
           editorRefs:{
-                pml:planEditor
+                pml:planEditor,
+                sqldict:sqldictEditor
           }
         },
         vertical: false,

@@ -1,9 +1,9 @@
 <template>
     <div class="planEditor">
-       <!-- <el-button @click="lock">lock</el-button>
-        <el-button @click="release">release</el-button>
-        <el-button @click="peek">peek</el-button>
-        -->
+        <!-- <el-button @click="lock">lock</el-button>
+         <el-button @click="release">release</el-button>
+         <el-button @click="peek">peek</el-button>
+         -->
         <tree ref="tree" class="left-side" :model="treeArchitecture" :config="treeConfig"></tree>
         <div class="right-side">
             <div class="planEditor-head">
@@ -41,28 +41,28 @@
                     <div class="properties">
                         <div v-for="propertyDesc in selected.nodeType.propertiesDesc.propertyDesc">
                             <el-row>
-                            <el-col :span="10">
-                                <div>{{propertyDesc.displayName}}</div>
-                            </el-col>
-                            <el-col :span="14">
-                                <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="!propertyDesc.viewEnabled"
-                                          @change="inputChange()"
-                                          v-bind:value="getPropertyModel(propertyDesc)"
-                                          v-on:input="setPropertyModel($event,propertyDesc)"
-                                >
-                                </el-input>
-                                <el-select @change="inputChange()" size="mini" v-if="propertyDesc.viewtype == 'ComboControl'"
-                                           v-bind:value="getPropertyModel(propertyDesc)"
-                                           v-on:input="setPropertyModel($event,propertyDesc)"
-                                           placeholder="请选择">
-                                    <el-option
-                                            v-for="item in getComboList(propertyDesc)"
-                                            :key="item"
-                                            :label="item"
-                                            :value="item">
-                                    </el-option>
-                                </el-select>
-                            </el-col>
+                                <el-col :span="10">
+                                    <div>{{propertyDesc.displayName}}</div>
+                                </el-col>
+                                <el-col :span="14">
+                                    <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'" :readonly="!propertyDesc.viewEnabled"
+                                              @change="inputChange()"
+                                              v-bind:value="getPropertyModel(propertyDesc)"
+                                              v-on:input="setPropertyModel($event,propertyDesc)"
+                                    >
+                                    </el-input>
+                                    <el-select @change="inputChange()" size="mini" v-if="propertyDesc.viewtype == 'ComboControl'"
+                                               v-bind:value="getPropertyModel(propertyDesc)"
+                                               v-on:input="setPropertyModel($event,propertyDesc)"
+                                               placeholder="请选择">
+                                        <el-option
+                                                v-for="item in getComboList(propertyDesc)"
+                                                :key="item"
+                                                :label="item"
+                                                :value="item">
+                                        </el-option>
+                                    </el-select>
+                                </el-col>
                             </el-row>
                         </div>
                     </div>
@@ -224,7 +224,7 @@
             }
         },
         methods:{
-         /**   lock(){
+            /**   lock(){
                 var self = this;
                 IDE.socket.emit('lockFile',
                     {
@@ -250,7 +250,7 @@
                     }
                 );
             },
-            release(){
+             release(){
                 var self = this;
                 IDE.socket.emit('releaseFilelock',
                     {
@@ -275,7 +275,7 @@
                     }
                 );
             },
-            peek(){
+             peek(){
                 var self = this;
                 IDE.socket.emit('peekFileLock',
                     {
@@ -293,7 +293,7 @@
                     }
                 );
             },
-          **/
+             **/
             init(){
                 this.getEditorArchitecture();
             },
@@ -408,11 +408,11 @@
                 if(category){
                     var relation = propertyDesc.relation;
                     $.each(this.treeArchitecture,function (k,v) {
-                       if(v.nodeType && v.nodeType.name === relation){
-                           $.each(v.children,function (k,v) {
-                               items.push(v.name);
-                           });
-                       }
+                        if(v.nodeType && v.nodeType.name === relation){
+                            $.each(v.children,function (k,v) {
+                                items.push(v.name);
+                            });
+                        }
                     });
                 }else{
                     var result =  value.match(/\((\S+)\)/);
@@ -435,7 +435,7 @@
                 this.selected.gbean['-name'] = newTitle;
             },
             inputChange(){
-              this.dirty = true;
+                this.dirty = true;
             },
             copy(){
                 console.info("copy");
@@ -515,25 +515,25 @@
                 var self = this;
                 IDE.shade.open("正在加载编辑器模型");
                 IDE.socket.emit('loadPlanEditorArchitecture',{
-                        type: IDE.type,
-                        event: 'loadPlanEditorArchitecture',
-                        data: {
-                            path: this.file.model.path
+                    type: IDE.type,
+                    event: 'loadPlanEditorArchitecture',
+                    data: {
+                        path: this.file.model.path
+                    }
+                },function (data) {
+                    if (data) {
+                        IDE.shade.hide();
+                        let result = JSON.parse(data);
+                        if (result.state === 'success') {
+                            self.editorArchitecture = self.deepParse2Json(result.data);
+                            self.generateTreeArchitecture();
+                        } else {
+                            this.$notify.error({
+                                title: '错误',
+                                message: '获取编辑器结构失败'
+                            });
                         }
-                    },function (data) {
-                        if (data) {
-                            IDE.shade.hide();
-                            let result = JSON.parse(data);
-                            if (result.state === 'success') {
-                                self.editorArchitecture = self.deepParse2Json(result.data);
-                                self.generateTreeArchitecture();
-                            } else {
-                                this.$notify.error({
-                                    title: '错误',
-                                    message: '获取编辑器结构失败'
-                                });
-                            }
-                        }
+                    }
                 });
             },
             generateTreeArchitecture(){
@@ -603,7 +603,7 @@
             },
             deepParse2Json(str){
                 return JSON.parse(str,function (k,v) {
-                    if(typeof v === 'string' && v.charAt(0) === '{'){
+                    if(typeof v === 'string' && v.charAt(0) === '{' && v.charAt(v.length) === '}'){
                         return JSON.parse(v);
                     }
                     return v;
