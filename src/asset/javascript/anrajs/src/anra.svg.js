@@ -1155,7 +1155,6 @@ anra.svg.EventDispatcher = Base.extend({
                         break;
                     case 'text':
                     default:
-                        console.log(relatedTarget)
                 }
             }
         } catch (e) {

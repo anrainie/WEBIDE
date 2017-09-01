@@ -1,9 +1,8 @@
 import {$AG} from './anra.flow'
 import Base from '../lib/Base'
 import {anra} from './anra.gef'
-import * as constants from './anra.constants'
 import {ReaderListener} from './smoothRouter'
-import {Map, Util} from './anra.common'
+import {Map} from './anra.common'
 
 /*用于参数忽略的时候*/
 function throwIfMissing() {
@@ -152,7 +151,7 @@ var fillLayout = Layout.extend({
 const center = 0;
 const begin = 1;
 const end = 2;
-const fill = 3
+const fill = 3;
 
 var gridData = Base.extend({
     constructor({horizontalSpan = 1, verticalSpan = 1, verticalAlignment = fill,
@@ -340,9 +339,9 @@ var gridLayout = Layout.extend({
             heightList = this.computeLengthList(false, grid);
         
         //获取参数
-        var width = arg.width, height = arg.height, columnCount = arg.numColumns, rowCount = arg.numRows;
+        var columnCount = arg.numColumns, rowCount = arg.numRows;
         
-        var x = arg.marginLeft, y = arg.marginTop, {max, min} = Math, item, size;
+        var x = arg.marginLeft, y = arg.marginTop, item;
         
         var tempMap = new Map(), v = this;
         
@@ -375,12 +374,12 @@ var gridLayout = Layout.extend({
     },
     
     computeGrid(children) {
-        var count = children.length, {max, min} = Math;
+        var {max, min} = Math;
         
         var row = 0, column = 0, rowCount = 0, columnCount = this.argumentData.numColumns,
             grid = [[]];
         
-        var hSpan, vSpan, endCount, index;
+        var hSpan, vSpan, endCount;
         
         for (let [index, child] of children.entries()) {
             hSpan = max(1, min(child.layoutData.horizontalSpan, columnCount));
@@ -452,7 +451,7 @@ var gridLayout = Layout.extend({
             columnSpan = "verticalSpan";
             rowSpan = "horizontalSpan";
             hint = "heightHint";
-            g = (x, y) => grid[y][x];
+            getCell = (x, y) => grid[y][x];
         }
         
         var lengthList = new Array(column);
@@ -460,7 +459,7 @@ var gridLayout = Layout.extend({
         lengthList.fill(0);
         
         var data, cSpan;
-        var {max, min} = Max;
+        var {max, min} = Math;
         
         /*计算单位距离单占据最大长度*/
         for (var i = 0; i < column; i++) {
@@ -518,141 +517,5 @@ var gridLayout = Layout.extend({
 
 anra.svg.Image.layoutManager = new fillLayout();
 
-
-/*编辑器缓冲*/
-class editorBuffer {
-    constructor() {
-        /*封装私有变量*/
-        var pool = new Map(),
-            activateEditorKey = null;
-
-        this.isBuffer = id => pool.has(id);
-
-        this.isActivateEditor = id => id === activateEditorKey;
-
-        this.valuesOfBuffer = () => pool.values();
-        
-        this.activateEditor = id => {
-            activateEditorKey = id;
-            return pool.get(id);
-        }
-        
-        this.getEditor = id => pool.get(id);
-        
-        this.put = (id, editor) => {
-            pool.put(id, editor);
-            activateEditorKey = id;
-        }
-
-        this.clear = () => {
-            activateEditorKey = null;
-            pool.clear();
-        }
-    }
-}
-$AG.editorBuffer = editorBuffer;
-
-/**
- * return [] 
- */
-
-const arr = ['Skip', 
-             'Terminals',
-             'Type',
-             'UUID',
-             'Constraint',
-             'RefImpl',
-             'Remarks',
-             'Implementation',
-             'False',
-             'Desp',
-             'Security',
-             'Quote',
-             'SourceConnections',
-             'True',
-             'Id',
-             'HasSq'];
-
-/*将位置和连线信息更新至taffyDB中*/
-var commonDoSave = function () {
-    var nodeStore = this.store.node,
-        lineStore = this.store.line;
-
-    
-    //更新节点位置
-    nodeStore().each(({Constraint, bounds}) => {
-        Constraint.Location = [bounds[0], bounds[1]].toString();
-    });
-    
-    //更新连线
-    nodeStore().update({SourceConnections: undefined});
-    
-    lineStore().each(({source, target, exit, entr}) => {
-        var hasSourceConnections, connect, node;
-        
-        hasSourceConnections = nodeStore({Id: source}).filter({SourceConnections: {isUndefined: false}}).count() == 1;
-        connect = {
-            targetId: target,
-            SourceTerminal: exit,
-            TargetTerminal: entr
-        };
-        
-        if (!hasSourceConnections) {
-            nodeStore({Id: source}).update({SourceConnections:　{
-                Connection : [
-                    connect
-                ]
-            }});
-        } else {
-            var {SourceConnections: {Connection: storeConnect}} = nodeStore({Id: source}).first();
-            
-            storeConnect.push(connect);
-        }
-    });
-    
-    this.cmdStack.markSaveLocation();
-};
-$AG.Editor.prototype.doSave = commonDoSave;
-
-
-/*从数据库中提取对应属性名字的数据*/
-$AG.Editor.prototype.nodeDataByAttrs = function(attrs = arr) {
-    var nodeStore = this.store.node, result, attrsItem;
-    
-    /*遍历DB所有record, 筛选属性数据*/
-
-    result = nodeStore().select.apply(nodeStore(), attrs).map((item, index) => {
-        attrsItem = {};
-        for (let [index, elem] of item.entries()) {
-            if (elem) {
-                attrsItem[attrs[index]] = elem;
-            } else {
-                //TODO 筛选除属性名相近的属性
-
-            }
-        }
-
-        return attrsItem;
-    });
-    
-    return result;
-}
-
-/**
- * @Temp: 关于Implementation属性的特殊性
- */
-$AG.Editor.prototype.getSaveData = function(editorBuffer, attrs = arr) {
-    var Step = this.nodeDataByAttrs(attrs);
-                    
-    Step.forEach(({UUID, Implementation}) => {
-        if(editorBuffer.isBuffer(UUID)) {
-            Implementation.Node = editorBuffer.getEditor(UUID).nodeDataByAttrs(attrs);
-        }
-    })
-                    
-    editorBuffer.clear();
-    
-    return Step;
-}
 
 export {$AG}

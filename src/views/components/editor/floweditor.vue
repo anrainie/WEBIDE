@@ -62,9 +62,8 @@
 
 </style>
 <script type="text/javascript">
-    import {$AG} from 'anrajs/index.js'
-    import {leftEditorConfig, rightEditorConfig} from './editorConfig'
-    import {resolveLeftEditor, resolveRightEditor} from './modelConfig'
+    import {$AG} from 'anrajs'
+    import {EditorBuilder} from './EditorBuilder'
     import skipGroup from '../flowPropDialog/skipGroup.vue';
     import basicInfo from '../flowPropDialog/basicPropsGroup.vue';
     import * as Constants from 'Constants'
@@ -76,32 +75,19 @@
             return {
                 leftEditor: null,
                 rightEditor: null,
-                screenSize: 'left',
+                leftEditorVisibility: false,
+                rightEditorVisibility: false,
                 showProperties: false,
             }
         },
         mounted() {
-            ({Root: {Regulation: {Step: this.Step}}} = this.input);
             this.initFlowEditor();
         },
         computed: {
             leftStyle: function () {
                 var width;
-                
-                switch(this.screenSize) {
-                    case 'left':
-                        width = "100%";
-                        break;
-                    case 'both':
-                        width = "50%";
-                        break;
-                    case 'right':
-                        width = "0%"
-                        break;
-                    default:
-                        //TODO throw error
-                        //console.error("screenSize 错误")
-                }
+
+                width = this.leftEditorVisibility ? this.rightEditorVisibility ? "50%" : "100%" : "0%";
 
                 return {
                     width: width
@@ -110,20 +96,7 @@
             rightStyle: function () {
                 var width;
                 
-                switch(this.screenSize) {
-                    case 'left':
-                        width = "0%";
-                        break;
-                    case 'both':
-                        width = "50%";
-                        break;
-                    case 'right':
-                        width = "100%"
-                        break;
-                    default:
-                        //TODO throw error
-                        //console.error("screenSize 错误")
-                }
+                width = this.rightEditorVisibility ? this.leftEditorVisibility ? "50%" : "100%" : "0%";
 
                 return {
                     width: width
@@ -133,37 +106,16 @@
         methods: {
             /***********immobilization***********/
             isDirty() {
-                var dirtyOfLeft = this.leftEditor.isDirty(), dirtyOfRight = false, rightEditors = this.editorBuffer.valuesOfBuffer();
-                
-                /*遍历所有缓冲的编辑器*/
-                if (rightEditors) {
-                    rightEditors.forEach((item) => { dirtyOfRight |= item.isDirty() });
-                }
-    
-                return dirtyOfLeft | dirtyOfRight;
+                if (this.leftEditor) return this.leftEditor.isDirty();
+
+                return false;
             },
             save() {
-                var dirty = false, rightEditors = this.editorBuffer.valuesOfBuffer();
-                
-                //right
-                if (rightEditors) {
-                    rightEditors.forEach((item) => {
-                        if (item.isDirty()) {
-                            item.doSave();
-                            dirty = true;
-                        }
-                    });
-                }
-                
-                //left
+                //???
                 if (this.leftEditor.isDirty()) {
                     this.leftEditor.doSave();
-                    dirty = true;
-                }
 
-                //???
-                if (dirty) {
-                    this.setStepFromInput(this.leftEditor.getSaveData(this.editorBuffer));
+                    this.setStepFromInput(this.leftEditor.getSaveData());
 
                     this.msgHub.$emit('dirtyStateChange', this.file, false);
 
@@ -184,78 +136,62 @@
                     //TOWARN
                     return;
                 }
-                
-                this.pathName = this.revisePath(this.file.model.path);
-                this.editorBuffer = new $AG.editorBuffer();
-                
-                //TEMP: 只有两个配置
-                this.leftEditorConfig = leftEditorConfig;
-                this.rightEditorConfig = rightEditorConfig;
 
-                this.createLeftEditor(this.leftEditorConfig, input);
-                this.screenSize = "left";
+                this.pathName = this.revisePath(this.file.model.path);
+
+                this.createLeftEditor(input);
+                this.leftEditorVisibility = true;
             },
-            createLeftEditor(editorConfig, modelConfig) {
-                if (this.leftEditor) {
+            createLeftEditor(modelConfig) {
+                if (this.leftEditor && this.isDirty()) {
                     //TODO 保存的工作
                     this.closeLeftEditor();
                 }
 
-                //暂时使用文件名作为div id
-                var cfg = Object.assign(resolveLeftEditor(editorConfig, modelConfig), {id: this.getLeftEditorID()});
-
-                $('#' + this.pathName).find('.left-editor').attr('id', cfg.id);
-
-                this.leftEditor = new $AG.Editor(cfg);
-                
                 let self = this;
-                
-                this.leftEditor.rootEditPart.$on(Constants.OPEN_FLOWPROP_DIALOG, function (editPart) {
-                    self.dialogTarget = editPart.model;
-                    self.showProperties = true;
-                });
-                    
-                /*打开实现编辑器*/
-                this.leftEditor.rootEditPart.$on(Constants.OPEN_RIGHT_EDITOR, function(modelConfig, id) {
-                    var onlyLeftEditor = self.screenSize === 'left';
-                    
-                    /*全频左编辑器*/
-                    if (onlyLeftEditor) return;
-                    
-                    /*不在缓冲中，直接创建*/
-                    if (!self.editorBuffer.isBuffer(id)) {
-                        self.createRightEditor(self.rightEditorConfig, modelConfig);
-                        self.editorBuffer.put(id, self.rightEditor);
-                        return;
-                    }
-                    
-                    /*激活同样的*/
-                    if (self.editorBuffer.isActivateEditor(id)) return;
-                    
-                    /*从缓冲取出编辑器实例*/
-                    self.closeRightEditor();
-                    self.rightEditor = self.editorBuffer.activateEditor(id);
-                    self.rightEditor.createContent(self.rightEditor.id);
-                });
-                
-                
-                this.leftEditor.canvas.element.addEventListener('dblclick', function(e){
-                    if(e.target.parentNode.isEqualNode(this)) {
-                        switch(self.screenSize) {
-                            case 'left':
-                                self.screenSize = 'both';
-                                break;
-                            case 'both':
-                                self.screenSize = 'left';
-                                break;
-                            default:
-                                //TODO throw error
-                                //console.error('sreenSize 错误')
-                        }    
-                    }
-                     
-                    return false;
-                });
+
+                //暂时使用文件名作为div id
+                $('#' + this.pathName).find('.left-editor').attr('id', this.getLeftEditorID());
+
+                this.leftEditor = EditorBuilder.create('left')(modelConfig, (defaultConfig) => {defaultConfig.id = self.getLeftEditorID()});
+
+                this.bindingEventOnLeftEditor();
+            },
+
+            /*暂时在这个函数中绑定相关事件*/
+            bindingEventOnLeftEditor() {
+                EditorBuilder.handle(this.leftEditor)
+                    /*大概是设置属性对话框*/
+                    .bindingEvent(Constants.OPEN_FLOWPROP_DIALOG, (editPart) => {
+                        this.dialogTarget = editPart.model;
+                        this.showProperties = true;
+                    })
+                    /*关于打开第二个编辑器*/
+                    .bindingEvent(Constants.OPEN_RIGHT_EDITOR, (model) => {
+                        /*打开实现编辑器*/
+                        var onlyLeftEditor = this.onlyLeftEditor();
+
+                        /*全频左编辑器*/
+                        if (onlyLeftEditor) return;
+
+                        /*不在缓冲中，直接创建*/
+                        if (!this.leftEditor.editorStore.has(model)) {
+                            this.createRightEditor(model.get('Implementation'));
+                            this.leftEditor.editorStore.set(model, this.rightEditor)
+                            return;
+                        }
+
+                        /*激活同样的*/
+                        if (this.rightEditor === this.leftEditor.editorStore.get(model)) return;
+
+                        /*从缓冲取出编辑器实例*/
+                        this.closeRightEditor();
+                        this.rightEditor = this.leftEditor.editorStore.get(model);
+                        EditorBuilder.handle(this.rightEditor).createContent();
+                    })
+                    .bindingEvent('dblclickCanvs', () => {
+                        this.rightEditorVisibility ^= true;
+                    });
             },
 
             closeLeftEditor() {
@@ -263,41 +199,31 @@
                     return;
                 }
 
-                $('#' + this.getLeftEditorID()).children().last().remove();
+                EditorBuilder.handle(this.leftEditor).removeContent();
                 this.leftEditor = null;
             },
 
-            createRightEditor(editorConfig, modelConfig) {
+            createRightEditor(modelConfig) {
                 if (this.rightEditor) {
                     //TODO 保存的工作
                     this.closeRightEditor();
                 }
 
-                //暂时使用文件名作为div id
-                var config = Object.assign(resolveRightEditor(editorConfig, modelConfig), {id: this.getRightEditorID()});
-
-                $('#' + this.pathName).find('.right-editor').attr('id', config.id);
-
-                this.rightEditor = new $AG.Editor(config);
-
                 let self = this;
-                this.rightEditor.canvas.element.addEventListener('dblclick', function(e){
-                    if(e.target.parentNode.isEqualNode(this)) {
-                        switch(self.screenSize) {
-                            case 'right':
-                                self.screenSize = 'both';
-                                break;
-                            case 'both':
-                                self.screenSize = 'right';
-                                break;
-                            default:
-                                //TODO throw error
-                                //console.error('sreenSize 错误')
-                        }    
-                    }
-                     
-                    return false;
-                });
+
+                //暂时使用文件名作为div id
+                $('#' + this.pathName).find('.right-editor').attr('id', this.getRightEditorID());
+
+                this.rightEditor = EditorBuilder.create('right')(modelConfig, (defaultConfig) => {defaultConfig.id = self.getRightEditorID()});
+
+                this.bindingEventOnRightEditor();
+            },
+
+            bindingEventOnRightEditor() {
+                EditorBuilder.handle(this.rightEditor)
+                    .bindingEvent('dblclickCanvs', () => {
+                        this.leftEditorVisibility ^= true;
+                    });
             },
 
             closeRightEditor() {
@@ -305,7 +231,7 @@
                     return;
                 }
 
-                $('#' + this.getRightEditorID()).children().last().remove();
+                EditorBuilder.handle(this.rightEditor).removeContent();
                 this.rightEditor = null;
             },
             
@@ -321,7 +247,9 @@
             },
             setStepFromInput(step) {
                 this.input.Root.Regulation.Step = step;
-
+            },
+            onlyLeftEditor() {
+                return this.leftEditor && this.leftEditorVisibility && !this.rightEditorVisibility;
             }
         },
         components: {
@@ -342,7 +270,6 @@
                 },
                 methods: {
                     getGroup() {
-                        console.log('getgroup')
                         var e = this.editor;
                         if (e && e.hasOwnProperty('config')) {
                             return e.config.group;

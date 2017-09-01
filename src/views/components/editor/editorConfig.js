@@ -1,6 +1,4 @@
-import {$AG} from 'anrajs/src/anra.flow'
-import * as constants from 'anrajs/src/anra.constants'
-import srouter from 'anrajs/src/smoothRouter'
+import {$AG, constants, smoothRouter} from 'anrajs'
 import * as globalConstants from 'Constants'
 
 var refresh = function () {
@@ -23,7 +21,7 @@ var manhattanRoute = {
         'stroke-width': 3
     },
     type: $AG.CURVE_LINE,
-    router: srouter(),
+    router: smoothRouter(),
     endMarker: {
         type: $AG.Marker.TRIANGLE,
         size: 3
@@ -139,23 +137,6 @@ var location = function (figure) {
     })
 };
 
-const arr = ['Skip',
-    'Terminals',
-    'Type',
-    'UUID',
-    'Constraint',
-    'RefImpl',
-    'Remarks',
-    'Implementation',
-    'False',
-    'Desp',
-    'Security',
-    'Quote',
-    'SourceConnections',
-    'True',
-    'Id',
-    'HasSq'];
-
 let defaultData = {
     'UUID': undefined,
     'Quote': '0',
@@ -169,7 +150,7 @@ let defaultData = {
     'HasSql': 'false',
     'Constraint': {
         'Location': null,
-        'Size': '160, 60'
+        'Size': '160,60'
     },
     'Terminals': {
         'Name': '0',
@@ -219,14 +200,14 @@ var stepCommonCpt = {
                     /*单击且选中*/
                     if (unSelected) return;
                     
-                    self.emit(globalConstants.OPEN_RIGHT_EDITOR, host.model.get('Implementation'), host.model.get('UUID'));
+                    self.emit(globalConstants.OPEN_RIGHT_EDITOR, host.model);
                 }
                 
                 this.getHostFigure().on('click', this.listener);
             },
             
             deactivate() {
-                this.getHostFigure().off('click', this.lisn);
+                this.getHostFigure().off('click', this.listener);
             }
         }
     },
