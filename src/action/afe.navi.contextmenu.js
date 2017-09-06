@@ -109,6 +109,10 @@ function getNewWizard () {
   }else {
     var newItem = wizardtext.match1(reourceId)[0]
     newWizard = getWizardByResourceId.call(this,newItem,preName)
+    if (newItem.groups) {
+        newWizard.groups = newItem.groups
+        newWizard.groupsLabel = newItem.groupsLabel
+      }
     newWizard.path = path
     mountDialog(newWizard)
   }
