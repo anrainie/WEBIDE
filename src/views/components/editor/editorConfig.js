@@ -176,12 +176,8 @@ var stepCommonCpt = {
     policies: {
         'doubleclick': {
             activate(){
-                let self = this;
-                this.lisn = function () {
-                    self.emit(globalConstants.OPEN_FLOWPROP_DIALOG, self.getHost());
-                };
+                this.lisn = () => {this.emit(globalConstants.OPEN_FLOWPROP_DIALOG, this.getHost())};
                 this.getHostFigure().on('dblclick', this.lisn);
-
             },
             deactivate(){
                 this.getHostFigure().off('dblclick', this.lisn);
