@@ -8,17 +8,8 @@
             <palette :editor='rightEditor'></palette>
         </div>
 
-        <el-dialog title="组件属性" :visible.sync="showProperties">
-            <el-collapse accordion value="1">
-                <el-collapse-item title="基本信息" name="1">
-                    <basicInfo type="1"></basicInfo>
-                </el-collapse-item>
-                <el-collapse-item title="伪执行">
-                    <skipInfo :branch="2"></skipInfo>
-                </el-collapse-item>
-            </el-collapse>
+        <flowPropDialog :showProperties.sync="showProperties" :model="dialogTarget"></flowPropDialog>
 
-        </el-dialog>
     </div>
 </template>
 <style>
@@ -78,10 +69,12 @@
                 leftEditorVisibility: false,
                 rightEditorVisibility: false,
                 showProperties: false,
+                dialogTarget: null
             }
         },
         mounted() {
             this.initFlowEditor();
+            console.log(this)
         },
         computed: {
             leftStyle: function () {
@@ -153,7 +146,7 @@
                 //暂时使用文件名作为div id
                 $('#' + this.pathName).find('.left-editor').attr('id', this.getLeftEditorID());
 
-                this.leftEditor = EditorBuilder.create('left')(modelConfig, (defaultConfig) => {defaultConfig.id = self.getLeftEditorID()});
+                this.leftEditor = EditorBuilder.create('left')(modelConfig, (defaultConfig) => {defaultConfig.id = this.getLeftEditorID()});
 
                 this.bindingEventOnLeftEditor();
             },
@@ -189,6 +182,7 @@
                         this.rightEditor = this.leftEditor.editorStore.get(model);
                         EditorBuilder.handle(this.rightEditor).createContent();
                     })
+                    /*双点击切换半屏和全屏*/
                     .bindingEvent('dblclickCanvs', () => {
                         this.rightEditorVisibility ^= true;
                     });
@@ -214,7 +208,7 @@
                 //暂时使用文件名作为div id
                 $('#' + this.pathName).find('.right-editor').attr('id', this.getRightEditorID());
 
-                this.rightEditor = EditorBuilder.create('right')(modelConfig, (defaultConfig) => {defaultConfig.id = self.getRightEditorID()});
+                this.rightEditor = EditorBuilder.create('right')(modelConfig, (defaultConfig) => {defaultConfig.id = this.getRightEditorID()});
 
                 this.bindingEventOnRightEditor();
             },
@@ -253,12 +247,65 @@
             }
         },
         components: {
-            skipInfo: skipGroup,
-            basicInfo: basicInfo,
+            flowPropDialog: {
+                template: `
+                <el-dialog title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="tiny">
+                    <el-collapse v-if="showProperties" value="1">
+                        <el-collapse-item title="基本信息" name="1">
+                            <basicInfo  :type="basicInfoType" :model="model.props" @getModifiedProps="getModifiedProps"></basicInfo>
+                        </el-collapse-item>
+                        <el-collapse-item title="伪执行">
+                            <skipInfo :branch="2"></skipInfo>
+                        </el-collapse-item>
+                    </el-collapse>
+
+                    <span slot="footer" class="dialog-footer">
+                        <el-button @click="updateVisible(false)">取消</el-button>
+                        <el-button type="primary" @click="saveProps">确定</el-button>
+                    </span>
+                </el-dialog>`,
+                components: {
+                    skipInfo: skipGroup,
+                    basicInfo: basicInfo
+                },
+                props: ["showProperties", "model"],
+                methods: {
+                    updateVisible(vaule) {
+                        this.$emit('update:showProperties', vaule);
+                    },
+                    getModifiedProps(props) {
+                        if (this.saveHandle) {
+
+                            /*将属性数据存至model，getModifiedProps在basicInfo将要销毁时触发*/
+                            this.saveHandle.then((model) => {
+                                for (let [key, item] of Object.entries(props)) {
+                                    if (item == undefined) continue;
+
+                                    model.set(key, item);
+                                }
+                            });
+
+                            this.saveHandle = null;
+                        }
+                    },
+                    saveProps() {
+                        /*创建异步操作*/
+                        this.saveHandle = new Promise((resvole) => {
+                            this.updateVisible(false);
+                            resvole(this.model);
+                        })
+                    }
+                },
+                computed: {
+                    basicInfoType() {
+                        return this.model.get('type');
+                    }
+                }
+            },
             palette: {
                 props: {
                     editor: {
-                        validator: function (value) {
+                        validator (value) {
                             return value && value instanceof $AG.Editor;
                         }
                     }
