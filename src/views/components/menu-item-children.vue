@@ -71,6 +71,7 @@
 <script>
     import Vue from 'vue'
     import parameter from '../../views/afe/components/dialog/configParameter.vue'
+    import connToServer from '../../views/afe/components/dialog/connToTheServer.vue'
     export default {
         name: 'menuItemChildren',
         props: ['children'],
@@ -115,31 +116,86 @@
                 }
             },
             click(children){
-                if(children.type && children.type == 'action' && children.id){
-                  var id = children.id
-                  if(id === "syncLocalReource"){
-                    if(window.confirm('同步后，本地资源会被覆盖，是否继续？')){
-                      return true;
-                    }else{
-                      return false;
-                    }
-                  }else if(id === "configParameter"){
-                    var newConfigParameter = new Vue(parameter);
-                    //从后台获取全局变量配置信息
-                    IDE.socket.emit("getConfigParameter",{
-                      type: IDE.type,
-                      event: 'getConfigParameter',
-                      data: {tableData:newConfigParameter.tableData}
-                    },function(data){
+              function configParameter () {
+                var newConfigParameter = new Vue(parameter);
+                //从后台获取全局变量配置信息
+                IDE.socket.emit("getConfigParameter", {
+                  type: IDE.type,
+                  event: 'getConfigParameter',
+                  data: {tableData: newConfigParameter.tableData}
+                }, function (data) {
+                  let result = JSON.parse(data);
+                  if (result.state === 'success') {
+                    newConfigParameter.tableData = result.data
+                    var container = document.createElement('div');
+                    container.id = "config"
+                    document.body.appendChild(container);
+                    newConfigParameter.$mount('#config')
+                  }
+                })
+              }
+
+              function syncOrConnToServer(){
+                var isContinue
+                if(window.confirm('同步后，本地资源会被覆盖，是否继续？')){
+                  isContinue = true;
+                }else{
+                  isContinue = false;
+                }
+                if(isContinue == true){
+                  IDE.socket.emit("syncResource",{
+                    type:IDE.type,
+                    event:'syncResource',
+                    data:{}
+                  },function(data){
+                    if (data) {
                       let result = JSON.parse(data);
-                      if (result.state === 'success') {
-                        newConfigParameter.tableData = result.data
-                        var container = document.createElement('div');
-                        container.id = "config"
-                        document.body.appendChild(container);
-                        newConfigParameter.$mount('#config')
+                      if(result.state === 'success'){
+                        IDE.navigator.refresh("/base")
+                        IDE.navigator.refresh("/sbase")
+                      }else{
+                        if(window.confirm('同步需要连接服务器，是否连接?')){
+                          var newConnToServer = new Vue(connToServer)
+                          IDE.socket.emit("getConnConfig",{
+                            type:IDE.type,
+                            event: 'getConnConfig',
+                            data:{}
+                          },function(data){
+                            let result = JSON.parse(data);
+                            if(result.state === 'success'){
+                               var connections = result.data.data
+                              for(var index in connections){
+                                 var conn = connections[index]
+                                 var connName = conn.connName
+                                 var ipName = conn.ipName
+                                 var portName = conn.portName
+
+                                var label = connName
+                                var value = connName
+                                var newComboNode = {label,value}
+                                 newConnToServer.comboNodes.push(newComboNode)
+                                 var tableNode = {connName,ipName,portName}
+                                 newConnToServer.tableNodes.push(tableNode)
+                              }
+                            }
+                          })
+                          var container = document.createElement('div');
+                          container.id = "connToServer"
+                          document.body.appendChild(container);
+                          newConnToServer.$mount('#connToServer')
+                        }
                       }
-                    })
+                    }
+                  })
+                }
+              }
+
+              if(children.type && children.type == 'action' && children.id){
+                var id = children.id
+                if(id === "syncLocalReource"){
+                  syncOrConnToServer()
+                 }else if(id === "configParameter"){
+                    configParameter()
                   }
 //                  alert('run ('+children.id+')');
                 }
