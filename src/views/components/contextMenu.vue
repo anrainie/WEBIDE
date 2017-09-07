@@ -308,7 +308,7 @@
                 }
             },
             click (item) {
-                if(item.type === 'item' || item.disabled != true){
+                if(item.type === 'item' && item.disabled != true){
                     item.handler.call(item,this.selection,item);
                     this.msgHub.$emit("hide");
 

@@ -1,8 +1,9 @@
 <template>
-    <div class="sqlDictEditor">
+    <editorContainer :editor="this">
+        <div slot="editor-content" class="sqlDictEditor">
         <el-card class="sqlDict-info box-card">
             <div slot="header" class="clearfix">
-                <p3>表格信息</p3>
+                <h5>表格信息</h5>
             </div>
             <div>
                 <el-input placeholder="请输入表名" v-model="inputJo.tabledesc['-tablename']" @change="inputChange()">
@@ -15,7 +16,7 @@
         </el-card>
         <el-card class="sqlDict-columns box-card">
             <div slot="header" class="clearfix">
-                <p3>表格列信息</p3>
+                <h5>表格列信息</h5>
                 <div class="sqlDict-toolbar">
                     <el-button type="primary" @click="dialogVisible = true">添加</el-button>
                     <el-input style="width: 200px" placeholder="请输入搜索信息" v-model="searchStr"></el-input>
@@ -56,6 +57,7 @@
 
         </el-dialog>
     </div>
+    </editorContainer>
 </template>
 <style>
     .sqlDictEditor{
@@ -75,11 +77,13 @@
         width: 100%;
     }
     .sqlDict-toolbar{
-        float: right;
+        float: left;
     }
 </style>
 <script>
     import tools from '../../../utils/tools'
+    import editorContainer from '../../components/editorContainer.vue'
+
     export default{
         name:'planEditor',
         props:['file', 'msgHub', 'input'],
@@ -199,6 +203,9 @@
                 this.inputJo.tabledesc.columndesc = [];
             }
             this.columnTable = this.$refs.columnTable;
+        },
+        components:{
+            editorContainer:editorContainer
         }
     }
 </script>
