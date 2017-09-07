@@ -61,6 +61,24 @@ module.exports = {
         type:'IOService',
         handler:ioService
       },
+      //同步本地资源
+      {
+        id: 'syncResource',
+        type: 'IOService',
+        handler: ioService
+      },
+      //连接服务器之前获取连接方式
+      {
+        id: 'getConnConfig',
+        type: 'IOService',
+        handler: ioService
+      },
+      //连接服务器
+      {
+        id: 'connectToTheServer',
+        type: 'IOService',
+        handler: ioService
+      },
       {
         //将前端配置好的全局变量提交给后台
         id:'commitConfigParameter',
