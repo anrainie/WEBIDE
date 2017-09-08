@@ -1,16 +1,18 @@
 <template>
-    <div style="overflow: hidden">
-        <div class="left-editor" v-show="leftEditor" v-bind:style="leftStyle">
-            <palette :editor='leftEditor'></palette>
+    <editorContainer :editor="this">
+        <div slot="editor-content" style="overflow: hidden">
+            <div class="left-editor" v-show="leftEditor" v-bind:style="leftStyle">
+                <palette :editor='leftEditor'></palette>
+            </div>
+
+            <div class="right-editor" v-show="rightEditor" v-bind:style="rightStyle">
+                <palette :editor='rightEditor'></palette>
+            </div>
+
+            <flowPropDialog :showProperties.sync="showProperties" :model="dialogTarget"></flowPropDialog>
+
         </div>
-
-        <div class="right-editor" v-show="rightEditor" v-bind:style="rightStyle">
-            <palette :editor='rightEditor'></palette>
-        </div>
-
-        <flowPropDialog :showProperties.sync="showProperties" :model="dialogTarget"></flowPropDialog>
-
-    </div>
+    </editorContainer>
 </template>
 <style>
     @import url("//unpkg.com/element-ui@1.3.7/lib/theme-default/index.css");
@@ -58,6 +60,7 @@
     import skipGroup from '../flowPropDialog/skipGroup.vue';
     import basicInfo from '../flowPropDialog/basicPropsGroup.vue';
     import * as Constants from 'Constants'
+    import editorContainer from '../editorContainer.vue'
 
     export default {
         name: 'flowEditor',
@@ -141,8 +144,6 @@
                     this.closeLeftEditor();
                 }
 
-                let self = this;
-
                 //暂时使用文件名作为div id
                 $('#' + this.pathName).find('.left-editor').attr('id', this.getLeftEditorID());
 
@@ -203,8 +204,6 @@
                     this.closeRightEditor();
                 }
 
-                let self = this;
-
                 //暂时使用文件名作为div id
                 $('#' + this.pathName).find('.right-editor').attr('id', this.getRightEditorID());
 
@@ -250,8 +249,7 @@
             flowPropDialog: {
                 template: `
                 <el-dialog title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="tiny">
-                    <div v-if="showProperties">
-                    <el-collapse value="1">
+                    <el-collapse value="1" v-if="showProperties">
                         <el-collapse-item title="基本信息" name="1">
                             <basicInfo ref="basicInfo" :type="basicInfoType" :model="model.props"></basicInfo>
                         </el-collapse-item>
@@ -260,13 +258,12 @@
                         </el-collapse-item>
                     </el-collapse>
 
-                    <span slot="footer" class="dialog-footer">
+                    <span slot="footer" class="dialog-footer" v-if="showProperties">
                         <el-button @click="updateVisible(false)">取消</el-button>
                         <el-button type="primary" @click="saveHandle('basicInfo')
                                                        .saveHandle('skipInfo')
                                                        .updateVisible(false)">确定</el-button>
                     </span>
-                    </div>
                 </el-dialog>`,
                 components: {
                     skipInfo: skipGroup,
@@ -376,7 +373,8 @@
                         </el-col>
                     </el-row>
                 </div>`
-            }
+            },
+            editorContainer
         }
     }
 

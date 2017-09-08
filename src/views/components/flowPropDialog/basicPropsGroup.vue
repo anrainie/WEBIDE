@@ -145,7 +145,7 @@
         '2' : templateC,
         '3' : templateC,
         '4' : templateC,
-        '5' : templateD
+        '5' : templateA
     }
 
     /*默认属性*/
@@ -206,29 +206,6 @@
                     model.set(key, item);
                 }
             }
-        },
-        /*记录数据的props的副本*/
-        data() {
-            return {
-                modification: {}
-            }
-        },
-        created() {
-            this.initModification();
-        },
-        methods: {
-            /*暂时通过函数输入获取所需属性*/
-            initModification(keys = ["RefImpl", "Desp", "Remarks", "Readonly", "Tooltip"]) {
-                keys.forEach((item) => {
-                    /*如果是对象还需要继续*/
-                    this.modification[item] = this.model[item];
-                });
-            }
-        },
-        /*因为不能子组件绑定事件至父组件触发*/
-        beforeDestroy() {
-            this.$emit("getModifiedProps", this.modification);
         }
-
     }
 </script>
