@@ -1,15 +1,15 @@
 <template>
     <editorContainer :editor="this">
         <div slot="editor-content" class="planEditor">
-            <tree ref="tree" class="left-side" :model="treeArchitecture" :config="treeConfig"></tree>
-            <div class="right-side">
+            <tree ref="tree" class="left-side split split-horizontal" :model="treeArchitecture" :config="treeConfig"></tree>
+            <div class="right-side split split-horizontal">
                 <div  v-if="selected" class="planEditor-head">
                     <span>{{title}}</span>
                     <div class="line"></div>
                     <div>{{tooltip}}</div>
                 </div>
                 <div class="planEditor-content" v-if="selected && selected.nodeType && selected.nodeType.canCreate">
-                    <div class="content-cell">
+                    <div class="plan-content-cell">
                         <div>
                             <img src="../../../asset/afe/plan_title.png"/>
                             <div>title</div>
@@ -29,7 +29,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="content-cell" v-if="selected && selected.nodeType
+                    <div class="plan-content-cell" v-if="selected && selected.nodeType
                                                 && selected.nodeType.propertiesDesc
                                                 && selected.nodeType.propertiesDesc.propertyDescCount > 0">
                         <div>
@@ -56,7 +56,7 @@
                                                    v-on:input="setPropertyModel($event,propertyDesc)"
                                                    placeholder="请选择">
                                             <el-option
-                                                    v-for="item in getComboList(propertyDesc)"
+                                                    v-for="item in createComboList(propertyDesc)"
                                                     :key="item"
                                                     :label="item"
                                                     :value="item">
@@ -67,7 +67,7 @@
                             </div>
                         </div>
                     </div>
-                    <div class="content-cell" v-if="selected && selected.nodeType
+                    <div class="plan-content-cell" v-if="selected && selected.nodeType
                                                 && selected.nodeType.referencesDesc
                                                 && selected.nodeType.referencesDesc.referenceDescCount > 0">
                         <div>
@@ -93,7 +93,7 @@
                                                    v-on:input="setReferenceModel($event,propertyDesc)"
                                                    placeholder="请选择">
                                             <el-option
-                                                    v-for="item in getComboList(propertyDesc)"
+                                                    v-for="item in createComboList(propertyDesc)"
                                                     :key="item"
                                                     :label="item"
                                                     :value="item">
@@ -130,37 +130,21 @@
     }
 
     .planEditor .left-side {
-        display: inline-block;
-        width: 200px;
-        height: 100%;
         overflow-y: auto;
-        float: left;
     }
 
     .planEditor .right-side {
-        display: inline-block;
-        width: -moz-calc(100% - 210px);
-        width: -webkit-calc(100% - 210px);
-        width: calc(100% - 210px);
-        height: 90%;
-        margin: 5px;
-        float: left;
         overflow-y: auto;
     }
 
     .planEditor-head {
     }
 
-    .planEditor-head .line {
-        border: 1px solid;
-        height: 1px;
-    }
-
     .planEditor-content {
         height: 100%;
     }
 
-    .content-cell {
+    .plan-content-cell {
         border: 1px solid;
         text-align: center;
         width: 30%;
@@ -171,7 +155,7 @@
         overflow-y: auto;
     }
 
-    .content-cell div:first-child img {
+    .plan-content-cell div:first-child img {
         margin-top: 10px;
     }
 
@@ -190,6 +174,7 @@
     import tree from '../../components/tree.vue'
     import contextMenu from '../../components/contextMenu.vue'
     import editorContainer from '../../components/editorContainer.vue'
+    import  Split from "split.js";
     export default{
         name: 'planEditor',
         props: ['file', 'msgHub', 'input'],
@@ -208,7 +193,7 @@
                             self.handleTreeItemClick(item);
                         },
                         rightClick: function (event, item) {
-                            self.handleRightClick(event, item);
+                            self.handleTreeItemRightClick(event, item);
                         }
                     }
                 },
@@ -348,7 +333,7 @@
                     }
                 }
             },
-            getComboList(propertyDesc){
+            createComboList(propertyDesc){
                 var value = propertyDesc.value;
                 var category = propertyDesc.category;
                 var items = [];
@@ -374,7 +359,7 @@
                 this.selected = item.model;
                 this.selectedItemVue = item;
             },
-            handleRightClick($event, item){
+            handleTreeItemRightClick($event, item){
                 this.changeMenuItem();
                 var top = 0, left = 0,
                     parent = $event.target.offsetParent,
@@ -620,6 +605,14 @@
                 delete: this.delete,
                 paste: this.paste
             }
+
+            let $$el = $(this.$el);
+            let leftSide = $$el.find(".planEditor .left-side");
+            let rightSide = $$el.find(".planEditor .right-side");
+            Split([leftSide[0],rightSide[0]], {
+                direction: 'horizontal',
+                sizes: [25, 75]
+            });
         },
         components: {
             tree: tree,

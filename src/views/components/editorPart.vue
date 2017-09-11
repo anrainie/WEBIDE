@@ -125,38 +125,49 @@
                     }
                 }
             },
+            _doCloseEditor:function (editor,item) {
+                if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path)){
+                    this.activeEditor = null;
+                }
+
+                var editorElement = this.getEditorElement(item.model.path);
+                editorElement.remove();
+
+                var editorIndicate = this.getEditorIndicate(item.model.path);
+                editorIndicate.remove();
+
+                this.removeEditorFromEditors(item);
+                editor.$destroy();
+
+                if(this.editors.length > 0){
+                    this.showEditor(this.editors[0].file);
+                }else if(this.collapsedEditors.length > 0){
+                    var editor = this.collapsedEditors[0];
+                    this.collapsedEditors.splice(0,1);
+                    this.showEditor(editor.file);
+                }
+            },
             closeEditor:function (item) {
-               var editor =  this.getEditor(item);
-               if(editor){
+                var self = this;
+                var editor =  this.getEditor(item);
+                if(editor){
                    if(editor.isDirty()) {
-                       if (!confirm("编辑器未保存，先保存再关闭？")){
-                           return;
-                       }
-                       this._dosave();
-                       if(!editor.isDirty()){
-                            return 
-                       }
-                   }
-                   if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path)){
-                       this.activeEditor = null;
-                   }
-
-                   this.getEditorElement(item.model.path).remove();
-
-                   var editorIndicate = this.getEditorIndicate(item.model.path);
-                   editorIndicate.remove();
-
-                   this.removeEditorFromEditors(item);
-                   editor.$destroy();
-                   if(this.editors.length > 0){
-                       this.showEditor(this.editors[0].file);
-                   }
-                   if(this.collapsedEditors.length > 0){
-                       for(let key in this.collapsedEditors){
-                           var editor = this.collapsedEditors[key];
-                           this.showEditor(editor.file);
-                           break;
-                       }
+                       this.$confirm("编辑器未保存，先保存再关闭？",'提示',{
+                           confirmButtonText: '确定',
+                           cancelButtonText: '取消',
+                           type: 'warning'
+                       }).then(function () {
+                           var dtd = self.saveEditor();
+                           if(dtd){
+                               dtd.done(function () {
+                                   if(!editor.isDirty()) {
+                                       self._doCloseEditor(editor,item);
+                                   }
+                               });
+                           }
+                       });
+                   }else {
+                       this._doCloseEditor(editor,item);
                    }
                }
             },
@@ -188,12 +199,6 @@
                     while(this.needCollapse()){
                         this.emptyOutEditorIndicate();
                     }
-                }
-            },
-            saveEditor:function (item) {
-                var editor = this.getEditor(item);
-                if(editor){
-                    editor.save();
                 }
             },
             getActiveEditor:function () {
@@ -410,9 +415,10 @@
                 let p = this.revisePath(path);
                 return $("#" + p);
             },
-            _dosave(){
+            saveEditor(){
                 var that = this;
                 if(this.activeEditor && this.activeEditor.isDirty() && this.activeEditor.save()) {
+                    var dtd = $.Deferred();
                     IDE.socket.emit("saveFile", {
                         type: IDE.type,
                         path: this.activeEditor.file.model.path,
@@ -427,22 +433,25 @@
                                     message: '保存成功',
                                     type: 'success'
                                 });
+                                dtd.resolve();
                             } else {
                                 that.$notify({
                                     title: '保存',
                                     message: '保存失败：' + result.errorMsg,
                                     type: 'error'
                                 });
+                                dtd.reject();
                             }
                         }
                     });
+                    return dtd.promise();
                 }
             },
             handleKeyPress:function (event) {
                 if(event.ctrlKey){
                     switch(event.which){
                         case 19:{
-                            this._dosave();
+                            this.saveEditor();
                             break;
                         }
                     }

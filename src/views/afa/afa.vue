@@ -6,7 +6,8 @@
 
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
-            <workbench id="ide_workbench_center" :views="views" ref="workbench" :editorPartConfig="editorPartConfig"></workbench>
+            <workbench id="ide_workbench_center" :views="views" ref="workbench"
+                       :editorPartConfig="editorPartConfig"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
@@ -103,7 +104,7 @@
                         sql: flowEditor,
                         dict: dictEditor,
                         java: javaEditor,
-                        fc:flowEditor,
+                        fc: flowEditor,
                     }
                 },
                 vertical: false,
@@ -250,49 +251,49 @@
                         });
                     },
                     data: {
-                        model:[],
+                        model: [],
                         config: {
-                            width:'100%',
+                            width: '100%',
                             check: false,
                             async: true,
                             callback: {
-                                asyncLoadItem: function (item,level) {
-                                    if(!level){
+                                asyncLoadItem: function (item, level) {
+                                    if (!level) {
                                         level = 1;
                                     }
                                     IDE.socket.emit('getNaviItems', {
-                                        type: IDE.type,
-                                        event: 'getNaviItems',
-                                        data: {
-                                            path: item.model.path,
-                                            level: level
-                                        }
-                                    }, (function(){
-                                            var getChild = function (children,name) {
-                                                for(let i = 0 ; i < children.length ; i++){
+                                            type: IDE.type,
+                                            event: 'getNaviItems',
+                                            data: {
+                                                path: item.model.path,
+                                                level: level
+                                            }
+                                        }, (function () {
+                                            var getChild = function (children, name) {
+                                                for (let i = 0; i < children.length; i++) {
                                                     let child = children[i];
-                                                    if(child.name === name){
+                                                    if (child.name === name) {
                                                         return child;
                                                     }
                                                 }
                                                 return null;
                                             };
-                                            var combine = function (parent,newChildren) {
+                                            var combine = function (parent, newChildren) {
                                                 for (let index in newChildren) {
                                                     let newChild = newChildren[index];
-                                                    if (!getChild(parent.children,newChild.name)) {
+                                                    if (!getChild(parent.children, newChild.name)) {
                                                         parent.children.push(newChild);
                                                     }
-                                                    if(newChild.children && newChild.children.length > 0){
-                                                        let child = getChild(parent.children,newChild.name);
-                                                        combine(child,newChild.children);
+                                                    if (newChild.children && newChild.children.length > 0) {
+                                                        let child = getChild(parent.children, newChild.name);
+                                                        combine(child, newChild.children);
                                                     }
                                                 }
                                             };
                                             return function (data) {
                                                 let result = JSON.parse(data);
                                                 if (result.state === 'success') {
-                                                    combine(item.model,result.data);
+                                                    combine(item.model, result.data);
                                                 } else {
                                                     console.info(result);
                                                 }
@@ -300,15 +301,16 @@
                                         })()
                                     );
                                 },
-                                delete: function (item) {
-                                    var editor = IDE.editorPart.getEditor(item);
+                                delete: function () {
+                                    var editor = IDE.editorPart.getEditor(this);
                                     if (editor) {
-                                        IDE.editorPart.closeEditor(item);
+                                        IDE.editorPart.closeEditor(this);
                                     }
                                 },
-                                click: function (item) {
-                              },
-                                dblclick: function (item) {
+                                click: function () {
+                                },
+                                dblclick: function () {
+                                    var item = this;
                                     if (!item.model.isParent) {
                                         let editor = IDE.editorPart.getEditor(item);
                                         if (editor) {
@@ -333,7 +335,8 @@
 
                                     }
                                 },
-                                rightClick: function (event, item) {
+                                rightClick: function (event) {
+                                    var item = this;
                                     IDE.socket.emit('getNaviMenu', {
                                         type: IDE.type,
                                         event: 'getNaviMenu',
@@ -347,7 +350,7 @@
                                                 if (IDE.contextmenu.isActive()) {
                                                     IDE.contextmenu.hide();
                                                 }
-                                                IDE.contextmenu.show(event.x, event.y,IDE.navigator.selection);
+                                                IDE.contextmenu.show(event.x, event.y, IDE.navigator.selection);
                                             } else {
                                                 console.info('getNaviMenu : ', result.errorMsg);
                                             }
@@ -370,13 +373,13 @@
                             name: 'refresh',
                             type: 'item',
                             img: "assets/image/file_awb.gif",
-                            tooltip:'refresh',
+                            tooltip: 'refresh',
                             validate(){
                                 return true;
                             },
                             onclick(selection){
-                                if( selection instanceof Array){
-                                    for(let index in selection){
+                                if (selection instanceof Array) {
+                                    for (let index in selection) {
                                         selection[index].refresh();
                                     }
                                 }
@@ -384,17 +387,17 @@
                             }
                         },
                         {
-                            id:'linkWithEditorAction',
-                            name:"linkWithEditor",
-                            type:'item',
-                            img:'assets/image/file_awb.gif',
-                            tooltip:"LinkWithEditor",
+                            id: 'linkWithEditorAction',
+                            name: "linkWithEditor",
+                            type: 'item',
+                            img: 'assets/image/file_awb.gif',
+                            tooltip: "LinkWithEditor",
                             validate(){
                                 return true;
                             },
                             onclick(selection){
                                 let editor = IDE.editorPart.getActiveEditor();
-                                if(editor) {
+                                if (editor) {
                                     IDE.navigator.setSelection(editor.file);
                                 }
                             }

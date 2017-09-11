@@ -164,11 +164,7 @@
         methods:{
             open : function (msg) {
                 this.count++;
-                if(!msg){
-                    this.msg = this.defaultMsg;
-                }else{
-                    this.msg = msg;
-                }
+                this.msg = msg || this.defaultMsg;
             },
             hide:function () {
                 this.count--;

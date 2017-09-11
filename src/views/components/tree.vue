@@ -90,7 +90,7 @@
                     }
                     this.selection.push(item);
                     if (this.config.callback.click) {
-                        this.config.callback.click(item);
+                        this.config.callback.click.call(item,item);
                     }
                 }
             },
@@ -160,7 +160,7 @@
                             self.removeSelection(item);
                         }
                         if (this.config.callback.delete) {
-                            this.config.callback.delete(item);
+                            this.config.callback.delete.call(item);
                         }
                         return true;
                     }

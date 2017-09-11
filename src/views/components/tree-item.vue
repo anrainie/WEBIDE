@@ -160,7 +160,7 @@
             },
             handleDbClick:function () {
                 if(this.config.callback.dblclick){
-                    this.config.callback.dblclick(this);
+                    this.config.callback.dblclick.call(this);
                 }
                 if(this.isFolder){
                     this.toggle();
@@ -169,7 +169,7 @@
             handleContextmenu:function (event) {
                 this.handleClick();
                 if(this.config.callback.rightClick){
-                    this.config.callback.rightClick(event,this);
+                    this.config.callback.rightClick.call(this,event);
                 }
             },
             setEnable(enable){

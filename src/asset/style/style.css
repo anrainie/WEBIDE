@@ -4,6 +4,12 @@ body {
     overflow: hidden;
 }
 
+.line {
+    width: 100%;
+    border: 1px solid;
+    height: 1px;
+}
+
 /*===========滚动条===========*/
 ::-webkit-scrollbar {
     width: 16px;

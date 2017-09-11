@@ -26,7 +26,7 @@
         width:250px;
         padding:5px 0;
         list-style: none;
-        display: inline-block;
+        display: none;
         background-color: white;
         position: absolute;
     }
@@ -246,6 +246,7 @@
                 newMenu.$el.style.top = top +  "px";
                 newMenu.$el.style.left = left + "px";
                 newMenu.$el.style.float = 'right';
+                newMenu.$el.style.display = "block";
 
                 return newMenu;
             },
