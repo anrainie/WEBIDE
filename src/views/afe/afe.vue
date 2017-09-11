@@ -90,6 +90,7 @@
   import menuData from '../../action/afe.menu';
   import planEditor from '../afe/editor/planEditor.vue'
   import sqldictEditor from '../afe/editor/sqldictEditor.vue'
+  import verifyFileEditor from '../afe/editor/verifyFileEditor.vue'
   import parameter from '../../views/afe/components/dialog/configParameter.vue'
   import connToServer from '../../views/afe/components/dialog/connToTheServer.vue'
 
@@ -582,6 +583,7 @@
       statusbar: statusbar,
       viewpart: view,
       workbench: workbench,
+        verifyFileEditor:verifyFileEditor
     }
   }
 </script>
