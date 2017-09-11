@@ -2,16 +2,16 @@
     <div title="伪执行">
 
         <el-switch
-                v-model="enable"
+                v-model="modification.Enable"
                 on-color="#13ce66"
                 off-color="#ff4949"
-                :on-value="true"
-                :off-value="false"
+                on-value="1"
+                off-value="0"
                 on-text="开启"
                 off-text="关闭">
         </el-switch>
         <el-slider
-                v-model="branch"
+                v-model="Branch"
                 :max='7'
                 :min='0'
                 :step="1"
@@ -24,11 +24,48 @@
 <script>
     export default {
         props: {
-            enable: {
-                default: true
+            skip: {
+                default() {
+                    /*字符串*/
+                    return {
+                        Enable: '0',
+                        Branch: '1'
+                    }
+                }
+            }
+        },
+        computed: {
+            /*因为el-slider需要*/
+            Branch: {
+                get() {
+                    return parseInt(this.modification.Branch)
+                },
+                set(value) {
+                    this.modification.Branch = value.toString();
+                }
+            }
+        },
+        data() {
+            return {
+                modification: this.initModification()
+            }
+        },
+        methods: {
+            initModification() {
+                return {
+                    Enable: this.skip.Enable,
+                    Branch: this.skip.Branch
+                };
             },
-            branch: {
-                default: 1
+
+            /*获取修改后的数据*/
+            getModelProps() {
+                return this.modification;
+            },
+
+            /*提供一个默认的更新函数*/
+            savePropsToModel(model) {
+                model.set('Skip', this.modification);
             }
         }
     }
