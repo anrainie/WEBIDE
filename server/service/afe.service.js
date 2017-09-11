@@ -79,9 +79,21 @@ module.exports = {
         type: 'IOService',
         handler: ioService
       },
+      //获取敏感字段
+      {
+        id:'getSubtleField',
+        type:'IOService',
+        handler:ioService
+      },
       {
         //将前端配置好的全局变量提交给后台
         id:'commitConfigParameter',
+        type:'IOService',
+        handler:ioService
+      },
+      {
+        //将前端配置好的敏感字段提交给后台
+        id:'commitSubtleFields',
         type:'IOService',
         handler:ioService
       },
