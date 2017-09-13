@@ -1,7 +1,7 @@
 <template>
     <div id="bar">
         <ul id="menuBar">
-            <MenuItem v-for="menuItem in menuData" :children="menuItem"></MenuItem>
+            <MenuItem v-for="menuItem in menuData.items" :children="menuItem" :config="menuData.config"></MenuItem>
         </ul>
         <QuickToolBar></QuickToolBar>
     </div>

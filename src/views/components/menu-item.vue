@@ -1,7 +1,7 @@
 <template>
     <li class="menu_item nav_item">{{children.name}}
         <ul class="subList">
-            <MIC v-for="childrenItem in children.children" :children="childrenItem"></MIC>
+            <MIC v-for="childrenItem in children.children" :children="childrenItem" :config="config"></MIC>
         </ul>
     </li>
 </template>
@@ -37,7 +37,7 @@
     import MItemChildren from './menu-item-children.vue'
     export default {
         name:'menu-item',
-        props: ['children'],
+        props: ['children','config'],
         components:{
             MIC:MItemChildren
         },
