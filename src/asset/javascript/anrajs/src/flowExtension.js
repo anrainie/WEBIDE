@@ -3,6 +3,7 @@ import Base from '../lib/Base'
 import {anra} from './anra.gef'
 import {ReaderListener} from './smoothRouter'
 import {Map} from './anra.common'
+import {defaultsDeep} from 'lodash'
 
 /*用于参数忽略的时候*/
 function throwIfMissing() {
@@ -39,13 +40,32 @@ $AG.Editor.prototype.createNodeWithPalette = function(type, item) {
             id: editor.createID(),
             type: type,
             bounds: [0, 0, item.size[0], item.size[1]]
-        }, item.data);
+        }, defaultsDeep(item.data));
         tool.model = node;
         
         editor.setActiveTool(tool);
         return true;
     }
 };
+
+$AG.Editor.prototype.getSaveData = function (attrNameArr) {
+    let nodeStore = this.store.node, result, attrsItem;
+
+    /*遍历DB所有record, 筛选属性数据*/
+
+    result = nodeStore().select.apply(nodeStore(), attrNameArr).map((item) => {
+        attrsItem = {};
+        for (let [index, elem] of item.entries()) {
+            if (elem) {
+                attrsItem[attrNameArr[index]] = elem;
+            }
+        }
+
+        return attrsItem;
+    });
+
+    return result;
+}
 
 //test layoutPolicy
 var ContainerLayoutPolicy = anra.gef.LayoutPolicy.extend({

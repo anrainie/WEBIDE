@@ -1,5 +1,6 @@
 import {$AG, constants, smoothRouter} from 'anrajs'
 import * as globalConstants from 'Constants'
+import {resolveEditorData, resolveEditorLine} from './resolve'
 
 var refresh = function () {
     if (this.model && this.figure) {
@@ -30,91 +31,132 @@ var manhattanRoute = {
 };
 
 //策略
-var textPolicy = $AG.policy.TextPolicy('desp', function (figure) {
-    //位置计算
-    this.bounds = {
-        x: figure.fattr('x'),
-        y: figure.fattr('y')
-    };
-});
+var openNodeEditor = {
+    activate() {
+        let self = this;
 
+        this.listener = function () {
+            var host = self.getHost(), unSelected = host.getSelected() == constants.SELECTED_NONE;
 
-/***************************************右键菜单***************************************/
-var selectAll = {
-    id: 'selectAll',
-    name: '全选',
-    type: constants.ACTION_SELECTION,
-    key: 'ctrl+a',
-    run: function () {
-        this.host.rootEditPart.setSelection(this.host.rootEditPart.children);
-    }
-};
+            /*单击且选中*/
+            if (unSelected) return;
 
-var deleteItem = {
-    id: 'delete',
-    name: '删除',
-    type: constants.ACTION_SELECTION,
-    key: 'delete',
-    check: function () {
-        return this.selection instanceof $AG.NodeEditPart ||
-            this.selection instanceof $AG.LineEditPart ||
-            (this.selection instanceof Array && this.selection.length > 0);
-    },
-    run: function () {
-        var cmd, selection = this.selection,
-            root = selection instanceof Array ? selection[0].getRoot() : selection.getRoot();
-
-        if (selection instanceof $AG.NodeEditPart || selection instanceof Array) {
-            cmd = new $AG.DeleteNodeAndLineCommand(root, selection);
-        } else {
-            cmd = new $AG.DeleteLineCommand(root, selection);
+            self.emit(globalConstants.OPEN_NODE_EDITOR, host.model);
         }
 
-        if (cmd != null) {
-            root.editor.execute(cmd);
+        this.getHostFigure().on('mousedown', this.listener);
+    },
+
+    deactivate() {
+        this.getHostFigure().off('mousedown', this.listener);
+    }
+}
+
+var closeNodeEditor = {
+    activate() {
+        let self = this;
+
+        this.listener = function () {
+            var host = self.getHost(), unSelected = host.getSelected() == constants.SELECTED_NONE;
+
+            /*单击且选中*/
+            if (unSelected) return;
+
+            self.emit(globalConstants.CLOSE_NODE_EDITOR);
         }
-        root.setSelection(null);
-    }
-};
 
-var undo = {
-    id: 'undo',
-    name: '撤销',
-    type: constants.ACTION_STACK,
-    key: 'ctrl+z',
-    check: function () {
-        return this.host.cmdStack.canUndo();
+        this.getHostFigure().on('mousedown', this.listener);
     },
-    run: function () {
-        this.host.cmdStack.undo();
-    }
-};
 
-var redo = {
-    id: 'redo',
-    name: '重做',
-    type: constants.ACTION_STACK,
-    key: 'ctrl+y',
-    check: function () {
-        return this.host.cmdStack.canRedo();
-    },
-    run: function () {
-        this.host.redo();
+    deactivate() {
+        this.getHostFigure().off('mousedown', this.listener);
     }
-};
+}
 
-var save = {
-    id: 'save',
-    name: '保存',
-    type: constants.ACTION_STACK,
-/*    key: 'ctrl+s',*/
-    check: function () {
-        return this.host.isDirty();
+
+
+    /***************************************右键菜单***************************************/
+var operations = [
+
+    /*全选*/
+    {
+        id: 'selectAll',
+        name: '全选',
+        type: constants.ACTION_SELECTION,
+        key: 'ctrl+a',
+        run: function () {
+            this.host.rootEditPart.setSelection(this.host.rootEditPart.children);
+        }
     },
-    run: function () {
-        this.host.doSave();
+
+    {
+        id: 'delete',
+        name: '删除',
+        type: constants.ACTION_SELECTION,
+        key: 'delete',
+        check: function () {
+            return this.selection instanceof $AG.NodeEditPart ||
+                this.selection instanceof $AG.LineEditPart ||
+                (this.selection instanceof Array && this.selection.length > 0);
+        },
+        run: function () {
+            var cmd, selection = this.selection,
+                root = selection instanceof Array ? selection[0].getRoot() : selection.getRoot();
+
+            if (selection instanceof $AG.NodeEditPart || selection instanceof Array) {
+                cmd = new $AG.DeleteNodeAndLineCommand(root, selection);
+            } else {
+                cmd = new $AG.DeleteLineCommand(root, selection);
+            }
+
+            if (cmd != null) {
+                root.editor.execute(cmd);
+            }
+            root.setSelection(null);
+        }
+    },
+
+    {
+        id: 'undo',
+        name: '撤销',
+        type: constants.ACTION_STACK,
+        key: 'ctrl+z',
+        check: function () {
+            return this.host.cmdStack.canUndo();
+        },
+        run: function () {
+            this.host.cmdStack.undo();
+        }
+    },
+
+    {
+        id: 'redo',
+        name: '重做',
+        type: constants.ACTION_STACK,
+        key: 'ctrl+y',
+        check: function () {
+            return this.host.cmdStack.canRedo();
+        },
+        run: function () {
+            this.host.redo();
+        }
+    },
+
+    {
+        id: 'save',
+        name: '保存',
+        type: constants.ACTION_STACK,
+        /*    key: 'ctrl+s',*/
+        check: function () {
+            return this.host.isDirty();
+        },
+        run: function () {
+            this.host.doSave();
+        }
     }
-};
+
+];
+
 
 /***************************************  节点  ***************************************/
 
@@ -183,36 +225,17 @@ var stepCommonCpt = {
                 this.getHostFigure().off('dblclick', this.lisn);
             }
         },
-        
+
         'despText': $AG.policy.TextPolicy('Desp', location),
-        
-        'nodeImplement': {
-            activate() {
-                let self = this;
-                
-                this.listener = function() {
-                    var host = self.getHost(), unSelected = host.getSelected() == constants.SELECTED_NONE; 
-                    
-                    /*单击且选中*/
-                    if (unSelected) return;
-                    
-                    self.emit(globalConstants.OPEN_RIGHT_EDITOR, host.model);
-                }
-                
-                this.getHostFigure().on('click', this.listener);
-            },
-            
-            deactivate() {
-                this.getHostFigure().off('click', this.listener);
-            }
-        }
+
+        'nodeEditor': openNodeEditor
     },
 
     //特性
     canDrag: true,
     linkable: true,
     selectable: true,
-    refresh: refresh,
+    refresh,
 
     //数据
     size: [160, 60],
@@ -237,10 +260,11 @@ var serviceInvokdEntered = {
     canDrag: true,
     linkable: true,
     selectable: true,
-    refresh: refresh,
-    
+    refresh,
+
     policies : {
-       'despText': $AG.policy.TextPolicy('Desp', location) 
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'nodeEditor': closeNodeEditor
     },
 
     //数据
@@ -266,10 +290,10 @@ var nodeStart = {
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0},
     ],
-    refresh: refresh,
-    
+    refresh,
+
     policies : {
-       'despText': $AG.policy.TextPolicy('Desp', location) 
+        'despText': $AG.policy.TextPolicy('Desp', location)
     }
 };
 
@@ -288,10 +312,10 @@ var nodeEnd = {
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0},
     ],
-    refresh: refresh,
-    
+    refresh,
+
     policies : {
-       'despText': $AG.policy.TextPolicy('Desp', location) 
+        'despText': $AG.policy.TextPolicy('Desp', location)
     }
 };
 
@@ -310,10 +334,10 @@ var nodeAbnormalEnd = {
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0},
     ],
-    refresh: refresh,
-    
+    refresh,
+
     policies : {
-       'despText': $AG.policy.TextPolicy('Desp', location) 
+        'despText': $AG.policy.TextPolicy('Desp', location)
     }
 };
 
@@ -333,10 +357,10 @@ var nodeErrorDelegate = {
         {id: '0', dir: 's', offset: -25},
         {id: '1', dir: 's', offset: 25},
     ],
-    refresh: refresh,
-    
+    refresh,
+
     policies : {
-       'despText': $AG.policy.TextPolicy('Desp', location) 
+        'despText': $AG.policy.TextPolicy('Desp', location)
     }
 };
 
@@ -357,10 +381,10 @@ var componentInvoke = {
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0},
     ],
-    refresh: refresh,
-    
+    refresh,
+
     policies : {
-       'despText': $AG.policy.TextPolicy('Desp', location) 
+        'despText': $AG.policy.TextPolicy('Desp', location)
     }
 };
 
@@ -380,10 +404,10 @@ var tradeInvoke = {
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0},
     ],
-    refresh: refresh,
-    
+    refresh,
+
     policies : {
-       'despText': $AG.policy.TextPolicy('Desp', location) 
+        'despText': $AG.policy.TextPolicy('Desp', location)
     }
 };
 
@@ -402,15 +426,15 @@ var transfer = {
         {id: 'E', dir: 'e', offset: 0},
         {id: 'W', dir: 'w', offset: 0},
     ],
-    refresh: refresh,
-    
+    refresh,
+
     policies : {
-       'despText': $AG.policy.TextPolicy('Desp', location) 
+        'despText': $AG.policy.TextPolicy('Desp', location)
     }
 };
 
-var leftEditorConfig = {
-    id: 'mainEditor',
+const stepBaseCfg = {
+    id: 'stepEditor',
     children: {
         '3': serviceInvokdEntered,
         '5': stepCommonCpt,
@@ -435,17 +459,11 @@ var leftEditorConfig = {
             items: {}
         }
     },
-    operations: [
-        selectAll,
-        deleteItem,
-        undo,
-        redo,
-        save
-    ]
+    operations
 };
 
-var rightEditorConfig = {
-    id: 'leftEditor',
+const nodeBaseCfg = {
+    id: 'nodeEditor',
     children: {
         '2': nodeStart,
         '3': nodeEnd,
@@ -481,13 +499,177 @@ var rightEditorConfig = {
             name: '应用'
         }
     },
-    operations: [
-        selectAll,
-        deleteItem,
-        undo,
-        redo,
-        save
-    ]
-}
+    operations
+};
 
-export {leftEditorConfig, rightEditorConfig}
+
+export class stepConfigBuilder {
+
+    baseCfg;
+
+    constructor(config) {
+        this.baseCfg = config || stepConfigBuilder.createConfig();
+    }
+
+    static BuildConfig(config) {
+        return new stepConfigBuilder(config);
+    }
+
+    static createConfig(options) {
+        return Object.assign({}, stepBaseCfg, options);
+    }
+
+    setEditorAttr(input) {
+        this.baseCfg.DateInfo = input.Root.DateInfo;
+        this.baseCfg.NodeMaxnimum = input.Root.NodeMaxnimum;
+        this.baseCfg.uuid = input.Root.UUID;
+
+        return this;
+    }
+
+    resolveModel({Root: {Regulation: {Step: nodes}}}) {
+        if (nodes) {
+            console.log(nodes)
+            var nodeData = nodes instanceof Array ? nodes : [nodes];
+
+            this.baseCfg.data = resolveEditorData(nodeData, this.baseCfg.children);
+            this.baseCfg.line = resolveEditorLine(nodeData);
+        }
+        return this;
+    }
+
+    /*画板节点类型*/
+    addNodeType(input) {
+        return this;
+    }
+
+    setting(func) {
+        func.call(this, this.baseCfg);
+
+        return this;
+    }
+
+    getConfig() {
+        console.log(this.baseCfg)
+        return this.baseCfg;
+    }
+ }
+
+ export class nodeConfigBuilder {
+
+     baseCfg;
+
+     constructor(config) {
+         this.baseCfg = config || nodeConfigBuilder.createConfig();
+     }
+
+     static BuildConfig(config) {
+         return new nodeConfigBuilder(config);
+     }
+
+     static createConfig(options) {
+         return Object.assign({}, nodeBaseCfg, options);
+     }
+
+     setEditorAttr(input) {
+         this.baseCfg.uuid = input.UUID;
+
+         return this;
+     }
+
+     resolveModel({Node: nodes}) {
+         if (nodes) {
+             var nodeData = nodes instanceof Array ? nodes : [nodes];
+
+             this.baseCfg.data = resolveEditorData(nodeData, this.baseCfg.children);
+             this.baseCfg.line = resolveEditorLine(nodeData);
+         }
+         return this;
+     }
+
+     /*画板节点类型*/
+     addNodeType(input) {
+         return this;
+     }
+
+     setting(func) {
+         func.call(this, this.baseCfg);
+
+         return this;
+     }
+
+     getConfig() {
+         return this.baseCfg;
+     }
+ }
+
+ /*exm*/
+/*
+Events = function() {
+
+    var listen, log, obj, one, remove, trigger, __this;
+
+    obj = {};
+
+    __this = this;
+
+    listen = function (key, eventfn) {
+
+        var stack, _ref;
+
+        stack = ( _ref = obj[key] ) != null ? _ref : obj[key] = [];
+
+        return stack.push(eventfn);
+
+    };
+
+    one = function (key, eventfn) {
+
+        remove(key);
+
+        return listen(key, eventfn);
+
+    };
+
+    remove = function (key) {
+
+        var _ref;
+
+        return ( _ref = obj[key] ) != null ? _ref.length = 0 : void 0;
+
+    };
+
+    trigger = function () {
+
+        var fn, stack, _i, _len, _ref, key;
+
+        key = Array.prototype.shift.call(arguments);
+
+        stack = ( _ref = obj[key] ) != null ? _ref : obj[key] = [];
+
+        for (_i = 0, _len = stack.length; _i < _len; _i++) {
+
+            fn = stack[_i];
+
+            if (fn.apply(__this, arguments) === false) {
+
+                return false;
+
+            }
+
+        }
+    }
+
+        return {
+
+            listen: listen,
+
+            one: one,
+
+            remove: remove,
+
+            trigger: trigger
+
+        }
+
+}*/
