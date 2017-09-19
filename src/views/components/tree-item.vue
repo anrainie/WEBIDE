@@ -176,10 +176,10 @@
             },
             handleClick:function (event) {
                 this.selected = !this.selected;
-                this.msgHub.$emit('setSelected', this, event);
                 if (this.config.callback.click) {
                     this.config.callback.click.call(this,this);
                 }
+                this.msgHub.$emit('setSelected', this, event);
             },
             handleDbClick:function () {
                 if(this.config.callback.dblclick){

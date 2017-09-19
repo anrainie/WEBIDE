@@ -105,6 +105,8 @@
                         var old = this.selection.pop();
                         old.selected = false;
                         needAdd = true;
+                    }else{
+                        item.selected = true;
                     }
                 } else if (this.selection.length == 0) {
                     needAdd = true;
