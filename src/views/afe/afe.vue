@@ -235,10 +235,9 @@
                                 path: '\\',
                                 level: 1
                             }
-                        }, function (data) {
-                            if (data) {
+                        }, function (result) {
+                            if (result) {
                                 let naviItems = [];
-                                let result = JSON.parse(data);
                                 if (result.state === 'success') {
                                     for (let index in result.data) {
                                         naviItems.push(result.data[index]);
@@ -290,8 +289,7 @@
                                                     }
                                                 }
                                             };
-                                            return function (data) {
-                                                let result = JSON.parse(data);
+                                            return function (result) {
                                                 if (result.state === 'success') {
                                                     combine(item.model, result.data);
                                                 } else {
@@ -314,8 +312,7 @@
                                         type: IDE.type,
                                         event: 'getConfigParameter',
                                         data: {tableData: newConfigParameter.tableData}
-                                    }, function (data) {
-                                        let result = JSON.parse(data);
+                                    }, function (result) {
                                         if (result.state === 'success') {
                                             newConfigParameter.tableData = result.data
                                             var container = document.createElement('div');
@@ -337,9 +334,8 @@
                                             type: IDE.type,
                                             event: 'syncResource',
                                             data: {}
-                                        }, function (data) {
+                                        }, function (result) {
                                             if (data) {
-                                                let result = JSON.parse(data);
                                                 if (result.state === 'success') {
                                                     IDE.navigator.refresh("/base")
                                                     IDE.navigator.refresh("/sbase")
@@ -350,8 +346,7 @@
                                                             type: IDE.type,
                                                             event: 'getConnConfig',
                                                             data: {}
-                                                        }, function (data) {
-                                                            let result = JSON.parse(data);
+                                                        }, function (result) {
                                                             if (result.state === 'success') {
                                                                 var connections = result.data.data
                                                                 for (var index in connections) {
@@ -396,8 +391,7 @@
                                             data: {
                                                 path: item.model.path
                                             }
-                                        }, function (data) {
-                                            let result = JSON.parse(data);
+                                        }, function (result) {
                                             console.info("getFile：", result);
                                             if (!item.model.isParent) {
                                                 IDE.editorPart.openEditor(item, result.data);
@@ -413,9 +407,8 @@
                                         type: IDE.type,
                                         event: 'getNaviMenu',
                                         data: {path: item.model.path}
-                                    }, function (data) {
+                                    }, function (result) {
                                         if (data) {
-                                            let result = JSON.parse(data);
                                             if (result.state === 'success') {
                                                 let newItems = navContextMenus.match(result.data);
                                                 IDE.contextmenu.setItems(newItems);

@@ -112,9 +112,8 @@
           type: IDE.type,
           event: 'createNewResource',
           data: {style:this.style,path: this.path,resourceId:this.resourceId,type:this.type,name:this.name==""?name=this.namelabel.value:name=this.name,description:this.description,directory:this.directory,group:this.selectedGroup[0],ref:this.selectedRef[0]}
-        }, function (data) {
-          if (data) {
-            let result = JSON.parse(data);
+        }, function (result) {
+          if (result) {
             if (result.state === 'success') {
               let path = result.data.path;
               //刷新

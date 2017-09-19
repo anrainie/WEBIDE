@@ -462,12 +462,11 @@
                     data: {
                         path: this.file.model.path
                     }
-                }, function (data) {
-                    if (data) {
+                }, function (result) {
+                    if (result) {
                         IDE.shade.hide();
-                        let result = JSON.parse(data);
                         if (result.state === 'success') {
-                            self.editorArchitecture = self.deepParse2Json(result.data);
+                            self.editorArchitecture = result.data;
                             self.generateTreeArchitecture();
                         } else {
                             this.$notify.error({
@@ -543,14 +542,6 @@
                 });
                 return children;
             },
-            deepParse2Json(str){
-                return JSON.parse(str, function (k, v) {
-                    if (typeof v === 'string' && v.charAt(0) === '{' && v.charAt(v.length) === '}') {
-                        return JSON.parse(v);
-                    }
-                    return v;
-                });
-            },
             isDirty(){
                 return this.dirty;
             },
@@ -586,7 +577,7 @@
             this.init();
             this.menu = this.$refs.menu;
             this.tree = this.$refs.tree;
-            this.inputObject = this.deepParse2Json(this.input);
+            this.inputObject = $.extend(true,{},this.input);
             if (this.inputObject.module.gbean) {
                 if (!$.isArray(this.inputObject.module.gbean)) {
                     this.inputObject.module.gbean = [this.inputObject.module.gbean];

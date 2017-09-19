@@ -113,16 +113,14 @@
            type: IDE.type,
            event:'connectToTheServer',
            data:{userName:this.name,pwd:this.pwd,node:this.comboSelectedNode,allNode:this.tableNodes}
-         },function(data) {
-           if(data){
-             var result = JSON.parse(data)
+         },function(result) {
+           if(result){
              if(result.state === 'success'){
                 IDE.socket.emit("syncResource",{
                   type: IDE.type,
                   event: 'syncResource',
                   data: {}
-                },function(data){
-                  let result = JSON.parse(data);
+                },function(result){
                   if(result.state === 'success'){
                     IDE.navigator.refresh("/base")
                     IDE.navigator.refresh("/sbase")

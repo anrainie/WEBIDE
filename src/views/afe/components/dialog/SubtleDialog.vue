@@ -90,9 +90,8 @@
           type: IDE.type,
           event: 'commitSubtleFields',
           data: {openable: this.isStart[0], subtleFields: this.tableData}
-        }, function (data) {
+        }, function (result) {
           if (data) {
-            var result = JSON.parse(data)
             if(result.state !== 'success'){
               console.log(result.data.errorMsg)
             }

@@ -76,9 +76,8 @@
           type: IDE.type,
           event: 'createNewResource',
           data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name,desc:this.desc}
-        }, function (data) {
-          if (data) {
-            let result = JSON.parse(data);
+        }, function (result) {
+          if (result) {
             if (result.state === 'success') {
               let path = result.data.path;
               //刷新

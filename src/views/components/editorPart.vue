@@ -424,9 +424,8 @@
                         path: this.activeEditor.file.model.path,
                         content:this.activeEditor.input,
                         event: 'saveFile',
-                    }, function (data) {
-                        if(data) {
-                            let result = JSON.parse(data);
+                    }, function (result) {
+                        if(result) {
                             if (result.state === 'success') {
                                 that.$notify({
                                     title: '保存',

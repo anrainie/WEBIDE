@@ -234,10 +234,9 @@
                                 path: '\\',
                                 level: 1
                             }
-                        }, function (data) {
-                            if (data) {
+                        }, function (result) {
+                            if (result) {
                                 let naviItems = [];
-                                let result = JSON.parse(data);
                                 if (result.state === 'success') {
                                     for (let index in result.data) {
                                         naviItems.push(result.data[index]);
@@ -290,8 +289,7 @@
                                                     }
                                                 }
                                             };
-                                            return function (data) {
-                                                let result = JSON.parse(data);
+                                            return function (result) {
                                                 if (result.state === 'success') {
                                                     combine(item.model, result.data);
                                                 } else {
@@ -324,8 +322,7 @@
                                             data: {
                                                 path: item.model.path
                                             }
-                                        }, function (data) {
-                                            let result = JSON.parse(data);
+                                        }, function (result) {
                                             console.info("getFile：", result);
                                             if (!item.model.isParent) {
                                                 IDE.editorPart.openEditor(item, result.data);
@@ -341,9 +338,8 @@
                                         type: IDE.type,
                                         event: 'getNaviMenu',
                                         data: {path: item.model.path}
-                                    }, function (data) {
-                                        if (data) {
-                                            let result = JSON.parse(data);
+                                    }, function (result) {
+                                        if (result) {
                                             if (result.state === 'success') {
                                                 let newItems = navContextMenus.match(result.data);
                                                 IDE.contextmenu.setItems(newItems);

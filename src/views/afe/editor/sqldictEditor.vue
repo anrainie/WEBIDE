@@ -194,7 +194,7 @@
             }
         },
         mounted(){
-            this.inputJo = tools.deepParseJson(this.input);
+            this.inputJo = $.extend(true,{},this.input);
             if(this.inputJo.tabledesc.columndesc){
                 if(!$.isArray(this.inputJo.tabledesc.columndesc)){
                     this.inputJo = [this.inputJo.tabledesc.columndesc];

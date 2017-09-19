@@ -55,8 +55,7 @@ IDESocket.prototype.getDeferredEmit = function (eventId,data) {
     debug.info("IDESocket emit,event:" + data.event);
     let def = $.Deferred();
     if(this.socket.connected){
-        this.socket.emit(data.type+"_"+eventId,data,function (data) {
-            let result = JSON.parse(data);
+        this.socket.emit(data.type+"_"+eventId,data,function (result) {
             if(result.state === 'success'){
                 def.resolve(result.data);
             }else if(result.state === 'error'){

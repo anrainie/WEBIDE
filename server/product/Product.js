@@ -167,8 +167,7 @@ Product.prototype.releaseFile = function (reqData,callback) {
     let self = this;
     let cb = callback;
     let data = reqData.data;
-    this.emit('releaseFilelock', JSON.stringify(reqData), function (respData) {
-        var result = JSON.parse(respData);
+    this.emit('releaseFilelock', JSON.stringify(reqData), function (result) {
         if(result.state === 'success'){
             let filelock = WebIDEDB.getCollection(dbConstants.filelock);
             filelock.findAndRemove({pid:self.id,file:data.path});
@@ -184,8 +183,7 @@ Product.prototype.releaseFile = function (reqData,callback) {
  */
 Product.prototype.peekFileLock = function (reqData,callback) {
     let cb = callback;
-    this.emit('peekFileLock', JSON.stringify(reqData), function (respData) {
-        var result = JSON.parse(respData);
+    this.emit('peekFileLock', JSON.stringify(reqData), function (result) {
         cb(result);
     });
 }

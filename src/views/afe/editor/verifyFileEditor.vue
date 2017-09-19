@@ -203,11 +203,10 @@
                     type: IDE.type,
                     event: 'loadVerifyFuncFormatLib',
                     data: {}
-                }, function (data) {
+                }, function (result) {
                     IDE.shade.hide();
-                    let result = JSON.parse(data);
                     if (result.state === 'success') {
-                        self.functionFormatLib = tools.deepParseJson(result.data);
+                        self.functionFormatLib = result.data;
                         loadFunFormatLibDfd.resolve();
                     } else {
                         this.$notify.error({
@@ -333,7 +332,7 @@
             let leftSide = $$el.find(".verifyFileEditor .left-side");
             let rightSide = $$el.find(".verifyFileEditor .right-side");
 
-            this.inputJo = tools.deepParseJson(this.input);
+            this.inputJo = $.extend(true,{},this.input);
 
             Split([leftSide[0], rightSide[0]], {
                 direction: 'horizontal',

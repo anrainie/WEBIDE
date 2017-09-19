@@ -258,7 +258,7 @@
         },
         mounted(){
             let self = this;
-            this.inputJo = tools.deepParseJson(this.input);
+            this.inputJo = $.extend(true,{},this.input);
             let root = this.inputJo['DataDictionary'];
             if (root.DataField) {
                 if (!$.isArray(root.DataField)) {

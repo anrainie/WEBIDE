@@ -169,8 +169,7 @@ function configParameter () {
     type: IDE.type,
     event: 'getConfigParameter',
     data: {tableData: newConfigParameter.tableData}
-  }, function (data) {
-    let result = JSON.parse(data)
+  }, function (result) {
     if (result.state === 'success') {
       newConfigParameter.tableData = result.data
       var container = document.createElement('div')
@@ -193,9 +192,8 @@ function syncOrConnToServer () {
       type: IDE.type,
       event: 'syncResource',
       data: {}
-    }, function (data) {
-      if (data) {
-        let result = JSON.parse(data)
+    }, function (result) {
+      if (result) {
         if (result.state === 'success') {
           IDE.navigator.refresh('/base')
           IDE.navigator.refresh('/sbase')
@@ -206,8 +204,7 @@ function syncOrConnToServer () {
               type: IDE.type,
               event: 'getConnConfig',
               data: {}
-            }, function (data) {
-              let result = JSON.parse(data)
+            }, function (result) {
               if (result.state === 'success') {
                 var connections = result.data.data
                 for (var index in connections) {
@@ -251,9 +248,8 @@ function subtleField () {
     type: IDE.type,
     event: 'getSubtleField',
     data: {}
-  }, function (data) {
-    if (data) {
-      var result = JSON.parse(data)
+  }, function (result) {
+    if (result) {
       if (result.state === 'success') {
         var start = result.data.openable
         var subtleFields = result.data.subtleFields

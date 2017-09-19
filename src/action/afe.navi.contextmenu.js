@@ -12,8 +12,7 @@ function getAppAction(){
      type: IDE.type,
      event: 'getAppAction',
      data: {actionId:this.id,path: this.path}
-   },function (data) {
-      var result = JSON.parse(data)
+   },function (result) {
      if(result.state === 'success'){
         IDE.navigator.refresh(result.data.path)
        alert(result.data.content)
@@ -70,8 +69,7 @@ function getNewWizard () {
       event: 'beforeModify',
       data: {path: this.path}
     },function(data){
-      if (data) {
-        var result = JSON.parse(data);
+      if (result) {
         if (result.state === 'success') {
           var oldName,oldDescription,oldDirectory,oldGroup,oldRef
           reourceId = result.data.resourceId

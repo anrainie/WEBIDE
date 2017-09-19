@@ -632,9 +632,8 @@ function compileService(selection) {
             path: resources,
             event: 'afaCompile',
             resourceType: 'service'
-        }, function (data) {
+        }, function (result) {
             IDE.shade.hide();
-            let result = JSON.parse(data);
             if (result.state === 'success') {
                 self.$notify({
                     title: '编译',
@@ -645,7 +644,7 @@ function compileService(selection) {
                     selection[i].refresh(-1);
                 }
             } else {
-                showCompileError(JSON.parse(result.errorMsg));
+                showCompileError(result.errorMsg);
             }
         });
     }
@@ -665,9 +664,8 @@ function compileBcpt(selection) {
             path: resources,
             event: 'afaCompile',
             resourceType: 'bcpt'
-        }, function (data) {
+        }, function (result) {
             IDE.shade.hide();
-            let result = JSON.parse(data);
             if (result.state === 'success') {
                 that.$notify({
                     title: '编译',
@@ -675,7 +673,7 @@ function compileBcpt(selection) {
                     type: 'success'
                 });
             } else {
-                showCompileError(JSON.parse(result.errorMsg));
+                showCompileError(result.errorMsg);
             }
         });
     }
