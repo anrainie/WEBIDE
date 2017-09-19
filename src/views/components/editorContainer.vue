@@ -42,6 +42,7 @@
         background-color: #99A9BF;
         border:1px solid #99A9BF;
         border-radius:0 0 5px 5px;
+        z-index: 100;
         text-align: center;
         cursor:pointer;
         height: 20px;
@@ -120,7 +121,6 @@
                         type:IDE.type,
                         event:'lockFile',
                         data:{
-                            uid:'123456',
                             path:this.editor.file.model.path
                         }
                     },function (respData) {
@@ -145,7 +145,6 @@
                         type:IDE.type,
                         event:'releaseFilelock',
                         data:{
-                            uid:'123456',
                             path:this.editor.file.model.path
                         }
                     },function (respData) {

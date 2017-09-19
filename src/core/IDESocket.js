@@ -51,4 +51,22 @@ IDESocket.prototype.emit = function (eventId,data,callback) {
     }
 }
 
+IDESocket.prototype.getDeferredEmit = function (eventId,data) {
+    debug.info("IDESocket emit,event:" + data.event);
+    let def = $.Deferred();
+    if(this.socket.connected){
+        this.socket.emit(data.type+"_"+eventId,data,function (data) {
+            let result = JSON.parse(data);
+            if(result.state === 'success'){
+                def.resolve(result.data);
+            }else if(result.state === 'error'){
+                def.reject(result.errorMsg);
+            }
+        });
+    }else{
+        def.reject({state:'error',errorMsg:"ide socket is offline"});
+    }
+    return def.promise();
+}
+
 export default IDESocket;

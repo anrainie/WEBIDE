@@ -1,7 +1,8 @@
 <template>
     <div v-show="enable" class="item">
-        <div v-show="!isFolder" class="none-arrow"></div>
-        <div v-show="isFolder && model.children && model.children.length > 0" @click='toggle' :class="[open?'down-arrow':'right-arrow']"></div>
+        <div style="width: 8px;height: 15px;float: left">
+            <div v-show="isFolder && getProp('children') && getProp('children').length > 0" @click='toggle' :class="[open?'down-arrow':'right-arrow']"></div>
+        </div>
         <input v-show="config.check" type="checkbox" v-model="checked" class="item-checkbox" @click="setCheck(true)">
         <div class="item-body"
              :class="[selected?'item-selected':'']"
@@ -9,11 +10,11 @@
              @click.prevent="handleClick($event)"
              @contextmenu.prevent="handleContextmenu($event)">
             <img class="item-image" v-bind:src="itemImageSrc">
-            <span class="item-title">{{model.displayName? model.displayName: model.name}}</span>
-            <span class="item-desp">{{model.desp}}</span>
+            <span class="item-title">{{getProp('label')}}</span>
+            <span class="item-desp">{{getProp('desp')}}</span>
         </div>
         <div class="item-children" v-show="open" v-if='isFolder' >
-            <item v-for='child in model.children' :model='child,config,msgHub' :key="child.path" :ref="child.name">
+            <item v-for='child in model.children' :model='child,config,msgHub' :key="child.path" :ref="getProp('label')">
             </item>
         </div>
     </div>
@@ -22,7 +23,20 @@
 <script type="text/javascript">
     export default {
         name: 'item',
-        props: ['model','config','msgHub'],
+        props: {
+            model:{},
+            config:{},
+            msgHub:{},
+            props:{
+                default() {
+                    return {
+                        name:'label',
+                        children: 'children',
+                        desp:'desp'
+                    };
+                }
+            }
+        },
         components: {},
         data() {
             return {
@@ -40,17 +54,23 @@
             }
         },
         methods: {
+            getProp(key){
+                if(this.props[key]){
+                    key = this.props[key];
+                }
+                return this.model[key];
+            },
             getParent:function(){
                 return this.$parent;
             },
             getChildren:function(){
                 return this.$children;
             },
-            getChild:function (name) {
-                var childrefs =  this.$refs[name];
+            getChild:function (label) {
+                var childrefs =  this.$refs[label];
                 if(childrefs){
                     if(childrefs.length > 1){
-                        console.error("find multi node :" + this.model.path + "/" + name);
+                        console.error("find multi node :" + this.model.path + "/" + label);
                         return null;
                     }else if(childrefs.length == 1){
                         return childrefs[0];
@@ -157,6 +177,9 @@
             handleClick:function (event) {
                 this.selected = !this.selected;
                 this.msgHub.$emit('setSelected', this, event);
+                if (this.config.callback.click) {
+                    this.config.callback.click.call(this,this);
+                }
             },
             handleDbClick:function () {
                 if(this.config.callback.dblclick){
@@ -233,12 +256,6 @@
 
     .item-children{
         padding-left: 13px;
-    }
-    .none-arrow{
-        display: inline-block;
-        float:left;
-        margin-top: 5px;
-        width: 11px;
     }
     .right-arrow{
         display: inline-block;

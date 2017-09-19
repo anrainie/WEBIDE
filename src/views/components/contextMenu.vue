@@ -274,7 +274,7 @@
             show (x,y,selection) {
                 this.$el.style.display = "block";
 
-                var height = this.items.length * 23;
+                var height = this.items.length * 23 + 5;
                 if(height > document.body.clientHeight){
                     height = document.body.clientHeight;
                     //this.$el.style['overflow-y'] = 'auto';

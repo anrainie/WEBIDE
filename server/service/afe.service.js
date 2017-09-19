@@ -149,9 +149,24 @@ module.exports = {
             }
         },
         {
-            id: 'loadFunctionFormatLib',
+            id: 'loadVerifyFuncFormatLib',
             type: 'IOService',
             handler: ioService
+        },
+        {
+            id:'loadVerifyFile',
+            type:'IOService',
+            handler:ioService
+        },
+        {
+            id:'loadAllMessage',
+            type:'IOService',
+            handler:ioService
+        },
+        {
+            id:'loadDictFuncLib',
+            type:'IOService',
+            handler:ioService
         }
     ]
 }

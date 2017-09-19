@@ -1,6 +1,6 @@
 <template>
     <div class="tree">
-        <item v-for='child in model' :model='child,config,msgHub' :key="child.path" :ref="child.name">
+        <item v-for='child in model' :model='child,config,msgHub' :key="child.path" :props="props" :ref="getProp(child,'label')">
         </item>
     </div>
 </template>
@@ -9,7 +9,26 @@
     import Vue from 'vue'
     export default {
         name: 'tree',
-        props: ['model','config'],
+        props: {
+            model: {
+                type:Array
+            },
+            config: {
+                type:Object,
+                default: function () {
+                    return {};
+                }
+            },
+            props: {
+                default() {
+                    return {
+                        label:'label',
+                        children: 'children',
+                        desp:'desp'
+                    };
+                }
+            }
+        },
         components: {
             item: item
         },
@@ -26,14 +45,20 @@
             }
         },
         methods: {
+            getProp(model,key){
+                if(this.props[key]){
+                    key = this.props[key];
+                }
+                return model[key];
+            },
             setInput(input){
                 var self = this;
-                this.model.slice(0,this.model.length);
-                if($.isArray(input)){
-                    $.each(input,function (k,v) {
+                this.model.slice(0, this.model.length);
+                if ($.isArray(input)) {
+                    $.each(input, function (k, v) {
                         this.self.model.push(v);
                     })
-                }else{
+                } else {
                     this.model.push(input);
                 }
             },
@@ -41,7 +66,7 @@
              * 展开到该节点并选中该节点
              * @param item
              */
-            setSelection:function (item) {
+            setSelection: function (item) {
                 this.expandItem(item);
                 item.handleClick();
             },
@@ -58,7 +83,7 @@
                     var exist = false;
                     for (var i = 0; i < this.selection.length; i++) {
                         var selected = this.selection[i];
-                        if (selected.model.path === item.model.path) {
+                        if (selected === item) {
                             var oldSelected = this.selection[i];
                             this.selection.splice(i, 1);
                             oldSelected.selected = false;
@@ -76,7 +101,7 @@
                     this.selection.splice(0, this.selection.length);
                     needAdd = true;
                 } else if (this.selection.length == 1) {
-                    if (!this.isSelected(item.model.path)) {
+                    if (!this.isSelected(item)) {
                         var old = this.selection.pop();
                         old.selected = false;
                         needAdd = true;
@@ -85,28 +110,25 @@
                     needAdd = true;
                 }
                 if (needAdd) {
-                    if(!item.selected){
+                    if (!item.selected) {
                         item.selected = true;
                     }
                     this.selection.push(item);
-                    if (this.config.callback.click) {
-                        this.config.callback.click.call(item,item);
-                    }
                 }
             },
             removeSelection: function (item) {
                 for (var i = 0; i < this.selection.length; i++) {
                     var selected = this.selection[i];
-                    if (selected.model.path === item.model.path) {
+                    if (selected === item) {
                         this.selection.splice(i, 1);
                         break;
                     }
                 }
             },
-            isSelected: function (path) {
+            isSelected: function (item) {
                 for (var i = 0; i < this.selection.length; i++) {
                     var selected = this.selection[i];
-                    if (selected.path === path) {
+                    if (selected === item) {
                         return true;
                     }
                 }
@@ -154,7 +176,7 @@
                 var parent = item.getParent();
                 for (var i = 0; i < parent.model.children.length; i++) {
                     var child = parent.model.children[i];
-                    if (child.name === item.model.name) {
+                    if (this.getProp(child,'label') === this.getProp(item.model,'label')) {
                         parent.model.children.splice(i, 1);
                         if (item.selected) {
                             self.removeSelection(item);
@@ -175,10 +197,10 @@
              * 展开节点
              * @param item
              */
-            expandItem:function (item) {
+            expandItem: function (item) {
                 let parent = item.getParent();
-                while(parent && parent !== this){
-                    if(!parent.open) {
+                while (parent && parent !== this) {
+                    if (!parent.open) {
                         parent.toggle();
                     }
                     parent = parent.getParent();
@@ -213,17 +235,17 @@
                 }
             },
             collapseAll: function () {
-                this.collapseToLevel(this.ALL_LEVELS,this);
+                this.collapseToLevel(this.ALL_LEVELS, this);
             },
             /**
              * 从item节点开始收缩
              * @param item
              * @param level
              */
-            collapseToLevel: function (level,item) {
-                this._internalCollapseToLevel(level,item);
+            collapseToLevel: function (level, item) {
+                this._internalCollapseToLevel(level, item);
             },
-            _internalCollapseToLevel(level,item){
+            _internalCollapseToLevel(level, item){
                 if (level === this.ALL_LEVELS || level > 0) {
                     var children = item.getChildren();
                     for (var index in children) {
@@ -239,7 +261,7 @@
              * @param path
              * @param level
              */
-            refresh: function (path,level) {
+            refresh: function (path, level) {
                 if (path == null) {
                     let self = this;
                     self.init(function (m) {
@@ -256,12 +278,12 @@
         },
         mounted: function () {
             var self = this;
-            this.config = this.config || {};
+
             this.config.callback = this.config.callback || {};
-            if(!this.model){
+            if (!this.model) {
                 this.model = [];
             }
-            if(this.config.width){
+            if (this.config.width) {
                 this.$el.style.width = this.config.width;
             }
             this.msgHub.$on("deleteItem", function (item) {

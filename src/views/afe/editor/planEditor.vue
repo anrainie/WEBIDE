@@ -499,7 +499,7 @@
                 $.each(this.editorArchitecture.nodetype, function (k, nodeType) {
                     if (nodeType.parent === parentType && !nodeType.canCreate) {
                         var item = {
-                            name: nodeType.displayName,
+                            label: nodeType.displayName,
                             isParent: true,
                             path: nodeType.displayName,
                             nodeType: nodeType,
@@ -511,7 +511,7 @@
                             $.each(self.inputObject.module.gbean, function (k, gbean) {
                                 if (gbean.nodeType && gbean.nodeType.name === chdNodeType.name) {
                                     var chdItem = {
-                                        name: gbean['-name'],
+                                        label: gbean['-name'],
                                         isParent: false,
                                         path: gbean['-name'],
                                         nodeType: chdNodeType,

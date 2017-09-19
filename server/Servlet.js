@@ -35,11 +35,11 @@ Servlet.prototype.start = function () {
     })
 
     server.on('connection', function (socket) {
-        var user = socket.handshake.session.user
+        var user = socket.handshake.session.user;
 
-        console.info(user.username + ' connect socket successful')
+        console.info(user.username + ' connect socket successful');
 
-        self.clients[user.username] = socket
+        self.clients[user.username] = socket;
 
         socket.on('disconnect', function () {
             delete self.clients[user.username]
@@ -55,8 +55,8 @@ Servlet.prototype.start = function () {
                     }
                     if (service.type === 'IOService') {
                         socket.on(productServices.type + "_" + service.id, function (reqData, callback) {
-                            console.info('servlet capture socket event:', reqData.type, reqData.event)
-                            let consumer = Products[reqData.type]
+                            reqData.uid = user['_id'];
+                            let consumer = Products[reqData.type];
                             if (consumer) {
                                 consumer.runServiceHandler(reqData, callback);
                             } else {
@@ -65,6 +65,7 @@ Servlet.prototype.start = function () {
                         });
                     } else if (service.type === 'localService') {
                         socket.on(productServices.type + "_" + service.id, function (reqData, callback) {
+                            reqData.uid = user['_id'];
                             service.handler.call(self,reqData,callback,service);
                         });
                     }
