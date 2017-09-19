@@ -1,7 +1,7 @@
 <template>
     <editorContainer :editor="this">
         <div slot="editor-content" class="planEditor">
-            <tree ref="tree" class="left-side split split-horizontal" :model="treeArchitecture" :config="treeConfig"></tree>
+            <tree ref="tree" class="left-side split split-horizontal" :model="treeArchitecture" :props="treeProps" :config="treeConfig"></tree>
             <div class="right-side split split-horizontal">
                 <div  v-if="selected" class="planEditor-head">
                     <span>{{title}}</span>
@@ -196,6 +196,11 @@
                             self.handleTreeItemRightClick(event, item);
                         }
                     }
+                },
+                treeProps:{
+                    label:'name',
+                    children: 'children',
+                    desp:'desp'
                 },
                 menuItems: [],
                 menuConfig: {},
@@ -498,7 +503,7 @@
                 $.each(this.editorArchitecture.nodetype, function (k, nodeType) {
                     if (nodeType.parent === parentType && !nodeType.canCreate) {
                         var item = {
-                            label: nodeType.displayName,
+                            name: nodeType.displayName,
                             isParent: true,
                             path: nodeType.displayName,
                             nodeType: nodeType,
@@ -510,7 +515,7 @@
                             $.each(self.inputObject.module.gbean, function (k, gbean) {
                                 if (gbean.nodeType && gbean.nodeType.name === chdNodeType.name) {
                                     var chdItem = {
-                                        label: gbean['-name'],
+                                        name: gbean['-name'],
                                         isParent: false,
                                         path: gbean['-name'],
                                         nodeType: chdNodeType,

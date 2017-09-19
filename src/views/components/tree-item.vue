@@ -14,7 +14,7 @@
             <span class="item-desp">{{getProp('desp')}}</span>
         </div>
         <div class="item-children" v-show="open" v-if='isFolder' >
-            <item v-for="child in getProp('children')" :model='child,config,msgHub' :props="props" :key="child.path" :ref="getProp('label')">
+            <item v-for="child in getProp('children')" :model='child,config,msgHub' :props="props" :key="child.path" :ref="getProp('label',child)">
             </item>
         </div>
     </div>
@@ -46,11 +46,12 @@
             }
         },
         methods: {
-            getProp(key){
+            getProp(key,model){
+                model = model || this.model;
                 if(this.props[key]){
                     key = this.props[key];
                 }
-                return this.model[key];
+                return model[key];
             },
             getParent:function(){
                 return this.$parent;

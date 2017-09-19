@@ -408,7 +408,7 @@
                                         event: 'getNaviMenu',
                                         data: {path: item.model.path}
                                     }, function (result) {
-                                        if (data) {
+                                        if (result) {
                                             if (result.state === 'success') {
                                                 let newItems = navContextMenus.match(result.data);
                                                 IDE.contextmenu.setItems(newItems);
