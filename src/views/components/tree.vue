@@ -107,6 +107,7 @@
                         needAdd = true;
                     }else{
                         item.selected = true;
+                        item.selected = true;
                     }
                 } else if (this.selection.length == 0) {
                     needAdd = true;
@@ -176,10 +177,11 @@
             deleteItem: function (item) {
                 var self = this;
                 var parent = item.getParent();
-                for (var i = 0; i < parent.model.children.length; i++) {
-                    var child = parent.model.children[i];
+                var children = this.getProp(parent.model,'children');
+                for (var i = 0; i < children.length; i++) {
+                    var child = children[i];
                     if (this.getProp(child,'label') === this.getProp(item.model,'label')) {
-                        parent.model.children.splice(i, 1);
+                        children.splice(i, 1);
                         if (item.selected) {
                             self.removeSelection(item);
                         }
