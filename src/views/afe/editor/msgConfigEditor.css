@@ -1,0 +1,44 @@
+.rcdEditor {
+    border: 1px solid;
+    height: 100%;
+}
+
+.rcdEditor .left-side {
+    overflow-y: auto;
+}
+
+.rcdEditor .right-side {
+    overflow-y: auto;
+}
+
+.rcdEditor-head {
+}
+
+.rcdEditor-content {
+    height: 100%;
+}
+
+.rcd-content-cell {
+    border: 1px solid;
+    text-align: center;
+    width: 30%;
+    height: 75%;
+    float: left;
+    margin-top: 30px;
+    margin-left: 10px;
+    overflow-y: auto;
+}
+
+.rcd-content-cell div:first-child img {
+    margin-top: 10px;
+}
+
+.properties {
+    margin-top: 15px;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.properties div {
+    margin-bottom: 5px;
+}

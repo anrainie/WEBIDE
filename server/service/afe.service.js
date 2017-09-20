@@ -169,9 +169,14 @@ module.exports = {
             handler:ioService
         },
         {
-            id:'loadDictFuncLib',
-            type:'IOService',
-            handler:ioService
+            id: 'loadDictFuncLib',
+            type: 'IOService',
+            handler: ioService
+        },
+        {
+            id: 'getMsgSchemaType',
+            type: 'IOService',
+            handler: ioService
         }
     ]
 }
