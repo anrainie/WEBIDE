@@ -1,0 +1,18 @@
+编辑器：
+	命名：后缀名 + "editor.vue"。如果与其他产品重复加上产品名，e.g:afeDictEditor.vue
+	注册方式：添加进afe.vue 中的 editorPartConfig 对象。key为文件后缀名。
+	UI库：element.ui  website : http://element.eleme.io/#/zh-CN
+	css: 为了避免重复，所有class请加上编辑器名称或者后缀名，class命名最好见名知意，或者具有层次结构。
+		e.g:  planEditor , planEditor-leftSide , planEditor-lefSide-content
+	action：编辑器action，即editorContainer提供的可隐藏的action。可在引用出该组件的时候给组件添加
+		editorActions属性，<editorContainer :editorActions="[]"/>,
+		格式： {
+			    id:""
+			    tooltip:""
+			    img:""
+			    handler:function
+		      }
+
+
+
+	
