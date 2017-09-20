@@ -105,7 +105,6 @@
 
             },
             handleOk(){
-                var parentPath = this.path;
                 this.dialogFormVisible = false;
                 //修改之前删掉旧资源
                 if (this.style == 2) {
@@ -129,7 +128,7 @@
                 }, function (result) {
                     if (result) {
                         if (result.state === 'success') {
-                            IDE.navigator.refresh(parentPath);
+                            IDE.navigator.refresh(result.data.path);
                             var type = result.data.type;
                             var path = result.data.path;
                             setTimeout(function () {
