@@ -141,22 +141,17 @@
                 //   path:/hello/heii/aaaa/flow/flowConfig.fc
                 var paths = path.split("/");
                 var reachedNode = this;
-                for (var i = 1; i < paths.length; i++) {
-                    var child = reachedNode.$refs[paths[i]];
-                    if (child) {
-                        if (child.length > 1) {
-                            console.error("find multi node :" + reachedNode.model.path + "/" + paths[i]);
-                            return null;
-                        } else if (child.length == 1) {
-                            reachedNode = child[0];
+                for (let i = 1; i < paths.length; i++) {
+                    var children = reachedNode.getChildren();
+                    for(let j = 0 ; j < children.length ; j++){
+                        var child = children[j];
+                        if(child.model.name === paths[i]){
+                            reachedNode = child;
                             if (i === paths.length - 1) {
                                 return reachedNode;
                             }
-                        } else {
-                            return null;
+                            break;
                         }
-                    } else {
-                        return null;
                     }
                 }
             },
@@ -186,7 +181,7 @@
                             self.removeSelection(item);
                         }
                         if (this.config.callback.delete) {
-                            this.config.callback.delete.call(item);
+                            this.config.callback.delete.call(this,item);
                         }
                         return true;
                     }
@@ -266,7 +261,7 @@
              * @param level
              */
             refresh: function (path, level) {
-                if (path == null) {
+                if (!path) {
                     let self = this;
                     self.init(function (m) {
                         self.model = m;

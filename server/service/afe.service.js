@@ -19,6 +19,11 @@ module.exports = {
             handler: ioService
         },
         {
+            id:'deleteFile',
+            type:'IOService',
+            handler:ioService
+        },
+        {
             id: 'createNewResource',
             type: 'IOService',
             handler: ioService

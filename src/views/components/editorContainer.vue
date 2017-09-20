@@ -55,7 +55,16 @@
 <script>
     export default{
         name:'editorContainer',
-        props:['editor',"editorTools"],
+        props:{
+            editor:null,
+            editorActions:{
+                type:Array,
+                default:function () {
+                    return [];
+                }
+            }
+        }
+        ,
         data(){
             return {
                 isHide:true,
@@ -169,14 +178,21 @@
                         type:IDE.type,
                         event:'peekFileLock',
                         data:{
-                            uid:'123456',
                             path:this.editor.file.model.path
                         }
                     },function (respData) {
-                        self.$notify({
-                            title: '提示',
-                            message: respData.data,
-                        });
+                        if(respData.data == null){
+                            self.$notify({
+                                title: '提示',
+                                message: '该文件未被上锁',
+                            });
+                        }else{
+                            self.$notify({
+                                title: '提示',
+                                message: '该文件已被上锁，持有者：' + respData.data.username,
+                            });
+                        }
+
                     }
                 );
             }
@@ -185,9 +201,9 @@
             this.$editorHeader = $(this.$el).find(".editor-header");
             this.$headerIndicator =  $(this.$el).find(".editor-header-indicator");
 
-            if(this.editorTools){
-                for(let i = 0 ; i < this.editorTools.length ; i ++){
-                    this.toolItems.push(this.editorTools[i]);
+            if(this.editorActions){
+                for(let i = 0 ; i < this.editorActions.length ; i ++){
+                    this.toolItems.push(this.editorActions[i]);
                 }
             }
 

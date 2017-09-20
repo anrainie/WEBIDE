@@ -289,23 +289,23 @@
             IDE.shade.open("加载资源");
 
             //加载校验文件信息
-            let verifyFileDef = IDE.socket.getDeferredEmit("loadVerifyFile", {type: IDE.type, event: 'loadVerifyFile'});
+            let verifyFileDef = IDE.socket.emitAndGetDeferred("loadVerifyFile", {type: IDE.type, event: 'loadVerifyFile'});
 
             //加载报文信息
-            let messageDef = IDE.socket.getDeferredEmit('loadAllMessage', {type: IDE.type, event: 'loadAllMessage'});
+            let messageDef = IDE.socket.emitAndGetDeferred('loadAllMessage', {type: IDE.type, event: 'loadAllMessage'});
 
             //数据字典方法信息
-            let dictFunclibDef = IDE.socket.getDeferredEmit('loadDictFuncLib',{type:IDE.type,event:'loadDictFuncLib'});
+            let dictFunclibDef = IDE.socket.emitAndGetDeferred('loadDictFuncLib',{type:IDE.type,event:'loadDictFuncLib'});
 
-            $.when(verifyFileDef, messageDef,dictFunclibDef).done(function (verifyFiles, messages,dictFuncLib) {
-                self.verifyFiles = verifyFiles;
-                self.messages = messages;
-                self.dictFuncLib = dictFuncLib;
+            $.when(verifyFileDef, messageDef,dictFunclibDef).done(function (result1, result2,result3) {
+                self.verifyFiles = result1.data;
+                self.messages = result2.data;
+                self.dictFuncLib = result3.data;
                 self.selectedMessage = self.getMessageByClassName(self.inputJo['DataDictionary']['-classname']);
             }).fail(function (error1, error2,error3) {
                 self.$notify.error({
                     title: '错误',
-                    message: error1 + "\n" + error2 + "\n" + error3,
+                    message: error1.errorMsg + "\n" + error2.errorMsg + "\n" + error3.errorMsg,
                     duration: 0
                 });
             }).always(function () {

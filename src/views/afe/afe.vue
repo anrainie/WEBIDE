@@ -268,7 +268,7 @@
                                                 level: level
                                             }
                                         }, (function () {
-                                            var getChild = function (children, name) {
+                                            /*var getChild = function (children, name) {
                                                 for (let i = 0; i < children.length; i++) {
                                                     let child = children[i];
                                                     if (child.name === name) {
@@ -288,10 +288,19 @@
                                                         combine(child, newChild.children);
                                                     }
                                                 }
-                                            };
+                                            };*/
                                             return function (result) {
                                                 if (result.state === 'success') {
-                                                    combine(item.model, result.data);
+                                                    //combine(item.model, result.data);
+                                                    let oldChild = item.model.children;
+                                                    if(oldChild){
+                                                        oldChild.splice(0,oldChild.length);
+                                                        $.each(result.data,function (key,value) {
+                                                           oldChild.push(value);
+                                                        });
+                                                    }else{
+                                                        item.model.children = result.data;
+                                                    }
                                                 } else {
                                                     console.info(result);
                                                 }
@@ -304,6 +313,14 @@
                                     if (editor) {
                                         IDE.editorPart.closeEditor(item);
                                     }
+                                    let def = IDE.socket.emitAndGetDeferred('deleteFile',{
+                                        path:item.model.path
+                                    }).done(function (result) {
+                                        item.getParent().refresh();
+                                    }).fail(function (error) {
+                                        //TODO
+                                        console.info(result);
+                                    });
                                 },
                                 configParameter () {
                                     var newConfigParameter = new Vue(parameter);

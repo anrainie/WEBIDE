@@ -42,6 +42,11 @@ function IDESocket() {
 IDESocket.prototype.emit = function (eventId,data,callback) {
     debug.info("IDESocket emit,event:" + data.event);
     if(this.socket.connected){
+        if(!data){
+            data = {};
+        }
+        data.type = data.type || IDE.type;
+        data.event = data.event || eventId;
         this.socket.emit(data.type+"_"+eventId,data,callback);
     }else{
         ElementUI.Notification.error({
@@ -51,15 +56,20 @@ IDESocket.prototype.emit = function (eventId,data,callback) {
     }
 }
 
-IDESocket.prototype.getDeferredEmit = function (eventId,data) {
+IDESocket.prototype.emitAndGetDeferred = function (eventId,data) {
     debug.info("IDESocket emit,event:" + data.event);
     let def = $.Deferred();
     if(this.socket.connected){
+        if(!data){
+            data = {};
+        }
+        data.type = data.type || IDE.type;
+        data.event = data.event || eventId;
         this.socket.emit(data.type+"_"+eventId,data,function (result) {
             if(result.state === 'success'){
-                def.resolve(result.data);
+                def.resolve(result);
             }else if(result.state === 'error'){
-                def.reject(result.errorMsg);
+                def.reject(result);
             }
         });
     }else{

@@ -5,9 +5,11 @@
             :before-close="handleClose">
         <!--<div>{{pagetitle}}</div>-->
         <!--<div>{{pagedesc}}</div>-->
-        <el-form >
+        <el-form>
             <el-form-item :label="namelabel.label" :label-width="labelWidth">
-                <el-input :disabled="namelabel.value.length>0" v-model="name" auto-complete="off" placeholder="test">{{name}}</el-input>
+                <el-input :disabled="namelabel.value.length>0" v-model="name" auto-complete="off" placeholder="test">
+                    {{name}}
+                </el-input>
             </el-form-item>
             <el-form-item v-if="directoryLabel.label" :label="directoryLabel.label" :label-width="labelWidth">
                 <el-input v-model="directory" auto-complete="off">{{directory}}</el-input>
@@ -49,97 +51,104 @@
 <script>
 
 
-  export default {
-    data() {
-      return {
-        dialogFormVisible : true,
-        //新建：1，修改：2
-        style:1,
-        labelWidth: '140px',
-        //资源名
-        name:'',
-        //描述信息
-        description:'',
-        //目录
-        directory:'',
-        resourceId:'',
-        path:'',
-        type: '',
-        wizardtitle: '',
-        pagetitle: '',
-        pagedesc: '',
-        namelabel: {
-          label:'',
-          value:''
-        },
-        groupsLabel:'',
-        //所在组
-        groups:[],
-        refLabel:'',
-        //引用
-        reference:[],
-        desclabel: {
-          label:'',
-          value:''
-        },
-        directoryLabel:{
-          label:'',
-          value:''
-        },
+    export default {
+        data() {
+            return {
+                dialogFormVisible: true,
+                //新建：1，修改：2
+                style: 1,
+                labelWidth: '140px',
+                //资源名
+                name: '',
+                //描述信息
+                description: '',
+                //目录
+                directory: '',
+                resourceId: '',
+                path: '',
+                type: '',
+                wizardtitle: '',
+                pagetitle: '',
+                pagedesc: '',
+                namelabel: {
+                    label: '',
+                    value: ''
+                },
+                groupsLabel: '',
+                //所在组
+                groups: [],
+                refLabel: '',
+                //引用
+                reference: [],
+                desclabel: {
+                    label: '',
+                    value: ''
+                },
+                directoryLabel: {
+                    label: '',
+                    value: ''
+                },
 
-        selectedGroup:[],
-        selectedRef:[]
-      }
-    },
-    component: {},
-    methods:{
-      handleClose(done){
-        this.$confirm('确认关闭？')
-          .then(_ => {
-            done();
-          })
-          .catch(_ => {});
-
-      },
-      handleOk(){
-        this.dialogFormVisible = false;
-        //修改之前删掉旧资源
-        if(this.style == 2){
-          let item = IDE.navigator.getItem(this.path)
-          IDE.navigator.deleteItem(item);
-        }
-        IDE.socket.emit("createNewResource",{
-          type: IDE.type,
-          event: 'createNewResource',
-          data: {style:this.style,path: this.path,resourceId:this.resourceId,type:this.type,name:this.name==""?name=this.namelabel.value:name=this.name,description:this.description,directory:this.directory,group:this.selectedGroup[0],ref:this.selectedRef[0]}
-        }, function (result) {
-          if (result) {
-            if (result.state === 'success') {
-              let path = result.data.path;
-              //刷新
-              if(path)
-                IDE.navigator.refresh(path);
-              else
-                IDE.navigator.refresh(null);
-              let type = result.data.type;
-              if (type === 'file') {
-                let item = IDE.navigator.getItem(path);
-                let input = result.data.input;
-                if(input){
-                  //打开编辑器
-                  IDE.editorPart.openEditor(item,input);
-                }
-              }
+                selectedGroup: [],
+                selectedRef: []
             }
-          }
-        });
-        //删除dialog
+        },
+        component: {},
+        methods: {
+            handleClose(done){
+                this.$confirm('确认关闭？')
+                    .then(_ => {
+                        done();
+                    })
+                    .catch(_ => {
+                    });
+
+            },
+            handleOk(){
+                var parentPath = this.path;
+                this.dialogFormVisible = false;
+                //修改之前删掉旧资源
+                if (this.style == 2) {
+                    let item = IDE.navigator.getItem(this.path)
+                    IDE.navigator.deleteItem(item);
+                }
+                IDE.socket.emit("createNewResource", {
+                    type: IDE.type,
+                    event: 'createNewResource',
+                    data: {
+                        style: this.style,
+                        path: this.path,
+                        resourceId: this.resourceId,
+                        type: this.type,
+                        name: this.name == "" ? this.namelabel.value : this.name,
+                        description: this.description,
+                        directory: this.directory,
+                        group: this.selectedGroup[0],
+                        ref: this.selectedRef[0]
+                    }
+                }, function (result) {
+                    if (result) {
+                        if (result.state === 'success') {
+                            IDE.navigator.refresh(parentPath);
+                            var type = result.data.type;
+                            var path = result.data.path;
+                            setTimeout(function () {
+                                if (type === 'file') {
+                                    let item = IDE.navigator.getItem(path);
+                                    let input = result.data.input;
+                                    IDE.editorPart.openEditor(item, input);
+                                }
+                            },700)
+                        }
+                    }
+                });
+                //删除dialog
 //        var dialog = document.getElementById("wizard")
 //        document.body.removeChild(dialog)
-      },
-      handleChange(value) {
-        console.log(value);
-      }
+            },
+            handleChange(value) {
+                console.log(value);
+            }
+        }
     }
-  }
 </script>
