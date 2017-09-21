@@ -95,6 +95,7 @@
     import dictEditor from './editor/afeDictEditor.vue'
     import parameter from '../../views/afe/components/dialog/configParameter.vue'
     import connToServer from '../../views/afe/components/dialog/connToTheServer.vue'
+    import cwfEditor from "../components/editor/flowEditor/cwfEditor/cwfEditor.vue"
 
     export default{
         data(){
@@ -105,7 +106,8 @@
                         pml: planEditor,
                         sqldict: sqldictEditor,
                         vtf:verifyFileEditor,
-                        dict:dictEditor
+                        dict:dictEditor,
+                        cwf: cwfEditor
                     }
                 },
                 vertical: false,
@@ -408,7 +410,7 @@
                                         event: 'getNaviMenu',
                                         data: {path: item.model.path}
                                     }, function (result) {
-                                        if (result) {
+                                        if (data) {
                                             if (result.state === 'success') {
                                                 let newItems = navContextMenus.match(result.data);
                                                 IDE.contextmenu.setItems(newItems);

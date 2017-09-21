@@ -4,6 +4,7 @@ import {anra} from './anra.gef'
 import {ReaderListener} from './smoothRouter'
 import {Map} from './anra.common'
 import {defaultsDeep} from 'lodash'
+import {GridLayout} from "./anra.layout";
 
 /*用于参数忽略的时候*/
 function throwIfMissing() {
@@ -100,6 +101,14 @@ $AG.ContainerLayoutPolicy = ContainerLayoutPolicy;
 /***************关于布局****************/
 var Layout = Base.extend({
     layout(comp) {
+    },
+    refreshModel(figure, bounds) {
+        figure.model.set('bounds', [
+            bounds['x'],
+            bounds['y'],
+            bounds['width'],
+            bounds['height']
+        ])
     }
 });
 
@@ -219,7 +228,7 @@ var gridData = Base.extend({
         }
     },
     _compute(size = throwIfMissing(), location = throwIfMissing()) {
-        var result = {}, width = this.widthHint*this.horizontalSpacing, height = this.heightHint*this.verticalSpacing;
+        var result = {}, width = this.widthHint*this.horizontalSpan, height = this.heightHint*this.verticalSpan;
 
         if (size[0] > width && this.horizontalAlignment != fill) {
             switch (this.horizontalAlignment) {
@@ -236,7 +245,7 @@ var gridData = Base.extend({
                     /*todo*/
                     console.error();
             }
-            result.width = this.width;
+            result.width = width;
         } else {
             result.x = location[0];
             result.width = size[0];
@@ -257,7 +266,7 @@ var gridData = Base.extend({
                     /*todo*/
                     console.error()
             }
-            result.height = this.height;
+            result.height = height;
         } else {
             result.y = location[1];
             result.height = size[1]
@@ -271,7 +280,7 @@ var gridData = Base.extend({
 var gridLayout = Layout.extend({    
     constructor: function({ numColumns = 10, numRows, makeColumnsEqualWidth = true, makeRowsEqualHeight = true,
                            marginLeft = 2, marginTop = 2, marginRight = 2, marginBottom = 2, horizontalSpacing = 15,
-                           verticalSpacing = 15, width = 0, height = 0, autoAdapt = false} = {}) {
+                           verticalSpacing = 15, width = 0, height = 0, horizontalAutoAdapt = false, verticalAutoAdapt = false} = {}) {
         /*参数列表*/
         const argumentData = {
             numColumns, //列数目
@@ -286,9 +295,10 @@ var gridLayout = Layout.extend({
             verticalSpacing,
             width,
             height,
-            autoAdapt
+            horizontalAutoAdapt,
+            verticalAutoAdapt
         };
-        var v = this, dirty = false;
+        var dirty = false;
     
         /*属性特性*/
         var descriptors = {};
@@ -303,21 +313,22 @@ var gridLayout = Layout.extend({
                     dirty = true;
                 },
                 
-                get: function() {
+                get() {
                     return argumentData[attributeName];
                 },
                 enumerable: true,
                 configurable: false
             }))(key);
         }
-        Object.defineProperties(v.arg, descriptors)
+        this.argumentData = {};
+        Object.defineProperties(this.argumentData, descriptors)
         
         /*只读*/
         this.isDirty = () => dirty;
         
         /*dirty状态在layout后刷新*/
         this.layout = (comp) => {
-            v._layout();
+            this._layout(comp);
             dirty = false;
         }
     },
@@ -329,29 +340,35 @@ var gridLayout = Layout.extend({
         
         var children = comp.children, arg = this.argumentData, 
             /*layout参数、data参数、children顺序、长度*/
-            dirty;
+            dirty, bounds = comp.getClientArea();
         
         dirty = this.isDirty();
         
         /*暂时初始化layoutdata*/
         for (let [index, elem] of children.entries()) {
             if (elem.layoutData) {
-                dirty = dirty | elem.layoutData.dirty | !(index == elem.layoutData.sequence);
+                dirty = dirty | elem.layoutData.isDirty() | !(index == elem.layoutData.sequence);
                 continue;
             }
             
-            elem.layoutData = new gridData(elem.model.props.bounds[2], elem.model.props.bounds[3]);
-            elem.layoutData.sequence = i;
+            //elem.layoutData = new gridData(elem.model.props.bounds[2], elem.model.props.bounds[3]);
+            elem.layoutData = new gridData({
+                horizontalAlignment: center,
+                verticalAlignment: center,
+                widthHint: elem.model.props.bounds[2],
+                heightHint: elem.model.props.bounds[3]
+            })
+            elem.layoutData.sequence = index;
             dirty = true;
         }
         
-        dirty = dirty | arg.height != comp.bounds['height'] | arg.width != comp.bounds['width'];
+        dirty = dirty | arg.height != bounds[3] | arg.width != bounds[2];
         
         /*拦截计算*/
         if (!dirty) return;
         
-        arg.height = comp.bounds['height'];
-        arg.width = comp.bounds['width'];
+        arg.height = bounds[3];
+        arg.width = bounds[2];
         
         /*计算控件分布*/
         var grid = this.computeGrid(children),
@@ -397,7 +414,7 @@ var gridLayout = Layout.extend({
         var {max, min} = Math;
         
         var row = 0, column = 0, rowCount = 0, columnCount = this.argumentData.numColumns,
-            grid = [[]];
+            grid = [];
         
         var hSpan, vSpan, endCount;
         
@@ -408,7 +425,7 @@ var gridLayout = Layout.extend({
             //寻找足够大的区域
             while (true) {
                 if (grid[row] == null) {
-                    grid[row] = [];
+                    grid[row] = new Array(columnCount);
                 }
                 
                 while(column < columnCount && grid[row][column]) column++;
@@ -435,23 +452,23 @@ var gridLayout = Layout.extend({
             
             for (var j = 0; j <　vSpan; j++) {
                 if (grid[row + j] == null) {
-                    grid[row + j] = [];
+                    grid[row + j] = new Array(columnCount);
                 }
                 
-                grid[row + j].fill(child, column, column + hSpan - 1);
+                grid[row + j].fill(child, column, column + hSpan);
             }
             
             rowCount = max (rowCount, row + vSpan);
             column += hSpan;
         }
         
-        this.arg.numRows = rowCount;
+        this.argumentData.numRows = rowCount;
         return grid;
     },
     
     computeLengthList(isHorizontal, grid) {
         /*初始化*/
-        var arg = this.argumentData, column, row, equal, spacing ,length, columnSpan, rowSpan, hint, getCell;
+        var arg = this.argumentData, column, row, equal, spacing ,length, columnSpan, rowSpan, hint, getCell, autoAdapt;
         if (isHorizontal) {
             column = arg.numColumns;
             row = arg.numRows;
@@ -462,6 +479,7 @@ var gridLayout = Layout.extend({
             rowSpan = "verticalSpan";
             hint = "widthHint";
             getCell = (x, y) => grid[x][y];
+            autoAdapt = arg.horizontalAutoAdapt
         } else {
             column = arg.numRows;
             row = arg.numColumns;
@@ -472,6 +490,7 @@ var gridLayout = Layout.extend({
             rowSpan = "horizontalSpan";
             hint = "heightHint";
             getCell = (x, y) => grid[y][x];
+            autoAdapt = arg.verticalAutoAdapt
         }
         
         var lengthList = new Array(column);
@@ -522,12 +541,12 @@ var gridLayout = Layout.extend({
             var cellLenght = ~~(length / column),
                 maxLength = lengthList.reduce((prev, next) => max(prev, next));
             
-            lengthList.fill(arg.autoAdapt ? cellLenght : min(maxLength, cellLenght));
+            lengthList.fill(autoAdapt ? cellLenght : min(maxLength, cellLenght));
             
             return lengthList;
         }
         
-        if (total > length || arg.autoAdapt) {
+        if (total > length || autoAdapt) {
             lengthList.forEach((item, index, input) => {input[index] = item*length/total})
         }
          
@@ -535,7 +554,13 @@ var gridLayout = Layout.extend({
     }
 });
 
-anra.svg.Image.layoutManager = new fillLayout();
+
+
+
+$AG.Layout = {
+    FILL : fillLayout,
+    GRID: gridLayout
+}
 
 
 export {$AG}

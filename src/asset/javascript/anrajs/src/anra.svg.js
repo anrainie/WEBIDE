@@ -1,4 +1,4 @@
-import {anra, Map, Util} from './anra.common'
+import {anra, Util} from './anra.common'
 import Base from '../lib/Base'
 import * as layout from './anra.layout'
 
@@ -422,7 +422,6 @@ anra.svg.Marker = Composite.extend({
     constructor: function (config) {
         Composite.prototype.constructor.call(this);
         this.setId(anra.genUUID());
-        // this.config = config;
         if (config)
             this.size = config.size;
     },
@@ -445,13 +444,9 @@ anra.svg.Marker = Composite.extend({
         this.addChild(this.figure);
         if (this.figureAttr != null)
             this.figure.setAttribute(this.figureAttr);
-
-        // console.log(this.figure)
     },
     refresh: function (e) {
-        // this.setStyle(this.figure);
         if (e) {
-            // console.log(e.style.fill,e.style.stroke,e.getAttr('fill'));
             var stroke = e.style.stroke ? e.style.stroke : e.getAttr('stroke');
             this.setStyle({
                 fill:stroke,
@@ -731,7 +726,6 @@ anra.SVG = Composite.extend(anra._Display).extend(anra._EventTable).extend({
         this.dispatcher = new anra.svg.EventDispatcher(this);
         var d = this.dispatcher;
         var t = this;
-        var div = this.element;
         d.setMouseTarget(t);
 //TODO
         this.element.oncontextmenu = function (event) {
@@ -763,11 +757,6 @@ anra.SVG = Composite.extend(anra._Display).extend(anra._EventTable).extend({
             return false;
         };
 
-
-//        this.element.ondrag=function(event){
-//            console.log('drag')
-//            return true;
-//        };
         this.element.onmouseover = function (event) {
             if (t.owner == event.target || t.owner.parentNode == event.target) {
                 event.figure = t;
@@ -776,12 +765,6 @@ anra.SVG = Composite.extend(anra._Display).extend(anra._EventTable).extend({
             return false;
         };
         this.element.onmouseout = function (event) {
-            var x = event.clientX;
-            var y = event.clientY;
-/*            if (x < div.offsetLeft || x > div.offsetLeft + div.offsetWidth || y < div.offsetTop || y > div.offsetTop + div.offsetHeight) {
-                event.target = t;
-                d.dispatchMouseOutScreen(event);
-            }*/
             return false;
         };
         this.element.onmouseup = function (event) {
@@ -797,7 +780,6 @@ anra.SVG = Composite.extend(anra._Display).extend(anra._EventTable).extend({
         this.defs = new anra.svg.DefineArea();
         this.addChild(this.defs);
     }
-
 });
 
 anra.svg.Rect = {};
@@ -921,14 +903,6 @@ anra.svg.FillLayout = layout.FillLayout;
 anra.svg.GridLayout = layout.GridLayout;
 anra.svg.GridData = layout.GridData;
 
-/*anra.svg.Layout = Base.extend({
-    layout: function (comp) {
-    }
-});
-
-anra.svg.GridLayout = anra.svg.Layout.extend({});
-
-anra.svg.GridData = Base.extend({});*/
 var count = 0;
 /**
  * 事件分发器

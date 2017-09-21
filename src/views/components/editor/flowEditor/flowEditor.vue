@@ -9,7 +9,7 @@
         left: 0px;
         top: 0px;
         width: 100%;
-        height: 100%;
+        height: 90%;
         background-color: rgb(13, 13, 13);
         float: left;
         overflow: hidden;
@@ -25,6 +25,13 @@
             editorID: {
                 required: true,
                 type: String
+            },
+
+            editorClass: {
+                type: $AG.Editor,
+                default() {
+                    return $AG.Editor
+                }
             },
 
             /*初始化编辑器配置*/
@@ -72,9 +79,14 @@
 
         methods: {
             initEditor(config) {
-                this.editor = new $AG.Editor(defaultsDeep({id: this.editorID}, config));
+                this.editor = new this.editorClass(defaultsDeep({id: this.editorID}, config));
+                console.log(this.editor.canvas)
                 this.bindEventToEditor();
-                this.activateChangeWidth();
+
+                //激活事件
+                if (this.$vnode.componentOptions.listeners){
+                    this.activateChangeWidth();
+                }
 
                 //保存
                 if (this.save) this.editor.doSave = this.save;

@@ -148,7 +148,7 @@ anra.ImageRegistry = Base.extend({
             return true;
         return false;
     },
-    get: function (imageURL) {
+        get: function (imageURL) {
         return this.images.get(imageURL);
     },
     clear: function () {

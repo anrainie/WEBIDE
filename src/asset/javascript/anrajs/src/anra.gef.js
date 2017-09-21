@@ -215,15 +215,13 @@ anra.gef.EditPart = Base.extend({
         }
     },
     setLayout: function (layout) {
-        this.getLayer(anra.gef.RootEditPart.PrimaryLayer).layoutManager = layout;
-        this.getLayer(anra.gef.RootEditPart.PrimaryLayer).paint();
     },
     getRoot: function () {
         return this;
     },
     refreshChildren: function () {
         var i;
-        if (this.children != null) {
+        if (this.children) {
             var map = new Map();
             //增量修改当前children
             for (i = 0; i < this.children.length; i++)
@@ -614,8 +612,8 @@ anra.gef.EditPart = Base.extend({
         }
     },
     refresh: function () {
-        this.refreshVisual();
         this.refreshChildren();
+        this.refreshVisual();
         this.validatePolicies();
     },
     /**
@@ -992,7 +990,18 @@ anra.gef.RootEditPart = anra.gef.EditPart.extend({
         this.figure.on(anra.EVENT.ContextMenu, function (e) {
             root.editor.showContextMenu(root.selection, e);
         });
-    }
+    },
+    setLayout: function (layout) {
+        let layer = this.getLayer(anra.gef.RootEditPart.PrimaryLayer),
+            svg = layer.svg.owner;
+
+        layer.getClientArea = function () {
+            return [0, 0, svg["clientWidth"], svg["clientHeight"]];
+        }
+
+        this.getLayer(anra.gef.RootEditPart.PrimaryLayer).layoutManager = layout;
+        this.getLayer(anra.gef.RootEditPart.PrimaryLayer).paint();
+    },
 });
 
 anra.gef.RootEditPart.PrimaryLayer = "Primary_Layer";
@@ -2217,11 +2226,6 @@ anra.gef.Editor = Base.extend({
     isDirty: function () {
         return this.cmdStack.isDirty();
     },
-//    getDefaultTool:function () {
-//        if (this.tool == null)
-//            this.tool = new anra.gef.SelectionTool();
-//        return this.tool;
-//    },
     createPalette: function (id) {
         var i = id + 'Plt';
         var div = document.createElement('div');
