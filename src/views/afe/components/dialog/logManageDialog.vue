@@ -25,12 +25,12 @@
                         {{selPrint[0]}}
                     </el-cascader>
                 </el-form-item>
-                <el-form-item label="日志根路径：">
+                <el-form-item label="日志根路径:">
                    <el-input v-model="selLogRootPath" style="width: 70px" size="small">{{selLogRootPath}}</el-input>
                 </el-form-item>
             </el-form>
             <el-form ref="form" :model="form" :inline="true" class="demo-form-inline"
-                     style="width: 800px;margin-top: -30px;">
+                     style="width: 800px;margin-top: -40px;">
                 <el-form-item label="appender">
                     <el-input v-model="selAppender" style="width: 70px;margin-left: 25px" size="small">{{selAppender}}</el-input>
                 </el-form-item>
@@ -38,16 +38,16 @@
                     <el-input v-model="selSizeThreshold" style="width:70px;margin-left: -5px" size="small">{{selSizeThreshold}}</el-input>
                 </el-form-item>
                 <el-form-item label="滚动文件数量阀值:">
-                    <el-input v-model="selNumThreshold" style="width: 70px;margin-left: -5px" size="small">{{selNumThreshold}}</el-input>
+                    <el-input v-model="selNumThreshold" style="width: 90px;margin-left: -5px" size="small">{{selNumThreshold}}</el-input>
                 </el-form-item>
-                <el-form-item label="备份目录:" style="margin-left: 20px">
-                    <el-input v-model="selBackupDirectory" style="width: 70px;margin-left: 20px;" size="small">{{selBackupDirectory}}</el-input>
+                <el-form-item label="备份目录:" style="margin-left: 12px">
+                    <el-input v-model="selBackupDirectory" style="width: 70px;margin-left: 4px;" size="small">{{selBackupDirectory}}</el-input>
                 </el-form-item>
             </el-form>
             <el-form ref="form" :model="form" :inline="true" class="demo-form-inline"
-                     style="width: 800px;margin-top: -30px;">
+                     style="width: 800px;margin-top: -40px;">
                 <el-form-item label="异步日志缓冲区大小:">
-                    <el-input v-model="selBufferSize" style="width: 70px" size="small">{{selBufferSize}}</el-input>
+                    <el-input v-model="selBufferSize" style="width: 140px" size="small">{{selBufferSize}}</el-input>
                 </el-form-item>
                 <!--<el-button size="small" style="margin-left: 50px">配置全局属性</el-button>-->
                 <el-button size="small" style="margin-left: 50px">Appender配置</el-button>

@@ -423,6 +423,26 @@ var items = {
             return getNewWizard.call(item)
         }
     },
+    'fmapAction': {
+        id: 'fmapAction',
+        resourceId:'fmap',
+        path:'',
+        name:'模拟映射文件',
+        type:'item',
+        handler: function (selection, item) {
+          return getNewWizard.call(item)
+      }
+    },
+    'scfgAction':{
+        id:'scfgAction',
+        resourceId:'scfg',
+        path:'',
+        name:'流水号配置',
+        type:'item',
+        handler: function (selection, item) {
+          return getNewWizard.call(item)
+       }
+    },
     'org.eclipse.ui.DeleteResourceAction': {
         id: 'org.eclipse.ui.DeleteResourceAction',
         path: '',

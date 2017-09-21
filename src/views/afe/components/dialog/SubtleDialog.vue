@@ -91,7 +91,7 @@
           event: 'commitSubtleFields',
           data: {openable: this.isStart[0], subtleFields: this.tableData}
         }, function (result) {
-          if (data) {
+          if (result) {
             if(result.state !== 'success'){
               console.log(result.data.errorMsg)
             }

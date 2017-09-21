@@ -7,7 +7,7 @@
         <!--<div>{{pagedesc}}</div>-->
         <el-form>
             <el-form-item :label="namelabel.label" :label-width="labelWidth">
-                <el-input :disabled="namelabel.value.length>0" v-model="name" auto-complete="off" placeholder="test">
+                <el-input :disabled="namelabel.value.length>0" v-model="name" auto-complete="off" :placeholder="namelabel.value">
                     {{name}}
                 </el-input>
             </el-form-item>

@@ -215,7 +215,7 @@ var items = {
       },
       groupsLabel:'所在交易组',
       groups: [],
-      type:'file'
+      type:'folder'
     },
     'cwf': {
       id: 'cwfAction',
@@ -550,7 +550,37 @@ var items = {
         value:''
       },
       type:'file'
-    }
+    },
+  'fmap': {
+    id: 'fmapAction',
+    resourceId:'fmap',
+    path:'',
+    wizardtitle: '新建模拟映射文件',
+    pagetitle: '新建模拟映射文件',
+    pagedesc: '请输入模拟映射文件名称',
+    namelabel: {
+      label:'模拟映射文件名称',
+      value:''
+    },
+    desclabel: {
+      label:'模拟映射文件描述',
+      value:''
+    },
+    type:'file'
+  },
+  'scfg':{
+    id:'scfgAction',
+    resourceId:'scfg',
+    path:'',
+    wizardtitle: '新建流水号配置',
+    pagetitle: '新建流水号配置',
+    pagedesc: '请输入流水号配置名称',
+    namelabel: {
+      label:'流水号配置名称',
+      value:'serial'
+    },
+    type:'file'
+  },
 }
 function match1 (id,newItems) {
   let item = items[id]
