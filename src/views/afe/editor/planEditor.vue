@@ -1,15 +1,34 @@
 <template>
     <editorContainer :editor="this">
         <div slot="editor-content" class="planEditor">
-            <tree ref="tree" class="left-side split split-horizontal" :model="treeArchitecture" :props="treeProps" :config="treeConfig"></tree>
+            <tree ref="tree" class="left-side split split-horizontal" :model="treeArchitecture" :props="treeProps"
+                  :config="treeConfig"></tree>
+            <contextMenu ref="menu" :items="menuItems" :config="menuConfig"></contextMenu>
+            <el-dialog :title="dialogModel.title" :visible.sync="dialogModel.visible" size="tiny">
+                <el-input v-model="dialogModel.name">
+                    <template slot="prepend">请输入名字</template>
+                </el-input>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="dialogModel.visible = false">取 消</el-button>
+                    <el-button type="primary" @click="handleDialogOK()">确 定</el-button>
+                </span>
+            </el-dialog>
+
+            <el-dialog :title="saveDialog.title" :visible.sync="saveDialog.visible" size="tiny">
+                {{saveDialog.msg}}
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="saveDialog.visible = false">确 定</el-button>
+                </span>
+            </el-dialog>
+
             <div class="right-side split split-horizontal">
-                <div  v-if="selected" class="planEditor-head">
+                <div v-if="selected" class="planEditor-head">
                     <span>{{title}}</span>
                     <div class="line"></div>
                     <div>{{tooltip}}</div>
                 </div>
                 <div class="planEditor-content" v-if="selected && selected.nodeType && selected.nodeType.canCreate">
-                    <div class="plan-content-cell">
+                    <div class="plan-content-cell" v-if="selected.nodeType.name != 'dependency'">
                         <div>
                             <img src="../../../asset/afe/plan_title.png"/>
                             <div>title</div>
@@ -29,6 +48,7 @@
                             </div>
                         </div>
                     </div>
+
                     <div class="plan-content-cell" v-if="selected && selected.nodeType
                                                 && selected.nodeType.propertiesDesc
                                                 && selected.nodeType.propertiesDesc.propertyDescCount > 0">
@@ -46,14 +66,14 @@
                                         <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'"
                                                   :readonly="!propertyDesc.viewEnabled"
                                                   @change="inputChange()"
-                                                  v-bind:value="getPropertyModel(propertyDesc)"
-                                                  v-on:input="setPropertyModel($event,propertyDesc)"
+                                                  v-bind:value="getProperty(propertyDesc)"
+                                                  v-on:input="setProperty($event,propertyDesc)"
                                         >
                                         </el-input>
                                         <el-select @change="inputChange()" size="mini"
                                                    v-if="propertyDesc.viewtype == 'ComboControl'"
-                                                   v-bind:value="getPropertyModel(propertyDesc)"
-                                                   v-on:input="setPropertyModel($event,propertyDesc)"
+                                                   v-bind:value="getProperty(propertyDesc)"
+                                                   v-on:input="setProperty($event,propertyDesc)"
                                                    placeholder="请选择">
                                             <el-option
                                                     v-for="item in createComboList(propertyDesc)"
@@ -83,14 +103,14 @@
                                     <el-col :span="14">
                                         <el-input size="mini" v-if="propertyDesc.viewtype == 'TextControl'"
                                                   :readonly="!propertyDesc.viewEnabled"
-                                                  v-bind:value="getReferenceModel(propertyDesc)"
+                                                  v-bind:value="getReferenceProp(propertyDesc)"
                                                   @change="inputChange()"
-                                                  v-on:input="setReferenceModel($event,propertyDesc)">
+                                                  v-on:input="setReferenceProp($event,propertyDesc)">
                                         </el-input>
                                         <el-select @change="inputChange()" size="mini"
                                                    v-if="propertyDesc.viewtype == 'ComboControl'"
-                                                   v-bind:value="getReferenceModel(propertyDesc)"
-                                                   v-on:input="setReferenceModel($event,propertyDesc)"
+                                                   v-bind:value="getReferenceProp(propertyDesc)"
+                                                   v-on:input="setReferenceProp($event,propertyDesc)"
                                                    placeholder="请选择">
                                             <el-option
                                                     v-for="item in createComboList(propertyDesc)"
@@ -105,20 +125,8 @@
                         </div>
                     </div>
                 </div>
+
             </div>
-            <contextMenu ref="menu" :items="menuItems" :config="menuConfig"></contextMenu>
-            <el-dialog
-                    :title="dialogModel.title"
-                    :visible.sync="dialogModel.visible"
-                    size="tiny">
-                <el-input v-model="dialogModel.name">
-                    <template slot="prepend">请输入名字</template>
-                </el-input>
-                <span slot="footer" class="dialog-footer">
-            <el-button @click="dialogModel.visible = false">取 消</el-button>
-            <el-button type="primary" @click="handleDialogOK()">确 定</el-button>
-            </span>
-            </el-dialog>
         </div>
     </editorContainer>
 </template>
@@ -174,6 +182,7 @@
     import tree from '../../components/tree.vue'
     import contextMenu from '../../components/contextMenu.vue'
     import editorContainer from '../../components/editorContainer.vue'
+    import tools from '../../../utils/tools'
     import  Split from "split.js";
     export default{
         name: 'planEditor',
@@ -197,10 +206,10 @@
                         }
                     }
                 },
-                treeProps:{
-                    label:'name',
+                treeProps: {
+                    label: 'name',
                     children: 'children',
-                    desp:'desp'
+                    desp: 'desp'
                 },
                 menuItems: [],
                 menuConfig: {},
@@ -208,6 +217,11 @@
                     title: "",
                     visible: false,
                     name: ""
+                },
+                saveDialog:{
+                    title:"保存失败",
+                    visible:false,
+                    msg:""
                 }
             };
         },
@@ -233,51 +247,76 @@
                 var self = this;
                 this.dialogModel.visible = false;
 
-                if(this.dialogModel.name === ''){
+                if (this.dialogModel.name === '') {
                     return;
                 }
 
                 var item = this.dialogModel.selectedTreeItem;
                 var nodeType = item.nodeType;
-                var child = {
-                    isparent: false,
-                    nodeType: nodeType,
-                    path: nodeType.instanceName,
-                    name: this.dialogModel.name,
-                    gbean: {
-                        '-class': nodeType.clazz,
-                        '-name': this.dialogModel.name,
-                        attribute: [],
-                        reference: []
+                var child;
+
+                if (nodeType.name === 'dependency') {
+                    child = {
+                        isParent: false,
+                        nodeType: nodeType,
+                        path: nodeType.instanceName,
+                        name: this.dialogModel.name,
+                        dependency: {}
+                    };
+
+                    if (nodeType.propertiesDesc && nodeType.propertiesDesc.propertyDescCount > 0) {
+                        $.each(nodeType.propertiesDesc.propertyDesc, function (k, propertyDesc) {
+                            var value = propertyDesc.value;
+                            if (propertyDesc.viewtype === 'ComboControl') {
+                                value = value.replace(/(\S*)\((\S+)\)$/, '$1');
+                            }
+                            child.dependency[propertyDesc.name] = value;
+                        });
                     }
-                };
 
-                if (nodeType.propertiesDesc && nodeType.propertiesDesc.propertyDescCount > 0) {
-                    $.each(nodeType.propertiesDesc.propertyDesc, function (k, propertyDesc) {
-                        var value = propertyDesc.value;
-                        if (propertyDesc.viewtype === 'ComboControl') {
-                            value = value.replace(/(\S*)\((\S+)\)$/, '$1');
-                        }
-                        child.gbean.attribute.push({
-                            '-name': propertyDesc.name,
-                            '-type': propertyDesc.type,
-                            '#text': value
-                        });
-                    });
-                }
 
-                if (nodeType.referencesDesc && nodeType.referencesDesc.referenceDescCount > 0) {
-                    $.each(nodeType.referencesDesc.referenceDesc, function (k, propertyDesc) {
-                        var value = propertyDesc.value;
-                        if (propertyDesc.viewtype === 'ComboControl') {
-                            value = value.replace(/(\S*)\((\S+)\)$/, '$1');
+                } else {
+                    child = {
+                        isParent: false,
+                        nodeType: nodeType,
+                        path: nodeType.instanceName,
+                        name: this.dialogModel.name,
+                        gbean: {
+                            '-class': nodeType.clazz,
+                            '-name': this.dialogModel.name,
+                            nodeType:nodeType,
+                            attribute: [],
+                            reference: []
                         }
-                        child.gbean.reference.push({
-                            '-name': propertyDesc.name,
-                            '-type': propertyDesc.type,
-                            'name': value
+                    };
+
+                    if (nodeType.propertiesDesc && nodeType.propertiesDesc.propertyDescCount > 0) {
+                        $.each(nodeType.propertiesDesc.propertyDesc, function (k, propertyDesc) {
+                            var value = propertyDesc.value;
+                            if (propertyDesc.viewtype === 'ComboControl') {
+                                value = value.replace(/(\S*)\((\S+)\)$/, '$1');
+                            }
+                            child.gbean.attribute.push({
+                                '-name': propertyDesc.name,
+                                '-type': propertyDesc.type,
+                                '#text': value
+                            });
                         });
-                    });
+                    }
+
+                    if (nodeType.referencesDesc && nodeType.referencesDesc.referenceDescCount > 0) {
+                        $.each(nodeType.referencesDesc.referenceDesc, function (k, propertyDesc) {
+                            var value = propertyDesc.value;
+                            if (propertyDesc.viewtype === 'ComboControl') {
+                                value = value.replace(/(\S*)\((\S+)\)$/, '$1');
+                            }
+                            child.gbean.reference.push({
+                                '-name': propertyDesc.name,
+                                '-type': propertyDesc.type,
+                                'name': value
+                            });
+                        });
+                    }
                 }
                 this.selected.children.push(child);
 
@@ -292,30 +331,44 @@
                 this.dirty = true;
 
             },
-            setPropertyModel($event, propertyDesc){
-                let gbean = this.selected.gbean;
-                if (gbean && gbean.attribute) {
-                    for (let i = 0; i < gbean.attribute.length; i++) {
-                        let attribute = gbean.attribute[i];
-                        if (attribute['-name'] === propertyDesc.name) {
-                            attribute["#text"] = $event;
-                            break;
+            setProperty($event, propertyDesc){
+                if (this.selected.nodeType.name == 'dependency') {
+                    let dep = this.selected.dependency;
+                    dep[propertyDesc.name] = $event;
+                    this.selected.name = this.mergeDependencyName(dep);
+                } else {
+                    let gbean = this.selected.gbean;
+                    if (gbean && gbean.attribute) {
+                        for (let i = 0; i < gbean.attribute.length; i++) {
+                            let attribute = gbean.attribute[i];
+                            if (attribute['-name'] === propertyDesc.name) {
+                                attribute["#text"] = $event;
+                                break;
+                            }
                         }
                     }
                 }
             },
-            getPropertyModel(propertyDesc){
-                let gbean = this.selected.gbean;
-                if (gbean && gbean.attribute) {
-                    for (let i = 0; i < gbean.attribute.length; i++) {
-                        let attribute = gbean.attribute[i];
-                        if (attribute['-name'] === propertyDesc.name) {
-                            return attribute["#text"];
+            getProperty(propertyDesc){
+                if (this.selected.nodeType.name == 'dependency') {
+                    let dep = this.selected.dependency;
+                    return dep[propertyDesc.name];
+                } else {
+                    let gbean = this.selected.gbean;
+                    if (gbean && gbean.attribute) {
+                        for (let i = 0; i < gbean.attribute.length; i++) {
+                            let attribute = gbean.attribute[i];
+                            if (attribute['-name'] === propertyDesc.name) {
+                                return attribute["#text"];
+                            }
                         }
                     }
                 }
             },
-            getReferenceModel(propertyDesc){
+            mergeDependencyName(dependency){
+                return dependency.groupId + "/" + dependency.artifactId + "-" + dependency.version + "." + dependency.type;
+            },
+            getReferenceProp(propertyDesc){
                 let gbean = this.selected.gbean;
                 if (gbean && gbean.reference) {
                     for (let i = 0; i < gbean.reference.length; i++) {
@@ -326,7 +379,7 @@
                     }
                 }
             },
-            setReferenceModel($event, propertyDesc){
+            setReferenceProp($event, propertyDesc){
                 let gbean = this.selected.gbean;
                 if (gbean && gbean.reference) {
                     for (let i = 0; i < gbean.reference.length; i++) {
@@ -357,7 +410,6 @@
                         items = result[1].split(':');
                     }
                 }
-
                 return items;
             },
             handleTreeItemClick(item){
@@ -471,7 +523,8 @@
                     if (result) {
                         IDE.shade.hide();
                         if (result.state === 'success') {
-                            self.editorArchitecture = result.data;
+                            let arch = tools.deepParseJson(result.data);
+                            self.editorArchitecture = arch;
                             self.generateTreeArchitecture();
                         } else {
                             this.$notify.error({
@@ -500,7 +553,23 @@
             },
             generateBranchNode(parent, parentType){
                 var self = this;
+
                 $.each(this.editorArchitecture.nodetype, function (k, nodeType) {
+
+                    if (parentType === "dependencyManage" && nodeType.name === "dependency") {
+                        let dependencies = self.inputObject.module.environment.dependencies.dependency;
+                        for (let i = 0; i < dependencies.length; i++) {
+                            let dp = dependencies[i];
+                            parent.push({
+                                name: self.mergeDependencyName(dp),
+                                isParent: false,
+                                nodeType: nodeType,
+                                children: [],
+                                dependency: dp
+                            });
+                        }
+                    }
+
                     if (nodeType.parent === parentType && !nodeType.canCreate) {
                         var item = {
                             name: nodeType.displayName,
@@ -552,14 +621,22 @@
             },
             save(){
                 var newModel = this.tree.model;
-                if ($.type(this.input) === 'string') {
-                    this.input = JSON.parse(this.input);
-                }
+                this.input.module.environment.dependencies.dependency = [];
                 this.input.module.gbean = [];
+
+                let canSave = true;
                 for (var i = 0; i < newModel.length; i++) {
-                    var firstLevel = newModel[i];
-                    this.saveTreeBranch(firstLevel);
+                    var m = newModel[i];
+                    if(!this.saveTreeBranch(m)){
+                        canSave = false;
+                        break;
+                    }
                 }
+                if(!canSave) {
+                    this.openSaveErrorDialog();
+                    return;
+                }
+
                 this.dirty = false;
                 return true;
             },
@@ -567,12 +644,56 @@
                 if (parent.children && parent.children.length > 0) {
                     for (var j = 0; j < parent.children.length; j++) {
                         var chd = parent.children[j];
-                        var gbean = $.extend(true, {}, chd.gbean);
-                        delete gbean.nodeType;
-                        this.input.module.gbean.push(gbean);
+
+                        if (parent.nodeType.name === 'dependencyManage' && chd.nodeType.name === 'dependency') {
+                            var dependency = $.extend(true, {}, chd.dependency);
+                            this.input.module.environment.dependencies.dependency.push(dependency);
+                            continue;
+                        }
+
+                        if (chd.gbean) {
+                            if(!this.validateGbean(chd.gbean))
+                                return false;
+                            var gbean = $.extend(true, {}, chd.gbean);
+                            delete gbean.nodeType;
+                            this.input.module.gbean.push(gbean);
+                        }
                         this.saveTreeBranch(chd);
                     }
                 }
+                return true;
+            },
+            validateGbean(gbean){
+                let nodeType = gbean.nodeType;
+                if(gbean.attribute && nodeType.propertiesDesc){
+                    for(let i = 0 ; i < gbean.attribute.length ; i++){
+                        let attr = gbean.attribute[i];
+                        for(let j = 0 ; j < nodeType.propertiesDesc.propertyDesc.length ; j++){
+                            let propertyDesc = nodeType.propertiesDesc.propertyDesc[j];
+                            if(propertyDesc.name == attr['-name'] && propertyDesc.nullcheck && attr['#text'] === ''){
+                                this.saveDialog.msg =  nodeType.name + "的" + propertyDesc.name + "不能为空";
+                                return false;
+                            }
+                        }
+                    }
+                }
+
+                if(gbean.reference && nodeType.referencesDesc){
+                    for(let i = 0 ; i < gbean.reference.length ; i++){
+                        let attr = gbean.reference[i];
+                        for(let j = 0 ; j < nodeType.referencesDesc.referenceDesc.length ; j++){
+                            let propertyDesc = nodeType.referencesDesc.referenceDesc[j];
+                            if(propertyDesc.name == attr['-name'] && propertyDesc.nullcheck && attr['#text'] === ''){
+                                this.saveDialog.msg = nodeType.name + "的" + propertyDesc.name + "不能为空";
+                                return false;
+                            }
+                        }
+                    }
+                }
+                return true;
+            },
+            openSaveErrorDialog(){
+                this.saveDialog.visible = true;
             },
             focus(){
 
@@ -582,7 +703,13 @@
             this.init();
             this.menu = this.$refs.menu;
             this.tree = this.$refs.tree;
-            this.inputObject = $.extend(true,{},this.input);
+            this.inputObject = $.extend(true, {}, this.input);
+            if (this.inputObject.module.environment.dependencies.dependency) {
+                let dependency = this.inputObject.module.environment.dependencies.dependency;
+                if (!$.isArray(dependency)) {
+                    this.inputObject.module.environment.dependencies.dependency = [dependency];
+                }
+            }
             if (this.inputObject.module.gbean) {
                 if (!$.isArray(this.inputObject.module.gbean)) {
                     this.inputObject.module.gbean = [this.inputObject.module.gbean];
@@ -605,7 +732,7 @@
             let $$el = $(this.$el);
             let leftSide = $$el.find(".planEditor .left-side");
             let rightSide = $$el.find(".planEditor .right-side");
-            Split([leftSide[0],rightSide[0]], {
+            Split([leftSide[0], rightSide[0]], {
                 direction: 'horizontal',
                 sizes: [25, 75]
             });
