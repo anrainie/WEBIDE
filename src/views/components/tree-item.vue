@@ -47,8 +47,8 @@
         },
         methods: {
             getTitle(){
-                if(this.props.labelProvider){
-                    return this.props.labelProvider(this.model);
+                if($.isFunction(this.props.label)){
+                    return this.props.label.call(this,this.model);
                 }
                 return this.getProp('label');
             },
