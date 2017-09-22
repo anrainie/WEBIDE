@@ -10,7 +10,7 @@
              @click.prevent="handleClick($event)"
              @contextmenu.prevent="handleContextmenu($event)">
             <img class="item-image" v-bind:src="itemImageSrc">
-            <span class="item-title">{{getProp('label')}}</span>
+            <span class="item-title">{{getTitle()}}</span>
             <span class="item-desp">{{getProp('desp')}}</span>
         </div>
         <div class="item-children" v-show="open" v-if='isFolder' >
@@ -46,12 +46,17 @@
             }
         },
         methods: {
+            getTitle(){
+                if(this.props.labelProvider){
+                    return this.props.labelProvider(this.model);
+                }
+                return this.getProp('label');
+            },
             getProp(key,model){
                 model = model || this.model;
-                if(this.props[key]){
-                    key = this.props[key];
-                }
-                return model[key];
+                key = this.props[key];
+                var prop = model[key];
+                return prop;
             },
             getParent:function(){
                 return this.$parent;
