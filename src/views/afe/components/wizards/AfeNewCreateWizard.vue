@@ -18,22 +18,26 @@
             <el-row v-if="groupsLabel">
                 <el-col :span="12">
                     <el-form-item :label="groupsLabel" :label-width="labelWidth">
-                        <el-cascader
-                                :options="groups"
-                                v-model="selectedGroup"
-                                @change="handleChange"
-                        >{{selectedGroup[0]}}
-                        </el-cascader>
+                        <el-select v-model="selectedGroup" placeholder="请选择或输入" filterable allow-create>
+                            <el-option v-for="item in groups"
+                                       :key="item.value"
+                                       :value="item.value"
+                                       :label="item.label">
+
+                            </el-option>
+                        </el-select>
                     </el-form-item>
                 </el-col>
                 <el-col v-if="reference.length>0" :span="12">
                     <el-form-item :label="refLabel" :label-width="labelWidth">
-                        <el-cascader
-                                :options="reference"
-                                v-model="selectedRef"
-                                @change="handleChange"
-                        >{{selectedRef[0]}}
-                        </el-cascader>
+                        <el-select v-model="selectedRef" placeholder="请选择或输入" filterable>
+                            <el-option v-for="item in reference"
+                                       :key="item.value"
+                                       :value="item.value"
+                                       :label="item.label">
+
+                            </el-option>
+                        </el-select>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -49,14 +53,13 @@
     </el-dialog>
 </template>
 <script>
-
-
     export default {
-        data() {
+      components: {},
+      data() {
             return {
                 dialogFormVisible: true,
                 //新建：1，修改：2
-                style: 1,
+                    style: 1,
                 labelWidth: '140px',
                 //资源名
                 name: '',
@@ -89,11 +92,10 @@
                     value: ''
                 },
 
-                selectedGroup: [],
-                selectedRef: []
+                selectedGroup: '',
+                selectedRef: ''
             }
         },
-        component: {},
         methods: {
             handleClose(done){
                 this.$confirm('确认关闭？')
@@ -105,13 +107,7 @@
 
             },
             handleOk(){
-                var parentPath = this.path;
                 this.dialogFormVisible = false;
-                //修改之前删掉旧资源
-                if (this.style == 2) {
-                    let item = IDE.navigator.getItem(this.path)
-                    IDE.navigator.deleteItem(item);
-                }
                 IDE.socket.emit("createNewResource", {
                     type: IDE.type,
                     event: 'createNewResource',
@@ -123,15 +119,16 @@
                         name: this.name == "" ? this.namelabel.value : this.name,
                         description: this.description,
                         directory: this.directory,
-                        group: this.selectedGroup[0],
-                        ref: this.selectedRef[0]
+                        group: this.selectedGroup,
+                        ref: this.selectedRef
                     }
                 }, function (result) {
                     if (result) {
                         if (result.state === 'success') {
-                            IDE.navigator.refresh(parentPath);
+
                             var type = result.data.type;
                             var path = result.data.path;
+                            IDE.navigator.refresh(path,1);
                             setTimeout(function () {
                                 if (type === 'file') {
                                     let item = IDE.navigator.getItem(path);
