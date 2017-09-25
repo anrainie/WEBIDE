@@ -34,7 +34,14 @@ function IDESocket() {
             message: 'ide socket重连失败',
             duration: 0
         });
-    })
+    });
+
+    socket.on('lockTimeout', function (data) {
+        ElementUI.Notification.error({
+            title: '提示',
+            message: '文件锁超时被释放,' + data
+        });
+    });
 
     this.socket = socket;
 }

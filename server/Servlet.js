@@ -37,12 +37,12 @@ Servlet.prototype.start = function () {
     server.on('connection', function (socket) {
         var user = socket.handshake.session.user;
 
-        console.info(user.username + ' connect socket successful');
+        console.info(user['_id'] + ' connect socket successful');
 
-        self.clients[user.username] = socket;
+        self.clients[user['_id']] = socket;
 
         socket.on('disconnect', function () {
-            delete self.clients[user.username]
+            delete self.clients[user['_id']]
         })
 
         for (let index in self.serviceConfigs) {
@@ -75,12 +75,12 @@ Servlet.prototype.start = function () {
     })
 }
 
-Servlet.prototype.getClient = function (username) {
-    return this.clients[username];
+Servlet.prototype.getClient = function (id) {
+    return this.clients[id];
 }
 
-Servlet.prototype.closeClient = function (username) {
-    var client = this.getClient(username);
+Servlet.prototype.closeClient = function (id) {
+    var client = this.getClient(id);
     if (client) {
         client.disconnect(true);
     }

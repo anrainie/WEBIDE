@@ -1,5 +1,16 @@
 var ioService = require('./IOService');
 var dbConstants = require('../constants/DBConstants');
+
+function saveFileHandler(eventId, data, callback){
+    let self = this;
+    this.socket.emit(eventId, JSON.stringify(data), function (resp) {
+        callback(resp);
+        if(resp.state === 'success'){
+            self.changeLockModifyTime(data.uid,data.path);
+        }
+    });
+}
+
 module.exports = {
     type: 'afe',
     services: [
@@ -48,7 +59,7 @@ module.exports = {
         {
             id: 'saveFile',
             type: 'IOService',
-            handler: ioService
+            handler: saveFileHandler,
         },
         {
             id: 'loadPlanEditorArchitecture',
