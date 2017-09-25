@@ -31,7 +31,8 @@ Product.prototype.register = function () {
 
 Product.prototype.connect = function () {
     var self = this;
-    this.socket = Client("http://" + this.ip + ":" + this.port);
+    var url = "http://" + this.ip + ":" + this.port +"?" + "type=" + this.name;
+    this.socket = Client(url);
 
     this.socket.on('connect',function () {
         self.online = true;
@@ -77,19 +78,35 @@ Product.prototype.connect = function () {
     this.socket.on('reconnect',function (data) {
         console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect");
     });
+
+    this.socket.on('lockTimeout',function (timeoutlock) {
+        if(timeoutlock.length > 0) {
+            let filelock = WebIDEDB.getCollection(dbConstants.filelock);
+            for (let i = 0; i < timeoutlock.length; i++) {
+                let lock = timeoutlock[i];
+                let query = {pid: self.id, file: lock.path};
+                let localLock = filelock.findOne(query);
+                if(localLock) {
+                    filelock.findAndRemove(query);
+                    let client = Servlet.getClient(localLock.uid);
+                    if(client){
+                        client.emit('lockTimeout',lock.path);
+                    }
+                }
+            }
+        }
+    });
 }
 
 Product.prototype.runServiceHandler = function (reqData, callback) {
     let handler = this.services[reqData.event];
-
     if(!this.socket.connected) {
         callback(JSON.stringify({"state": "error", "errorMsg": "ide socket is off line"}));
     }else{
         if (!handler) {
             callback(JSON.stringify({"state": "error", "returnMsg": "service is unregisted"}));
         } else {
-            let data = JSON.stringify(reqData);
-            handler(reqData.event, data, this.socket, function (rspData) {
+            handler.call(this,reqData.event,reqData,function (rspData) {
                 callback(rspData);
             });
         }
@@ -138,9 +155,10 @@ Product.prototype.lockFile = function (reqData,callback) {
             filelock.findAndRemove({pid: self.id, file: data.path});
             filelock.insert({
                 pid: self.id,
-                uid: data.uid,
+                uid: reqData.uid,
                 file: data.path,
-                createTime: new Date()
+                createTime: new Date(),
+                modifyTime: new Date()
             });
         } else if (result.state === 'error' && result.lock) {
             var lockinfo = result.lock;
@@ -148,9 +166,10 @@ Product.prototype.lockFile = function (reqData,callback) {
                 filelock.findAndRemove({pid: self.id, file: data.path});
                 filelock.insert({
                     pid: self.id,
-                    uid: lockinfo.uid,
+                    uid: reqData.uid,
                     file: data.path,
-                    createTime: lockinfo.createTime
+                    createTime: lockinfo.createTime,
+                    modifyTime: new Date()
                 });
             }
         }
@@ -188,6 +207,18 @@ Product.prototype.peekFileLock = function (reqData,callback) {
     });
 }
 
+Product.prototype.releaseTimeoutLock = function (timeoutLocks) {
+
+}
+
+Product.prototype.changeLockModifyTime = function (uid,file) {
+    let filelock = WebIDEDB.getCollection(dbConstants.filelock);
+    filelock.findAndUpdate({pid: this.id, file: file},function (result) {
+        if(result) {
+            result.modifyTime = new Date();
+        }
+    });
+}
 
 Product.prototype.unregister = function () {
     let filelock = WebIDEDB.getCollection(dbConstants.filelock);

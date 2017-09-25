@@ -44,6 +44,14 @@ var afeServices = require('./service/afe.service');
 var servlet = new Servlet([afaServices,afeServices], session, http);
 servlet.start();
 
+// database
+var webIDEDB = new WebIDEDB({dbpath:'webide.db'});
+webIDEDB.start();
+//init collections
+webIDEDB.getOrCreateCollection(dbConstants.filelock);
+webIDEDB.getOrCreateCollection(dbConstants.product);
+global.WebIDEDB = webIDEDB;
+
 var products = {};
 var afaProduct = new Product('afa01','afa', config.IDE_HOST, config.IDE_PORT, afaServices);
 afaProduct.connect();
@@ -53,16 +61,9 @@ var afeProduct = new Product('afe01','afe', config.IDE_HOST, config.IDE_PORT, af
 afeProduct.connect();
 products[afeProduct.name] = afeProduct;
 
-// database
-var webIDEDB = new WebIDEDB({dbpath:'webide.db'});
-webIDEDB.start();
-//init collections
-webIDEDB.getOrCreateCollection(dbConstants.filelock);
-webIDEDB.getOrCreateCollection(dbConstants.product);
-
 global.Servlet = servlet;
 global.Products = products;
-global.WebIDEDB = webIDEDB;
+
 
 function Server() {
 

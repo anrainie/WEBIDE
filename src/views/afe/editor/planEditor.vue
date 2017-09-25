@@ -207,7 +207,7 @@
                     }
                 },
                 treeProps: {
-                    label: 'name',
+                    label: this.labelProvider,
                     children: 'children',
                     desp: 'desp'
                 },
@@ -242,6 +242,12 @@
         methods: {
             init(){
                 this.getEditorArchitecture();
+            },
+            labelProvider(item){
+                if(item.dependency){
+                    return this.mergeDependencyName(item.dependency);
+                }
+                return item.name;
             },
             handleDialogOK(){
                 var self = this;
@@ -335,7 +341,6 @@
                 if (this.selected.nodeType.name == 'dependency') {
                     let dep = this.selected.dependency;
                     dep[propertyDesc.name] = $event;
-                    this.selected.name = this.mergeDependencyName(dep);
                 } else {
                     let gbean = this.selected.gbean;
                     if (gbean && gbean.attribute) {
@@ -561,7 +566,7 @@
                         for (let i = 0; i < dependencies.length; i++) {
                             let dp = dependencies[i];
                             parent.push({
-                                name: self.mergeDependencyName(dp),
+                                name: nodeType.displayName,
                                 isParent: false,
                                 nodeType: nodeType,
                                 children: [],
