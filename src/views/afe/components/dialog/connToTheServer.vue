@@ -23,7 +23,6 @@
                     </el-form-item>
                     <div style="display: inline;margin-left: 17%;text-align: center">
                         <el-button @click = "handlerFinish">确认</el-button>
-                        <el-button @click = "handlerCancel">取消</el-button>
                         <el-button @click = "handlerConnConfig">连接配置</el-button>
                     </div>
                 </el-form>
@@ -131,9 +130,6 @@
              }
            }
         })
-      },
-      handlerCancel(){
-        this.dialogFormVisible = false
       },
       //配置连接方式
       handlerConnConfig(){

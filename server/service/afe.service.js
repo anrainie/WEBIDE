@@ -29,7 +29,7 @@ module.exports = {
             handler: ioService
         },
         {
-            id: 'beforeModify',
+            id: 'beforeCreateOrModify',
             type: 'IOService',
             handler: ioService
         },

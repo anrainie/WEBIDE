@@ -321,78 +321,10 @@
                                         item.getParent().refresh();
                                     }).fail(function (error) {
                                         //TODO
-                                        console.info(result);
+                                        console.info(error);
                                     });
                                 },
-                                configParameter () {
-                                    var newConfigParameter = new Vue(parameter);
-                                    //从后台获取全局变量配置信息
-                                    IDE.socket.emit("getConfigParameter", {
-                                        type: IDE.type,
-                                        event: 'getConfigParameter',
-                                        data: {tableData: newConfigParameter.tableData}
-                                    }, function (result) {
-                                        if (result.state === 'success') {
-                                            newConfigParameter.tableData = result.data
-                                            var container = document.createElement('div');
-                                            container.id = "config"
-                                            document.body.appendChild(container);
-                                            newConfigParameter.$mount('#config')
-                                        }
-                                    })
-                                },
-                                syncOrConnToServer(){
-                                    var isContinue
-                                    if (window.confirm('同步后，本地资源会被覆盖，是否继续？')) {
-                                        isContinue = true;
-                                    } else {
-                                        isContinue = false;
-                                    }
-                                    if (isContinue == true) {
-                                        IDE.socket.emit("syncResource", {
-                                            type: IDE.type,
-                                            event: 'syncResource',
-                                            data: {}
-                                        }, function (result) {
-                                            if (data) {
-                                                if (result.state === 'success') {
-                                                    IDE.navigator.refresh("/base")
-                                                    IDE.navigator.refresh("/sbase")
-                                                } else {
-                                                    if (window.confirm('同步需要连接服务器，是否连接?')) {
-                                                        var newConnToServer = new Vue(connToServer)
-                                                        IDE.socket.emit("getConnConfig", {
-                                                            type: IDE.type,
-                                                            event: 'getConnConfig',
-                                                            data: {}
-                                                        }, function (result) {
-                                                            if (result.state === 'success') {
-                                                                var connections = result.data.data
-                                                                for (var index in connections) {
-                                                                    var conn = connections[index]
-                                                                    var connName = conn.connName
-                                                                    var ipName = conn.ipName
-                                                                    var portName = conn.portName
 
-                                                                    var label = connName
-                                                                    var value = connName
-                                                                    var newComboNode = {label, value}
-                                                                    newConnToServer.comboNodes.push(newComboNode)
-                                                                    var tableNode = {connName, ipName, portName}
-                                                                    newConnToServer.tableNodes.push(tableNode)
-                                                                }
-                                                            }
-                                                        })
-                                                        var container = document.createElement('div');
-                                                        container.id = "connToServer"
-                                                        document.body.appendChild(container);
-                                                        newConnToServer.$mount('#connToServer')
-                                                    }
-                                                }
-                                            }
-                                        })
-                                    }
-                                },
                                 click: function (item) {
                                 },
                                 dblclick: function () {

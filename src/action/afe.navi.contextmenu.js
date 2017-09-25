@@ -56,17 +56,19 @@ function mountDialog(newWizard) {
 
 function getNewWizard() {
     var newWizard
+    var style
     var path = this.path
     var reourceId = this.resourceId;
     var preName = "新建"
     if (this.id == "cn.com.agree.eci.ide.navigation.action.AfeModifyAction") {
+        style = 1<<1
         //修改
         preName = "修改"
         //根据path获取资源以及资源的相关信息，resourceId,name,desc,direcotry......
-        IDE.socket.emit("beforeModify", {
+        IDE.socket.emit("beforeCreateOrModify", {
             type: IDE.type,
-            event: 'beforeModify',
-            data: {path: this.path}
+            event: 'beforeCreateOrModify',
+            data: {path: this.path,style:style}
         }, function (result) {
             if (result) {
                 if (result.state === 'success') {
@@ -79,7 +81,7 @@ function getNewWizard() {
                     oldRef = result.data.template ? result.data.template : ""
                     var newItem = wizardtext.match1(reourceId)[0]
                     newWizard = getWizardByResourceId.call(this, newItem, preName)
-                    newWizard.style = 1 << 1
+                    newWizard.style = style
                     newWizard.name = oldName
                     newWizard.description = oldDescription
                     newWizard.directory = oldDirectory
@@ -91,10 +93,10 @@ function getNewWizard() {
                             newWizard.groups.push(groupItem)
                         }
                         newWizard.groupsLabel = newItem.groupsLabel
-                        newWizard.selectedGroup = [oldGroup]
+                        newWizard.selectedGroup = oldGroup
                     }
                     if (newItem.reference) {
-                        newWizard.selectedRef = [oldRef]
+                        newWizard.selectedRef = oldRef
                     }
                     newWizard.path = path
                     mountDialog(newWizard)
@@ -103,14 +105,35 @@ function getNewWizard() {
             }
         });
     } else {
-        var newItem = wizardtext.match1(reourceId)[0]
-        newWizard = getWizardByResourceId.call(this, newItem, preName)
-        if (newItem.groups) {
-            newWizard.groups = newItem.groups
-            newWizard.groupsLabel = newItem.groupsLabel
+      //创建之前先获取appGroup
+      IDE.socket.emit("beforeCreateOrModify", {
+          type: IDE.type,
+          event: 'beforeCreateOrModify',
+          data: {path: this.path,style:style}
+        }, function (result) {
+          if (result) {
+            if (result.state === 'success') {
+              var newItem = wizardtext.match1(reourceId)[0]
+              newWizard = getWizardByResourceId.call(this, newItem, preName)
+              if (newItem.groups) {
+                for (var index in result.data.groups) {
+                  var value = result.data.groups[index]
+                  var label = result.data.groups[index]
+                  var groupItem = {value, label}
+                  newWizard.groups.push(groupItem)
+                }
+                newWizard.groupsLabel = newItem.groupsLabel
+              }
+              if (newWizard.reference) {
+                newWizard.selectedRef = ((newWizard.reference)[0]).label
+              }
+              newWizard.path = path
+              mountDialog(newWizard)
+            }
+          }
         }
-        newWizard.path = path
-        mountDialog(newWizard)
+      )
+
     }
     return newWizard
 }
