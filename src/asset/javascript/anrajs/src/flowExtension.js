@@ -4,7 +4,6 @@ import {anra} from './anra.gef'
 import {ReaderListener} from './smoothRouter'
 import {Map} from './anra.common'
 import {defaultsDeep} from 'lodash'
-import {GridLayout} from "./anra.layout";
 
 /*用于参数忽略的时候*/
 function throwIfMissing() {
@@ -350,8 +349,7 @@ var gridLayout = Layout.extend({
                 dirty = dirty | elem.layoutData.isDirty() | !(index == elem.layoutData.sequence);
                 continue;
             }
-            
-            //elem.layoutData = new gridData(elem.model.props.bounds[2], elem.model.props.bounds[3]);
+
             elem.layoutData = new gridData({
                 horizontalAlignment: center,
                 verticalAlignment: center,

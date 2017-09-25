@@ -34,8 +34,8 @@
     import editorContainer from '../../../editorContainer.vue'
     import {stepConfigBuilder, nodeConfigBuilder} from './config'
     import * as Constants from 'Constants'
-    import skipGroup from '../../../flowPropDialog/skipGroup.vue';
-    import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
+    import skipGroup from '../../../flowPropDialog/skipGroup.vue'
+    import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue'
 
 
     /*用于参数忽略的时候*/

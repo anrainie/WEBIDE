@@ -1,6 +1,6 @@
 <template>
     <div :id="editorID" class="editor" v-bind:style="style">
-        <palette :editor='editor'></palette>
+        <palette :editor='editor' :tool="tool"></palette>
     </div>
 </template>
 <style>
@@ -28,7 +28,6 @@
             },
 
             editorClass: {
-                type: $AG.Editor,
                 default() {
                     return $AG.Editor
                 }
@@ -55,6 +54,10 @@
                         width: "100%"
                     }
                 }
+            },
+
+            tool: {
+                type: Object
             }
         },
 
@@ -126,7 +129,21 @@
 
         components: {
             palette: {
-                props: ['editor'],
+                props:
+                    ["editor"]
+                    /*tool: {
+                        default() {
+                            return {
+                                creation: null,
+                                other: []
+                            };
+                        },
+                        validator(value) {
+                            console.log("validator" + value)
+                            return true;
+                        }
+                    }*/
+                ,
                 data: function () {
                     return {
                         activeNames: [0]
@@ -195,7 +212,8 @@
                             <el-collapse v-if="isVisibility" v-model="activeNames" accordion>
                                 <el-collapse-item v-bind:title="value.name" v-bind:name="index" v-for="(value, key, index) in getGroup()">
                                     <el-row v-for="(item, type) in value.items">
-                                        <el-col :span="24"><img v-drag="{editor: editor, item: item, type: type}" /></el-col>
+                                        <el-col :span="6"><img v-drag="{editor: editor, item: item, type: type}"/></el-col>
+                                        <el-col :span="12"><span>{{item.name}}</span></el-col>
                                     </el-row>
                                 </el-collapse-item>
                             </el-collapse>

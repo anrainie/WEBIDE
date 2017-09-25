@@ -1255,8 +1255,13 @@ anra.gef.CreationTool = anra.gef.Tool.extend({
         return true;
     },
     getEditPart: function (parentEditPart) {
-        if (this.virtualEP == null) this.virtualEP = parentEditPart.createChild(this.model);
-        return this.virtualEP;
+        try {
+            this.virtualEP = this.virtualEP || parentEditPart.createChild(this.model);
+        } catch (e) {
+            this.virtualEP = null;
+        } finally {
+            return this.virtualEP;
+        }
     },
     mouseDrag: function (e, p) {
         var policy = this.getLayoutPolicy(e, p);
@@ -1616,6 +1621,7 @@ anra.gef.TopDragTracker = Base.extend({
  */
 anra.gef.RootDragTracker = Base.extend({
     mouseDown: function (me, editPart) {
+
 //        editPart.getRoot().setSelection(editPart);
     },
     mouseClick: function (me, editPart) {
@@ -1708,7 +1714,9 @@ anra.gef.RelocalCommand = anra.Command.extend({
         this.editPart = null;
     },
     canExecute: function () {
-        return this.model != null && this.sp != null && this.ep != null;
+        return this.model != null
+            && this.sp != null
+            && this.ep != null;
     },
     execute: function () {
         var b = this.editPart.model.get('bounds'), parent = this.editPart.parent;
