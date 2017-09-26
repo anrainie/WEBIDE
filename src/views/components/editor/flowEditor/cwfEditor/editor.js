@@ -20,70 +20,18 @@ export let cwf = $AG.Editor.extend({
         return canvas;
     },
     getCustomPolicies: function () {
-        this.put(anra.gef.LAYOUT_POLICY, new layoutPolicy());
+        this.put(anra.gef.LAYOUT_POLICY, new LayoutPolicy());
     }
 });
 
-/*新建一个在拖拽过程中可以变换父子节点的dragTracker*/
-class dragTracker {
-    dragStart(me, editPart) {
-        editPart.showTargetFeedback({
-            editPart: editPart,
-            target: me.prop.drag,
-            event: me,
-            type: constants.REQ_DRAG_START
-        });
-    }
 
-    mouseDrag(me, editPart) {
-        /*区别于REQ_MOVE*/
-        editPart.showTargetFeedback({
-            editPart: editPart,
-            target: me.prop.drag,
-            event: me,
-            type: constants.REQ_MOVE_CHILDREN
-        });
-    }
-
-    dragEnd(me, editPart) {
-        let cmd = editPart.getCommand({
-            editPart: editPart,
-            target: me.prop.drag,
-            event: me,
-            type: constants.REQ_MOVE_CHILDREN
-        });
-    }
-}
-
-let layoutPolicy = anra.gef.LayoutPolicy.extend({
-    showTargetFeedback(request) {
-        let feedback, editParts = this.editParts = this.getLayoutEditParts(request);
-
-        if (constants.REQ_CREATE == request.type) {
-            this.showCreateFeedback(request)
-        }
-
-    },
-    showCreateFeedback(request) {
-        let feedback, editParts = this.editParts = this.getLayoutEditParts(request);
-
-        if (editParts && editParts instanceof anra.gef.NodeEditPart) {
-            feedback = this.getFeedback(editParts);
-            feedback.offsetX = request.event.offsetX || feedback.offsetX;
-            feedback.offsetY = request.event.offsetY || feedback.offsetY;
-            this.refreshFeedback(feedback, request, feedback.offsetX, feedback.offsetY);
-        } else if (editParts == null) {
-            //说明此处不可放置
-            let editPart = this.getHost();
-
-            editPart.figure.setStyle({
-                cursor: "not-allowed"
-            });
-        }
-    },
+let LayoutPolicy = anra.gef.LayoutPolicy.extend({
 
     eraseLayoutTargetFeedback(request) {
         //TODO
+        this.getHost().figure.setStyle({
+            cursor: "auto"
+        });
         this.editParts = null;
         var values = this.feedbackMap.values();
         for (var i = 0, len = values.length; i < len; i++) {
@@ -92,7 +40,181 @@ let layoutPolicy = anra.gef.LayoutPolicy.extend({
         this.feedbackMap.clear();
     },
 
-    showMoveChilrenFeedback(request) {
+    showCreateTargetFeedback(request) {
+        var editParts = this.editParts = this.getLayoutEditParts(request);
 
+        if (editParts == null) {
+            this.getHost().figure.setStyle({
+                cursor: "not-allowed"
+            });
+        } else {
+            this.showLayoutTargetFeedback(request);
+        }
+    },
+
+    showMoveTargetFeedback(request) {
+        var editParts = this.editParts = this.getLayoutEditParts(request);
+
+        if (editParts instanceof Array) return;
+
+        var type = editParts.model.get('type');
+
+        if (this.getHost().config.children[type]) {
+            this.showLayoutTargetFeedback(request);
+        } else {
+            this.getHost().figure.setStyle({
+                cursor: "not-allowed"
+            });
+        }
+    },
+
+    showTargetFeedback: function (request) {
+        if (constants.REQ_ADD == request.type
+            || constants.REQ_CLONE == request.type
+            || constants.REQ_RESIZE_CHILDREN == request.type)
+            this.showLayoutTargetFeedback(request);
+
+        if (constants.REQ_MOVE == request.type
+            || constants.REQ_DRAG_START == request.type)
+            this.showMoveTargetFeedback(request)
+
+        if (constants.REQ_CREATE == request.type) {
+            this.showCreateTargetFeedback(request)
+            this.showSizeOnDropFeedback(request);
+        }
+    }
+});
+
+export var ContainerLayoutPolicy = LayoutPolicy.extend({
+    ID: 'ContainerLayoutPolicy',
+    createFeedback(ep) {
+        var f = anra.FigureUtil.createGhostFigure(ep);
+        var b = f.bounds;
+        f.bounds = {width: b.width / 2, height: b.height / 2};
+        return f;
+    },
+    getCreateCommand(request) {
+        var model = request.event.prop.drag.model,
+            type = model.get('type'),
+            b = model.get('bounds'), parent = request.editPart;
+
+        while (parent && (parent.config.children == null || parent.config.children[type] == null)) {
+            parent = parent.parent;
+        }
+
+        if (parent == null) {
+            return null;
+        }
+
+        var pb = parent instanceof anra.gef.RootEditPart ? [0, 0] : parent.model.get('bounds');
+
+        model.set('bounds', [request.event.x - pb[0], request.event.y - pb[1], b[2], b[3]]);
+        return new anra.gef.CreateNodeCommand(this.getHost(), model);
+    }
+});
+anra.gef.DragTracker = anra.gef.RootDragTracker.extend({
+
+    mouseDrag: function (me, editPart) {
+
+        //这里需要mouseOnTarget触发的事件,若dragTarget与mouseOnTarget一致交给父级处理
+
+        /*dragTarget与mouseOnTarget不同*/
+        if (me.prop.drag !== me.prop.target) {
+
+            /*过滤dragTarget触发的事件*/
+            if (editPart.figure === me.prop.drag) return true;
+
+            /*下面是必是mouseOnTarget触发的事件 */
+            let policy = editPart.getLayoutPolicy();
+
+            if (policy == null) return false;
+
+            if (this.policy == null) this.policy = policy;
+
+            if (this.policy !== policy) {
+                console.log('erase')
+                this.policy.eraseTargetFeedback({
+                   type: constants.REQ_MOVE
+                });
+            }
+
+            editPart.showTargetFeedback({
+                editPart: editPart,
+                target: me.prop.drag,
+                event: me,
+                type: constants.REQ_MOVE
+            });
+            return true;
+        }
+
+
+        if (editPart.figure !== me.prop.drag) {
+            let policy = editPart.getLayoutPolicy();
+
+            if (policy == null) return false;
+
+            if (this.policy ==null) this.policy = policy;
+
+            if (this.policy !== policy) {
+                console.log('xxx')
+                this.policy.eraseTargetFeedback({
+                    type: constants.REQ_MOVE
+                });
+            }
+
+            editPart.showTargetFeedback({
+                editPart: editPart,
+                target: me.prop.drag,
+                event: me,
+                type: constants.REQ_MOVE
+            });
+            return true;
+        }
+
+        return false;
+    },
+
+    dragStart: function (me, editPart) {
+
+        /*找到父级的DragTracker*/
+        if (editPart.figure !== me.prop.drag) {
+            let policy = editPart.getLayoutPolicy();
+
+            if (policy) {
+                editPart.showTargetFeedback({
+                    editPart: editPart,
+                    target: me.prop.drag,
+                    event: me,
+                    type: constants.REQ_DRAG_START
+                });
+
+                return true
+            }
+        }
+
+        var bounds = editPart.figure.getClientArea();
+        me.offsetX = bounds[0] - me.x;
+        me.offsetY = bounds[1] - me.y;
+
+        return false;
+    },
+    dragEnd: function (me, editPart) {
+        var req = {
+            editPart: editPart,
+            target: me.prop.drag,
+            event: me,
+            type: constants.REQ_MOVE
+        };
+        if (req.type == null)return false;
+        var cmd = editPart.getCommand(req);
+        if (cmd != null) {
+            editPart.getRoot().editor.execute(cmd);
+        }
+        editPart.eraseTargetFeedback(req);
+        return cmd != null && cmd.canExecute();
+    },
+    mouseDown: function (me, editPart) {
+//        editPart.getRoot().setSelection(editPart);
+        return true;
     }
 });

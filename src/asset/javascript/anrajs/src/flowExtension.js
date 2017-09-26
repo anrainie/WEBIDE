@@ -41,7 +41,10 @@ $AG.Editor.prototype.createNodeWithPalette = function(type, item) {
             type: type,
             bounds: [0, 0, item.size[0], item.size[1]]
         }, defaultsDeep(item.data));
+
+        /*小不合理。。。。*/
         tool.model = node;
+        tool.virtualEP = null;
         
         editor.setActiveTool(tool);
         return true;
@@ -69,6 +72,7 @@ $AG.Editor.prototype.getSaveData = function (attrNameArr) {
 
 //test layoutPolicy
 var ContainerLayoutPolicy = anra.gef.LayoutPolicy.extend({
+    ID: 'ContainerLayoutPolicy',
     createFeedback(ep) {
         var f = anra.FigureUtil.createGhostFigure(ep);
         var b = f.bounds;
@@ -553,7 +557,14 @@ var gridLayout = Layout.extend({
 });
 
 
-
+$AG.IMAGE.layoutManager = new gridLayout({
+    numColumns: 4,
+    makeColumnsEqualWidth: true,
+    makeRowsEqualHeight: false,
+    autoAdapt: true,
+    horizontalAutoAdapt: true,
+    verticalAutoAdapt: false
+});
 
 $AG.Layout = {
     FILL : fillLayout,

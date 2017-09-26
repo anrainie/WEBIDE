@@ -250,7 +250,7 @@ anra._EventTable = {
         if (listener == null) anra.Platform.getDisplay().error("listener can not be null");
         if (this.eventTable == null)return;
         this.eventTable.unhook(eventType, listener);
-        if (this.afterRemoveListener != null) this.afterRemoveListener();
+        if (this.afterRemoveListener != null) this.afterRemoveListener(eventType);
     },
     dispose: function () {
         if (this.eventTable != null)

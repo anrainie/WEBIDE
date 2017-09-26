@@ -149,7 +149,7 @@ $AG.Editor = anra.gef.Editor.extend({
             this.cmdStack.canRedo(cmd);
     },
     createEditPart: function (parentControl, model) {
-        var nodeConfig = this.config.children[model.props.type];
+        var nodeConfig = parentControl.config.children[model.props.type];
         if (nodeConfig == null)throw 'can not found EditPart config on node [' + model.props.type + ']';
         var e = new anra.gef.NodeEditPart();
         e.config = nodeConfig;

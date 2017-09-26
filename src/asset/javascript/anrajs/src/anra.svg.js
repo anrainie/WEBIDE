@@ -79,9 +79,9 @@ anra.svg.Control = anra.Control.extend({
         });
         if (this.init != null) this.init();
     },
-    afterRemoveListener: function () {
+    afterRemoveListener: function (type) {
         if (this.eventTable.size())
-            this.disableEvent();
+            this.disableEvent(type);
 
     },
     setOpacity: function (opa, all) {
@@ -96,9 +96,10 @@ anra.svg.Control = anra.Control.extend({
         if (this.eventTable.size() > 0)
             this.enableEvent();
     },
-    disableEvent: function () {
+    disableEvent: function (type) {
         this.enable = true;
-        this.setStyle('pointer-events', 'none');
+        if (type == null)
+            this.setStyle('pointer-events', 'none');
     },
     enableEvent: function () {
         this.enable = false;
@@ -131,7 +132,7 @@ anra.svg.Control = anra.Control.extend({
         return [this.fattr('x'), this.fattr('y'), this.fattr('width'), this.fattr('height')];
     },
     getAttr: function (k, h) {
-        if (this.owner == null)return this._attr ? this._attr[k] : null;
+        if (this.owner == null) return this._attr ? this._attr[k] : null;
         if (h == null || typeof(h) != 'function')
             return this.owner.getAttribute(k);
         var a = this.owner.getAttribute(k);
@@ -307,8 +308,8 @@ var _Composite = {
                 Util.removeObject.call(this.children, c);
 
             //this cause bugs, should fix
-             if (this.domContainer().contains(c.owner))
-            this.domContainer().removeChild(c.owner);
+            if (this.domContainer().contains(c.owner))
+                this.domContainer().removeChild(c.owner);
             c.parent = null;
         } else {
             anra.Platform.error('can not remove ' + (c == null ? null : c.toString() ) + ' from Composite');
@@ -449,8 +450,8 @@ anra.svg.Marker = Composite.extend({
         if (e) {
             var stroke = e.style.stroke ? e.style.stroke : e.getAttr('stroke');
             this.setStyle({
-                fill:stroke,
-                stroke:stroke
+                fill: stroke,
+                stroke: stroke
             });
         }
     },
@@ -548,11 +549,11 @@ anra.svg.LineStrategy = {
             while (j < points.length - 2) {
                 offx1 = points[j].x - points[j + 1].x;
                 offx2 = points[j].x - points[j + 2].x;
-                
+
                 if (Math.abs(offx1) + Math.abs(offx2) != 0) {
                     slope1 = (points[j].y - points[j + 1].y) / (offx1);
                     slope2 = (points[j].y - points[j + 2].y) / (offx2);
-                    
+
                     if (slope1 != slope2) {
                         p.push(points[j + 1]);
                     }
@@ -564,16 +565,16 @@ anra.svg.LineStrategy = {
         }
     },
     CornerCurve: function (points, l) {
-        var result = 'M' + (points[0].x + l[0]) + ',' + (points[0].y + l[1]) + 　' ',
+        var result = 'M' + (points[0].x + l[0]) + ',' + (points[0].y + l[1]) + ' ',
             abs = Math.abs,
             min = Math.min,
             max = Math.max,
             x, y, preX, preY, nextX, nextY, gap;
-        
+
         if (points.length == 2) {
-            return result += 'L' + (points[1].x + l[0]) + ',' + (points[1].y + l[1]); 
+            return result += 'L' + (points[1].x + l[0]) + ',' + (points[1].y + l[1]);
         }
-        
+
         nextX = points[1].x - points[0].x;
         nextY = points[1].y - points[0].y;
 
@@ -585,11 +586,11 @@ anra.svg.LineStrategy = {
                 //与前驱点的XY差值
                 preX = -nextX;
                 preY = -nextY;
-                
+
                 //与后驱点的XY差值
                 nextX = (points[i + 1].x + l[0]) - x;
                 nextY = (points[i + 1].y + l[1]) - y;
-                
+
                 //
                 gap = min(12.5, min(abs(preX + preY), abs(nextX + nextY)) / 2);
                 result += 'L' + (x + (preX / max(abs(preX), 1)) * gap) + ',' + (y + (preY / max(abs(preY), 1)) * gap) + ' Q' + x + ',' + y + ' ' +
@@ -601,17 +602,17 @@ anra.svg.LineStrategy = {
         return result;
     },
     //支持所有方向
-    CornerCurveProfessional : function(points, l) {
-        var result = 'M' + (points[0].x + l[0]) + ',' + (points[0].y + l[1]) + 　' ',
+    CornerCurveProfessional: function (points, l) {
+        var result = 'M' + (points[0].x + l[0]) + ',' + (points[0].y + l[1]) + ' ',
             abs = Math.abs,
             min = Math.min,
             max = Math.max,
-            x, y, preX, preY, nextX , nextY, gap;
-        
+            x, y, preX, preY, nextX, nextY, gap;
+
         if (points.length == 2) {
-            return result += 'L' + (points[1].x + l[0]) + ',' + (points[1].y + l[1]); 
+            return result += 'L' + (points[1].x + l[0]) + ',' + (points[1].y + l[1]);
         }
-        
+
         nextX = points[1].x - points[0].x;
         nextY = points[1].y - points[0].y;
 
@@ -620,22 +621,22 @@ anra.svg.LineStrategy = {
             y = points[i].y + l[1];
 
             if (i + 1 < points.length) {
-                
+
                 //与前驱点的XY差值
                 preX = -nextX;
                 preY = -nextY;
-                
+
                 //与后驱点的XY差值
                 nextX = (points[i + 1].x + l[0]) - x;
                 nextY = (points[i + 1].y + l[1]) - y;
-                
+
                 //
-                
-                var p = preX*preX + preY*preY,
-                    n = nextX*nextX + nextY*nextY, 
+
+                var p = preX * preX + preY * preY,
+                    n = nextX * nextX + nextY * nextY,
                     minX, minY, anX, anY;
-                gap = min(25*25, p, n);
-                
+                gap = min(25 * 25, p, n);
+
                 if (gap == 25) {
                     //暴力算出来
                 } else if (gap == p) {
@@ -649,10 +650,10 @@ anra.svg.LineStrategy = {
                     anX = x + preX;
                     anY = y + preY;
                 }
-                
-                
+
+
                 gap = min(12.5, min(abs(preX + preY), abs(nextX + nextY)) / 2);
-                
+
                 result += 'L' + (x + (preX / max(abs(preX), 1)) * gap) + ',' + (y + (preY / max(abs(preY), 1)) * gap) + ' Q' + x + ',' + y + ' ' +
                     (x + (nextX / max(abs(nextX), 1)) * gap) + ',' + (y + (nextY / max(abs(nextY), 1)) * gap) + ' ';
             } else {
@@ -835,7 +836,7 @@ anra.svg.Image = {
             'http://www.w3.org/1999/xlink',
             'xlink:href',
             this.url);
-        this.owner.setAttribute('preserveAspectRatio','none');
+        this.owner.setAttribute('preserveAspectRatio', 'none');
     }
 };
 /**
@@ -919,7 +920,7 @@ anra.svg.EventDispatcher = Base.extend({
         this.mouseState = anra.EVENT.MouseDown;
         var location = this.getRelativeLocation(event),
             e = new anra.event.Event(anra.EVENT.MouseDown, location);
-        
+
         e.button = event.button;
         e.prop = {drag: this.dragTarget, target: this.focusTarget};
         var widget = this.focusTarget;
@@ -958,8 +959,8 @@ anra.svg.EventDispatcher = Base.extend({
 
                 e.prop = {drag: this.dragTarget, target: this.mouseOnTarget};
                 this.dragTarget.notifyListeners(anra.EVENT.DragStart, e);
-                if (this.dragTarget != this.mouseOnTarget && this.mouseOnTarget.notifyListeners){
-                    this.mouseOnTarget.notifyListeners(anra.EVENT.DragStart, e);    
+                if (this.dragTarget != this.mouseOnTarget && this.mouseOnTarget.notifyListeners) {
+                    this.mouseOnTarget.notifyListeners(anra.EVENT.DragStart, e);
                 }
             }
             if (this.dragTarget.enable)
@@ -999,14 +1000,14 @@ anra.svg.EventDispatcher = Base.extend({
             e = new anra.event.Event(anra.EVENT.MouseUp, location);
 
             e.button = event.button;
-            
+
             widget = widget || this.focusTarget;
-            
+
             if (widget != this.display) {
                 e.x -= widget.getAttr('x', parseFloat);
                 e.y -= widget.getAttr('y', parseFloat);
             }
-                
+
             widget.notifyListeners(anra.EVENT.MouseUp, e);
         }
         this.dragTarget = null;
@@ -1016,7 +1017,7 @@ anra.svg.EventDispatcher = Base.extend({
         var e = new anra.event.Event(anra.EVENT.MouseIn, location);
 
         e.button = event.button;
-        if (this.dragTarget != event.figure){
+        if (this.dragTarget != event.figure) {
             this.mouseOnTarget = event.figure;
         }
         event.figure.notifyListeners(anra.EVENT.MouseIn, e);
@@ -1044,7 +1045,7 @@ anra.svg.EventDispatcher = Base.extend({
                             width: parseFloat(relatedTarget.getAttribute('width')),
                             height: parseFloat(relatedTarget.getAttribute('height'))
                         }
-                        
+
                         if (contains(eb, b.x, b.y) && (b.x + b.width) < (eb.x + eb.width) && (b.y + b.height) < (eb.y + eb.height) &&
                             contains(eb, loc[0], loc[1])) {
                             return;
@@ -1057,7 +1058,7 @@ anra.svg.EventDispatcher = Base.extend({
                         if (b == null) {
                             b.rx = b.ry = relatedTarget['r'].value;
                         }
-                        
+
                         b.cx = parseFloat(relatedTarget.getAttribute('cx'))
                         b.cy = parseFloat(relatedTarget.getAttribute('cy'))
 
@@ -1071,7 +1072,7 @@ anra.svg.EventDispatcher = Base.extend({
                         if (contains(eb, loc[0], loc[1])) {
                             return;
                         }
-                        
+
                         break;
                     case 'text':
                     default:
@@ -1176,7 +1177,7 @@ anra.svg.MenuItem = Composite.extend({
             });
         });
         this.on(anra.EVENT.MouseDown, function (e) {
-            if (e.button != 0)return;
+            if (e.button != 0) return;
             item.action.run();
             item.menu.hide();
         });
@@ -1244,7 +1245,7 @@ anra.svg.DefMenu = Composite.extend({
     },
     play: function (s, intval) {
         this.setOpacity(s, true);
-        if (s >= 1)return;
+        if (s >= 1) return;
         var p = this;
         requestAnimationFrame(function () {
             p.play(s + intval, intval);

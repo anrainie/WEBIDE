@@ -98,6 +98,7 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
     showLayoutTargetFeedback: function (request) {
         var feedback;
         var editParts = this.editParts = this.getLayoutEditParts(request);
+
         if (editParts instanceof Array) {
             var ox = request.target.bounds.x,
                 oy = request.target.bounds.y;
@@ -113,32 +114,40 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
         }
     },
     getLayoutEditParts: function (request) {
-        if (constants.REQ_CREATE == request.type) {
-            var creationTool = request.target;
-            return creationTool.getEditPart(this.getHost());
-        } else if (constants.REQ_MOVE == request.type || constants.REQ_DRAG_START == request.type) {
-//            if (request.target.model instanceof anra.gef.NodeModel) {
-            var selection = this.getHost().getRoot().selection;
-            if (selection == null)return null;
-            if (selection.figure == request.target)
-                return selection;
-            /*验证已选节点里包含拖拽目标节点*/
-            if (selection instanceof Array) {
-                var s = [];
-                var valid;
-                for (var i = 0, len = selection.length; i < len; i++) {
-                    if (selection[i].figure == request.target) {
-                        Util.insert.call(s, selection[i]);
-                        valid = true;
-                    } else {
-                        s.push(selection[i]);
-                    }
-                }
-                if (valid)return s;
-            }
-//            }
-        }
+        if (this[request.type + 'editParts']) return this[request.type + 'editParts'](request);
+
         return null;
+    },
+    [constants.REQ_CREATE + 'editParts'](request) {
+        return request.target.getEditPart(this.getHost());
+    },
+    [constants.REQ_MOVE + 'editParts'](request) {
+        var selection = this.getHost().getRoot().selection;
+        if (selection && selection.figure == request.target)
+            return selection;
+        /*验证已选节点里包含拖拽目标节点*/
+        if (selection instanceof Array) {
+            var s = [];
+            var valid = true;
+            for (var i = 0, len = selection.length; i < len; i++) {
+                if (selection[i].figure == request.target && selection.parent == this.getHost()) {
+                    Util.insert.call(s, selection[i]);
+                    valid &= true;
+                } else {
+                    s.push(selection[i]);
+                }
+            }
+            if (valid)return s;
+        }
+
+        return null
+    },
+    [constants.REQ_DRAG_START + 'editParts'](request) {
+        return this[constants.REQ_MOVE + 'editParts'](request);
+    },
+    [constants.REQ_MOVE_CHILDREN + 'editParts'](request){
+        //暂时只有单节点
+        return this[constants.REQ_MOVE + 'editParts'](request);
     },
     getFeedback: function (ep) {
         var ghost = this.feedbackMap.get(ep.model);
@@ -321,7 +330,6 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
             || constants.REQ_CLONE == request.type
             || constants.REQ_MOVE == request.type
             || constants.REQ_RESIZE_CHILDREN == request.type
-            || constants.REQ_CREATE == request.type
             || constants.REQ_DRAG_START == request.type)
             this.showLayoutTargetFeedback(request);
 
