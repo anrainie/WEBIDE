@@ -7,6 +7,7 @@
                 style="width: 100%" ref="tableReference" :row-style="rowStyle" @current-change="handleCurrentRowChange"
                 @row-click="selectionChanged">
             <el-table-column v-for="(head,index) in tableConfig.columnConfig"
+                             :key="head.id"
                              :prop="head.id"
                              :label="head.label"
                              :width="head.width" class-name="t_item">
@@ -14,19 +15,34 @@
                     <span v-if="head.edit==null">{{scope.row[head.id]}}</span>
                     <input type="text" v-if="head.edit=='text'"
                            v-model="scope.row[head.id]"
-                           style="width:100%;height:100%;border:none;background-color:inherit"/>
+                           style="width:80px;height:100%;border:none;background-color:inherit;overflow: hidden;text-overflow:ellipsis;
+white-space: nowrap;"/>
                     <el-select v-model="scope.row[head.id]"
                                filterable @change="apply" v-if="head.edit=='combo'" size="mini"
                                style="border:none;width:80px">
                         <el-option
-                                v-for="item in head.options"
+                                v-for="item in head.optionProvider?head.optionProvider(scope,head):head.options"
                                 :key="item.value"
                                 :label="item.label"
                                 :value="item.value">
                         </el-option>
-                    </el-select>
-                </template>
 
+                    </el-select>
+                    <el-cascader v-model="scope.row[head.id]"
+                                 v-if="head.edit=='cascader'" size="mini"
+                                 :options="head.options">
+                    </el-cascader>
+                </template>
+            </el-table-column>
+            <el-table-column v-if="tableConfig.operations"
+                             label="操作"
+                             width="100">
+                <template scope="scope">
+                    <el-button v-for="op in tableConfig.operations" :key="op.name" @click="op.click(scope)" type="text"
+                               size="small">
+                        {{op.name}}
+                    </el-button>
+                </template>
             </el-table-column>
         </el-table>
         <el-pagination
