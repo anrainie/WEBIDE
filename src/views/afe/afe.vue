@@ -105,9 +105,9 @@
                     editorRefs: {
                         pml: planEditor,
                         sqldict: sqldictEditor,
-                        vtf:verifyFileEditor,
-                        dict:dictEditor,
-                        rcd:msgConfigEditor,
+                        vtf: verifyFileEditor,
+                        dict: dictEditor,
+                        rcd: msgConfigEditor,
                     }
                 },
                 vertical: false,
@@ -258,70 +258,54 @@
                             check: false,
                             async: true,
                             callback: {
-                              asyncLoadItem: function (item, level) {
-                                if (!level) {
-                                  level = 1
-                                }
-                                IDE.socket.emit('getNaviItems', {
-                                    type: IDE.type,
-                                    event: 'getNaviItems',
-                                    data: {
-                                      path: item.model.path,
-                                      level: level
+                                asyncLoadItem: function (item, level) {
+                                    if (!level) {
+                                        level = 1
                                     }
-                                  }, (function () {
-                                    var getChild = function (children, name) {
-                                      for (let i = 0; i < children.length; i++) {
-                                        let child = children[i]
-                                        if (child.name === name) {
-                                          return child
-                                        }
-                                      }
-                                      return null
-                                    }
-                                    return function (result) {
-                                      if (result.state === 'success') {
-                                        //combine(item.model, result.data);
-                                        let oldChildren = item.model.children
-                                        let newChildren = result.data
-                                        if (oldChildren && oldChildren.length != 0) {
-                                          for (let i = 0; i < oldChildren.length; i++) {
-                                            let oldChd = oldChildren[i]
-                                            let exist = false
-                                            for (let j = 0; j < newChildren.length; j++) {
-                                              let newChd = newChildren[j]
-                                              if (newChd.path === oldChd.path) {
-                                                exist = true
-                                                break;
-                                              }
+                                    IDE.socket.emit('getNaviItems', {
+                                            type: IDE.type,
+                                            event: 'getNaviItems',
+                                            data: {
+                                                path: item.model.path,
+                                                level: level
                                             }
-                                            if (!exist) {
-                                              oldChildren.splice(i, 1)
-                                            }
-                                          }
-                                          for (let i = 0; i < newChildren.length; i++) {
-                                            let newChd = newChildren[i]
-                                            let exist = false
-                                            for (let j = 0; j < oldChildren.length; j++) {
-                                              let oldChd = oldChildren[j]
-                                              if (newChd.path === oldChd.path) {
-                                                exist = true;
-                                                break;
-                                              }
+                                        }, function (result) {
+                                            if (result.state === 'success') {
+                                                let oldChildren = item.model.children
+                                                let newChildren = result.data
+                                                if (!oldChildren || oldChildren.length == 0) {
+                                                    item.model.children = result.data;
+                                                } else {
+                                                    for (let i = 0; i < newChildren.length; i++) {
+                                                        let newChd = newChildren[i];
+                                                        let exist = false;
+                                                        for (let j = 0; j < oldChildren.length; j++) {
+                                                            let oldChd = oldChildren[j];
+                                                            if (newChd.path === oldChd.path) {
+                                                                exist = true;
+                                                                oldChd['##keep##'] = true;
+                                                                break;
+                                                            }
 
+                                                        }
+                                                        if (!exist) {
+                                                            newChd['##keep##'] = true;
+                                                            oldChildren.push(newChd);
+                                                        }
+                                                    }
+                                                    for (let i = 0; i < oldChildren.length; i++) {
+                                                        let oldChd = oldChildren[i];
+                                                        if (!oldChd['##keep##']) {
+                                                            oldChildren.splice(i, 1);
+                                                            i--;
+                                                        }
+                                                        delete oldChd['##keep##'];
+                                                    }
+                                                }
+                                            } else {
+                                                debug.error('refresh resources fail , ' + result);
                                             }
-                                            if (!exist) {
-                                              oldChildren.push(newChd);
-                                            }
-                                          }
-                                        } else {
-                                          item.model.children = result.data
                                         }
-                                      } else {
-                                        console.info(result)
-                                      }
-                                    }
-                                  })()
                                     );
                                 },
                                 delete: function (item) {
@@ -329,13 +313,12 @@
                                     if (editor) {
                                         IDE.editorPart.closeEditor(item);
                                     }
-                                    let def = IDE.socket.emitAndGetDeferred('deleteFile',{
-                                        path:item.model.path
+                                    let def = IDE.socket.emitAndGetDeferred('deleteFile', {
+                                        path: item.model.path
                                     }).done(function (result) {
                                         item.getParent().refresh();
                                     }).fail(function (error) {
-                                        //TODO
-                                        console.info(error);
+                                        debug.error('delete resource fail , ' + error);
                                     });
                                 },
 
@@ -357,13 +340,15 @@
                                                 path: item.model.path
                                             }
                                         }, function (result) {
-                                            console.info("getFile：", result);
-                                            if (!item.model.isParent) {
-                                                IDE.editorPart.openEditor(item, result.data);
-                                            }
                                             IDE.shade.hide();
-                                        })
-
+                                            if (result.state === 'success') {
+                                                if (!item.model.isParent) {
+                                                    IDE.editorPart.openEditor(item, result.data);
+                                                }
+                                            } else {
+                                                debug.error('resource dbclick , ' + result);
+                                            }
+                                        });
                                     }
                                 },
                                 rightClick: function (event) {
@@ -382,7 +367,7 @@
                                                 }
                                                 IDE.contextmenu.show(event.x, event.y, IDE.navigator.selection);
                                             } else {
-                                                console.info('getNaviMenu : ', result.errorMsg);
+                                                debug.error('getNaviMenu , ' + result);
                                             }
                                         }
                                     });
