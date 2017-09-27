@@ -59,16 +59,15 @@ let LayoutPolicy = anra.gef.LayoutPolicy.extend({
 
         var type = editParts.model.get('type');
 
-        if (this.getHost().config.children[type]) {
-            this.showLayoutTargetFeedback(request);
-        } else {
+        if (this.getHost().config.children[type] == null) {
             this.getHost().figure.setStyle({
                 cursor: "not-allowed"
             });
         }
+        this.showLayoutTargetFeedback(request);
     },
 
-    showTargetFeedback: function (request) {
+    showTargetFeedback(request) {
         if (constants.REQ_ADD == request.type
             || constants.REQ_CLONE == request.type
             || constants.REQ_RESIZE_CHILDREN == request.type)
@@ -81,6 +80,63 @@ let LayoutPolicy = anra.gef.LayoutPolicy.extend({
         if (constants.REQ_CREATE == request.type) {
             this.showCreateTargetFeedback(request)
             this.showSizeOnDropFeedback(request);
+        }
+    },
+
+    getMoveCommand(request) {
+        /*var target = this.editParts;
+        if (target instanceof anra.gef.NodeEditPart && target.dragTracker){
+            var feedback = this.getFeedback(target);
+            return this.movecmd(target, request, feedback.offsetX, feedback.offsetY);
+        }
+        else if (target instanceof Array) {
+            var cmd, offx, offy, ox, oy;
+            if (request.target.bounds == null) {
+                ox = 0;
+                oy = 0
+            } else
+                ox = request.target.bounds.x,
+                    oy = request.target.bounds.y;
+            for (var i = 0; i < target.length; i++) {
+                if (target[i].dragTracker == null)return null;
+                offx = target[i].figure.bounds.x - ox;
+                offy = target[i].figure.bounds.y - oy;
+                cmd = cmd == null ?
+                    this.movecmd(target[i], request, offx, offy) :
+                    cmd.chain(this.movecmd(target[i], request, offx, offy));
+            }
+            return cmd;
+        }*/
+
+        let target = this.editParts, host = this.getHost();
+
+        if (target instanceof anra.gef.NodeEditPart && target.dragTracker) {
+            let model = target.model;
+
+            /*判断鼠标状态和父子级关系，确保可以返回命令*/
+            if (host.figure.getStyle("cursor") != "not-allowed" && host.config.children[model.get('type')]) {
+                /**/
+                let feedback = this.getFeedback(target);
+
+                /*在父节点中*/
+                if (target.parent === host) {
+                    return this.movecmd(target, request, feedback.offsetX, feedback.offsetY);
+                }
+                else {
+                    let x = request.event.x + feedback.offsetX,
+                        y =  request.event.y + feedback.offsetY
+                    if (!(host instanceof anra.gef.RootEditPart)) {
+                        x -= host.getFigure().getAttr('x', parseFloat)
+                        y -= host.getFigure().getAttr('y', parseFloat)
+                    }
+
+                    model.set('bounds', [x, y, model.get('bounds')[2], model.get('bounds')[3]])
+
+                    return (new anra.gef.DeleteNodeCommand(target.parent, target))
+                        .chain(new anra.gef.CreateNodeCommand(host, model));
+                }
+
+            }
         }
     }
 });
@@ -112,75 +168,77 @@ export var ContainerLayoutPolicy = LayoutPolicy.extend({
         return new anra.gef.CreateNodeCommand(this.getHost(), model);
     }
 });
-anra.gef.DragTracker = anra.gef.RootDragTracker.extend({
 
-    mouseDrag: function (me, editPart) {
+class DragTracker {
 
-        //这里需要mouseOnTarget触发的事件,若dragTarget与mouseOnTarget一致交给父级处理
+    mouseDrag (me, editPart) {
 
-        /*dragTarget与mouseOnTarget不同*/
-        if (me.prop.drag !== me.prop.target) {
+        let req = {
+            editPart: editPart,
+            target: me.prop.drag,
+            event: me,
+            type: constants.REQ_MOVE
+        };
 
-            /*过滤dragTarget触发的事件*/
-            if (editPart.figure === me.prop.drag) return true;
-
-            /*下面是必是mouseOnTarget触发的事件 */
-            let policy = editPart.getLayoutPolicy();
-
-            if (policy == null) return false;
-
-            if (this.policy == null) this.policy = policy;
-
-            if (this.policy !== policy) {
-                console.log('erase')
-                this.policy.eraseTargetFeedback({
-                   type: constants.REQ_MOVE
-                });
-            }
-
-            editPart.showTargetFeedback({
-                editPart: editPart,
-                target: me.prop.drag,
-                event: me,
-                type: constants.REQ_MOVE
-            });
-            return true;
+        /*用dragTarget的dragTrack记录mouseOnTarget,要求保证每次mouseOnTarget变换的时候，能够消除上一次的feedback*/
+        if (editPart.figure === me.prop.drag && this['target'] !== me.prop.target && this["policy"]) {
+            this["policy"].eraseTargetFeedback(req);
+            me.offsetX = this.offsetX;
+            me.offsetY = this.offsetY;
+            me.dragTracker = this;
         }
 
+        //若dragTarget与mouseOnTarget一致交给父级处理,其他交给mouseOnTarget处理
+        if (me.prop.drag === me.prop.target ) {
+            /*必是dragTarget触发, 确保不是dragTarget本身的LayoutPolicy处理*/
 
-        if (editPart.figure !== me.prop.drag) {
-            let policy = editPart.getLayoutPolicy();
+            if (me.prop.drag === editPart.figure) return false;
 
-            if (policy == null) return false;
+            if (editPart.getLayoutPolicy()) {
 
-            if (this.policy ==null) this.policy = policy;
+                if (me.dragTracker) {
+                    me.dragTracker.policy = editPart.getLayoutPolicy();
+                    me.dragTracker.target = me.prop.target;
+                }
 
-            if (this.policy !== policy) {
-                console.log('xxx')
-                this.policy.eraseTargetFeedback({
-                    type: constants.REQ_MOVE
-                });
+                editPart.showTargetFeedback(req);
+
+                return true;
             }
 
-            editPart.showTargetFeedback({
-                editPart: editPart,
-                target: me.prop.drag,
-                event: me,
-                type: constants.REQ_MOVE
-            });
+            return false;
+        }
+
+        /*若dragTarget和mouseOnTarget不是同一个,分别会触发两次*/
+
+        /*不需要dragTarget触发的,因为需要只需要mouseOnTarget的LayoutPolicy*/
+        if (me.prop.drag === editPart.figure) return true;
+
+        if (editPart.getLayoutPolicy()) {
+
+            if (me.dragTracker) {
+                me.dragTracker.policy = editPart.getLayoutPolicy();
+                me.dragTracker.target = me.prop.target;
+            }
+
+            editPart.showTargetFeedback(req);
+
             return true;
         }
 
         return false;
-    },
+    }
 
-    dragStart: function (me, editPart) {
+    dragStart (me, editPart) {
 
         /*找到父级的DragTracker*/
         if (editPart.figure !== me.prop.drag) {
             let policy = editPart.getLayoutPolicy();
 
             if (policy) {
+                me.dragTracker.policy = policy;
+                me.dragTracker.target = me.prop.target;
+
                 editPart.showTargetFeedback({
                     editPart: editPart,
                     target: me.prop.drag,
@@ -190,31 +248,41 @@ anra.gef.DragTracker = anra.gef.RootDragTracker.extend({
 
                 return true
             }
+        } else {
+            me.dragTracker = this;
         }
 
         var bounds = editPart.figure.getClientArea();
-        me.offsetX = bounds[0] - me.x;
-        me.offsetY = bounds[1] - me.y;
+        this.offsetX = me.offsetX = bounds[0] - me.x;
+        this.offsetY = me.offsetY = bounds[1] - me.y;
 
         return false;
-    },
-    dragEnd: function (me, editPart) {
-        var req = {
+    }
+
+    dragEnd (me, editPart) {
+
+        /*如果mouseOnTarget是dragTarget本身，则交给父级处理*/
+        if (me.prop.drag === editPart.figure) return false;
+
+        let req = {
             editPart: editPart,
             target: me.prop.drag,
             event: me,
             type: constants.REQ_MOVE
         };
-        if (req.type == null)return false;
+
         var cmd = editPart.getCommand(req);
-        if (cmd != null) {
-            editPart.getRoot().editor.execute(cmd);
-        }
+
+        if (cmd) editPart.getRoot().editor.execute(cmd);
+
+        /*若show的policy与此时不一致*/
         editPart.eraseTargetFeedback(req);
-        return cmd != null && cmd.canExecute();
-    },
-    mouseDown: function (me, editPart) {
-//        editPart.getRoot().setSelection(editPart);
-        return true;
+
+        return cmd && cmd.canExecute();
     }
-});
+
+    mouseDown (me, editPart) {
+    }
+}
+
+anra.gef.DragTracker = anra.gef.RootDragTracker = DragTracker;
