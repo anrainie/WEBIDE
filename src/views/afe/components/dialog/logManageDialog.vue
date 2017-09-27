@@ -32,7 +32,10 @@
             <el-form ref="form" :model="form" :inline="true" class="demo-form-inline"
                      style="width: 800px;margin-top: -40px;">
                 <el-form-item label="appender">
-                    <el-input v-model="selAppender" style="width: 70px;margin-left: 25px" size="small">{{selAppender}}</el-input>
+                    <el-cascader :options="form.appender"
+                                 v-model="selAppender" style="width: 90px" size="small">
+                        {{selAppender[0]}}
+                    </el-cascader>
                 </el-form-item>
                 <el-form-item label="滚动文件大小阀值:" style="margin-left: -10px">
                     <el-input v-model="selSizeThreshold" style="width:70px;margin-left: -5px" size="small">{{selSizeThreshold}}</el-input>
@@ -47,10 +50,10 @@
             <el-form ref="form" :model="form" :inline="true" class="demo-form-inline"
                      style="width: 800px;margin-top: -40px;">
                 <el-form-item label="异步日志缓冲区大小:">
-                    <el-input v-model="selBufferSize" style="width: 140px" size="small">{{selBufferSize}}</el-input>
+                    <el-input v-model="selBufferSize" style="width: 120px" size="small">{{selBufferSize}}</el-input>
                 </el-form-item>
                 <!--<el-button size="small" style="margin-left: 50px">配置全局属性</el-button>-->
-                <el-button size="small" style="margin-left: 50px">Appender配置</el-button>
+                <el-button size="small" style="margin-left: 0px">Appender配置</el-button>
             </el-form>
             <div>
                 <el-table
@@ -165,6 +168,7 @@
               value:false,
               label:'false'
             }],
+          appender:[],
           tableData: [],
         },
         //value
@@ -172,7 +176,7 @@
         selAsync: [],
         selPrint: [],
         selLogRootPath: './log',
-        selAppender: '',
+        selAppender: [],
         selSizeThreshold: '20M',
         selNumThreshold: '10',
         selBackupDirectory: '/backup',

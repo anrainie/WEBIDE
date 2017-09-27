@@ -258,56 +258,70 @@
                             check: false,
                             async: true,
                             callback: {
-                                asyncLoadItem: function (item, level) {
-                                    if (!level) {
-                                        level = 1;
+                              asyncLoadItem: function (item, level) {
+                                if (!level) {
+                                  level = 1
+                                }
+                                IDE.socket.emit('getNaviItems', {
+                                    type: IDE.type,
+                                    event: 'getNaviItems',
+                                    data: {
+                                      path: item.model.path,
+                                      level: level
                                     }
-                                    IDE.socket.emit('getNaviItems', {
-                                            type: IDE.type,
-                                            event: 'getNaviItems',
-                                            data: {
-                                                path: item.model.path,
-                                                level: level
+                                  }, (function () {
+                                    var getChild = function (children, name) {
+                                      for (let i = 0; i < children.length; i++) {
+                                        let child = children[i]
+                                        if (child.name === name) {
+                                          return child
+                                        }
+                                      }
+                                      return null
+                                    }
+                                    return function (result) {
+                                      if (result.state === 'success') {
+                                        //combine(item.model, result.data);
+                                        let oldChildren = item.model.children
+                                        let newChildren = result.data
+                                        if (oldChildren && oldChildren.length != 0) {
+                                          for (let i = 0; i < oldChildren.length; i++) {
+                                            let oldChd = oldChildren[i]
+                                            let exist = false
+                                            for (let j = 0; j < newChildren.length; j++) {
+                                              let newChd = newChildren[j]
+                                              if (newChd.path === oldChd.path) {
+                                                exist = true
+                                                break;
+                                              }
                                             }
-                                        }, (function () {
-                                            /*var getChild = function (children, name) {
-                                                for (let i = 0; i < children.length; i++) {
-                                                    let child = children[i];
-                                                    if (child.name === name) {
-                                                        return child;
-                                                    }
-                                                }
-                                                return null;
-                                            };
-                                            var combine = function (parent, newChildren) {
-                                                for (let index in newChildren) {
-                                                    let newChild = newChildren[index];
-                                                    if (!getChild(parent.children, newChild.name)) {
-                                                        parent.children.push(newChild);
-                                                    }
-                                                    if (newChild.children && newChild.children.length > 0) {
-                                                        let child = getChild(parent.children, newChild.name);
-                                                        combine(child, newChild.children);
-                                                    }
-                                                }
-                                            };*/
-                                            return function (result) {
-                                                if (result.state === 'success') {
-                                                    //combine(item.model, result.data);
-                                                    let oldChild = item.model.children;
-                                                    if(oldChild){
-                                                        oldChild.splice(0,oldChild.length);
-                                                        $.each(result.data,function (key,value) {
-                                                           oldChild.push(value);
-                                                        });
-                                                    }else{
-                                                        item.model.children = result.data;
-                                                    }
-                                                } else {
-                                                    console.info(result);
-                                                }
-                                            };
-                                        })()
+                                            if (!exist) {
+                                              oldChildren.splice(i, 1)
+                                            }
+                                          }
+                                          for (let i = 0; i < newChildren.length; i++) {
+                                            let newChd = newChildren[i]
+                                            let exist = false
+                                            for (let j = 0; j < oldChildren.length; j++) {
+                                              let oldChd = oldChildren[j]
+                                              if (newChd.path === oldChd.path) {
+                                                exist = true;
+                                                break;
+                                              }
+
+                                            }
+                                            if (!exist) {
+                                              oldChildren.push(newChd);
+                                            }
+                                          }
+                                        } else {
+                                          item.model.children = result.data
+                                        }
+                                      } else {
+                                        console.info(result)
+                                      }
+                                    }
+                                  })()
                                     );
                                 },
                                 delete: function (item) {

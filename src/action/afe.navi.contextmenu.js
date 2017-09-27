@@ -54,12 +54,13 @@ function mountDialog(newWizard) {
     newWizard.$mount('#wizard')
 }
 
-function getNewWizard() {
+function getNewWizard(selection) {
     var newWizard
     var style
     var path = this.path
     var reourceId = this.resourceId;
-    var preName = "新建"
+    var preName = "新建";
+    var selection = selection[0];
     if (this.id == "cn.com.agree.eci.ide.navigation.action.AfeModifyAction") {
         style = 1<<1
         //修改
@@ -98,7 +99,8 @@ function getNewWizard() {
                     if (newItem.reference) {
                         newWizard.selectedRef = oldRef
                     }
-                    newWizard.path = path
+                    newWizard.path = path;
+                    newWizard.parent = selection;
                     mountDialog(newWizard)
                 }
 
@@ -124,7 +126,7 @@ function getNewWizard() {
                 }
                 newWizard.groupsLabel = newItem.groupsLabel
               }
-              if (newWizard.reference) {
+              if (newWizard.reference&&newWizard.reference.length) {
                 newWizard.selectedRef = ((newWizard.reference)[0]).label
               }
               newWizard.path = path
@@ -151,7 +153,7 @@ var items = {
         name: '管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'applicationAction': {
@@ -162,7 +164,7 @@ var items = {
         name: '应用',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'busAction': {
@@ -172,7 +174,7 @@ var items = {
         name: '总线文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'ctrlAction': {
@@ -182,7 +184,7 @@ var items = {
         name: '渠道控制器文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'rtAction': {
@@ -192,7 +194,7 @@ var items = {
         name: '路由文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'fmcAction': {
@@ -202,7 +204,7 @@ var items = {
         name: '流量控制',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'tccAction': {
@@ -212,7 +214,7 @@ var items = {
         name: '交易控制配置',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'mapAction': {
@@ -222,7 +224,7 @@ var items = {
         name: '映射表文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'tcfAction': {
@@ -232,7 +234,7 @@ var items = {
         name: '交易控制表文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'schAction': {
@@ -242,7 +244,7 @@ var items = {
         name: '定时调度文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'connAction': {
@@ -252,7 +254,7 @@ var items = {
         name: '连接配置文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'tradeAction': {
@@ -263,7 +265,7 @@ var items = {
         name: '交易',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'cwfAction': {
@@ -273,7 +275,7 @@ var items = {
         name: '工作流文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'rcdAction': {
@@ -283,7 +285,7 @@ var items = {
         name: '报文格式文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'dataDictGroupAction': {
@@ -293,7 +295,7 @@ var items = {
         name: '管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'dictAction': {
@@ -303,7 +305,7 @@ var items = {
         name: '数据字典文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'sqlDataDictGroupAction': {
@@ -313,7 +315,7 @@ var items = {
         name: '管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'sqldictAction': {
@@ -323,7 +325,7 @@ var items = {
         name: 'DB字典文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'vtfAction': {
@@ -333,7 +335,7 @@ var items = {
         name: '校验文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'fdAction': {
@@ -343,7 +345,7 @@ var items = {
         name: '文件格式文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'templateGroupAction': {
@@ -353,7 +355,7 @@ var items = {
         name: '模板管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'wftAction': {
@@ -363,7 +365,7 @@ var items = {
         name: '工作流模板',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'systemServerManageAction': {
@@ -373,7 +375,7 @@ var items = {
         name: '测试管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'multiStepGroupAction': {
@@ -383,7 +385,7 @@ var items = {
         name: '场景测试集',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'paraConfigAction': {
@@ -393,7 +395,7 @@ var items = {
         name: '动态参数配置',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'pcfgAction': {
@@ -403,7 +405,7 @@ var items = {
         name: '动态参数文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'mstAction': {
@@ -413,7 +415,7 @@ var items = {
         name: '场景测试文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'testtradeAction': {
@@ -423,7 +425,7 @@ var items = {
         name: '测试交易',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'mesAction': {
@@ -433,7 +435,7 @@ var items = {
         name: '测试报文文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'trdAction': {
@@ -443,7 +445,7 @@ var items = {
         name: '测试记录文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'fmapAction': {
@@ -453,7 +455,7 @@ var items = {
         name:'模拟映射文件',
         type:'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+          return getNewWizard.call(item,selection)
       }
     },
     'scfgAction':{
@@ -463,7 +465,7 @@ var items = {
         name:'流水号配置',
         type:'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item)
+          return getNewWizard.call(item,selection)
        }
     },
     'org.eclipse.ui.DeleteResourceAction': {
@@ -500,7 +502,7 @@ var items = {
         name: '修改',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item)
+            return getNewWizard.call(item,selection)
         }
     },
     'cn.com.agree.eci.ide.navigation.action.AfeExportMessageAction': {

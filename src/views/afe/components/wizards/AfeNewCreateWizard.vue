@@ -128,7 +128,8 @@
 
                             var type = result.data.type;
                             var path = result.data.path;
-                            IDE.navigator.refresh(path,1);
+                            var parentPath = result.data.parentPath
+                            IDE.navigator.refresh(parentPath,10);
                             setTimeout(function () {
                                 if (type === 'file') {
                                     let item = IDE.navigator.getItem(path);
