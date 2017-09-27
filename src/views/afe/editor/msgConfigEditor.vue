@@ -2,6 +2,28 @@
     <!--报文格式编辑器-->
     <editorContainer :editor="this">
         <div slot="editor-content" class="rcdEditor">
+            <el-dialog title="方法参数编辑" :visible.sync="dialogVisible">
+                <el-row v-for="(param,index) in selectedFunctionConfig.funcParameter">
+                    <el-col :span="8">
+                        <span >{{param.name}}</span>
+                    </el-col>
+                    <el-col :span="16">
+                        <el-input v-model="selectedFunction.Parameters[index]"
+                                  v-if="param.editor.toLowerCase() === 'string'" placeholder="请输入内容"></el-input>
+
+                        <el-input v-model="selectedFunction.Parameters[index]"
+                                  v-if="param.editor.toLowerCase() === 'script'"
+                                  type="textarea"
+                                  :autosize="{ minRows: 2, maxRows: 4}" placeholder="请输入内容"></el-input>
+
+                        <el-select v-model="selectedFunction.Parameters[index]"
+                                   v-if="param.editor.toLowerCase() === 'combobox'">
+                            <el-option v-for="e in param.enumeration" :label="e.value" :value="e.value">
+                            </el-option>
+                        </el-select>
+                    </el-col>
+                </el-row>
+            </el-dialog>
             <tree ref="tree" class="left-side split split-horizontal" :model="messages" :props="treeProps"
                   :config="treeConfig"></tree>
             <div class="right-side split split-horizontal">
@@ -143,7 +165,9 @@
                                     <div>字段方法</div>
                                 </div>
                                 <div class="properties">
-                                    <MyTable :model="select.Methods" :tableConfig=""></MyTable>
+                                    <MyTable :model="select.Methods" :tableConfig="METHOD_TABLE_CONFIG">
+
+                                    </MyTable>
                                 </div>
                             </div>
                         </el-col>
@@ -240,7 +264,10 @@
 
             </div>
         </div>
+
     </editorContainer>
+
+
 </template>
 
 <style>
@@ -259,6 +286,9 @@
         data(){
             let self = this;
             return {
+                dialogVisible: false,
+                selectedFunctionConfig: {},
+                selectedFunction: null,
                 dirty: false,
                 select: {},
                 selectItemVue: null,
@@ -340,7 +370,8 @@
                             'true', 'false'
                         ],
                     },
-                ]
+                ],
+                METHOD_TABLE_CONFIG: [],
             };
         },
         computed: {
@@ -363,24 +394,94 @@
         },
         mounted(){
             let _self = this;
-//            let msgSchemaTypesDef = IDE.socket.emitAndGetDeferred('getMsgSchemaType', {
-//                path: this.file.model.path
-//            });
 
             let messageDef = IDE.socket.emitAndGetDeferred('loadAllMessage', {
                 type: IDE.type,
                 event: 'loadAllMessage'
             });
-            $.when(messageDef).done(function (e) {
+            let dictFunclibDef = IDE.socket.emitAndGetDeferred('loadDictFuncLib', {
+                type: IDE.type,
+                event: 'loadDictFuncLib'
+            });
+            $.when(messageDef, dictFunclibDef).done(function (e, func) {
                 for (let i = 0; i < e.data.length; i++) {
                     _self.msgTypes[e.data[i].formatName] = e.data[i];
                 }
-                console.log('done', _self.msgTypes);
-                console.log('input', _self.input);
+
+
+                _self.methodConfigs = initMethodConfigs(func.data);
+
+                let classOptions = [];
+                for (let j = 0; j < func.data.type.length; j++) {
+                    let mc = func.data.type[j];
+
+                    let children = [];
+
+                    for (let i = 0; i < mc.function.length; i++) {
+                        children.push({
+                            value: mc.function[i].funcName,
+                            label: mc.function[i].name,
+                        });
+                    }
+                    let classOpt = {
+                        value: mc.className,
+                        label: mc.name,
+                        children,
+                    };
+                    classOptions.push(classOpt);
+                }
+                console.info('classOptions:', classOptions);
+
+                _self.METHOD_TABLE_CONFIG = {
+                    operations: [
+                        {
+                            click (target) {
+
+                                _self.dialogVisible = true;
+                                _self.selectedFunctionConfig = _self.methodConfigs[target.row.Name[0]].function[target.row.Name[1]];
+                                _self.selectedFunction = target.row;
+                            },
+                            name: '参数编辑',
+                        }
+                    ],
+                    columnConfig: [
+                        {
+                            id: 'Name',
+                            label: '类\\函数',
+                            edit: 'cascader',
+                            options: classOptions,
+                        },
+                    ]
+                };
+                console.info('done', _self.msgTypes);
+                console.info('func', func.data);
+                console.info('input', _self.input);
 
             }).fail(function () {
                 console.error('加载错误');
             });
+            /**
+             * 重新规划方法定义，以方便查找
+             * @param data
+             * @returns {{}}
+             */
+            let initMethodConfigs = function (data) {
+                let methods = {};
+                for (let i = 0; i < data.type.length; i++) {
+                    let mc = data.type[i];
+                    methods[mc.className] = mc;
+                    for (let j = 0; j < mc['function'].length; j++) {
+                        let fc = mc['function'][j];
+                        mc['function'][fc.funcName] = fc;
+
+                        for (let z = 0; z < fc.funcParameter.length; z++) {
+                            let pc = fc.funcParameter[z];
+                            fc.funcParameter[pc.name] = pc;
+                        }
+                    }
+                }
+                return methods;
+            }
         },
         methods: {
             getFieldParamConfig(){
@@ -390,10 +491,7 @@
                 }
                 let p = this.findParentNode(this.selectItem);
                 let config = this.msgTypes[p.model.Type];
-                console.log('getFieldParamConfig', p, config);
                 if (config) {
-                    console.log(config.field.parameter);
-
                     return config.field.parameter;
                 }
                 return [];
@@ -412,7 +510,6 @@
                     //不清空数据，使数据冗余
                     this.select.Parameters = {};
 
-                    let _self = this;
                     for (let i = 0; i < paramConfig.parameter.length; i++) {
                         let p = paramConfig.parameter[i];
                         if (this.select.Parameters[p.name] == null)
@@ -423,7 +520,7 @@
             nameFilter(model){
                 switch (model.MsgType) {
                     case 'Message':
-                        return model.MsgType;
+                        return model.Type;
                     case 'Field':
                         if (model.Name != null || model.Group != null) {
                             return model.Group + '#' + model.Name;
