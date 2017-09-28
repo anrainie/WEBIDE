@@ -1,4 +1,4 @@
-import {$AG} from "anrajs";
+import {$AG, anra} from "anrajs";
 import {ContainerLayoutPolicy} from './editor'
 
 let refresh = function () {
@@ -15,6 +15,28 @@ let refresh = function () {
     this.figure.paint();
 }
 
+//添加设置布局的处理
+let createFigure = function (model) {
+    let config = this.config, figure;
+
+    if (config['type']) figure = anra.gef.Figure.init(this.config);
+
+    if (figure == null)  return figure;
+
+    let layoutConfig = config['layout']
+
+    if (layoutConfig == null) return figure;
+
+    let layout = $AG.Layout[layoutConfig.type];
+
+    if (layout) {
+        figure.layoutManager = new layout(layoutConfig["arguments"]);
+        figure.layoutManager.setLayoutData(layoutConfig["data"]);
+    }
+
+    return figure;
+}
+
 let control_if = {
     name: 'if',
     paletteUrl: 'assets/image/cwfEditor/If_16.gif',
@@ -25,6 +47,7 @@ let control_if = {
     linekable: false,
     selectable: true,
     refresh,
+    createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
     },
@@ -34,11 +57,14 @@ let control_if = {
             numColumns: 1,
             makeColumnsEqualWidth: true,
             makeRowsEqualHeight: false,
+            horizontalExpand: true,
+            verticalExpand: true,
             horizontalAutoAdapt: true,
-            verticalAutoAdapt: false
+            verticalAutoAdapt: true
         },
         data: {
-
+            verticalAlignment: "center",
+            horizontalAlignment: "center",
         }
     }
 };
@@ -53,6 +79,7 @@ let control_default = {
     linekable: false,
     selectable: true,
     refresh,
+    createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
     }
@@ -69,8 +96,26 @@ let control_switch = {
     linekable: false,
     selectable: true,
     refresh,
+    createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
+    },
+    layout: {
+        type: 'GRID',
+        arguments: {
+            numColumns: 4,
+            makeColumnsEqualWidth: false,
+            makeRowsEqualHeight: false,
+            horizontalExpand: true,
+            verticalExpand: true,
+            horizontalAutoAdapt: true,
+            verticalAutoAdapt: true,
+            marginTop: 15
+        },
+        data: {
+            verticalAlignment: "center",
+            horizontalAlignment: "center"
+        }
     }
 };
 
@@ -84,8 +129,7 @@ let control_while = {
     linekable: false,
     selectable: true,
     refresh,
-    children: {
-    },
+    createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
     }
@@ -101,8 +145,7 @@ let control_for = {
     linekable: false,
     selectable: true,
     refresh,
-    children: {
-    },
+    createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
     }
@@ -118,6 +161,7 @@ let control_sql = {
     linekable: false,
     selectable: true,
     refresh,
+    createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
     }

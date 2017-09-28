@@ -3,14 +3,19 @@ import {$AG, anra, constants} from "anrajs";
 export let cwf = $AG.Editor.extend({
     constructor(config) {
         $AG.Editor.prototype.constructor.call(this, config);
-        this.rootEditPart.setLayout(new $AG.Layout.GRID({
+        var layoutManager = new $AG.Layout.GRID({
             numColumns: 1,
             makeColumnsEqualWidth: true,
             makeRowsEqualHeight: false,
             autoAdapt: true,
             horizontalAutoAdapt: true,
             verticalAutoAdapt: false
-        }));
+        });
+        layoutManager.setLayoutData({
+            verticalAlignment: "center",
+            horizontalAlignment: "center"
+        });
+        this.rootEditPart.setLayout(layoutManager);
     },
     createCanvas(id) {
         var canvas = $AG.Editor.prototype.createCanvas.call(this, id);
@@ -84,30 +89,6 @@ let LayoutPolicy = anra.gef.LayoutPolicy.extend({
     },
 
     getMoveCommand(request) {
-        /*var target = this.editParts;
-        if (target instanceof anra.gef.NodeEditPart && target.dragTracker){
-            var feedback = this.getFeedback(target);
-            return this.movecmd(target, request, feedback.offsetX, feedback.offsetY);
-        }
-        else if (target instanceof Array) {
-            var cmd, offx, offy, ox, oy;
-            if (request.target.bounds == null) {
-                ox = 0;
-                oy = 0
-            } else
-                ox = request.target.bounds.x,
-                    oy = request.target.bounds.y;
-            for (var i = 0; i < target.length; i++) {
-                if (target[i].dragTracker == null)return null;
-                offx = target[i].figure.bounds.x - ox;
-                offy = target[i].figure.bounds.y - oy;
-                cmd = cmd == null ?
-                    this.movecmd(target[i], request, offx, offy) :
-                    cmd.chain(this.movecmd(target[i], request, offx, offy));
-            }
-            return cmd;
-        }*/
-
         let target = this.editParts, host = this.getHost();
 
         if (target instanceof anra.gef.NodeEditPart && target.dragTracker) {

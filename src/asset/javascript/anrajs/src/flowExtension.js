@@ -106,12 +106,19 @@ var Layout = Base.extend({
     layout(comp) {
     },
     refreshModel(figure, bounds) {
-        figure.model.set('bounds', [
-            bounds['x'],
-            bounds['y'],
-            bounds['width'],
-            bounds['height']
-        ])
+        if (figure.bounds) {
+            console.log('not group')
+            figure.model.set('bounds', [
+                bounds['x'],
+                bounds['y'],
+                bounds['width'],
+                bounds['height']
+            ])
+        } else if (figure.owner){
+            console.log('group')
+            figure.svg.owner.width = bounds['width'];
+            figure.svg.owner.height =  bounds['height']
+        }
     }
 });
 
@@ -180,14 +187,21 @@ var fillLayout = Layout.extend({
     }
 });
 
-const center = 0;
-const begin = 1;
-const end = 2;
-const fill = 3;
+const center = "center";
+const begin = "begin";
+const end = "end";
+const fill = "fill";
 
 var gridData = Base.extend({
-    constructor({horizontalSpan = 1, verticalSpan = 1, verticalAlignment = fill,
-                    horizontalAlignment = fill, widthHint = 10, heightHint = 10} = {}) {
+    constructor({
+                    horizontalSpan = 1,
+                    verticalSpan = 1,
+                    verticalAlignment = fill,
+                    horizontalAlignment = fill,
+                    widthHint = 10,
+                    heightHint = 10
+                } = {})
+    {
         const argumentData = {
                 horizontalSpan,
                 verticalSpan,
@@ -281,9 +295,25 @@ var gridData = Base.extend({
    
 
 var gridLayout = Layout.extend({    
-    constructor: function({ numColumns = 10, numRows, makeColumnsEqualWidth = true, makeRowsEqualHeight = true,
-                           marginLeft = 2, marginTop = 2, marginRight = 2, marginBottom = 2, horizontalSpacing = 15,
-                           verticalSpacing = 15, width = 0, height = 0, horizontalAutoAdapt = false, verticalAutoAdapt = false} = {}) {
+    constructor({
+                    numColumns = 10,
+                    numRows,
+                    makeColumnsEqualWidth = true,
+                    makeRowsEqualHeight = true,
+                    marginLeft = 2,
+                    marginTop = 2,
+                    marginRight = 2,
+                    marginBottom = 2,
+                    horizontalSpacing = 15,
+                    verticalSpacing = 15,
+                    width = 0,
+                    height = 0,
+                    horizontalAutoAdapt = false,
+                    verticalAutoAdapt = false,
+                    horizontalExpand = false,
+                    verticalExpand = false
+                } = {})
+    {
         /*参数列表*/
         const argumentData = {
             numColumns, //列数目
@@ -299,9 +329,13 @@ var gridLayout = Layout.extend({
             width,
             height,
             horizontalAutoAdapt,
-            verticalAutoAdapt
+            verticalAutoAdapt,
+            horizontalExpand,
+            verticalExpand
         };
         var dirty = false;
+
+        this.data = {};
     
         /*属性特性*/
         var descriptors = {};
@@ -335,18 +369,24 @@ var gridLayout = Layout.extend({
             dirty = false;
         }
     },
-    
+
+    setLayoutData(data) {
+        //大概率是个ojbect就行
+
+        if (data && data instanceof Object) this.data = data;
+    },
+
     _layout(comp) {
         if (comp.children == null || (comp.children instanceof Array && comp.children.length < 1)) {
             return;
         }
-        
-        var children = comp.children, arg = this.argumentData, 
+
+        var children = comp.children, arg = this.argumentData,
             /*layout参数、data参数、children顺序、长度*/
             dirty, bounds = comp.getClientArea();
-        
+
         dirty = this.isDirty();
-        
+
         /*暂时初始化layoutdata*/
         for (let [index, elem] of children.entries()) {
             if (elem.layoutData) {
@@ -354,50 +394,53 @@ var gridLayout = Layout.extend({
                 continue;
             }
 
-            elem.layoutData = new gridData({
-                horizontalAlignment: center,
-                verticalAlignment: center,
+            elem.layoutData = new gridData(Object.assign({},{
                 widthHint: elem.model.props.bounds[2],
                 heightHint: elem.model.props.bounds[3]
-            })
+            },this.data))
             elem.layoutData.sequence = index;
             dirty = true;
         }
-        
+
         dirty = dirty | arg.height != bounds[3] | arg.width != bounds[2];
-        
+
         /*拦截计算*/
         if (!dirty) return;
-        
+
         arg.height = bounds[3];
         arg.width = bounds[2];
-        
+
         /*计算控件分布*/
         var grid = this.computeGrid(children),
-            widthList = this.computeLengthList(true, grid), 
+            widthList = this.computeLengthList(true, grid),
             heightList = this.computeLengthList(false, grid);
-        
+
         //获取参数
         var columnCount = arg.numColumns, rowCount = arg.numRows;
-        
+
         var x = arg.marginLeft, y = arg.marginTop, item;
-        
+
         var tempMap = new Map(), v = this;
-        
-        for (var i = 0; i < rowCount; y+=(heightList[i++] + arg.verticalSpacing)) {
-            for (var j = 0; j < columnCount; x+=(widthList[j++] + arg.horizontalSpacing)) {
+
+        for (var i = 0; i < rowCount; y += (heightList[i++] + arg.verticalSpacing)) {
+            for (var j = 0; j < columnCount; x += (widthList[j++] + arg.horizontalSpacing)) {
                 if (grid[i][j] == null) continue;
-                
+
                 if (!tempMap.has(grid[i][j])) {
-                    tempMap.put(grid[i][j], {size: [widthList[j], heightList[i]], location: [x, y], first: i, current: i});
+                    tempMap.put(grid[i][j], {
+                        size: [widthList[j], heightList[i]],
+                        location: [x, y],
+                        first: i,
+                        current: i
+                    });
                     continue;
                 }
-                
+
                 item = tempMap.get(grid[i][j]);
                 if (item.first == i) {
-                    item.size[0] += (widthList[j] + arg.horizontalSpacing); 
-                } 
-                
+                    item.size[0] += (widthList[j] + arg.horizontalSpacing);
+                }
+
                 if (item.current != i) {
                     item.size[1] += (heightList[i] + arg.verticalSpacing);
                     item.current = i;
@@ -405,11 +448,15 @@ var gridLayout = Layout.extend({
             }
             x = arg.marginLeft;
         }
-        
+
         tempMap.forEach((value, key) => {
             key.setBounds(key.layoutData.compute(value.size, value.location))
-            v.refreshModel(key, key.bounds)
+            this.refreshModel(key, key.bounds)
         });
+
+        if (arg.horizontalExpand || arg.verticalExpand) {
+            this.refreshModel(comp, {x: bounds[0], y: bounds[1], width: arg.width, height: arg.height})
+        }
     },
     
     computeGrid(children) {
@@ -470,7 +517,7 @@ var gridLayout = Layout.extend({
     
     computeLengthList(isHorizontal, grid) {
         /*初始化*/
-        var arg = this.argumentData, column, row, equal, spacing ,length, columnSpan, rowSpan, hint, getCell, autoAdapt;
+        var arg = this.argumentData, column, row, equal, spacing ,length, columnSpan, rowSpan, hint, getCell, autoAdapt, isExpand;
         if (isHorizontal) {
             column = arg.numColumns;
             row = arg.numRows;
@@ -481,7 +528,8 @@ var gridLayout = Layout.extend({
             rowSpan = "verticalSpan";
             hint = "widthHint";
             getCell = (x, y) => grid[x][y];
-            autoAdapt = arg.horizontalAutoAdapt
+            autoAdapt = arg.horizontalAutoAdapt;
+            isExpand = arg.horizontalExpand;
         } else {
             column = arg.numRows;
             row = arg.numColumns;
@@ -492,7 +540,8 @@ var gridLayout = Layout.extend({
             rowSpan = "horizontalSpan";
             hint = "heightHint";
             getCell = (x, y) => grid[y][x];
-            autoAdapt = arg.verticalAutoAdapt
+            autoAdapt = arg.verticalAutoAdapt;
+            isExpand = arg.verticalExpand;
         }
         
         var lengthList = new Array(column);
@@ -542,17 +591,52 @@ var gridLayout = Layout.extend({
         if (equal) {
             var cellLenght = ~~(length / column),
                 maxLength = lengthList.reduce((prev, next) => max(prev, next));
-            
-            lengthList.fill(autoAdapt ? cellLenght : min(maxLength, cellLenght));
-            
+
+            if (!isExpand) {
+                lengthList.fill(autoAdapt ? cellLenght : min(maxLength, cellLenght));
+                return lengthList;
+            }
+
+            if (autoAdapt) {
+                let autoAdaptLength = this.autoAdaptLength(lengthList);
+
+                //TDOO
+
+
+            }
+            else {
+                lengthList.fill(maxLength);
+
+                if (maxLength > cellLenght) arg[isHorizontal? "width" : "height"] += (maxLength*column - length);
+            }
+
             return lengthList;
         }
         
         if (total > length || autoAdapt) {
-            lengthList.forEach((item, index, input) => {input[index] = item*length/total})
+            if (isExpand) {
+                arg[isHorizontal ? "width" : "height"] += (total - length)
+            }
+            else lengthList.forEach((item, index, input) => {input[index] = item*length/total});
         }
-         
-        return lengthList;
+
+        return lengthList
+
+    },
+    autoAdaptLength(arr) {
+        let head = 0, last = arr.length - 1;
+
+        while (head <= last) {
+            if (arr[head] <= 0) head++;
+
+            if (arr[last] <= 0) last--;
+
+            if (arr[head] > 0 && arr[last] > 0) break;
+        }
+
+        let count = last - head;
+
+        return  count >= 0 ? count + 1 : 0;
     }
 });
 
@@ -561,9 +645,10 @@ $AG.IMAGE.layoutManager = new gridLayout({
     numColumns: 4,
     makeColumnsEqualWidth: true,
     makeRowsEqualHeight: false,
-    autoAdapt: true,
     horizontalAutoAdapt: true,
-    verticalAutoAdapt: false
+    verticalAutoAdapt: false,
+    horizontalExpand: true,
+    verticalExpand: true
 });
 
 $AG.Layout = {
