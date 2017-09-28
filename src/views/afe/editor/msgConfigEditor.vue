@@ -2,10 +2,11 @@
     <!--报文格式编辑器-->
     <editorContainer :editor="this">
         <div slot="editor-content" class="rcdEditor">
+            <contextMenu ref="menu" :items="menuItems" :config="menuConfig"></contextMenu>
             <el-dialog title="方法参数编辑" :visible.sync="dialogVisible">
                 <el-row v-for="(param,index) in selectedFunctionConfig.funcParameter">
                     <el-col :span="8">
-                        <span >{{param.name}}</span>
+                        <span>{{param.name}}</span>
                     </el-col>
                     <el-col :span="16">
                         <el-input v-model="selectedFunction.Parameters[index]"
@@ -261,7 +262,6 @@
                         </el-col>
                     </el-row>
                 </div>
-
             </div>
         </div>
 
@@ -280,6 +280,46 @@
     import contextMenu from '../../components/contextMenu.vue'
     import editorContainer from '../../components/editorContainer.vue'
     import  Split from "split.js";
+
+    window.MESSAGE_EDIROR_CONFIG = window.MESSAGE_EDIROR_CONFIG || {
+            defaultTemplate(key){
+                return {MsgType: key, isParent: true, Children: []};
+            },
+            Message: {
+                label: "报文",
+                children: {Field: {}, Loop: {}, Category: {}, Import: {}, Switch: {}},
+            },
+            Field: {
+                template: {MsgType: 'Field', Parameters: [], Methods: [], Children: [], isParent: true},
+                label: '字段',
+                children: {Message: {max: 1}},
+            },
+            Loop: {
+                label: '循环',
+                children: {Field: {}, Loop: {}, Category: {}, Import: {}, Switch: {}},
+            },
+            Switch: {
+                label: '分支',
+                children: {Case: {}, Default: {max: 1}},
+            },
+            Case: {
+                label: '分支入口',
+                children: {Field: {}, Loop: {}, Category: {}, Import: {}, Switch: {}},
+            },
+            Default: {
+                label: '缺省',
+                children: {Field: {}, Loop: {}, Category: {}, Import: {}, Switch: {}},
+            },
+            Category: {
+                label: '类别',
+                children: {Field: {}, Loop: {}, Category: {}, Switch: {}},
+            },
+            Import: {
+                label: '引用',
+                children: {Field: {}, Loop: {}, Category: {}, Import: {}, Switch: {}},
+            },
+        };
+
     export default{
         name: 'rcdEditor',
         props: ['file', 'msgHub', 'input'],
@@ -394,6 +434,7 @@
         },
         mounted(){
             let _self = this;
+            this.menu = this.$refs.menu;
 
             let messageDef = IDE.socket.emitAndGetDeferred('loadAllMessage', {
                 type: IDE.type,
@@ -552,7 +593,64 @@
             },
             focus(){
             },
-            treeRightClick(){
+            treeRightClick(e, item){
+                if (this.refreshActions()) {
+                    let top = 0, left = 0,
+                        parent = e.target.offsetParent,
+                        menuPosition = {x: 0, y: 0};
+                    while (parent) {
+                        left += parent.offsetLeft;
+                        top += parent.offsetTop;
+                        parent = parent.offsetParent;
+                    }
+                    menuPosition.x = e.clientX - left;
+                    menuPosition.y = e.clientY - top;
+                    this.menu.show(menuPosition.x, menuPosition.y);
+                } else {
+                    this.menu.hide();
+                }
+            },
+            refreshActions(){
+                if (this.select) {
+                    //TODO
+                    let menuItems = [];
+                    let _self = this;
+                    let childrenConfig = MESSAGE_EDIROR_CONFIG[this.select.MsgType];
+                    $.each(childrenConfig.children, function (k, child) {
+                        let childConfig = MESSAGE_EDIROR_CONFIG[k];
+                        let item = {
+                            id: k,
+                            name: "新建" + childConfig.label,
+                            type: 'item',
+                            nodeType: k,
+                            handler(){
+                                let t;
+                                if (childConfig.template) {
+                                    t = {};
+                                    $.extend(true, t, childConfig.template);
+                                } else if (MESSAGE_EDIROR_CONFIG.defaultTemplate) {
+                                    t = MESSAGE_EDIROR_CONFIG.defaultTemplate(k);
+                                }
+                                _self.select.Children.push(t);
+                            }
+                        };
+                        menuItems.push(item);
+                    });
+                    //DeleteAction
+                    if (_self.selectItem.$parent.model.MsgType)
+                        menuItems.push({
+                            id: 'Delete',
+                            name: "删除",
+                            type: 'item',
+                            handler(){
+                                let arr = _self.selectItem.$parent.model.Children;
+                                arr.splice($.inArray(_self.select, arr), 1);
+                            }
+                        });
+                    this.menu.setItems(menuItems);
+                    return menuItems.length > 0;
+                }
+                return false;
             },
             treeClick(item){
                 this.select = item.model;
@@ -564,6 +662,7 @@
             editorContainer: editorContainer,
             tree: tree,
             MyTable: MyTable,
+            contextMenu: contextMenu,
         }
     }
 

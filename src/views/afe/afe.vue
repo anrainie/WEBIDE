@@ -93,6 +93,7 @@
     import sqldictEditor from '../afe/editor/sqldictEditor.vue'
     import verifyFileEditor from '../afe/editor/verifyFileEditor.vue'
     import msgConfigEditor from '../afe/editor/msgConfigEditor.vue'
+    import routerConfigEditor from '../afe/editor/routerConfigEditor.vue'
     import dictEditor from './editor/afeDictEditor.vue'
     import parameter from '../../views/afe/components/dialog/configParameter.vue'
     import connToServer from '../../views/afe/components/dialog/connToTheServer.vue'
@@ -105,9 +106,10 @@
                     editorRefs: {
                         pml: planEditor,
                         sqldict: sqldictEditor,
-                        vtf: verifyFileEditor,
-                        dict: dictEditor,
-                        rcd: msgConfigEditor,
+                        vtf:verifyFileEditor,
+                        dict:dictEditor,
+                        rcd:msgConfigEditor,
+                        rt:routerConfigEditor,
                     }
                 },
                 vertical: false,
