@@ -60,7 +60,11 @@ let control_if = {
             horizontalExpand: true,
             verticalExpand: true,
             horizontalAutoAdapt: true,
-            verticalAutoAdapt: true
+            verticalAutoAdapt: true,
+            marginTop: 20,
+            marginRight: 20,
+            marginLeft: 20,
+            marginBottom: 20
         },
         data: {
             verticalAlignment: "center",
@@ -110,7 +114,12 @@ let control_switch = {
             verticalExpand: true,
             horizontalAutoAdapt: true,
             verticalAutoAdapt: true,
-            marginTop: 15
+            marginTop: 40,
+            marginRight: 20,
+            marginLeft: 20,
+            marginBottom: 20,
+            horizontalSpacing: 25,
+            verticalSpacing: 25
         },
         data: {
             verticalAlignment: "center",

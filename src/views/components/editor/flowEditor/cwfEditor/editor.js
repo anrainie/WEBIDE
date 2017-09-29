@@ -7,9 +7,10 @@ export let cwf = $AG.Editor.extend({
             numColumns: 1,
             makeColumnsEqualWidth: true,
             makeRowsEqualHeight: false,
-            autoAdapt: true,
             horizontalAutoAdapt: true,
-            verticalAutoAdapt: false
+            verticalAutoAdapt: false,
+            horizontalExpand: false,
+            verticalExpand: true
         });
         layoutManager.setLayoutData({
             verticalAlignment: "center",

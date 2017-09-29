@@ -3,7 +3,7 @@ import Base from '../lib/Base'
 import {anra} from './anra.gef'
 import {ReaderListener} from './smoothRouter'
 import {Map} from './anra.common'
-import {defaultsDeep} from 'lodash'
+import {defaultsDeep, isEqual} from 'lodash'
 
 /*用于参数忽略的时候*/
 function throwIfMissing() {
@@ -106,18 +106,20 @@ var Layout = Base.extend({
     layout(comp) {
     },
     refreshModel(figure, bounds) {
-        if (figure.bounds) {
+        if (figure.model) {
             console.log('not group')
             figure.model.set('bounds', [
                 bounds['x'],
                 bounds['y'],
                 bounds['width'],
                 bounds['height']
-            ])
+            ]);
+
+            figure.layoutData.refreshResult(bounds);
         } else if (figure.owner){
             console.log('group')
-            figure.svg.owner.width = bounds['width'];
-            figure.svg.owner.height =  bounds['height']
+            /*figure.svg.owner.style.width = bounds['width'] + 'px';
+            figure.svg.owner.style.height =  bounds['height'] + 'px';*/
         }
     }
 });
@@ -235,8 +237,16 @@ var gridData = Base.extend({
         }
         Object.defineProperties(this, descriptors);
 
-        
-        this.isDirty = () => dirty;
+
+        this.isDirty = (figure) => {
+            if (this.result == null) return dirty;
+
+            if (figure.bounds) return dirty || isEqual(figure.bounds, this.result);
+
+            //暂时说明他是g
+            //没有记录g的结果
+            return dirty;
+        };
 
         /*这里严格规定compute调用后, dirty刷新*/
         this.compute = (size, location) => {
@@ -290,11 +300,14 @@ var gridData = Base.extend({
         }
 
         return result;
+    },
+    refreshResult(bounds) {
+        this.result = bounds;
     }
 });
    
 
-var gridLayout = Layout.extend({    
+var gridLayout = Layout.extend({
     constructor({
                     numColumns = 10,
                     numRows,
@@ -336,20 +349,20 @@ var gridLayout = Layout.extend({
         var dirty = false;
 
         this.data = {};
-    
+
         /*属性特性*/
         var descriptors = {};
-        
+
         for (var key in argumentData) {
             descriptors[key] = ((attributeName) => ({
                 /*记录改变参数的状态*/
                 set(value) {
                     if (value == argumentData[attributeName]) return;
-                    
+
                     argumentData[attributeName] = value;
                     dirty = true;
                 },
-                
+
                 get() {
                     return argumentData[attributeName];
                 },
@@ -359,10 +372,10 @@ var gridLayout = Layout.extend({
         }
         this.argumentData = {};
         Object.defineProperties(this.argumentData, descriptors)
-        
+
         /*只读*/
         this.isDirty = () => dirty;
-        
+
         /*dirty状态在layout后刷新*/
         this.layout = (comp) => {
             this._layout(comp);
@@ -390,7 +403,12 @@ var gridLayout = Layout.extend({
         /*暂时初始化layoutdata*/
         for (let [index, elem] of children.entries()) {
             if (elem.layoutData) {
-                dirty = dirty | elem.layoutData.isDirty() | !(index == elem.layoutData.sequence);
+
+                elem.layoutData.widthHint = this.data["widthHint"] || elem.model.props.bounds[2];
+                elem.layoutData.heightHint = this.data["heightHint"] || elem.model.props.bounds[3];
+
+                dirty = dirty | elem.layoutData.isDirty(comp) | !(index == elem.layoutData.sequence);
+
                 continue;
             }
 
@@ -420,7 +438,7 @@ var gridLayout = Layout.extend({
 
         var x = arg.marginLeft, y = arg.marginTop, item;
 
-        var tempMap = new Map(), v = this;
+        var tempMap = new Map();
 
         for (var i = 0; i < rowCount; y += (heightList[i++] + arg.verticalSpacing)) {
             for (var j = 0; j < columnCount; x += (widthList[j++] + arg.horizontalSpacing)) {
@@ -455,69 +473,80 @@ var gridLayout = Layout.extend({
         });
 
         if (arg.horizontalExpand || arg.verticalExpand) {
-            this.refreshModel(comp, {x: bounds[0], y: bounds[1], width: arg.width, height: arg.height})
+            if (comp.bounds) {
+                let newBounds = {
+                    x: comp.bounds["x"],
+                    y: comp.bounds["y"],
+                    width: arg.width,
+                    height: arg.height
+                }
+                comp.setBounds(newBounds)
+                this.refreshModel(comp, newBounds)
+            }
+            else
+                this.refreshModel(comp, {x: bounds[0], y: bounds[1], width: arg.width, height: arg.height})
         }
     },
-    
+
     computeGrid(children) {
         var {max, min} = Math;
-        
+
         var row = 0, column = 0, rowCount = 0, columnCount = this.argumentData.numColumns,
             grid = [];
-        
+
         var hSpan, vSpan, endCount;
-        
+
         for (let [index, child] of children.entries()) {
             hSpan = max(1, min(child.layoutData.horizontalSpan, columnCount));
             vSpan = max(1, child.layoutData.verticalSpan);
-            
+
             //寻找足够大的区域
             while (true) {
                 if (grid[row] == null) {
                     grid[row] = new Array(columnCount);
                 }
-                
+
                 while(column < columnCount && grid[row][column]) column++;
-                
+
                 endCount = column + hSpan;
                 if (endCount <= columnCount) {
                     index = column;
-                    
+
                     while (index < endCount && grid[row][index] == null) index++;
-                    
+
                     if (index == endCount) {
                         break;
                     }
-                    
+
                     column = index;
                 }
-                
+
                 if (column + hSpan >= columnCount) {
                     column = 0;
                     row++;
                 }
             }
-            
-            
+
+
             for (var j = 0; j <　vSpan; j++) {
                 if (grid[row + j] == null) {
                     grid[row + j] = new Array(columnCount);
                 }
-                
+
                 grid[row + j].fill(child, column, column + hSpan);
             }
-            
+
             rowCount = max (rowCount, row + vSpan);
             column += hSpan;
         }
-        
+
         this.argumentData.numRows = rowCount;
         return grid;
     },
-    
+
     computeLengthList(isHorizontal, grid) {
         /*初始化*/
-        var arg = this.argumentData, column, row, equal, spacing ,length, columnSpan, rowSpan, hint, getCell, autoAdapt, isExpand;
+        var arg = this.argumentData, column, row, equal, spacing ,length, columnSpan, rowSpan, hint, getCell, autoAdapt, isExpand, side;
         if (isHorizontal) {
             column = arg.numColumns;
             row = arg.numRows;
@@ -530,6 +559,7 @@ var gridLayout = Layout.extend({
             getCell = (x, y) => grid[x][y];
             autoAdapt = arg.horizontalAutoAdapt;
             isExpand = arg.horizontalExpand;
+            side = "width";
         } else {
             column = arg.numRows;
             row = arg.numColumns;
@@ -542,51 +572,52 @@ var gridLayout = Layout.extend({
             getCell = (x, y) => grid[y][x];
             autoAdapt = arg.verticalAutoAdapt;
             isExpand = arg.verticalExpand;
+            side = "height";
         }
-        
+
         var lengthList = new Array(column);
-        
+
         lengthList.fill(0);
-        
+
         var data, cSpan;
         var {max, min} = Math;
-        
+
         /*计算单位距离单占据最大长度*/
         for (var i = 0; i < column; i++) {
             for (var j = 0; j < row; j++) {
-                
+
                 if (getCell(j, i) == null) continue;
-                
+
                 data = getCell(j, i).layoutData;
                 cSpan = max(1, min(data[columnSpan], column));
-                
+
                 if (cSpan == 1) {
                     lengthList[i] = max(lengthList[i], data[hint]);
                 }
             }
         }
-        
+
         /*多占据*/
         for (var i = 0; i < row; i++) {
             for (var j = 0; j < column; j++) {
-                
+
                 if (getCell(i, j) == null) continue;
-                
+
                 data = getCell(i, j).layoutData;
                 cSpan = max(1, min(data[columnSpan], column));
-                
+
                 if (cSpan <= 1) continue;
-                
+
                 for (var k = j; k < j + cSpan - 1; k++) {
                     lengthList[k] = max(data[hint], lengthList[k]);
                 }
-                
+
                 j += cSpan - 1;
             }
         }
-        
+
         var total = lengthList.reduce((prev, next) => prev + next);
-        
+
         /*单位距离都相等*/
         if (equal) {
             var cellLenght = ~~(length / column),
@@ -598,32 +629,46 @@ var gridLayout = Layout.extend({
             }
 
             if (autoAdapt) {
-                let autoAdaptLength = this.autoAdaptLength(lengthList);
+                let autoAdaptResult = this.autoAdaptCompute(lengthList);
 
-                //TDOO
+                lengthList.fill(maxLength, autoAdaptResult.head, autoAdaptResult.last + 1);
 
+                arg[side] += (autoAdaptResult.length*maxLength - length - (column - autoAdaptResult.length)*spacing);
 
             }
             else {
                 lengthList.fill(maxLength);
 
-                if (maxLength > cellLenght) arg[isHorizontal? "width" : "height"] += (maxLength*column - length);
+                if (maxLength > cellLenght) arg[side] += (maxLength*column - length);
             }
 
             return lengthList;
         }
-        
-        if (total > length || autoAdapt) {
-            if (isExpand) {
-                arg[isHorizontal ? "width" : "height"] += (total - length)
+
+        /*不要求相等的情况*/
+        if (isExpand) {
+
+            if (autoAdapt) {
+                let autoAdaptResult = this.autoAdaptCompute(lengthList);
+
+                arg[side] += (total - length - (column - autoAdaptResult.length)*spacing);
+
+            } else if(total > length) {
+
+                arg[side] += (total - length)
+
             }
-            else lengthList.forEach((item, index, input) => {input[index] = item*length/total});
+
+            return lengthList;
+
         }
+
+        if (total > length || autoAdapt) lengthList.forEach((item, index, input) => {input[index] = item*length/total});
 
         return lengthList
 
     },
-    autoAdaptLength(arr) {
+    autoAdaptCompute(arr) {
         let head = 0, last = arr.length - 1;
 
         while (head <= last) {
@@ -636,19 +681,12 @@ var gridLayout = Layout.extend({
 
         let count = last - head;
 
-        return  count >= 0 ? count + 1 : 0;
+        return  {
+            head,
+            last,
+            length: count >= 0 ? count + 1 : 0
+        };
     }
-});
-
-
-$AG.IMAGE.layoutManager = new gridLayout({
-    numColumns: 4,
-    makeColumnsEqualWidth: true,
-    makeRowsEqualHeight: false,
-    horizontalAutoAdapt: true,
-    verticalAutoAdapt: false,
-    horizontalExpand: true,
-    verticalExpand: true
 });
 
 $AG.Layout = {
