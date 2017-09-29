@@ -141,7 +141,7 @@
                         }else if(respData.state === 'error'){
                             self.$notify({
                                 title: '提示',
-                                message: '上锁失败',
+                                message: '上锁失败,' + respData.errorMsg,
                             });
                         }
                     }
@@ -165,7 +165,7 @@
                         }else if(respData.state === 'error'){
                             self.$notify({
                                 title: '提示',
-                                message: '解锁失败',
+                                message: '解锁失败,'+ respData.errorMsg,
                             });
                         }
                     }

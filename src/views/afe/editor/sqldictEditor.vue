@@ -24,8 +24,8 @@
                 </div>
             </div>
             <el-table ref="columnTable" class="sqlDict-columns-table" :height="350" :data="this.inputJo.tabledesc.columndesc" border
-                      :highlight-current-row="true"
-                      @row-click="tableRowClick"
+                                             :highlight-current-row="true"
+                                             @row-click="tableRowClick"
             >
                 <el-table-column prop="-columnname" label="列名" width="180">
                 </el-table-column>
