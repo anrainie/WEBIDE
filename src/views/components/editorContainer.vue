@@ -16,41 +16,6 @@
     </div>
 </template>
 <style>
-    .editor-container{
-        width: 100%;
-        height: 100%;
-        position: relative;
-    }
-    .editor-header{
-        height: 25px;
-        margin-top: 5px;
-    }
-    .editor-toolbar{
-        height: 25px;
-    }
-    .editor-toolItem{
-        width: 20px;
-        margin-left: 3px;
-        display: inline-block;
-        text-align: center;
-    }
-    .editor-toolItem:hover{
-        background-color: #99A9BF;
-    }
-    .editor-header-indicator{
-        position: absolute;
-        background-color: #99A9BF;
-        border:1px solid #99A9BF;
-        border-radius:0 0 5px 5px;
-        z-index: 100;
-        text-align: center;
-        cursor:pointer;
-        height: 20px;
-        width: 40px;
-        float:right;
-        right: 1%;
-        top: 26px;
-    }
 </style>
 <script>
     export default{
