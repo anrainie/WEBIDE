@@ -96,6 +96,7 @@ Product.prototype.connect = function () {
             }
         }
     });
+
 }
 
 Product.prototype.runServiceHandler = function (reqData, callback) {

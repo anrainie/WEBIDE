@@ -8,6 +8,14 @@
         </ul>
         <div id="editors-content">
         </div>
+        <el-dialog title="保存" :visible.sync="saveDialog.visible">
+            <span>文件已被修改，先保存再关闭?</span>
+            <div slot="footer" class="dialog-footer">
+                <el-button @click="saveDialog.save()" type="primary">保 存</el-button>
+                <el-button @click="saveDialog.donotSave()" type="danger">不保存</el-button>
+                <el-button @click="resetSaveDialog">取 消</el-button>
+            </div>
+        </el-dialog>
     </div>
 </template>
 <style rel="stylesheet">
@@ -87,7 +95,12 @@
                 collapsedEditors:[],
                 maxIndicateCharNum:15,
                 defaultIndicateWidth:30,
-                eachCharWidth:16
+                eachCharWidth:16,
+                saveDialog:{
+                    visible:false,
+                    save:null,
+                    donotSave:null
+                }
             }
         },
         computed:{
@@ -125,7 +138,7 @@
                     }
                 }
             },
-            _doCloseEditor:function (editor,item) {
+            _doCloseEditor:function (item) {
                 if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path)){
                     this.activeEditor = null;
                 }
@@ -137,7 +150,6 @@
                 editorIndicate.remove();
 
                 this.removeEditorFromEditors(item);
-                editor.$destroy();
 
                 if(this.editors.length > 0){
                     this.showEditor(this.editors[0].file);
@@ -152,24 +164,36 @@
                 var editor =  this.getEditor(item);
                 if(editor){
                    if(editor.isDirty()) {
-                       this.$confirm("编辑器未保存，先保存再关闭？",'提示',{
-                           confirmButtonText: '确定',
-                           cancelButtonText: '取消',
-                           type: 'warning'
-                       }).then(function () {
+                       this.saveDialog.visible = true;
+                       this.saveDialog.save = function () {
                            var dtd = self.saveEditor();
                            if(dtd){
                                dtd.done(function () {
                                    if(!editor.isDirty()) {
-                                       self._doCloseEditor(editor,item);
+                                       self._doCloseEditor(item);
+                                       editor.$destroy();
                                    }
+                               }).fail(function () {
+                                   editor.dirtyStateChange(true);
                                });
                            }
-                       });
+                           self.resetSaveDialog();
+                       }
+                       this.saveDialog.donotSave = function () {
+                           self._doCloseEditor(item);
+                           editor.$destroy();
+                           self.resetSaveDialog();
+                       }
                    }else {
-                       this._doCloseEditor(editor,item);
+                       this._doCloseEditor(item);
+                       editor.$destroy();
                    }
                }
+            },
+            resetSaveDialog(){
+                this.saveDialog.visible = false;
+                this.saveDialog.save = null;
+                this.saveDialog.donotSave = null;
             },
             showEditor:function (item) {
                 if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path) ){
@@ -289,8 +313,9 @@
                     return;
                 }
 
-                if( typeof newEditor.isDirty != 'function' || typeof newEditor.save != 'function' || typeof newEditor.focus != 'function'){
-                    debug.error("editor must has three methods : isDirty,save,focus");
+                if( !$.isFunction(newEditor.isDirty) || !$.isFunction(newEditor.save)
+                    || !$.isFunction(newEditor.focus)|| !$.isFunction(newEditor.dirtyStateChange)){
+                    debug.error("editor must has three methods : isDirty,save,focus,dirtyStateChange");
                     return;
                 }
 
