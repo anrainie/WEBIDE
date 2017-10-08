@@ -18,6 +18,7 @@
 
         <shade ref="ide_shade"></shade>
 
+        <span id="__RULER" style="visibility: hidden; white-space: nowrap;">test</span>
     </div>
 </template>
 <style>
@@ -99,6 +100,12 @@
     import parameter from '../../views/afe/components/dialog/configParameter.vue'
     import connToServer from '../../views/afe/components/dialog/connToTheServer.vue'
 
+
+    String.prototype.textLength = function () {
+        let ruler = $("#__RULER");
+        ruler.text(this);
+        return ruler[0].offsetWidth;
+    };
     export default{
         data(){
             var self = this;

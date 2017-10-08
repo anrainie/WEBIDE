@@ -187,6 +187,7 @@ body {
 }
 
 .cellEditor {
+    height:24px;
     border: none;
     background-color: inherit;
     overflow: hidden;

@@ -1,3 +1,4 @@
+<!--suppress ALL -->
 <template>
     <!--路由编辑器-->
     <editorContainer :editor="this">
@@ -33,103 +34,245 @@
                     </el-form-item>
                 </el-form>
             </el-dialog>
+            <el-dialog title="新建映射规则" :visible.sync="newRuleDialogVisible">
+                <el-form :model="tempRule" ref="newRuleForm" label-width="100px">
+                    <el-form-item
+                            prop="Name"
+                            label="名称"
+                            :rules="rules.ruleName">
+                        <el-input v-model="tempRule.Name"></el-input>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button @click="newRuleDialogVisible = false">取 消</el-button>
+                    <el-button type="primary" @click="afterNewRule">确 定</el-button>
+                  </span>
+            </el-dialog>
             <el-row>
-                <!--源路由分组-->
-                <el-col :span="12">
-                    <el-table
-                            :data="input.Conditions"
-                            height="300">
-                        <el-table-column type="expand">
-                            <template scope="props">
-                                <el-row>
-                                    <el-col :span="24">
-                                        <el-tree
-                                                class="text_nonselect"
-                                                :data="props.row.Set"
-                                                :props="itemProp"
-                                                node-key="Name"
-                                                :expand-on-click-node="true"
-                                                :render-content="renderSourceRouter">
-                                        </el-tree>
-                                    </el-col>
-                                </el-row>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="源路由分组">
-                            <template scope="props">
-                                <label>
-                                    <input type="text" v-model="props.row['Name']"
-                                           style="width:80px;height:100%;border:none;background-color:inherit;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;"/>
-                                </label>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="总数" prop="Set" :formatter="getSize"></el-table-column>
-                        <el-table-column label="操作">
-                            <template scope="scope">
-                                <el-button @click="addRouter(scope)" type="text"
-                                           size="small">
-                                    添加路由
-                                </el-button>
-                                <el-button @click="removeGroup(scope)" type="text"
-                                           size="small">
-                                    移除组
-                                </el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+                <el-col :span="8">
+                    <el-tabs v-model="GroupTab" type="border-card">
+                        <el-tab-pane label="条件配置" name="condition">
+                            <div>
+                                <el-button @click="addConditionGroup">增加条件组</el-button>
+                            </div>
+                            <el-table
+                                    :data="input.Conditions"
+                                    stripe
+                                    highlight-current-row
+                                    height="650" @row-contextmenu="conditionContextMenu">
+                                <el-table-column type="expand">
+                                    <template scope="props">
+                                        <el-row>
+                                            <el-col :span="24">
+                                                <el-tree
+                                                        class="text_nonselect"
+                                                        :data="props.row.Set"
+                                                        :props="itemProp"
+                                                        node-key="Name"
+                                                        accordion
+                                                        :expand-on-click-node="true"
+                                                        :render-content="renderSourceRouter">
+                                                </el-tree>
+                                            </el-col>
+                                        </el-row>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="条件组名">
+                                    <template scope="props">
+                                        <label>
+                                            <input type="text" v-model="props.row['Name']"
+                                                   class="cellEditor" @click="resizeCellEditor"
+                                                   @keydown="resizeCellEditor"/>
+
+                                        </label>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="总数" prop="Set" :formatter="getSize"></el-table-column>
+                                <el-table-column label="操作">
+                                    <template scope="scope">
+                                        <el-tooltip content="添加一个新的条件" placement="top">
+                                            <el-button @click="addRouter(scope)" type="text"
+                                                       size="small">
+                                                添加
+                                            </el-button>
+                                        </el-tooltip>
+                                        <el-tooltip style="float:right" content="补充至条件组" placement="top">
+                                            <el-button @click="appendConditionGroup(scope)" type="text"
+                                                       class="el-icon-d-arrow-right"></el-button>
+                                        </el-tooltip>
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-tab-pane>
+                        <el-tab-pane label="路由配置" name="router">
+                            <div>
+                                <el-button @click="addTargetGroup">增加路由组</el-button>
+                            </div>
+                            <el-table
+                                    :data="input.Targets"
+                                    stripe
+                                    highlight-current-row
+                                    height="650" @row-contextmenu="targetContextMenu">
+                                <el-table-column type="expand">
+                                    <template scope="props">
+                                        <el-row>
+                                            <el-col :span="24">
+                                                <el-tree
+                                                        class="text_nonselect"
+                                                        :data="props.row.Set"
+                                                        :props="itemProp"
+                                                        node-key="Name"
+                                                        accordion
+                                                        :expand-on-click-node="true"
+                                                        :render-content="renderTargetRouter">
+                                                </el-tree>
+                                            </el-col>
+                                        </el-row>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="路由组名">
+                                    <template scope="props">
+                                        <label>
+                                            <input type="text" v-model="props.row['Name']"
+                                                   class="cellEditor" @click="resizeCellEditor"
+                                                   @keydown="resizeCellEditor"/>
+                                        </label>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column label="总数" prop="Set" :formatter="getSize"></el-table-column>
+                                <el-table-column label="操作">
+                                    <template scope="scope">
+                                        <el-tooltip content="添加一个新的路由" placement="top">
+                                            <el-button @click="addRouter(scope)" type="text"
+                                                       size="small">
+                                                添加
+                                            </el-button>
+                                        </el-tooltip>
+                                        <el-tooltip style="float:right" content="设置目的路由组" placement="top">
+                                            <el-button @click="setRouterGroup(scope)" type="text"
+                                                       class="el-icon-d-arrow-right"></el-button>
+                                        </el-tooltip>
+                                        <!--<el-button @click="removeGroup(scope)" type="text"-->
+                                        <!--size="small">-->
+                                        <!--删除-->
+                                        <!--</el-button>-->
+                                    </template>
+                                </el-table-column>
+                            </el-table>
+                        </el-tab-pane>
+                    </el-tabs>
                 </el-col>
-                <!--目标路由分组-->
-                <el-col :span="12">
-                    <el-table
-                            :data="input.Targets"
-                            height="300">
-                        <el-table-column type="expand">
-                            <template scope="props">
-                                <el-row>
-                                    <el-col :span="24">
-                                        <el-tree
-                                                class="text_nonselect"
-                                                :data="props.row.Set"
-                                                :props="itemProp"
-                                                node-key="Name"
-                                                :expand-on-click-node="true"
-                                                :render-content="renderTargetRouter">
-                                        </el-tree>
-                                    </el-col>
-                                </el-row>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="目标路由分组">
-                            <template scope="props">
-                                <label>
-                                    <input type="text" v-model="props.row['Name']"
-                                           style="width:80px;height:100%;border:none;background-color:inherit;overflow: hidden;text-overflow:ellipsis;white-space: nowrap;"/>
-                                </label>
-                            </template>
-                        </el-table-column>
-                        <el-table-column label="总数" prop="Set" :formatter="getSize"></el-table-column>
-                        <el-table-column label="操作">
-                            <template scope="scope">
-                                <el-button @click="addRouter(scope)" type="text"
-                                           size="small">
-                                    添加路由
-                                </el-button>
-                                <el-button @click="removeGroup(scope)" type="text"
-                                           size="small">
-                                    移除组
-                                </el-button>
-                            </template>
-                        </el-table-column>
-                    </el-table>
+                <el-col :span="16">
+                    <el-row>
+                        <el-col :span="24">
+                            <el-tabs v-model="activeTab" type="border-card" @tab-remove="removeRule">
+                                <el-tab-pane
+                                        v-for="(item, index) in input.Rules"
+                                        :key="item.Name"
+                                        :label="item.Name"
+                                        :name="item.Name" closable
+                                >
+                                    <el-row style="margin-top:10px">
+                                        <el-col :span="3">
+                                            <span>已选分组</span>
+                                        </el-col>
+                                        <el-col :span="21">
+                                            <el-tag
+                                                    v-for="(tag,index) in item.ConditionGroup"
+                                                    :key="tag"
+                                                    :closable="true"
+                                                    type="primary"
+                                                    @close="handleClose(tag,index,item)"
+                                                    style="margin-left:10px">
+                                                {{tag}}
+                                            </el-tag>
+                                            <el-tag
+                                                    :key="item.TargetGroup"
+                                                    type="warning"
+                                            >
+                                                {{item.TargetGroup}}
+                                            </el-tag>
+                                        </el-col>
+
+                                    </el-row>
+                                    <el-row style="margin-top:10px">
+                                        <el-col :span="2">
+                                            <span>映射</span>
+                                        </el-col>
+                                        <el-col :span="1">
+                                            <i class="el-icon-plus hover_icon" @click="addMapping(item.Name)"></i>
+                                        </el-col>
+                                    </el-row>
+                                    <el-row>
+                                        <el-col :span="24">
+                                            <el-table
+                                                    :data="item.Mapping"
+                                                    stripe
+                                                    highlight-current-row
+                                                    height="650" @row-contextmenu="ruleContextMenu">
+                                                <el-table-column v-for="(conditionGroup,i) in item.ConditionGroup"
+                                                                 :label="conditionGroup">
+
+                                                    <template scope="pp">
+                                                        <el-select v-model="pp.row.Source[i]"
+                                                                   placeholder="请选择">
+                                                            <el-option
+                                                                    v-for="it in getRouters(conditionGroup)"
+                                                                    :key="it.Name"
+                                                                    :label="it.Name"
+                                                                    :value="it.Name">
+                                                            </el-option>
+                                                        </el-select>
+
+                                                    </template>
+                                                </el-table-column>
+                                                <el-table-column :label="item.TargetGroup" fixed="right">
+                                                    <template scope="pp">
+
+                                                        <el-select v-model="pp.row.Target"
+                                                                   placeholder="请选择">
+                                                            <el-option
+                                                                    v-for="it in getRouters(item.TargetGroup,'Targets')"
+                                                                    :key="it.Name"
+                                                                    :label="it.Name"
+                                                                    :value="it.Name">
+                                                            </el-option>
+                                                        </el-select>
+
+                                                    </template>
+                                                </el-table-column>
+                                            </el-table>
+
+                                        </el-col>
+                                    </el-row>
+
+
+                                </el-tab-pane>
+                                <el-tab-pane name="default" disabled>
+                                    <span slot="label" @click="addRule()"><i style="line-height:3"
+                                                                             class="el-icon-plus hover_icon"></i></span>
+                                </el-tab-pane>
+                            </el-tabs>
+
+                        </el-col>
+                    </el-row>
                 </el-col>
-            </el-row>
-            <el-row>
-                <span>测试一下啦</span>
             </el-row>
         </div>
     </editorContainer>
 </template>
 <style>
+    .routerItemSpan {
+        display: inline-block;
+        display: -moz-inline-box;
+        display: -webkit-inline-box;
+        width: 100%;
+        height: 100%;
+    }
+
+    .hover_icon:hover {
+        color: #134;
+    }
 </style>
 <script>
     import MyTable from '../../components/table.vue';
@@ -142,6 +285,9 @@
         props: ['file', 'msgHub', 'input'],
         data(){
             return {
+                tempRule: {Name: null},
+                newRuleDialogVisible: false,
+                GroupTab: 'condition',
                 targetItemDialogVisible: false,
                 targetItemConfig: [
                     {label: 'IP'},
@@ -151,6 +297,23 @@
                     {label: '连接超时'},
                 ],
                 rules: {
+                    ruleName: [
+                        {
+                            validator: (rule, value, callback) => {
+                                if (value == null || value.length == 0) {
+                                    callback(new Error('映射名不能为空'));
+                                    return;
+                                }
+                                for (let i = 0; i < this.input.Rules.length; i++) {
+                                    if (this.input.Rules[i].Name == value) {
+                                        callback(new Error('映射名不能重复'));
+                                        return;
+                                    }
+                                }
+                                callback();
+                            }, trigger: 'blur,change'
+                        }
+                    ],
                     port: [{
                         validator: (rule, value, callback) => {
                             if (!value)return callback(new Error('端口号不能为空'));
@@ -173,6 +336,7 @@
                     }],
                 },
                 targetItem: null,
+                activeTab: 'default',
                 itemProp: {
                     children: 'Item',
                 },
@@ -182,7 +346,6 @@
                 selectSourceItem: null,
                 selectTargetItem: null,
                 menuItems: [],
-                menuConfig: {},
                 dialogModel: {
                     title: "",
                     visible: false,
@@ -191,17 +354,124 @@
             };
         },
         mounted(){
+            this.menu = IDE.contextmenu;
+            this.activeTab = this.input.Rules.length > 0 ? this.input.Rules[0].Name : 'default';
             console.log('input', this.input);
-        },
 
+//            var arr = this.input.Conditions;
+//            for (let i = 0, len = arr.length; i < len; i++) {
+//                arr[arr[i].Name] = arr[i];
+//            }
+//
+//            arr = this.input.Targets;
+//            for (let i = 0, len = arr.length; i < len; i++) {
+//                arr[arr[i].Name] = arr[i];
+//            }
+//
+//            arr = this.input.Rules;
+//            for (let i = 0, len = arr.length; i < len; i++) {
+//                arr[arr[i].Name] = arr[i];
+//            }
+        },
         methods: {
+            handleClose(key, index, item){
+                this.$confirm('此操作将删除映射条件' + key + ', 此操作不可撤销，是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    item.ConditionGroup.splice(index, 1);
+
+                    for (let i = 0; i < item.Mapping.length; i++) {
+                        let m = item.Mapping[i];
+                        m.Source.splice(index, 1);
+                    }
+                }).catch(() => {
+
+                });
+
+            },
+            removeRule(name){
+                this.$confirm('此操作将删除映射[' + name + '], 此操作不可撤销，是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+                    let arr = this.input.Rules;
+                    var filterarray = $.grep(this.input.Rules, function (value) {
+                        return value.Name == name;
+                    });
+                    let data = filterarray[0];
+                    arr.splice($.inArray(data, arr), 1);
+                    if (name == this.activeTab) {
+                        this.activeTab = arr[0].Name;
+                    }
+                }).catch(() => {
+
+                });
+            },
+            getRouters(key, s = "Conditions"){
+                var filterarray = $.grep(this.input[s], function (value) {
+                    return value.Name == key;
+                });
+                return filterarray[0].Set;
+            },
+            targetContextMenu(row, event){
+                this.showGroupMenu(row, event, this.input.Targets);
+            },
+            routerContextMenu(event, node, data){
+                this.showGroupMenu(data, event, node.parent.data);
+            },
+            itemContextMenu(event, node, data){
+                this.showGroupMenu(data, event, node.parent.data.Item);
+            },
+            conditionContextMenu(row, event){
+                this.showGroupMenu(row, event, this.input.Conditions);
+            },
+            ruleContextMenu(row, event){
+                var filterarray = $.grep(this.input.Rules, (value) => {
+                    return value.Name == this.activeTab;
+                });
+                this.showGroupMenu(row, event, filterarray[0].Mapping);
+            },
+            showGroupMenu(row, event, arr){
+                //TODO
+                let menuItems = [];
+                //DeleteAction
+                menuItems.push({
+                    id: 'Delete',
+                    name: "删除",
+                    type: 'item',
+                    handler(){
+                        arr.splice($.inArray(row, arr), 1);
+                    }
+                });
+                this.menu.setItems(menuItems);
+                this.menu.show(event.clientX, event.clientY);
+            },
+            afterNewRule(){
+                this.$refs['newRuleForm'].validate((valid) => {
+                    if (valid) {
+                        this.input.Rules.push({
+                            Name: this.tempRule.Name,
+                            ConditionGroup: [],
+                            TargetGroup: '',
+                            Mapping: []
+                        });
+                        this.newRuleDialogVisible = false;
+                    } else {
+                        this.$message({
+                            showClose: true,
+                            message: '请输入正确的内容',
+                            type: 'error'
+                        });
+                        return false;
+                    }
+                });
+            },
             editTargetItem(done){
                 let _self = this;
-                this.$refs['editTargetForm'].validate(function (e) {
-                    console.log(e);
-                });
                 this.$refs['editTargetForm'].validate((valid) => {
-                    console.log(valid);
                     if (valid) {
                         let v = '';
                         v += _self.selectTarget.ip + '|';
@@ -212,7 +482,11 @@
                         _self.targetItem.Value = v;
                         done();
                     } else {
-                        alert('验证失败');
+                        this.$message({
+                            showClose: true,
+                            message: '请输入正确的内容',
+                            type: 'error'
+                        });
                         return false;
                     }
                 });
@@ -226,6 +500,10 @@
             },
             focus(){
             },
+            addRule(){
+                this.tempRule = {};
+                this.newRuleDialogVisible = true;
+            },
             addItem(e, store, data) {
                 if (data.Item == null)
                     data.Item = [];
@@ -237,13 +515,58 @@
                 console.log(scope);
                 if (scope.row.Set == null)
                     scope.row.Set = [];
-                scope.row.Set.push({"Name": "新路由", Item: []});
+                scope.row.Set.push({"Name": "未命名", Item: []});
             },
-            removeGroup(scope){
-                console.log(scope);
-                let arr = scope.store.table.data;
-                arr.splice($.inArray(scope.row, arr), 1);
+            appendConditionGroup(scope){
+                let _self = this;
+                var filterarray = $.grep(this.input.Rules, function (value) {
+                    return value.Name == _self.activeTab;
+                });
+                filterarray[0].ConditionGroup.push(scope.row.Name);
+
+                $.each(filterarray[0].Mapping, function (i, o) {
+                    o.Source.push('未定义');
+                });
             },
+            setRouterGroup(scope){
+                this.$confirm('此操作将替换' + this.activeTab + '的目标路由, 此操作不可撤销，是否继续?', '提示', {
+                    confirmButtonText: '确定',
+                    cancelButtonText: '取消',
+                    type: 'warning'
+                }).then(() => {
+
+                    var filterarray = $.grep(this.input.Rules, (value) => {
+                        return value.Name == this.activeTab;
+                    });
+                    filterarray[0].TargetGroup = scope.row.Name;
+
+                    $.each(filterarray[0].Mapping, function (i, o) {
+                        o.Target = '未定义';
+                    });
+                }).catch(() => {
+
+                });
+            },
+            addConditionGroup(){
+                this.input.Conditions.push({Name: '未命名条件组', Set: []});
+            },
+            addMapping(ruleName){
+                var filterarray = $.grep(this.input.Rules, (value) => {
+                    return value.Name == ruleName;
+                });
+                filterarray[0].Mapping.push({
+                    Source: [],
+                    Target: ''
+                });
+            },
+            addTargetGroup(){
+                this.input.Targets.push({Name: '未命名路由组', Set: []});
+            },
+//            removeGroup(scope){
+//                console.log(scope);
+//                let arr = scope.store.table.data;
+//                arr.splice($.inArray(scope.row, arr), 1);
+//            },
             removeRouter(node, store, data) {
                 console.log('remove', node, store, data);
                 let arr = node.parent.data;
@@ -260,8 +583,14 @@
                 else
                     data = e.target.value;
             },
-            resizesCellEditor(e){
+            resizeCellEditor(e){
                 let text = e.target;
+                text.style.width = this.suitTextSize(text.value);
+            },
+            suitTextSize(str, max = 160){
+                let size = str.textLength();
+                if (size > max) size = max;
+                return size + 2 + 'px';
             },
             stopPropagation(e){
                 e.stopPropagation();
@@ -285,56 +614,43 @@
                 this.targetItemDialogVisible = true;
             },
             renderRouter(h, node, data, store){
-                return (
-                        <span >
-                                <input class="cellEditor" value={data['Name'] }
-                                       on-change={(e) => this.textchanged(e, data, 'Name')}
-                                       on-keydown={(e) => this.resizesCellEditor(e)}
-                                       on-click={(e) => this.stopPropagation(e)}/>
 
+                let style = "width:" + this.suitTextSize(data['Name']);
+                return (
+                        <span class="routerItemSpan" on-contextmenu={(e) => this.routerContextMenu(e, node, data)}>
+                            <input class="cellEditor" value={data['Name'] }
+                                   on-change={(e) => this.textchanged(e, data, 'Name')}
+                                   on-keydown={(e) => this.resizeCellEditor(e)}
+                                   on-click={(e) => this.stopPropagation(e)} style={style}/>
+                            <span style="color:blue;">&nbsp;({data['Item'].length})</span>
                             <span style="float: right;position:absolute;right:0px; margin-right: 20px;margin-top:5px">
-                              <el-button size="mini" on-click={ (e) => this.addItem(e, store, data)  }>&nbsp;
+                              <el-button size="mini" on-click={ (e) => this.addItem(e, store, data)  }>
                                   +&nbsp;</el-button>
-                              <el-button size="mini"
-                                         on-click={ () => this.removeRouter(data) }>&nbsp;
-                                  -&nbsp;</el-button>
                             </span>
-                      </span>);
+                        </span>);
             },
             renderTargetRouter(h, {node, data, store}){
                 if (node.parent.parent) {
-                    return (<span>
+                    return (<span class="routerItemSpan" on-contextmenu={(e) => this.itemContextMenu(e, node, data)}
+                                  on-dblclick={ () => this.modifyTargetItem(data) }>
                             <span class="cellEditor">{data['Value'].split('|').join(' | ') }</span>
-
-                            <span style="float: right; margin-right: 20px;margin-top:5px">
-                                <el-button size="mini"
-                                           on-click={ () => this.modifyTargetItem(data) }>&nbsp;
-                                    M&nbsp; </el-button>
-                              <el-button size="mini"
-                                         on-click={ () => this.removeItem(node, store, data) }>&nbsp;
-                                  -&nbsp; </el-button>
-                            </span>
                       </span>);
                 } else
                     return this.renderRouter(h, node, data, store);
             },
             renderSourceRouter(h, {node, data, store}) {
                 if (node.parent.parent) {
-                    return (<span>
+                    let style = "width:" + this.suitTextSize(data['Value']);
+                    return (<span class="routerItemSpan" on-contextmenu={(e) => this.itemContextMenu(e, node, data)}>
                             <input class="cellEditor" value={data['Value'] }
                                    on-change={(e) => this.textchanged(e, data, 'Value') }
-                                   on-keydown={(e) => this.resizesCellEditor(e)}/>
-
-                            <span style="float: right; margin-right: 20px;margin-top:5px">
-                              <el-button size="mini"
-                                         on-click={ () => this.removeItem(node, store, data) }>&nbsp;
-                                  -&nbsp; </el-button>
-                            </span>
+                                   on-keydown={(e) => this.resizeCellEditor(e)} style={style}/>
                       </span>);
                 } else
                     return this.renderRouter(h, node, data, store);
             }
-        },
+        }
+        ,
         components: {
             editorContainer: editorContainer,
             MyTable: MyTable,
