@@ -214,7 +214,7 @@
                                                                  :label="conditionGroup">
 
                                                     <template scope="pp">
-                                                        <el-select v-model="pp.row.Source[i]"
+                                                        <el-select class="cellEditor" v-model="pp.row.Source[i]"
                                                                    placeholder="请选择">
                                                             <el-option
                                                                     v-for="it in getRouters(conditionGroup)"
@@ -229,7 +229,7 @@
                                                 <el-table-column :label="item.TargetGroup" fixed="right">
                                                     <template scope="pp">
 
-                                                        <el-select v-model="pp.row.Target"
+                                                        <el-select class="cellEditor" v-model="pp.row.Target"
                                                                    placeholder="请选择">
                                                             <el-option
                                                                     v-for="it in getRouters(item.TargetGroup,'Targets')"
@@ -414,7 +414,7 @@
                 var filterarray = $.grep(this.input[s], function (value) {
                     return value.Name == key;
                 });
-                return filterarray[0].Set;
+                return filterarray[0] ? filterarray[0].Set : null;
             },
             targetContextMenu(row, event){
                 this.showGroupMenu(row, event, this.input.Targets);
@@ -495,6 +495,8 @@
                 return r.Set.length;
             },
             isDirty(){
+            },
+            dirtyStateChange(){
             },
             save(){
             },
