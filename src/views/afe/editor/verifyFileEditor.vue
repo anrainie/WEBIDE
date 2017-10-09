@@ -94,6 +94,10 @@
         height: 100%;
     }
 
+    .verifyFileEditor .item-title{
+        color:black;
+    }
+
 </style>
 
 <script>

@@ -176,6 +176,9 @@
     .properties div {
         margin-bottom: 5px;
     }
+    .planEditor .item-title{
+        color: black;
+    }
 </style>
 
 <script>
@@ -696,6 +699,9 @@
                     }
                 }
                 return true;
+            },
+            dirtyStateChange(state){
+                this.dirty = state;
             },
             openSaveErrorDialog(){
                 this.saveDialog.visible = true;

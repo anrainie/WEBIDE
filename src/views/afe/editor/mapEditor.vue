@@ -13,7 +13,7 @@
                 <el-table class="mapEditor-tree" :data="inputJo.Tables.Table" :show-header="false" @current-change="handleTableClick" highlight-current-row>
                     <el-table-column label="表名">
                         <template scope="scope">
-                            <el-input v-model="scope.row['-Name']" @change="dirtyStateChange(true)"></el-input>
+                            <input class="cellEditor" v-model="scope.row['-Name']" @change="dirtyStateChange(true)"></input>
                         </template>
                     </el-table-column>
                     <el-table-column fixed="right" label="操作" width="70">
@@ -34,9 +34,9 @@
                             <el-button @click="delColumn" size="small" type="danger">删除列</el-button>
                         </div>
                         <el-table class="mapEditor-table" :data="selected.Row" border highlight-current-row>
-                            <el-table-column v-for="(cellDefine,index) in selected.Define.CellDefine" :label="cellDefine['-DisplayName']" min-width="180">
+                            <el-table-column v-for="(cellDefine,index) in selected.Define.CellDefine" :label="cellDefine['-DisplayName']" min-width="120">
                                 <template scope="scope">
-                                    <el-input v-model="scope.row.Cell[index]['-Value']" @change="dirtyStateChange(true)"></el-input>
+                                    <input class="cellEditor" v-model="scope.row.Cell[index]['-Value']" @change="dirtyStateChange(true)"></input>
                                 </template>
                             </el-table-column>
                             <el-table-column fixed="right" label="操作" width="200">
@@ -67,7 +67,7 @@
         overflow-y: auto;
     }
     .mapEditor-table{
-        overflow-y: auto;
+        width: 100%;
         height: 100%;
     }
 
@@ -115,7 +115,7 @@
             for(let i = 0 ; i < table.length ; i++){
                 let t = table[i];
                 if(!t.Define) {
-                    t.Define = {CellDefine: []};
+                    this.$set(t,'Define',{CellDefine: []});
                 }
                 if(t.Define.CellDefine) {
                     this.decorateToArray(t.Define, 'CellDefine');

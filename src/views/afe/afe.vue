@@ -516,19 +516,6 @@
                 'version': {
                     name: '版本',
                     image: "assets/image/nav-folder.png",
-                },
-                'test1': {
-                    name: '测试1',
-                    image: "assets/image/nav-folder.png",
-                },
-                'test2': {
-                    name: '测试2',
-                    component: './table.vue',
-                    image: "assets/image/nav-folder.png",
-                },
-                'test3': {
-                    name: '测试3',
-                    image: "assets/image/nav-folder.png",
                 }
             };
         },
