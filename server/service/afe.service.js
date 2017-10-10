@@ -1,16 +1,6 @@
 var ioService = require('./IOService');
 var dbConstants = require('../constants/DBConstants');
 
-function saveFileHandler(eventId, data, callback){
-    let self = this;
-    this.socket.emit(eventId, JSON.stringify(data), function (resp) {
-        callback(resp);
-        if(resp.state === 'success'){
-            self.changeLockModifyTime(data.uid,data.path);
-        }
-    });
-}
-
 module.exports = {
     type: 'afe',
     services: [
@@ -50,16 +40,9 @@ module.exports = {
             handler: ioService
         },
         {
-            id: 'local1',
-            type: 'localService',
-            handler: function () {
-                console.info('run afe localService: local1');
-            }
-        },
-        {
             id: 'saveFile',
             type: 'IOService',
-            handler: saveFileHandler,
+            handler: ioService,
         },
         {
             id: 'loadPlanEditorArchitecture',
@@ -116,11 +99,10 @@ module.exports = {
         {
             id: 'lockFile',
             type: 'localService',
-            handler: function (reqData, callback, service) {
-                let consumer = Products[reqData.type];
+            handler: function (reqData, callback,product, service) {
                 let cb = callback;
-                if (consumer) {
-                    consumer.lockFile(reqData, function (respData) {
+                if (product) {
+                    product.lockFile(reqData, function (respData) {
                         if (respData.state === 'success') {
                             cb(respData);
                         } else if (respData.state === 'error') {
@@ -133,11 +115,10 @@ module.exports = {
         {
             id: 'releaseFilelock',
             type: 'localService',
-            handler: function (reqData, callback, service) {
-                let consumer = Products[reqData.type];
+            handler: function (reqData, callback,product, service) {
                 let cb = callback;
-                if (consumer) {
-                    consumer.releaseFile(reqData, function (respData) {
+                if (product) {
+                    product.releaseFile(reqData, function (respData) {
                         if (respData.state === 'success') {
                             cb(respData);
                         } else if (respData.state === 'error') {
@@ -150,11 +131,10 @@ module.exports = {
         {
             id: 'peekFileLock',
             type: 'localService',
-            handler: function (reqData, callback, service) {
-                let consumer = Products[reqData.type];
+            handler: function (reqData, callback, product,service) {
                 let cb = callback;
-                if (consumer) {
-                    consumer.peekFileLock(reqData, function (respData) {
+                if (product) {
+                    product.peekFileLock(reqData, function (respData) {
                         if (respData.state === 'success') {
                             cb(respData);
                         } else if (respData.state === 'error') {

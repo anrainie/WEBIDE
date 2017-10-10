@@ -10,6 +10,7 @@ var config = require('./config');
 var Product = require('./product/Product');
 var WebIDEDB = require('./db/WebIDEDB');
 var dbConstants = require('./constants/DBConstants');
+var ProductManager = require('./product/ProductManager');
 
 mongoose.Promise = global.Promise;
 global.db = mongoose.connect(config.db);
@@ -41,29 +42,28 @@ require('./route/routes')(app);
 var afaServices = require('./service/afa.service');
 var afeServices = require('./service/afe.service');
 
-var servlet = new Servlet([afaServices,afeServices], session, http);
-servlet.start();
-
 // database
 var webIDEDB = new WebIDEDB({dbpath:'webide.db'});
 webIDEDB.start();
 //init collections
-webIDEDB.getOrCreateCollection(dbConstants.filelock);
-webIDEDB.getOrCreateCollection(dbConstants.product);
+webIDEDB.getOrCreateCollection(dbConstants.PRODUCT_USER);
+webIDEDB.getOrCreateCollection(dbConstants.PRODUCT);
 global.WebIDEDB = webIDEDB;
 
-var products = {};
+var servlet = new Servlet([afaServices,afeServices], session, http);
+servlet.start();
+
+var productManager = new ProductManager();
 var afaProduct = new Product('afa01','afa', config.IDE_HOST, config.IDE_PORT, afaServices);
 afaProduct.connect();
-products[afaProduct.name] = afaProduct;
+productManager.addProduct(afaProduct);
 
 var afeProduct = new Product('afe01','afe', config.IDE_HOST, config.IDE_PORT, afeServices);
 afeProduct.connect();
-products[afeProduct.name] = afeProduct;
+productManager.addProduct(afeProduct);
 
 global.Servlet = servlet;
-global.Products = products;
-
+global.ProductManager = productManager;
 
 function Server() {
 

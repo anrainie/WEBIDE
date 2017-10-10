@@ -12,6 +12,7 @@ function Product(id,name,ip,port,serviceConfig) {
     this.serviceConfig = serviceConfig;
     this.services = {};
     this.socket = null;
+    this.clients = {};
     this.online = false;
 }
 
@@ -32,7 +33,9 @@ Product.prototype.register = function () {
 Product.prototype.connect = function () {
     var self = this;
     var url = "http://" + this.ip + ":" + this.port +"?" + "type=" + this.name;
-    this.socket = Client(url);
+    this.socket = Client(url,{
+        reconnectionAttempts:20
+    });
 
     this.socket.on('connect',function () {
         self.online = true;
@@ -48,11 +51,6 @@ Product.prototype.connect = function () {
                 }
             }
 
-            self.socket.on('removeFilelock',function (data) {
-                let filelock = WebIDEDB.getCollection(dbConstants.filelock);
-                filelock.findAndRemove({pid:self.id,file:data});
-            });
-
             self.socket.emit("ready",null,function (data) {
                 console.info('====IDE链接初始化====');
             });
@@ -66,14 +64,14 @@ Product.prototype.connect = function () {
         console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect failed");
     });
 
+    this.socket.on('connect_timeout',function () {
+        self.online = false;
+        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect timeout");
+    });
+
     this.socket.on('disconnect',function () {
         console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " disconnect");
     })
-
-    this.socket.on('reconnect_failed',function () {
-        self.online = false;
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect_failed");
-    });
 
     this.socket.on('reconnect',function (data) {
         console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect");
@@ -81,17 +79,11 @@ Product.prototype.connect = function () {
 
     this.socket.on('lockTimeout',function (timeoutlock) {
         if(timeoutlock.length > 0) {
-            let filelock = WebIDEDB.getCollection(dbConstants.filelock);
             for (let i = 0; i < timeoutlock.length; i++) {
                 let lock = timeoutlock[i];
-                let query = {pid: self.id, file: lock.path};
-                let localLock = filelock.findOne(query);
-                if(localLock) {
-                    filelock.findAndRemove(query);
-                    let client = Servlet.getClient(localLock.uid);
-                    if(client){
-                        client.emit('lockTimeout',lock.path);
-                    }
+                let client = self.getClient(lock.uid);
+                if(client){
+                    client.emit('lockTimeout',lock.path);
                 }
             }
         }
@@ -150,31 +142,7 @@ Product.prototype.lockFile = function (reqData,callback) {
     let data = reqData.data;
     let cb = callback;
     this.emit("lockFile", JSON.stringify(reqData), function (respData) {
-        var result = respData;
-        let filelock = WebIDEDB.getCollection(dbConstants.filelock);
-        if (result.state === 'success') {
-            filelock.findAndRemove({pid: self.id, file: data.path});
-            filelock.insert({
-                pid: self.id,
-                uid: reqData.uid,
-                file: data.path,
-                createTime: new Date(),
-                modifyTime: new Date()
-            });
-        } else if (result.state === 'error' && result.lock) {
-            var lockinfo = result.lock;
-            if(data.uid !== lockinfo.uid){
-                filelock.findAndRemove({pid: self.id, file: data.path});
-                filelock.insert({
-                    pid: self.id,
-                    uid: reqData.uid,
-                    file: data.path,
-                    createTime: lockinfo.createTime,
-                    modifyTime: new Date()
-                });
-            }
-        }
-        cb(result);
+        cb(respData);
     });
 }
 
@@ -188,10 +156,6 @@ Product.prototype.releaseFile = function (reqData,callback) {
     let cb = callback;
     let data = reqData.data;
     this.emit('releaseFilelock', JSON.stringify(reqData), function (result) {
-        if(result.state === 'success'){
-            let filelock = WebIDEDB.getCollection(dbConstants.filelock);
-            filelock.findAndRemove({pid:self.id,file:data.path});
-        }
         cb(result);
     });
 }
@@ -208,28 +172,29 @@ Product.prototype.peekFileLock = function (reqData,callback) {
     });
 }
 
-Product.prototype.releaseTimeoutLock = function (timeoutLocks) {
-
-}
-
-Product.prototype.changeLockModifyTime = function (uid,file) {
-    let filelock = WebIDEDB.getCollection(dbConstants.filelock);
-    filelock.findAndUpdate({pid: this.id, file: file},function (result) {
-        if(result) {
-            result.modifyTime = new Date();
-        }
-    });
-}
-
 Product.prototype.unregister = function () {
-    let filelock = WebIDEDB.getCollection(dbConstants.filelock);
-    filelock.findAndRemove({pid:this.id});
+    let ps = WebIDEDB.getCollection(dbConstants.product);
+    ps.findAndRemove({id:this.id});
 
-    let product = WebIDEDB.getCollection(dbConstants.product);
-    product.findAndRemove({id:this.id});
+    let p_u = WebIDEDB.getCollection(dbConstants.PRODUCT_USER);
+    p_u.findAndRemove({id:this.id});
 }
 
+Product.prototype.getClientNum = function () {
+    return Object.getOwnPropertyNames(this.clients).length;
+}
 
+Product.prototype.addClient = function (id,client) {
+    this.clients[id] = client;
+}
+
+Product.prototype.removeClient = function (id) {
+    delete this.clients[id];
+}
+
+Product.prototype.getClient = function (uid) {
+    return this.clients[uid];
+}
 
 
 module.exports =  Product;
