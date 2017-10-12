@@ -23,6 +23,7 @@ module.exports = function (app) {
             });
         } else {
             newUser.createTime = newUser.updateTime = new Date();
+            newUser.id = IDE.genUUID();
             userDao.save(newUser,function (err) {
                 if(!err){
                     res.json({

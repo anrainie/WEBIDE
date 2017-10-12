@@ -1,5 +1,6 @@
-var ioService = require('./IOService');
-var dbConstants = require('../constants/DBConstants');
+const ioService = require('./IOService');
+const dbConstants = require('../constants/DBConstants');
+const userDao = require('../dao/UserDao');
 
 module.exports = {
     type: 'afe',
@@ -136,6 +137,12 @@ module.exports = {
                 if (product) {
                     product.peekFileLock(reqData, function (respData) {
                         if (respData.state === 'success') {
+                            if(respData.data && respData.data.uid) {
+                                let user = userDao.findUser({'id': respData.data.uid});
+                                if (user) {
+                                    respData.data.username = user.username;
+                                }
+                            }
                             cb(respData);
                         } else if (respData.state === 'error') {
                             cb(respData);

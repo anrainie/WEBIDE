@@ -69,7 +69,7 @@ Servlet.prototype.unregisterProduct = function (p) {
 }
 
 Servlet.prototype.addClient  = function (idetype,user,socket) {
-    let uid = user["_id"];
+    let uid = user["id"];
     console.info(uid + ' connect socket successful');
 
     let product = this.assignProduct(idetype,user);
