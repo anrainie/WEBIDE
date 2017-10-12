@@ -3,10 +3,11 @@
  */
 var Client = require('socket.io-client');
 var dbConstants = require('../constants/DBConstants');
+var productDao = require('../dao/ProductDao');
 
-function Product(id,name,ip,port,serviceConfig) {
+function Product(id,type,ip,port,serviceConfig) {
     this.id = id;
-    this.name = name;
+    this.type = type;
     this.ip = ip;
     this.port = port;
     this.serviceConfig = serviceConfig;
@@ -16,23 +17,9 @@ function Product(id,name,ip,port,serviceConfig) {
     this.online = false;
 }
 
-/**
- * 注册产品，写入数据库
- */
-Product.prototype.register = function () {
-    let product = WebIDEDB.getCollection(dbConstants.product);
-    product.insert({
-        id:this.id,
-        name:this.name,
-        ip:this.ip,
-        port:this.port,
-        createTime:new Date()
-    });
-}
-
 Product.prototype.connect = function () {
     var self = this;
-    var url = "http://" + this.ip + ":" + this.port +"?" + "type=" + this.name;
+    var url = "http://" + this.ip + ":" + this.port +"?" + "type=" + this.type;
     this.socket = Client(url,{
         reconnectionAttempts:20
     });
@@ -40,7 +27,7 @@ Product.prototype.connect = function () {
     this.socket.on('connect',function () {
         self.online = true;
 
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect success");
+        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect success");
 
         if(!self.initialized) {
             self.initialized = true;
@@ -61,20 +48,20 @@ Product.prototype.connect = function () {
 
     this.socket.on('connect_failed',function () {
         self.online = false;
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect failed");
+        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect failed");
     });
 
     this.socket.on('connect_timeout',function () {
         self.online = false;
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " connect timeout");
+        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect timeout");
     });
 
     this.socket.on('disconnect',function () {
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " disconnect");
+        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " disconnect");
     })
 
     this.socket.on('reconnect',function (data) {
-        console.info("product:" + self.name + " ip:" + self.ip + ' port:' + self.port + " reconnect");
+        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " reconnect");
     });
 
     this.socket.on('lockTimeout',function (timeoutlock) {
@@ -94,10 +81,10 @@ Product.prototype.connect = function () {
 Product.prototype.runServiceHandler = function (reqData, callback) {
     let handler = this.services[reqData.event];
     if(!this.socket.connected) {
-        callback(JSON.stringify({"state": "error", "errorMsg": "ide socket is off line"}));
+        callback({state: "error", errorMsg:"ide socket is off line"});
     }else{
         if (!handler) {
-            callback(JSON.stringify({"state": "error", "returnMsg": "service is unregisted"}));
+            callback({state: "error", returnMsg: "service is unregisted"});
         } else {
             handler.call(this,reqData.event,reqData,function (rspData) {
                 callback(rspData);
@@ -128,7 +115,7 @@ Product.prototype.registerService = function (service) {
             this.services[service.id] = service.handler;
         }
     }else{
-        console.info('product is offline,' + 'name:' + this.name + ' ip:' + this.ip + ' port:' + this.port);
+        console.info('product is offline,' + 'type:' + this.type + ' ip:' + this.ip + ' port:' + this.port);
     }
 }
 
@@ -172,12 +159,9 @@ Product.prototype.peekFileLock = function (reqData,callback) {
     });
 }
 
-Product.prototype.unregister = function () {
-    let ps = WebIDEDB.getCollection(dbConstants.product);
-    ps.findAndRemove({id:this.id});
-
-    let p_u = WebIDEDB.getCollection(dbConstants.PRODUCT_USER);
-    p_u.findAndRemove({id:this.id});
+Product.prototype.shutdown = function () {
+    this.online = false;
+    this.socket.close();
 }
 
 Product.prototype.getClientNum = function () {
@@ -194,6 +178,12 @@ Product.prototype.removeClient = function (id) {
 
 Product.prototype.getClient = function (uid) {
     return this.clients[uid];
+}
+
+Product.prototype.unregister = function (p) {
+    productDao.delProduct({'id':this.id});
+    let p_u = IDE.DB.getCollection(dbConstants.PRODUCT_USER);
+    p_u.findAndRemove({id:this.id});
 }
 
 

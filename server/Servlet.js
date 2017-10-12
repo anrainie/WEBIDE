@@ -3,15 +3,17 @@
  */
 
 var socket_io = require('socket.io');
-var config = require('./config')
 var parseCookie = require('cookie-parser')
 var shareSession = require('express-socket.io-session')
 var dbConstants = require('./constants/DBConstants')
+var productDao = require('./dao/ProductDao');
+var Product = require('./product/Product')
 
 function Servlet(serviceConfigs, session, http) {
     this.serviceConfigs = serviceConfigs;
     this.session = session;
     this.http = http;
+    this.products = [];
 }
 
 Servlet.prototype.start = function () {
@@ -20,7 +22,7 @@ Servlet.prototype.start = function () {
 
     server.use(shareSession(this.session, {
         autoSave: true
-    }))
+    }));
 
     server.use(function (socket, next) {
         var user = socket.handshake.session.user;
@@ -30,13 +32,40 @@ Servlet.prototype.start = function () {
         } else {
             next(new Error('nosession'));
         }
-    })
+    });
+
+    let products =  productDao.getAllProducts();
+    for(var i = 0; i < products.length;i ++){
+        let p = products[i];
+        this.registerProduct(p);
+    }
 
     server.on('connection', function (socket) {
         let user = socket.handshake.session.user;
         let idetype = socket.handshake.query.type;
         self.addClient(idetype,user,socket);
-    })
+    });
+}
+
+Servlet.prototype.registerProduct = function (p) {
+    let service = this.getService(p.type);
+    let product = new Product(p.id,p.type,p.ip,p.port,service);
+    product.connect();
+    this.products.push(product);
+}
+
+Servlet.prototype.updateProduct = function (newProduct) {
+    let product = this.getProduct(newProduct.id);
+    product.type = newProduct.type;
+    product.ip = newProduct.ip;
+    product.port = newProduct.port;
+    product.shutdown();
+    product.connect();
+}
+
+Servlet.prototype.unregisterProduct = function (p) {
+    p.shutdown();
+    p.unregister();
 }
 
 Servlet.prototype.addClient  = function (idetype,user,socket) {
@@ -44,10 +73,14 @@ Servlet.prototype.addClient  = function (idetype,user,socket) {
     console.info(uid + ' connect socket successful');
 
     let product = this.assignProduct(idetype,user);
-    product.addClient(uid,socket);
+    if(product){
+        product.addClient(uid,socket);
+    }
 
     socket.on('disconnect', function () {
-        product.removeClient(uid);
+        if(product) {
+            product.removeClient(uid);
+        }
     });
 
     for (let index in this.serviceConfigs) {
@@ -64,7 +97,7 @@ Servlet.prototype.addClient  = function (idetype,user,socket) {
                         if (product) {
                             product.runServiceHandler(reqData, callback);
                         } else {
-                            console.error('can not find consumer :' + reqData.type, reqData);
+                            callback({state:'error',errorMsg:'can not find consumer :' + reqData.type, reqData});
                         }
                     });
                 } else if (service.type === 'localService') {
@@ -81,42 +114,66 @@ Servlet.prototype.addClient  = function (idetype,user,socket) {
 
 Servlet.prototype.assignProduct = function (idetype,user) {
     let uid = user['_id'];
-    let p_u = WebIDEDB.getCollection("product_user");
-    let result = p_u.findOne({uid});
-    if(result){
-        let p = ProductManager.getProduct(result.pid);
-        if(p){
-            return p;
+    let p_u = IDE.DB.getCollection("product_user");
+    let db_pu = p_u.find({uid});
+    if(db_pu && db_pu.length > 0){
+        for(let i = 0 ; i < db_pu.length ; i ++){
+            let p = this.getProduct(db_pu[i].pid);
+            if(p && p.type === idetype){
+                return p;
+            }
         }
-        p_u.findAndRemove({uid});
     }
+
     let min ;
     let selected;
-    let products = ProductManager.getAllProducts();
+    let products = this.getAllProducts();
     for(let i = 0 ; i < products.length ; i++) {
         let p = products[i];
         let pNum = p_u.count({'pid':p.id});
-        if(idetype === p.name && (!selected || pNum < min)){
+        if(idetype === p.type && (!selected || pNum < min)){
             min = pNum;
             selected = p;
         }
     }
-    p_u.insert({
-        'uid':uid,
-        'pid':selected.id,
-        'createTime':new Date()
-    });
+    if(selected) {
+        p_u.insert({
+            'uid': uid,
+            'pid': selected.id,
+            'createTime': new Date()
+        });
+    }
     return selected;
 }
 
-Servlet.prototype.getClient = function (id) {
-    return this.clients[id];
+Servlet.prototype.getProduct = function (id) {
+    for(let i = 0 ; i < this.products.length ; i++){
+        if(this.products[i].id === id){
+            return this.products[i];
+        }
+    }
+    return null;
 }
 
-Servlet.prototype.closeClient = function (id) {
-    var client = this.getClient(id);
-    if (client) {
-        client.disconnect(true);
+Servlet.prototype.getService = function (type) {
+    for(var j = 0 ; j < this.serviceConfigs.length ; j++){
+        if(this.serviceConfigs[j].type === type){
+            return this.serviceConfigs[j];
+        }
+    }
+    return null;
+}
+
+Servlet.prototype.getAllProducts = function () {
+    return this.products;
+}
+
+Servlet.prototype.removeProduct = function (id) {
+    for(let i = 0 ; i < this.products.length ; i++){
+        if(this.products[i].id === id){
+            this.products.splice(i ,1);
+            break;
+        }
     }
 }
 
