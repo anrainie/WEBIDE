@@ -527,9 +527,16 @@ export class stepConfigBuilder {
         return this;
     }
 
-    resolveModel({Root: {Regulation: {Step: nodes}}}) {
+    resolveModel(input) {
+        /*{Root: {Regulation: {Step: nodes}}}*/
+        let nodes;
+        try {
+            nodes = input.Root.Regulation.Step;
+        } catch (e) {
+            nodes = [];
+        }
+
         if (nodes) {
-            console.log(nodes)
             var nodeData = nodes instanceof Array ? nodes : [nodes];
 
             this.baseCfg.data = resolveEditorData(nodeData, this.baseCfg.children);

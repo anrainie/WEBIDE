@@ -94,6 +94,7 @@
     import tcptEditor from './editor/TcptEditor.vue'
 
     import menuData from '../../action/afa.menu';
+    import fcEditor from "../components/editor/flowEditor/fcEditor/fcEditor.vue"
 
 
     String.prototype.textLength = function () {
@@ -110,6 +111,7 @@
                         dict:dictEditor,
                         java:javaEditor,
                         tcpt:tcptEditor,
+                        fc:fcEditor
                     }
                 },
                 vertical: false,

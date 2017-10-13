@@ -277,6 +277,9 @@
             focus() {
 
             },
+            dirtyStateChange() {
+
+            },
 
             stepDoubleClickCanvas(style) {
                 style['width'] = style['width'] == "100%" ? "50%" : "100%";
