@@ -83,7 +83,6 @@
         methods: {
             initEditor(config) {
                 this.editor = new this.editorClass(defaultsDeep({id: this.editorID}, config));
-                console.log(this.editor.canvas)
                 this.bindEventToEditor();
 
                 //激活事件

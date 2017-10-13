@@ -7,10 +7,11 @@ export let cwf = $AG.Editor.extend({
             numColumns: 1,
             makeColumnsEqualWidth: true,
             makeRowsEqualHeight: false,
-            horizontalAutoAdapt: true,
+            horizontalAutoAdapt: false,
             verticalAutoAdapt: false,
-            horizontalExpand: false,
-            verticalExpand: true
+            horizontalExpand: true,
+            verticalExpand: false,
+            marginTop: 20
         });
         layoutManager.setLayoutData({
             verticalAlignment: "center",
@@ -61,16 +62,19 @@ let LayoutPolicy = anra.gef.LayoutPolicy.extend({
     showMoveTargetFeedback(request) {
         var editParts = this.editParts = this.getLayoutEditParts(request);
 
+        //TODO
         if (editParts instanceof Array) return;
 
-        var type = editParts.model.get('type');
+        if (editParts) {
+            var type = editParts.model.get('type');
 
-        if (this.getHost().config.children[type] == null) {
-            this.getHost().figure.setStyle({
-                cursor: "not-allowed"
-            });
+            if (this.getHost().config.children[type] == null) {
+                this.getHost().figure.setStyle({
+                    cursor: "not-allowed"
+                });
+            }
+            this.showLayoutTargetFeedback(request);
         }
-        this.showLayoutTargetFeedback(request);
     },
 
     showTargetFeedback(request) {
@@ -268,3 +272,131 @@ class DragTracker {
 }
 
 anra.gef.DragTracker = anra.gef.RootDragTracker = DragTracker;
+
+
+/*在grid的布局的情况下，提示布局的位置和决定布局位置*/
+let layoutSequence = anra.gef.AbstractEditPolicy.extend({
+    showTargetFeedback(req) {
+        let type = req["type"];
+
+        /*暂时只有move和create时生效*/
+        if (type == null || (type != constants.REQ_CREATE
+                && type != constants.REQ_MOVE))
+            return;
+
+
+
+
+    },
+    eraseTargetFeedback(req) {
+
+    },
+    getRedLineVisual() {
+        if (this["redLine"] == null) {
+            let lineClass = anra.svg.control.extend(anra.svg.line), redLine;
+            this["redLine"] = redLine = new lineClass();
+
+            redLine.disableEvent();
+            redLine.setAttribute({
+                'stroke': 'red',
+                'fill': 'red',
+                'stroke-width': 1
+            });
+        }
+
+        return this["redLine"];
+    },
+    refreshRedLine(line, e) {
+        let editPart = this.getHost();
+
+        /*如果当前节点不能添加子节点，交给父级处理*/
+        while (!this.canAddChild(editPart) && editPart.parent) {
+            editPart = editPart.parent;
+        }
+
+        if (editPart) {
+            if (this["compute" + editPart.model.get("type")])
+                this["compute" + editPart.model.get("type")](line, e, editPart);
+            else if (editPart instanceof anra.gef.RootEditPart)
+                this["compute" + "root"](line, e, editPart)
+            else {
+                //TODO 警告
+            }
+        }
+    },
+    canAddChild(editPart) {
+        return editPart["config"] == null
+            || editPart["config"]["children"] == null
+            || editPart["config"]["children"].length == 0;
+    },
+    ['compute' + 'switch'](line, event, editPart) {
+
+    },
+    ['compute' + 'if'](line, event, editPart) {
+
+    },
+    ['compute' + 'defualt'](line, event, editPart) {
+
+    },
+    ['compute' + 'for'](line, event, editPart) {
+
+    },
+    ['compute' + 'while'](line, event, editPart) {
+
+    },
+    ['compute' + 'sql'](line, event, editPart) {
+
+    },
+    ['compute' + 'root'](line, event, editPart) {
+        let layer = editPart.getPrimaryLayer(), bounds = layer.getClientArea(), children = layer.children;
+
+        let length = 40;
+
+        if (children == null || children.length == 0) {
+            line.setBounds({
+                x: (bounds["width"] - length)/2,
+                y: (bounds["width"] + length)/2,
+                width: bounds["height"]/2,
+                height: bounds["height"]/2
+            });
+        } else {
+            let y = event.y, pos = children[0].getClientArea()["y"], min = Math.abs(y - pos),
+                currentPos, offset;
+
+            children.reduce((pre, next) => {
+                currentPos = (pre.getClientArea()["y"] + next.getClientArea()["y"])/2;
+                offset = Math.abs(y);
+            });
+        }
+
+    },
+    computeVertical(line, event, editPart) {
+        let y = event.y,
+            currentFigure = editPart.figure,
+            children = currentFigure.children,
+            bounds = currentFigure.getClientArea();
+
+        let pos = bounds["y"] + bounds["height"], min = Math.abs(y - pos),
+            currentPos, lastPos, offset;
+        children.forEach((child) => {
+                currentPos = lastPos == null ? child.getClientArea()["y"] - 5 : (child.getClientArea()["y"] + lastPos)/2;
+                lastPos = currentPos;
+                offset = Math.abs(y - currentPos);
+
+                if (offset < min) {
+                    pos = currentPos;
+                    min = offset;
+                }
+
+        });
+
+        let length = 40, start = bounds["x"] + (bounds["width"] - length)/2;
+
+        line.setBounds({
+            x: start,
+            y: start + length,
+            width: pos,
+            height: pos
+        });
+    }
+});

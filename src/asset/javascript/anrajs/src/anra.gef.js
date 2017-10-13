@@ -1279,6 +1279,7 @@ anra.gef.CreationTool = anra.gef.Tool.extend({
         if (this.policy != policy) {
             this.policy.eraseTargetFeedback(req);
             this.policy = policy;
+            this.virtualEP = null;
         }
         policy.showTargetFeedback(req);
 
@@ -1315,6 +1316,7 @@ anra.gef.CreationTool = anra.gef.Tool.extend({
         } else {
             return this.dragEnd(me, editPart.parent)
         }
+        this.virtualEP = null;
         return true;
     },
     getCommand: function (e, p) {
@@ -1880,6 +1882,7 @@ anra.gef.CreateNodeCommand = anra.Command.extend({
     execute: function () {
         this.parentPart.model.addChild(this.node);
         this.parentPart.refresh();
+        this.parentPart.getRoot().refresh()
     },
     undo: function () {
         this.parentPart.model.removeChild(this.node);
@@ -2571,7 +2574,7 @@ anra.gef.NodeModel = anra.gef.BaseModel.extend({
             line.store.update({target: null});
         }
     },
-    addChild: function (model, callback) {
+     addChild: function (model, callback) {
         this.children[model.get('id')] = model;
         model.storeId = this.storeId;
 

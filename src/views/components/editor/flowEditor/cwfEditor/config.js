@@ -1,9 +1,11 @@
 import {$AG, anra} from "anrajs";
 import {ContainerLayoutPolicy} from './editor'
 
+/*特殊地 初始化时可以没有bounds属性*/
 let refresh = function () {
     if (this.model && this.figure) {
         var b = this.model.get('bounds');
+
         this.figure.bounds = {
             x: b[0],
             y: b[1],
@@ -67,6 +69,7 @@ let control_if = {
             marginBottom: 20
         },
         data: {
+            defaultSize: [160, 44],
             verticalAlignment: "center",
             horizontalAlignment: "center",
         }
@@ -86,6 +89,27 @@ let control_default = {
     createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
+    },
+    layout: {
+        type: 'GRID',
+        arguments: {
+            numColumns: 1,
+            makeColumnsEqualWidth: true,
+            makeRowsEqualHeight: false,
+            horizontalExpand: true,
+            verticalExpand: true,
+            horizontalAutoAdapt: true,
+            verticalAutoAdapt: true,
+            marginTop: 20,
+            marginRight: 20,
+            marginLeft: 20,
+            marginBottom: 20
+        },
+        data: {
+            defaultSize: [160, 44],
+            verticalAlignment: "center",
+            horizontalAlignment: "center",
+        }
     }
 }
 
@@ -122,6 +146,7 @@ let control_switch = {
             verticalSpacing: 25
         },
         data: {
+            defualtSize: [320, 88],
             verticalAlignment: "center",
             horizontalAlignment: "center"
         }
@@ -141,6 +166,27 @@ let control_while = {
     createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
+    },
+    layout: {
+        type: 'GRID',
+        arguments: {
+            numColumns: 1,
+            makeColumnsEqualWidth: true,
+            makeRowsEqualHeight: false,
+            horizontalAutoAdapt: true,
+            verticalAutoAdapt: true,
+            marginTop: 40,
+            marginRight: 20,
+            marginLeft: 20,
+            marginBottom: 20,
+            horizontalSpacing: 25,
+            verticalSpacing: 25
+        },
+        data: {
+            defualtSize: [320, 88],
+            verticalAlignment: "center",
+            horizontalAlignment: "center"
+        }
     }
 };
 
@@ -157,6 +203,27 @@ let control_for = {
     createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
+    },
+    layout: {
+        type: 'GRID',
+        arguments: {
+            numColumns: 1,
+            makeColumnsEqualWidth: true,
+            makeRowsEqualHeight: false,
+            horizontalAutoAdapt: true,
+            verticalAutoAdapt: true,
+            marginTop: 40,
+            marginRight: 20,
+            marginLeft: 20,
+            marginBottom: 20,
+            horizontalSpacing: 25,
+            verticalSpacing: 25
+        },
+        data: {
+            defualtSize: [320, 88],
+            verticalAlignment: "center",
+            horizontalAlignment: "center"
+        }
     }
 };
 
@@ -173,6 +240,27 @@ let control_sql = {
     createFigure,
     policies: {
         'layoutPolicy': ContainerLayoutPolicy
+    },
+    layout: {
+        type: 'GRID',
+        arguments: {
+            numColumns: 1,
+            makeColumnsEqualWidth: true,
+            makeRowsEqualHeight: false,
+            horizontalAutoAdapt: true,
+            verticalAutoAdapt: true,
+            marginTop: 40,
+            marginRight: 20,
+            marginLeft: 20,
+            marginBottom: 20,
+            horizontalSpacing: 25,
+            verticalSpacing: 25
+        },
+        data: {
+            defualtSize: [320, 88],
+            verticalAlignment: "center",
+            horizontalAlignment: "center"
+        }
     }
 };
 

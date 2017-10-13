@@ -37,12 +37,6 @@
     import skipGroup from '../../../flowPropDialog/skipGroup.vue'
     import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue'
 
-
-    /*用于参数忽略的时候*/
-    function throwIfMissing() {
-        throw new Error('Missing parameter');
-    }
-
     /*将位置和连线信息更新至taffyDB中*/
     let commonDoSave = function () {
         let nodeStore = this.store.node,

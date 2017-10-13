@@ -71,6 +71,8 @@
  * @type {{}}
  */
 import {anra} from './anra.gef'
+import {defaultsDeep} from 'lodash'
+
 
 anra.addExtend('./anra.policy')
 
@@ -97,6 +99,7 @@ $AG.Editor = anra.gef.Editor.extend({
         this.config = config;
         this.setInput(config);
         this.createContent(config.id);
+        console.log(this)
     },
     input2model: function (data, rootModel) {
         doInit.call(this, data, rootModel, this.config);
@@ -234,7 +237,6 @@ $AG.Editor = anra.gef.Editor.extend({
     }
 });
 
-
 /**
  * 从json生成NodeModel，目前只考虑了一层，以后可以改为递归
  * @param data
@@ -246,9 +248,7 @@ var doInit = function (input, parentModel, config) {
     var i, len;
     //节点处理
     if (input.data) {
-        for (i = 0, len = input.data.length; i < len; i++) {
-            parentModel.addChild($AG.Node.create(input.data[i]));
-        }
+        $AG.Node.addChildren(parentModel, input.data, config["children"]);
     }
     //连线处理
     var lines = config.line;
@@ -296,6 +296,45 @@ $AG.Node.create = function (data) {
     n.uuid = data.UUID;
     return n;
 };
+
+$AG.Node.addChildren = function (parentModel, data, config) {
+
+    if (config == null) {
+        data.forEach((item) => {
+            parentModel.addChild($AG.Node.create(item));
+        });
+        return;
+    }
+
+    data.forEach((item) => {
+        parentModel.addChild($AG.Node.create(item), (model) => {
+            let childConfig;
+
+            try {
+                childConfig = config[model.get("type")];
+            } catch (e) {
+                return;
+            }
+
+            if (childConfig["size"] && model.props.bounds == null) {
+                model.set("bounds", [
+                    0,
+                    0,
+                    childConfig["size"][0],
+                    childConfig["size"][1]
+                ]);
+            }
+
+            if (childConfig["data"]) {
+                Object.assign(model.props, defaultsDeep(childConfig["data"]));
+            }
+
+            if (item["children"] && childConfig["children"]) {
+                $AG.Node.addChildren(model, item["children"], childConfig["children"]);
+            }
+        });
+    });
+}
 
 $AG.ConnectionPolicy = anra.gef.ConnectionPolicy.extend({});
 

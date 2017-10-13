@@ -341,13 +341,17 @@ var _Composite = {
     },
     paint: function () {
         this.applyBounds();
-        if (this.layoutManager != null)
-            this.layout();
+        /*if (this.layoutManager != null)
+            this.layout();*/
 
         if (this.children)
             for (var i = 0; i < this.children.length; i++) {
                 this.children[i].paint();
             }
+
+        if (this.layoutManager != null)
+            this.layout();
+
     },
     layout: function () {
         this.layoutManager.layout(this);

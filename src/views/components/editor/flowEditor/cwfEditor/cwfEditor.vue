@@ -7,7 +7,7 @@
                     ref="cwfEditor"
                     editorID="cwfxxxxx"
                     :editorClass="cwf"
-                    :editorConfig="editorConfig"></flow-editor>
+                    :editorConfig="TesteditorConfig"></flow-editor>
         </div>
     </editorContainer>
 
@@ -28,9 +28,15 @@
                 cwf
             }
         },
+        computed: {
+            TesteditorConfig() {
+                return Object.assign({}, editorConfig, {
+                    "data": this.input["data"]
+                });
+            }
+        },
         mounted() {
-            console.log(this.$refs["cwfEditor"].editor.canvas)
-            console.log(this.input)
+            console.log(Object.assign({}, editorConfig, this.input))
         },
         methods: {
             isDirty() {

@@ -128,11 +128,11 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
         /*验证已选节点里包含拖拽目标节点*/
         if (selection instanceof Array) {
             var s = [];
-            var valid = true;
+            var valid;
             for (var i = 0, len = selection.length; i < len; i++) {
-                if (selection[i].figure == request.target && selection.parent == this.getHost()) {
+                if (selection[i].figure == request.target) {
                     Util.insert.call(s, selection[i]);
-                    valid &= true;
+                    valid = true;
                 } else {
                     s.push(selection[i]);
                 }
