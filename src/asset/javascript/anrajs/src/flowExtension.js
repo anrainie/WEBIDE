@@ -44,10 +44,13 @@ $AG.Editor.prototype.createNodeWithPalette = function(type, item) {
     }
 
     return function () {
+
         let node = $AG.Node.create({
             id: editor.createID(),
             type,
-        }, item);
+            bounds: [0, 0, item.size[0], item.size[1]]});
+
+
 
         /*小不合理。。。。*/
         tool.model = node;

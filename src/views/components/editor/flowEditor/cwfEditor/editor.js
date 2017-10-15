@@ -27,7 +27,10 @@ export let cwf = $AG.Editor.extend({
         return canvas;
     },
     getCustomPolicies: function () {
-        this.put(anra.gef.LAYOUT_POLICY, new LayoutPolicy());
+        let s = LayoutPolicy.extend(layoutSequencePolicy);
+        //this.put(anra.gef.LAYOUT_POLICY, new LayoutPolicy());
+        //this.put("ggg", new layoutSequencePolicy())
+        this.put(anra.gef.LAYOUT_POLICY, new s());
     }
 });
 
@@ -127,7 +130,7 @@ let LayoutPolicy = anra.gef.LayoutPolicy.extend({
     }
 });
 
-export var ContainerLayoutPolicy = LayoutPolicy.extend({
+var containerLayoutPolicy = LayoutPolicy.extend({
     ID: 'ContainerLayoutPolicy',
     createFeedback(ep) {
         var f = anra.FigureUtil.createGhostFigure(ep);
@@ -275,32 +278,27 @@ anra.gef.DragTracker = anra.gef.RootDragTracker = DragTracker;
 
 
 /*在grid的布局的情况下，提示布局的位置和决定布局位置*/
-let layoutSequence = anra.gef.AbstractEditPolicy.extend({
+let layoutSequencePolicy = {
+    showRedLineFeedback(req) {
+        this.refreshRedLine(this.getRedLineVisual(), req.event);
+    },
     showTargetFeedback(req) {
-        let type = req["type"];
-
-        /*暂时只有move和create时生效*/
-        if (type == null || (type != constants.REQ_CREATE
-                && type != constants.REQ_MOVE))
-            return;
-
-
-
-
+        LayoutPolicy.prototype.showTargetFeedback.call(this, req);
+        this.showRedLineFeedback(req);
     },
-    eraseTargetFeedback(req) {
+    /*eraseTargetFeedback(req) {
 
-    },
+    },*/
     getRedLineVisual() {
         if (this["redLine"] == null) {
-            let lineClass = anra.svg.control.extend(anra.svg.line), redLine;
+            let lineClass = anra.svg.Control.extend(anra.svg.Line), redLine;
             this["redLine"] = redLine = new lineClass();
 
             redLine.disableEvent();
             redLine.setAttribute({
-                'stroke': 'red',
-                'fill': 'red',
-                'stroke-width': 1
+                stroke: 'red',
+                fill: 'red',
+                "stroke-width": 2
             });
         }
 
@@ -325,50 +323,67 @@ let layoutSequence = anra.gef.AbstractEditPolicy.extend({
         }
     },
     canAddChild(editPart) {
-        return editPart["config"] == null
-            || editPart["config"]["children"] == null
-            || editPart["config"]["children"].length == 0;
+        return editPart["config"]
+            || editPart["config"]["children"]
+            || editPart["config"]["children"].length > 0;
     },
     ['compute' + 'switch'](line, event, editPart) {
 
     },
     ['compute' + 'if'](line, event, editPart) {
-
+        this.computeVertical(line, event, editPart);
     },
     ['compute' + 'defualt'](line, event, editPart) {
-
+        this.computeVertical(line, event, editPart);
     },
     ['compute' + 'for'](line, event, editPart) {
-
+        this.computeVertical(line, event, editPart);
     },
     ['compute' + 'while'](line, event, editPart) {
-
+        this.computeVertical(line, event, editPart);
     },
     ['compute' + 'sql'](line, event, editPart) {
-
+        this.computeVertical(line, event, editPart);
     },
     ['compute' + 'root'](line, event, editPart) {
         let layer = editPart.getPrimaryLayer(), bounds = layer.getClientArea(), children = layer.children;
 
-        let length = 40;
+        let length = 120;
 
         if (children == null || children.length == 0) {
             line.setBounds({
-                x: (bounds["width"] - length)/2,
-                y: (bounds["width"] + length)/2,
-                width: bounds["height"]/2,
-                height: bounds["height"]/2
+                x: (bounds[2] - length)/2,
+                y: bounds[3]/2,
+                width: (bounds[2] + length)/2,
+                height: bounds[3]/2
             });
         } else {
-            let y = event.y, pos = children[0].getClientArea()["y"], min = Math.abs(y - pos),
+            let y = event.y, pos = children[0].getClientArea()[1], min = Math.abs(y - pos),
                 currentPos, offset;
 
             children.reduce((pre, next) => {
-                currentPos = (pre.getClientArea()["y"] + next.getClientArea()["y"])/2;
-                offset = Math.abs(y);
+                currentPos = (pre.getClientArea()[1] + pre.getClientArea()[3] + next.getClientArea()[1]) / 2;
+                offset = Math.abs(y - currentPos);
+                if (offset < min) {
+                    pos = currentPos;
+                    min = offset;
+                }
+            });
+
+            let lastBounds = children[children.length - 1].getClientArea();
+
+            currentPos = lastBounds["y"] + lastBounds["height"];
+            if (Math.abs(currentPos - y) < min) pos = currentPos;
+
+            line.setBounds({
+                x: (bounds["width"] - length)/2,
+                y: (bounds["width"] + length)/2,
+                width: currentPos,
+                height: currentPos
             });
         }
 
+        editPart.getRoot().getFeedbackLayer().addChild(line);
     },
     computeVertical(line, event, editPart) {
         let y = event.y,
@@ -376,27 +391,38 @@ let layoutSequence = anra.gef.AbstractEditPolicy.extend({
             children = currentFigure.children,
             bounds = currentFigure.getClientArea();
 
-        let pos = bounds["y"] + bounds["height"], min = Math.abs(y - pos),
-            currentPos, lastPos, offset;
-        children.forEach((child) => {
-                currentPos = lastPos == null ? child.getClientArea()["y"] - 5 : (child.getClientArea()["y"] + lastPos)/2;
-                lastPos = currentPos;
+        let pos = bounds[1] + bounds[3], min = Math.abs(y - pos);
+
+        if (children) {
+            let currentPos, lastBottom, offset
+
+            children.forEach((child, index) => {
+                currentPos = index == 0 ? child.getClientArea()[1] - 5 : (lastBottom + child.getClientArea()[1])/2;
+                lastBottom = child.getClientArea()[1] + child.getClientArea()[3];
                 offset = Math.abs(y - currentPos);
 
                 if (offset < min) {
                     pos = currentPos;
                     min = offset;
                 }
+            });
+        }
 
-        });
-
-        let length = 40, start = bounds["x"] + (bounds["width"] - length)/2;
+        let length = 120, start = bounds[0] + (bounds[2] - length)/2;
 
         line.setBounds({
             x: start,
-            y: start + length,
-            width: pos,
+            y: pos,
+            width: start + length,
             height: pos
         });
+    },
+    computeHorizontal(line, event, editPart) {
+        //这里暂时认为switch的布局，两者需要对应
+
+        //格子，不做验证
+        let layout = editPart.figure.layoutManager;
     }
-});
+}
+
+export let ContainerLayoutPolicy = containerLayoutPolicy.extend(layoutSequencePolicy);
