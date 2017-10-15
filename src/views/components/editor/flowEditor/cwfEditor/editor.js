@@ -286,9 +286,14 @@ let layoutSequencePolicy = {
         LayoutPolicy.prototype.showTargetFeedback.call(this, req);
         this.showRedLineFeedback(req);
     },
-    /*eraseTargetFeedback(req) {
-
-    },*/
+    eraseTargetFeedback(req) {
+        LayoutPolicy.prototype.eraseTargetFeedback.call(this, req);
+        this.eraseRedLineFeedback(this.getRedLineVisual());
+    },
+    eraseRedLineFeedback(req) {
+        this.removeFeedback(this.getRedLineVisual());
+        this.["redLine"] = null;
+    },
     getRedLineVisual() {
         if (this["redLine"] == null) {
             let lineClass = anra.svg.Control.extend(anra.svg.Line), redLine;
@@ -300,6 +305,8 @@ let layoutSequencePolicy = {
                 fill: 'red',
                 "stroke-width": 2
             });
+
+            this.addFeedback(redLine);
         }
 
         return this["redLine"];
@@ -328,7 +335,7 @@ let layoutSequencePolicy = {
             || editPart["config"]["children"].length > 0;
     },
     ['compute' + 'switch'](line, event, editPart) {
-
+        this.computeVertical(line, event, editPart);
     },
     ['compute' + 'if'](line, event, editPart) {
         this.computeVertical(line, event, editPart);
@@ -372,13 +379,13 @@ let layoutSequencePolicy = {
 
             let lastBounds = children[children.length - 1].getClientArea();
 
-            currentPos = lastBounds["y"] + lastBounds["height"];
-            if (Math.abs(currentPos - y) < min) pos = currentPos;
+            currentPos = lastBounds[1] + lastBounds[3];
+            pos = Math.abs(currentPos - y) < min ? currentPos : pos;
 
             line.setBounds({
-                x: (bounds["width"] - length)/2,
-                y: (bounds["width"] + length)/2,
-                width: currentPos,
+                x: (bounds[2]- length)/2,
+                y: currentPos,
+                width: (bounds[3] + length)/2,
                 height: currentPos
             });
         }
@@ -398,7 +405,7 @@ let layoutSequencePolicy = {
 
             children.forEach((child, index) => {
                 currentPos = index == 0 ? child.getClientArea()[1] - 5 : (lastBottom + child.getClientArea()[1])/2;
-                lastBottom = child.getClientArea()[1] + child.getClientArea()[3];
+                lastBottom = this.getBottom(child.getClientArea());
                 offset = Math.abs(y - currentPos);
 
                 if (offset < min) {
@@ -420,8 +427,70 @@ let layoutSequencePolicy = {
     computeHorizontal(line, event, editPart) {
         //这里暂时认为switch的布局，两者需要对应
 
-        //格子，不做验证
-        let layout = editPart.figure.layoutManager;
+        //默认为格子，不做验证
+        let layout = editPart.figure.layoutManager,
+            //布局参数
+            {numColumns, numRows, marginLeft, marginTop, marginRight, marginBottom,horizontalSpacing,
+                verticalSpacing} =  layout.argumentData,
+
+            children = editPart.figure.children,
+            bounds = editPart.figure.getClientArea(),
+            {x, y} = event;
+
+        let startX, startY, length = 120;
+
+        if (children == null || children.length == 0) {
+            startX = bounds[0] + marginLeft;
+            startY = bounds[1] + marginTop;
+        } else {
+            let i, pos, currentPos, min, offset;
+
+            //确定Y
+            pos = bounds[1] + bounds[3] - marginBottom - length;
+            while (i < numRows) {
+                currentPos = this.getBottom(children[i].getClientArea());
+
+                if (currentPos > y) {
+                    pos = currentPos - length;
+
+                    break;
+                }
+
+                i += numColumns;
+            }
+            startY = pos;
+
+            //确定X
+            pos = bounds[0] + marginLeft;
+            min = Math.abs(x - pos);
+            for (let j = 0; j < 4; j++) {
+                if (children[i + j] == null)
+                    break;
+
+                currentPos = this.getLeft(children[i + j].getClientArea()) + horizontalSpacing/2;
+                offset = Math.abs(currentPos - x);
+
+                if (offset < min) {
+                    min = offset;
+                    pos = currentPos;
+                }
+            }
+            startX = pos;
+        }
+
+        line.setBounds({
+            x: startX,
+            y: startY,
+            width: startX,
+            height: startY + length
+        });
+
+    },
+    getBottom(bounds) {
+        return bounds[1] + bounds[3];
+    },
+    getLeft(bounds) {
+        return bounds[0] + bounds[2];
     }
 }
 
