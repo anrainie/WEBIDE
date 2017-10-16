@@ -1,17 +1,26 @@
-var loki = require("lokijs");
+const loki = require("lokijs");
+var Q = require('Q');
 
 function WebIDEDB(config) {
     this.config = config;
 }
 
 WebIDEDB.prototype.start = function () {
+    let def = Q.defer();
     this.db = new loki(this.config.dbpath,{
         env:'NODEJS',
         verbose:true,
         autosave:true,
         autosaveInterval:10000,
     });
-    this.db.loadDatabase();
+    this.db.loadDatabase(null,function (err) {
+        if(!err){
+            def.resolve();
+        }else{
+            def.reject();
+        }
+    });
+    return def.promise;
 }
 
 WebIDEDB.prototype.addCollection = function (name,options) {

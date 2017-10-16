@@ -6,12 +6,22 @@ import ElementUI from 'element-ui';
 function IDESocket() {
     let first = true;
 
-    let socket = io("http://localhost:8080");
+    let socket = io(window.location.host + "?" + "type=" + IDE.type,{
+        reconnectionAttempts:20
+    });
 
     socket.on('connect_error', function (err) {
         ElementUI.Notification.error({
             title: '提示',
             message: 'ide socket连接失败',
+            duration: 0
+        });
+    });
+
+    socket.on('connect_timeout', function (err) {
+        ElementUI.Notification.error({
+            title: '提示',
+            message: 'ide socket连接超时',
             duration: 0
         });
     });

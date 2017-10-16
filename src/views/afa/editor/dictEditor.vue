@@ -23,7 +23,7 @@
 <style>
 </style>
 <script>
-    import table from "../table.vue";
+    import table from "../../components/table.vue";
     import  Split from "split.js";
 
     export default{

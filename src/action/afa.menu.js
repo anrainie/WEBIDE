@@ -58,4 +58,7 @@ var items = [
         }
     ];
 
-module.exports = items;
+module.exports = {
+    config:{},
+    items:items
+};

@@ -18,6 +18,7 @@
 
         <shade ref="ide_shade"></shade>
 
+        <span id="__RULER" style="visibility: hidden; white-space: nowrap;">test</span>
     </div>
 </template>
 <style>
@@ -88,23 +89,29 @@
     import toolbar from "../components/toolbar.vue"
     import IDESocket from "../../core/IDESocket"
     import navContextMenus from '../../action/afa.navi.contextmenu';
+    import dictEditor from './editor/dictEditor.vue';
+    import javaEditor from './editor/javaEditor.vue';
+    import tcptEditor from './editor/TcptEditor.vue'
+
     import menuData from '../../action/afa.menu';
-    import dictEditor from "../components/editor/dictEditor.vue";
-    import javaEditor from "../components/editor/javaEditor.vue";
     import fcEditor from "../components/editor/flowEditor/fcEditor/fcEditor.vue"
 
 
+    String.prototype.textLength = function () {
+        let ruler = $("#__RULER");
+        ruler.text(this);
+        return ruler[0].offsetWidth;
+    };
     export default{
         data(){
             var self = this;
             return {
                 editorPartConfig: {
                     editorRefs: {
-                        txt: fcEditor,
-                        sql: fcEditor,
-                        dict: dictEditor,
-                        java: javaEditor,
-                        fc: fcEditor
+                        dict:dictEditor,
+                        java:javaEditor,
+                        tcpt:tcptEditor,
+                        fc:fcEditor
                     }
                 },
                 vertical: false,
@@ -187,24 +194,16 @@
                     right: [{
                         id: 'console',
                         subgroup: 1,
-                        open: true,
+                        open: false,
                     }, {
                         id: 'version',
                         subgroup: 0,
-                        open: true,
+                        open: false,
                     }],
                     bottom: [{
                         id: 'problem',
                         subgroup: 1,
-                        open: true,
-                    }, {
-                        id: 'test1',
-                        subgroup: 0,
-                        open: true,
-                    }, {
-                        id: 'test2',
-                        subgroup: 0,
-                        open: true,
+                        open: false,
                     }]
                 },
                 menuData: menuData
@@ -250,7 +249,6 @@
                         });
                     },
                     data: {
-                        model: [],
                         config: {
                             width: '100%',
                             check: false,
@@ -258,7 +256,7 @@
                             callback: {
                                 asyncLoadItem: function (item, level) {
                                     if (!level) {
-                                        level = 1;
+                                        level = 1
                                     }
                                     IDE.socket.emit('getNaviItems', {
                                             type: IDE.type,
@@ -267,45 +265,60 @@
                                                 path: item.model.path,
                                                 level: level
                                             }
-                                        }, (function () {
-                                            var getChild = function (children, name) {
-                                                for (let i = 0; i < children.length; i++) {
-                                                    let child = children[i];
-                                                    if (child.name === name) {
-                                                        return child;
-                                                    }
-                                                }
-                                                return null;
-                                            };
-                                            var combine = function (parent, newChildren) {
-                                                for (let index in newChildren) {
-                                                    let newChild = newChildren[index];
-                                                    if (!getChild(parent.children, newChild.name)) {
-                                                        parent.children.push(newChild);
-                                                    }
-                                                    if (newChild.children && newChild.children.length > 0) {
-                                                        let child = getChild(parent.children, newChild.name);
-                                                        combine(child, newChild.children);
-                                                    }
-                                                }
-                                            };
-                                            return function (result) {
-                                                if (result.state === 'success') {
-                                                    combine(item.model, result.data);
+                                        }, function (result) {
+                                            if (result.state === 'success') {
+                                                let oldChildren = item.model.children
+                                                let newChildren = result.data
+                                                if (!oldChildren || oldChildren.length == 0) {
+                                                    item.model.children = result.data;
                                                 } else {
-                                                    console.info(result);
+                                                    for (let i = 0; i < newChildren.length; i++) {
+                                                        let newChd = newChildren[i];
+                                                        let exist = false;
+                                                        for (let j = 0; j < oldChildren.length; j++) {
+                                                            let oldChd = oldChildren[j];
+                                                            if (newChd.path === oldChd.path) {
+                                                                exist = true;
+                                                                oldChd['##keep##'] = true;
+                                                                break;
+                                                            }
+
+                                                        }
+                                                        if (!exist) {
+                                                            newChd['##keep##'] = true;
+                                                            oldChildren.push(newChd);
+                                                        }
+                                                    }
+                                                    for (let i = 0; i < oldChildren.length; i++) {
+                                                        let oldChd = oldChildren[i];
+                                                        if (!oldChd['##keep##']) {
+                                                            oldChildren.splice(i, 1);
+                                                            i--;
+                                                        }
+                                                        delete oldChd['##keep##'];
+                                                    }
                                                 }
-                                            };
-                                        })()
+                                            } else {
+                                                debug.error('refresh resources fail , ' + result);
+                                            }
+                                        }
                                     );
                                 },
-                                delete: function () {
-                                    var editor = IDE.editorPart.getEditor(this);
+                                delete: function (item) {
+                                    var editor = IDE.editorPart.getEditor(item);
                                     if (editor) {
-                                        IDE.editorPart.closeEditor(this);
+                                        IDE.editorPart.closeEditor(item);
                                     }
+                                    let def = IDE.socket.emitAndGetDeferred('deleteFile', {
+                                        path: item.model.path
+                                    }).done(function (result) {
+                                        item.getParent().refresh();
+                                    }).fail(function (error) {
+                                        debug.error('delete resource fail , ' + error);
+                                    });
                                 },
-                                click: function () {
+
+                                click: function (item) {
                                 },
                                 dblclick: function () {
                                     var item = this;
@@ -323,13 +336,15 @@
                                                 path: item.model.path
                                             }
                                         }, function (result) {
-                                            console.info("getFile：", result);
-                                            if (!item.model.isParent) {
-                                                IDE.editorPart.openEditor(item, result.data);
-                                            }
                                             IDE.shade.hide();
-                                        })
-
+                                            if (result.state === 'success') {
+                                                if (!item.model.isParent) {
+                                                    IDE.editorPart.openEditor(item, result.data);
+                                                }
+                                            } else {
+                                                debug.error('resource dbclick , ' + result);
+                                            }
+                                        });
                                     }
                                 },
                                 rightClick: function (event) {
@@ -348,15 +363,17 @@
                                                 }
                                                 IDE.contextmenu.show(event.x, event.y, IDE.navigator.selection);
                                             } else {
-                                                console.info('getNaviMenu : ', result.errorMsg);
+                                                debug.error('getNaviMenu , ' + result);
                                             }
                                         }
                                     });
                                 }
                             },
                             filter: function (item) {
-                                if (item.model.name.startsWith(".")) {
-                                    return true;
+                                if (item.model.name) {
+                                    if (item.model.name.startsWith(".")) {
+                                        return true;
+                                    }
                                 }
                                 return false;
                             }
@@ -398,15 +415,7 @@
                                 }
                             }
                         }
-                    ],
-                    propertyPage: {
-                        component: './table.vue',
-                        selectionChanged(){
-                        },
-                        match(selection){
-                            return '';
-                        }
-                    }
+                    ]
                 },
                 'properties': {
                     name: '属性',
@@ -484,19 +493,6 @@
                 'version': {
                     name: '版本',
                     image: "assets/image/nav-folder.png",
-                },
-                'test1': {
-                    name: '测试1',
-                    image: "assets/image/nav-folder.png",
-                },
-                'test2': {
-                    name: '测试2',
-                    component: './table.vue',
-                    image: "assets/image/nav-folder.png",
-                },
-                'test3': {
-                    name: '测试3',
-                    image: "assets/image/nav-folder.png",
                 }
             };
         },
@@ -510,7 +506,7 @@
             fastbar: fastbar,
             statusbar: statusbar,
             viewpart: view,
-            workbench: workbench,
+            workbench: workbench
         }
     }
 </script>
