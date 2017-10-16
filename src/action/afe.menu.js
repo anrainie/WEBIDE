@@ -163,7 +163,7 @@ import subtleFieldDialog from '../views/afe/components/dialog/SubtleDialog.vue'
 import Vue from 'vue'
 
 function configParameter () {
-  var newConfigParameter = new Vue(parameter)
+  var newConfigParameter = new Vue(parameter);
   //从后台获取全局变量配置信息
   IDE.socket.emit('getConfigParameter', {
     type: IDE.type,
@@ -171,21 +171,21 @@ function configParameter () {
     data: {tableData: newConfigParameter.tableData}
   }, function (result) {
     if (result.state === 'success') {
-      newConfigParameter.tableData = result.data
-      var container = document.createElement('div')
-      container.id = 'config'
-      document.body.appendChild(container)
-      newConfigParameter.$mount('#config')
+      newConfigParameter.tableData = result.data;
+      var container = document.createElement('div');
+      container.id = 'config';
+      document.body.appendChild(container);
+      newConfigParameter.$mount('#config');
     }
-  })
+  });
 }
 
 function syncOrConnToServer () {
-  var isContinue
+  var isContinue;
   if (window.confirm('同步后，本地资源会被覆盖，是否继续？')) {
-    isContinue = true
+    isContinue = true;
   } else {
-    isContinue = false
+    isContinue = false;
   }
   if (isContinue == true) {
     IDE.socket.emit('syncResource', {
@@ -195,37 +195,37 @@ function syncOrConnToServer () {
     }, function (result) {
       if (result) {
         if (result.state === 'success') {
-          IDE.navigator.refresh('/base')
-          IDE.navigator.refresh('/sbase')
+          IDE.navigator.refresh('/base');
+          IDE.navigator.refresh('/sbase');
         } else {
           if (window.confirm('同步需要连接服务器，是否连接?')) {
-            var newConnToServer = new Vue(connToServer)
+            var newConnToServer = new Vue(connToServer);
             IDE.socket.emit('getConnConfig', {
               type: IDE.type,
               event: 'getConnConfig',
               data: {}
             }, function (result) {
               if (result.state === 'success') {
-                var connections = result.data.data
+                var connections = result.data.data;
                 for (var index in connections) {
-                  var conn = connections[index]
-                  var connName = conn.connName
-                  var ipName = conn.ipName
-                  var portName = conn.portName
+                  var conn = connections[index];
+                  var connName = conn.connName;
+                  var ipName = conn.ipName;
+                  var portName = conn.portName;
 
-                  var label = connName
-                  var value = connName
-                  var newComboNode = {label, value}
-                  newConnToServer.comboNodes.push(newComboNode)
-                  var tableNode = {connName, ipName, portName}
-                  newConnToServer.tableNodes.push(tableNode)
+                  var label = connName;
+                  var value = connName;
+                  var newComboNode = {label, value};
+                  newConnToServer.comboNodes.push(newComboNode);
+                  var tableNode = {connName, ipName, portName};
+                  newConnToServer.tableNodes.push(tableNode);
                 }
               }
             })
-            var container = document.createElement('div')
-            container.id = 'connToServer'
-            document.body.appendChild(container)
-            newConnToServer.$mount('#connToServer')
+            var container = document.createElement('div');
+            container.id = 'connToServer';
+            document.body.appendChild(container);
+            newConnToServer.$mount('#connToServer');
           }
         }
       }
@@ -234,11 +234,110 @@ function syncOrConnToServer () {
 }
 
 function logManager () {
-  var newLoaManageDialog = new Vue(logManageDialog)
-  var container = document.createElement('div')
-  container.id = 'logManage'
-  document.body.appendChild(container)
-  newLoaManageDialog.$mount('#logManage')
+  var newLogManageDialog = new Vue(logManageDialog);
+  IDE.socket.emit('getLogManageInfo',{
+    type:IDE.type,
+    event:'getLogManageInfo',
+    data:{},
+  },function(result){
+    if(result){
+      if(result.state == 'success'){
+        //设置全局属性
+        newLogManageDialog.globalLogLevel = result.data.globalLogLevel;
+        newLogManageDialog.globalAsync = result.data.globalAsync;
+        newLogManageDialog.globalPrint = result.data.globalPrint;
+        var appenderModels = result.data.globalAppender;
+        for(let index in appenderModels){
+          var appenderModel = appenderModels[index];
+          var name = appenderModel.name;
+          var value = appenderModel.name;
+          var parameter = appenderModel.parameter;
+          var parameterCount = appenderModel.parameterCount;
+          var valid = appenderModel.valid;
+          var clazz = appenderModel.clazz;
+          var appender = {name,value,parameter,parameterCount,valid,clazz};
+          newLogManageDialog.form.appender.push(appender);
+        }
+        var appenders = newLogManageDialog.form.appender;
+        newLogManageDialog.globalAppender = appenders[0].name;
+        newLogManageDialog.globalLogRootPath = result.data.globalLogRootPath;
+        newLogManageDialog.globalSizeThreshold = result.data.globalSizeThreshold;
+        newLogManageDialog.globalNumThreshold = result.data.globalNumThreshold;
+        newLogManageDialog.globalBackupDirectory = result.data.globalBackupDirectory;
+        newLogManageDialog.globalBufferSize = result.data.globalBufferSize;
+
+        //配置Appender信息
+        newLogManageDialog.appenderTypes = result.data.appenderTypes;
+        //表格信息
+        var manageNodes = result.data.manageNode;
+        for(var index in manageNodes){
+          var nodeName = manageNodes[index];
+          var newNode = [];
+          newNode.label = nodeName;
+          newNode.value = nodeName;
+          newLogManageDialog.manageNode.push(newNode);
+        }
+        newLogManageDialog.appNode = result.data.appNode;
+        //配置策略信息
+        newLogManageDialog.strategyTypes = result.data.logTypes.strategyType;
+        for(var index in result.data.appenders){
+          var label = result.data.appenders[index];
+          var value = result.data.appenders[index];
+          var appender = {label,value};
+          newLogManageDialog.appenders.push(appender);
+        }
+        for(var index in result.data.strategys){
+          var label = result.data.strategys[index];
+          var value = result.data.strategys[index];
+          var strategyTypes = result.data.logTypes.strategyType;
+          var strategy = {label,value,strategyTypes};
+          newLogManageDialog.strategys.push(strategy);
+        }
+
+        var tableDatas = result.data.table;
+        if(tableDatas) {
+          for (var index in tableDatas) {
+            var tableData = tableDatas[index];
+            var manageNode = tableData.tManagerNode;
+            var appNode = tableData.tAppNode;
+            var appLevel = tableData.tAppLevel;
+            var async = tableData.tAsync;
+            var strategyInfo = tableData.strategyInfo;
+            var sizeThreshold = tableData.sizeThreshold;
+            var numThreshold = tableData.numThreshold;
+            var backupDirectory = tableData.backupDirectory;
+            var appender = tableData.tAppender;
+            var maxAsyncThrede = tableData.maxAsyncThrede;
+            var appPath=tableData.appPath;
+            var managePath = tableData.managePath;
+            var strategyParms = tableData.strategyParms;
+            var newItem = {
+              manageNode,
+              appNode,
+              appLevel,
+              async,
+              strategyInfo,
+              sizeThreshold,
+              numThreshold,
+              backupDirectory,
+              appender,
+              maxAsyncThrede,
+              appPath,
+              managePath,
+              strategyParms
+            }
+            newLogManageDialog.tableItems.push(newItem);
+
+          }
+        }
+      }
+    }
+  });
+
+  var container = document.createElement('div');
+  container.id = 'logManage';
+  document.body.appendChild(container);
+  newLogManageDialog.$mount('#logManage');
 
 }
 
@@ -251,21 +350,21 @@ function subtleField () {
   }, function (result) {
     if (result) {
       if (result.state === 'success') {
-        var start = result.data.openable
-        var subtleFields = result.data.subtleFields
-        var newSubtleField = new Vue(subtleFieldDialog)
-        var isStart = [start]
-        newSubtleField.isStart = isStart
+        var start = result.data.openable;
+        var subtleFields = result.data.subtleFields;
+        var newSubtleField = new Vue(subtleFieldDialog);
+        var isStart = [start];
+        newSubtleField.isStart = isStart;
         for (var indesx in subtleFields) {
-          var subtleField = subtleFields[indesx]
-          var prop = 'subtleField'
-          var field = {prop, subtleField}
-          newSubtleField.tableData.push(field)
+          var subtleField = subtleFields[indesx];
+          var prop = 'subtleField';
+          var field = {prop, subtleField};
+          newSubtleField.tableData.push(field);
         }
-        var container = document.createElement('div')
-        container.id = 'subtleField'
-        document.body.appendChild(container)
-        newSubtleField.$mount('#subtleField')
+        var container = document.createElement('div');
+        container.id = 'subtleField';
+        document.body.appendChild(container);
+        newSubtleField.$mount('#subtleField');
       }
     }
   })
@@ -276,20 +375,24 @@ module.exports =
   {
     config: {
       click: function () {
-        var chd = this.children
+        var chd = this.children;
         if (chd.type && chd.type == 'action' && chd.id) {
-          var id = chd.id
+          var id = chd.id;
           if (id === 'syncLocalReource') {
-            syncOrConnToServer.call(this)
+            syncOrConnToServer.call(this);
           } else if (id === 'configParameter') {
-            configParameter.call(this)
+            configParameter.call(this);
           } else if (id === 'logManager') {
-            logManager.call(this)
+            logManager.call(this);
           } else if (id === 'subtleField') {
-            subtleField.call(this)
+            subtleField.call(this);
           }
         }
       }
     },
     items: items
   }
+
+
+// WEBPACK FOOTER //
+// ./src/action/afe.menu.js
