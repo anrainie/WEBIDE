@@ -224,15 +224,15 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
          while (parent && (parent.config.children == null || parent.config.children[type] == null)) {
             parent = parent.parent;
         }
-        
+
         if (parent == null) {
             return null;
         }
-        
-        var pb = parent instanceof anra.gef.RootEditPart ? [0, 0] : parent.model.get('bounds');
-        
+
+        var pb = parent instanceof anra.gef.RootEditPart ? [0, 0] : parent.figure.getClientArea();
+
         model.set('bounds', [request.event.x - pb[0], request.event.y - pb[1], b[2], b[3]]);
-        return new anra.gef.CreateNodeCommand(this.getHost().getRoot(), model);
+        return new anra.gef.CreateNodeCommand(parent, model);
     },
     createListener: function () {
         var listener = new anra.gef.EditPartListener();

@@ -1313,11 +1313,11 @@ anra.gef.CreationTool = anra.gef.Tool.extend({
         var cmd = policy.getCommand(req);
         if (cmd != null && cmd.canExecute()) {
             editPart.getRoot().editor.execute(cmd);
-        } else {
-            return this.dragEnd(me, editPart.parent)
         }
         this.virtualEP = null;
-        return true;
+
+        return false;
+        return cmd != null && cmd.canExecute();
     },
     getCommand: function (e, p) {
         return new anra.gef.CreateNodeCommand();
@@ -1882,7 +1882,7 @@ anra.gef.CreateNodeCommand = anra.Command.extend({
     execute: function () {
         this.parentPart.model.addChild(this.node);
         this.parentPart.refresh();
-        this.parentPart.getRoot().refresh()
+        this.parentPart.getRoot().refresh();
     },
     undo: function () {
         this.parentPart.model.removeChild(this.node);
@@ -2574,6 +2574,33 @@ anra.gef.NodeModel = anra.gef.BaseModel.extend({
             line.store.update({target: null});
         }
     },
+    addChildByIndex(model, index, callback) {
+        var squence = Object.keys(this.children);
+
+        //超出范围
+        if (index >= squence.length) {
+            this.addChild(model, callback);
+            return;
+        }
+
+        this.addChild(model, (model) => {
+            let newChildren = {};
+
+            squence.forEach((item, oldIndex) => {
+                if (item == model.get('id')) return;
+
+                if (index == oldIndex) {
+                    newChildren[model.get('id')]  = model;
+                }
+
+                newChildren[item] = this.children[item];
+            })
+
+            this.children = newChildren;
+
+            callback && callback(model);
+        });
+    },
      addChild: function (model, callback) {
         this.children[model.get('id')] = model;
         model.storeId = this.storeId;
@@ -2596,11 +2623,7 @@ anra.gef.NodeModel = anra.gef.BaseModel.extend({
         return this.children[id];
     },
     getAllChildren: function () {
-        var c = [];
-        for (var key in this.children) {
-            c.push(this.children[key]);
-        }
-        return c;
+        return Object.values(this.children);
     },
     equals: function (o) {
         return this == o || this.props.id == o.props.id;

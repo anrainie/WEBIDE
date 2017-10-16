@@ -138,23 +138,20 @@ var containerLayoutPolicy = LayoutPolicy.extend({
         f.bounds = {width: b.width / 2, height: b.height / 2};
         return f;
     },
+    /*targetOnMouse 不穿透*/
     getCreateCommand(request) {
         var model = request.event.prop.drag.model,
             type = model.get('type'),
             b = model.get('bounds'), parent = request.editPart;
 
-        while (parent && (parent.config.children == null || parent.config.children[type] == null)) {
-            parent = parent.parent;
+        if (parent && parent.config && parent.config.children && parent.config.children[type]) {
+            var pb = parent instanceof anra.gef.RootEditPart ? [0, 0] : parent.model.get('bounds');
+
+            model.set('bounds', [request.event.x - pb[0], request.event.y - pb[1], b[2], b[3]]);
+            return new anra.gef.CreateNodeCommand(parent, model);
         }
 
-        if (parent == null) {
-            return null;
-        }
-
-        var pb = parent instanceof anra.gef.RootEditPart ? [0, 0] : parent.model.get('bounds');
-
-        model.set('bounds', [request.event.x - pb[0], request.event.y - pb[1], b[2], b[3]]);
-        return new anra.gef.CreateNodeCommand(this.getHost(), model);
+        return null;
     }
 });
 
@@ -235,7 +232,7 @@ class DragTracker {
                     type: constants.REQ_DRAG_START
                 });
 
-                return true
+                return true;
             }
         } else {
             me.dragTracker = this;
@@ -279,6 +276,21 @@ anra.gef.DragTracker = anra.gef.RootDragTracker = DragTracker;
 
 /*在grid的布局的情况下，提示布局的位置和决定布局位置*/
 let layoutSequencePolicy = {
+    /*targetOnMouse 不穿透*/
+    getCreateCommand(request) {
+        var model = request.event.prop.drag.model,
+            type = model.get('type'),
+            b = model.get('bounds'), parent = request.editPart;
+
+        if (parent && parent.config && parent.config.children && parent.config.children[type]) {
+            var pb = parent instanceof anra.gef.RootEditPart ? [0, 0] : parent.figure.getClientArea();
+
+            model.set('bounds', [request.event.x - pb[0], request.event.y - pb[1], b[2], b[3]]);
+            return new createNodeByIndexCommand(parent, model, this.index);
+        }
+
+        return null;
+    },
     showRedLineFeedback(req) {
         this.refreshRedLine(this.getRedLineVisual(), req.event);
     },
@@ -292,7 +304,7 @@ let layoutSequencePolicy = {
     },
     eraseRedLineFeedback(req) {
         this.removeFeedback(this.getRedLineVisual());
-        this.["redLine"] = null;
+        this["redLine"] = null;
     },
     getRedLineVisual() {
         if (this["redLine"] == null) {
@@ -364,23 +376,30 @@ let layoutSequencePolicy = {
                 width: (bounds[2] + length)/2,
                 height: bounds[3]/2
             });
+            this.index = 0;
         } else {
             let y = event.y, pos = children[0].getClientArea()[1], min = Math.abs(y - pos),
                 currentPos, offset;
 
-            children.reduce((pre, next) => {
+            this.index = 0;
+
+            children.reduce((pre, next, currentIndex) => {
                 currentPos = (pre.getClientArea()[1] + pre.getClientArea()[3] + next.getClientArea()[1]) / 2;
                 offset = Math.abs(y - currentPos);
                 if (offset < min) {
                     pos = currentPos;
                     min = offset;
+                    this.index = currentIndex;
                 }
             });
 
             let lastBounds = children[children.length - 1].getClientArea();
 
             currentPos = lastBounds[1] + lastBounds[3];
-            pos = Math.abs(currentPos - y) < min ? currentPos : pos;
+            if (Math.abs(currentPos - y) < min) {
+                pos = currentPos;
+                this.index = children.length;
+            }
 
             line.setBounds({
                 x: (bounds[2]- length)/2,
@@ -389,8 +408,6 @@ let layoutSequencePolicy = {
                 height: currentPos
             });
         }
-
-        editPart.getRoot().getFeedbackLayer().addChild(line);
     },
     computeVertical(line, event, editPart) {
         let y = event.y,
@@ -399,9 +416,11 @@ let layoutSequencePolicy = {
             bounds = currentFigure.getClientArea();
 
         let pos = bounds[1] + bounds[3], min = Math.abs(y - pos);
+        this.index = 0;
 
         if (children) {
             let currentPos, lastBottom, offset
+            this.index = children.length;
 
             children.forEach((child, index) => {
                 currentPos = index == 0 ? child.getClientArea()[1] - 5 : (lastBottom + child.getClientArea()[1])/2;
@@ -409,6 +428,7 @@ let layoutSequencePolicy = {
                 offset = Math.abs(y - currentPos);
 
                 if (offset < min) {
+                    this.index = index;
                     pos = currentPos;
                     min = offset;
                 }
@@ -461,6 +481,7 @@ let layoutSequencePolicy = {
             startY = pos;
 
             //确定X
+            this.index = i*numColumns;
             pos = bounds[0] + marginLeft;
             min = Math.abs(x - pos);
             for (let j = 0; j < 4; j++) {
@@ -473,6 +494,7 @@ let layoutSequencePolicy = {
                 if (offset < min) {
                     min = offset;
                     pos = currentPos;
+                    this.index = i*numColumns + j;
                 }
             }
             startX = pos;
@@ -493,5 +515,25 @@ let layoutSequencePolicy = {
         return bounds[0] + bounds[2];
     }
 }
+
+let createNodeByIndexCommand = anra.Command.extend({
+    constructor: function (parentPart, node, index) {
+        this.parentPart = parentPart;
+        this.node = node;
+        this.index = index;
+    },
+    canExecute: function () {
+        return this.parentPart && this.node && this.index >= 0;
+    },
+    execute: function () {
+        this.parentPart.model.addChildByIndex(this.node, this.index);
+        this.parentPart.refresh();
+        this.parentPart.getRoot().refresh();
+    },
+    undo: function () {
+        this.parentPart.model.removeChild(this.node);
+        this.parentPart.refresh();
+    }
+});
 
 export let ContainerLayoutPolicy = containerLayoutPolicy.extend(layoutSequencePolicy);
