@@ -16,8 +16,8 @@
                         <!--@change="handleChange">-->
                 <!--</el-cascader>-->
             </el-form-item>
-            <el-form-item :label="desclabel" :label-width="labelWidth">
-                <el-input v-model="desc" auto-complete="off"></el-input>
+            <el-form-item :label="desclabel.label" :label-width="labelWidth">
+                <el-input v-model="desc" auto-complete="off">{{desclabel.value}}</el-input>
             </el-form-item>
         </el-form>
         <el-form-item></el-form-item>
@@ -56,7 +56,10 @@
           label:'',
           value:''
         },
-        desclabel: '',
+        desclabel: {
+          label:'',
+          value:''
+        },
         refLabel: ''
       }
     },
@@ -75,7 +78,7 @@
         IDE.socket.emit("createNewResource",{
           type: IDE.type,
           event: 'createNewResource',
-          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name,desc:this.desc}
+          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name,description:this.desc}
         }, function (result) {
           if (result) {
             if (result.state === 'success') {
