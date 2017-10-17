@@ -50,12 +50,11 @@
         </el-form>
     `;
 
-    /*服务调用*/
+    //服务调用
     let templateB = `
-         <el-form label-width="90px">
-            <el-row >
-                <el-col :span="8">在当前线程执行</el-col>
-                <el-col :span="8">
+        <el-form  inline="true" class="demo-form-inline">
+
+            <el-form-item label="服务类型（在当前线程中执行）">
                 <el-switch
                         v-model="modification.RefImpl"
                         on-color="#44ffaa"
@@ -65,8 +64,9 @@
                         on-text="开启"
                         off-text="关闭">
                 </el-switch>
-                </el-col>
-                <el-col :span="8">
+            </el-form-item>
+
+            <el-form-item label="调用类型">
                 <el-switch
                         v-if="modification.RefImpl"
                         v-model="modification.Async"
@@ -77,12 +77,38 @@
                         on-text="同步"
                         off-text="异步">
                 </el-switch>
-                </el-col>
-            </el-row>
+            </el-form-item>
+        </el-form>
+
+        <el-form  inline="true" class="demo-form-inline">
+            <el-form-item label="目标服务">
+                <el-input></el-input>
+
+            </el-form-item>
+
+            <el-form-item>
+              <el-button icon="more" ></el-button>
+            </el-form-item>
+
+            <el-form-item label="服务名称">
+                <el-input ></el-input>
+            </el-form-item>
+
+      </el-form>
+
+       <el-form>
+
+            <el-form-item label="服务描述">
+                <el-input></el-input>
+            </el-form-item>
+
+            <el-form-item label="组件注释">
+                <el-input type="textarea"></el-input>
+            </el-form-item>
 
         </el-form>
     `;
-    
+
     /*默认逻辑错误、组件调用、服务调用、技术组件*/
     let templateC = `
         <el-form label-width="90px">
@@ -138,46 +164,92 @@
     `;
 
 
+    //自定义结束
     let templateE = `
-        <el-form label-width="180px" inline="true" >
-
-            <el-form-item label="实现名称" :required="true">
-                <el-input v-model="modification.RefImpl"></el-input>
-            </el-form-item>
-            <el-form-item label="组件名称" :required="true">
-                <el-input v-model="modification.Desp"></el-input>
+        <el-form  inline="true" class="demo-form-inline">
+            <el-form-item label="目标组件">
+                <el-input :disabled="true"></el-input>
             </el-form-item>
 
-             <el-form-item label="备注" >
-                <el-select v-model="modification.Remarks" >
-                    <el-option value="0" label="通用">
-                    </el-option>
-                    <el-option value="1" label="定制">
-                    </el-option>
-                </el-select>
-             </el-form-item>
-
-            <el-form-item label="只读" :required="true">
-                <el-input v-model="modification.Readonly"></el-input>
+            <el-form-item label="组件名称">
+                <el-input :disabled="true"></el-input>
             </el-form-item>
 
-            <el-form-item label="注释" :required="true">
-                <el-input v-model="modification.Tooltip"></el-input>
+            <el-form-item label="组件描述">
+                <el-input></el-input>
+            </el-form-item>
+
+            <el-form-item label="组件级别">
+                <el-input :disabled="true"></el-input>
+            </el-form-item>
+
+            <el-form-item label="组件注释">
+                <el-input type="textarea"></el-input>
+            </el-form-item>
+
+            <el-form-item label="结束分支">
+                <el-select></el-select>
             </el-form-item>
 
         </el-form>
     `;
 
+    //组件调用
+    let templateF = `
+        <el-form  inline="true" class="demo-form-inline">
+
+            <el-form-item label="调用方式">
+                <el-checkbox >动态调用</el-checkbox>
+            </el-form-item>
+
+        </el-form>
+
+        <el-form  inline="true" class="demo-form-inline">
+
+            <el-form-item label="目标组件">
+                <el-input disable="true"></el-input>
+            </el-form-item>
+
+            <el-form-item>
+              <el-button icon="more" ></el-button>
+            </el-form-item>
+
+            <el-form-item label="组件名称">
+                <el-input disable="true"></el-input>
+            </el-form-item>
+
+            <el-form-item label="组件描述">
+                <el-input ></el-input>
+            </el-form-item>
+
+            <el-form-item label="组件级别">
+                <el-input disable="true"></el-input>
+            </el-form-item>
+
+      </el-form>
+
+       <el-form>
+
+            <el-form-item label="服务描述">
+                <el-input></el-input>
+            </el-form-item>
+
+            <el-form-item label="组件注释">
+                <el-input type="textarea"></el-input>
+            </el-form-item>
+
+        </el-form>
+    `
+
 
 
     /*配置模板字符串*/
     const templateRouter = {
-        '0' : templateA,
-        '1' : templateB,
-        '2' : templateC,
-        '3' : templateC,
-        '4' : templateC,
-        '5' : templateA
+        '3': templateB,
+        '4': templateE,
+        '5': templateA,
+        '7': templateF,
+        '10': templateB
     }
 
     /*默认属性*/

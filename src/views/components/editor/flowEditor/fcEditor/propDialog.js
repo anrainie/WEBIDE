@@ -1,6 +1,7 @@
 //定义和配置所有对话框
 import skipGroup from '../../../flowPropDialog/skipGroup.vue';
 import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
+import  paramsGrop from '../../../flowPropDialog/paramsGroup.vue';
 
 let baseDialogComponent = {
     template: `
@@ -59,14 +60,17 @@ let createDialog = function (config) {
 };
 
 export let propDialogs = {
+    //服务调用
+    "3": createDialog({basicInfo,paramsGrop}),
     //通用组件
-    "3": createDialog(),
-    //服务调用
-    "5": createDialog({basicInfo: basicInfo, skipInfo: skipGroup}),
+    "5": createDialog({basicInfo, skipInfo: skipGroup}),
     //自定义结束
-    "4": createDialog(),
+    "4": createDialog({basicInfo}),
     //组件调用
-    "7": createDialog(),
+    "7": createDialog({basicInfo,paramsGrop}),
     //服务调用
-    "10": createDialog()
+    "10": createDialog({basicInfo,paramsGrop})
 }
+
+
+
