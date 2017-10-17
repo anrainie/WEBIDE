@@ -17,7 +17,7 @@ function getNewWizard () {
   newWizard.wizardtitle = newItem.wizardtitle
   newWizard.pagedesc = newItem.pagedesc
   newWizard.pagetitle = newItem.pagetitle
-  newWizard.namelabel = newItem.namelabel
+  newWizard.namelabel.label = newItem.namelabel
   newWizard.desclabel = newItem.desclabel
   newWizard.reference = newItem.reference
   if(newWizard.reference == true)
