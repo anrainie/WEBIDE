@@ -23,7 +23,9 @@
                     @dblclickCanvas="nodeDoubleClickCanvas"></flowEditor>
 
             <!--对话框-->
-            <flowPropDialog :showProperties.sync="showProperties" :model="dialogTarget"></flowPropDialog>
+            <keep-alive>
+                <component :is="dialogType" :showProperties.sync="showProperties" :model="dialogTarget"></component>
+            </keep-alive>
 
         </div>
     </editorContainer>
@@ -36,6 +38,7 @@
     import * as Constants from 'Constants'
     import skipGroup from '../../../flowPropDialog/skipGroup.vue';
     import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
+    import {propDialogs} from './propDialog'
 
 
     /*用于参数忽略的时候*/
@@ -139,6 +142,7 @@
                 bindEvent: {
                     [Constants.OPEN_FLOWPROP_DIALOG](editPart) {
                         self.dialogTarget = editPart.model;
+                        self.dialogType = editPart.model.get("Type");
                         self.showProperties = true;
                     },
 
@@ -195,7 +199,8 @@
                 nodeEditorBuffer: new Map(),
                 saveHandle: commonDoSave,
                 showProperties: false,
-                dialogTarget: null
+                dialogTarget: null,
+                dialogType: null
             }
         },
         computed: {
@@ -306,53 +311,9 @@
                 this.input.Root.Regulation.Step = step;
             }
         },
-        components: {
+        components: Object.assign({
             flowEditor,
-            editorContainer,
-            flowPropDialog: {
-                template: `
-                <el-dialog title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="tiny">
-                    <el-collapse value="1" v-if="showProperties">
-                        <el-collapse-item title="基本信息" name="1">
-                            <basicInfo ref="basicInfo" :type="basicInfoType" :model="model.props"></basicInfo>
-                        </el-collapse-item>
-                        <el-collapse-item title="伪执行">
-                            <skipInfo ref="skipInfo" :skip="skipInfoSkip"></skipInfo>
-                        </el-collapse-item>
-                    </el-collapse>
-
-                    <span slot="footer" class="dialog-footer" v-if="showProperties">
-                        <el-button @click="updateVisible(false)">取消</el-button>
-                        <el-button type="primary" @click="saveHandle('basicInfo')
-                                                       .saveHandle('skipInfo')
-                                                       .updateVisible(false)">确定</el-button>
-                    </span>
-                </el-dialog>`,
-                components: {
-                    skipInfo: skipGroup,
-                    basicInfo: basicInfo
-                },
-                props: ["showProperties", "model"],
-                methods: {
-                    updateVisible(vaule) {
-                        this.$emit('update:showProperties', vaule);
-                    },
-                    /*通过refs调用子组件*/
-                    saveHandle(refsName) {
-                        this.$refs[refsName].savePropsToModel(this.model);
-                        return this;
-                    }
-                },
-                computed: {
-                    basicInfoType() {
-                        return this.model.get('type');
-                    },
-                    skipInfoSkip() {
-                        return this.model.get('Skip');
-
-                    }
-                }
-            }
-        }
+            editorContainer
+        }, propDialogs)
     }
 </script>

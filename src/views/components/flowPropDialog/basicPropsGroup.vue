@@ -138,6 +138,38 @@
     `;
 
 
+    let templateE = `
+        <el-form label-width="180px" inline="true" >
+
+            <el-form-item label="实现名称" :required="true">
+                <el-input v-model="modification.RefImpl"></el-input>
+            </el-form-item>
+            <el-form-item label="组件名称" :required="true">
+                <el-input v-model="modification.Desp"></el-input>
+            </el-form-item>
+
+             <el-form-item label="备注" >
+                <el-select v-model="modification.Remarks" >
+                    <el-option value="0" label="通用">
+                    </el-option>
+                    <el-option value="1" label="定制">
+                    </el-option>
+                </el-select>
+             </el-form-item>
+
+            <el-form-item label="只读" :required="true">
+                <el-input v-model="modification.Readonly"></el-input>
+            </el-form-item>
+
+            <el-form-item label="注释" :required="true">
+                <el-input v-model="modification.Tooltip"></el-input>
+            </el-form-item>
+
+        </el-form>
+    `;
+
+
+
     /*配置模板字符串*/
     const templateRouter = {
         '0' : templateA,
@@ -165,9 +197,6 @@
         /*render: res.render,
         staticRenderFns: res.staticRenderFns,*/
         props: {
-            type: {
-                default: 1
-            },
             model: {
                 default(){
                     return DEFAULTS
@@ -177,7 +206,8 @@
         /*记录数据的props的副本*/
         data() {
             return {
-                modification: this.initModification()
+                modification: this.initModification(),
+                type: this.model.type ?  this.model.Type : 1
             }
         },
         methods: {

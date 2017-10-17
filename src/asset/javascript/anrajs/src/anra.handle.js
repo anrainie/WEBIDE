@@ -99,7 +99,8 @@ anra.gef.LineHandle = anra.Handle.extend(anra.svg.Circle).extend({
         
         this.setAttribute({
             fill:'white',
-            stroke:'blue'
+            stroke:'blue',
+
         });
         this.setStyle({'cursor':'move'});
         

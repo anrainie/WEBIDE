@@ -318,8 +318,15 @@ $AG.policy = {
                     this.handle.refreshLocation = loc;
                 this.handle.setText(this.getHost().model.get(key));
                 this.getHandleLayer().addChild(this.handle);
+
+                //添加一个监听数据的改变
+                this.listener = () => {
+                    this.handle.setText(this.getHost().model.get(key));
+                };
+                this.getHost().model.addPropertyListener(this.listener, key);
             },
             deactivate: function () {
+                this.getHost().model.removePropertyListener(this.listener, key);
                 this.getHandleLayer().removeChild(this.handle);
             }
         }
@@ -330,5 +337,7 @@ $AG.policy = {
 $AG.DeleteNodeAndLineCommand = anra.gef.DeleteNodeAndLineCommand.extend({});
 
 $AG.DeleteLineCommand = anra.gef.DeleteLineCommand.extend({});
+
+$AG.Handle = anra.Handle;
 
 export {$AG}

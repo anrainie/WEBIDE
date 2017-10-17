@@ -73,6 +73,66 @@ var closeNodeEditor = {
     }
 }
 
+var pinHandle = $AG.Handle.extend($AG.CIRCLE).extend({
+    constructor(editPart, anchorId) {
+        $AG.Handle.prototype.constructor.call(this, editPart);
+        this.anchorId = anchorId;
+    },
+    initProp() {
+        let anchor = this.editPart.getSourceAnchorByTerminal(this.anchorId);
+
+        if (anchor) {
+            this.setOpacity(1);
+
+            this.setAttribute({
+                "stroke": "black",
+                "stroke-width": 2,
+                "fill": this.colorMap[this.anchorId]
+            });
+            this.setStyle({'cursor': 'move'});
+
+            this.setBounds({
+                x: anchor.x,
+                y: anchor.y,
+                width: 10
+            }, true);
+        }
+    },
+    colorMap: {
+        "0": "red",
+        "1": "green"
+    },
+    refreshLocation: function (figure) {
+        var anchor = figure.getSourceAnchorByTerminal(this.anchorId);
+        this.setBounds({
+            x: anchor.x,
+            y: anchor.y,
+            width: 10
+        });
+    }
+});
+
+var pinPolicy = function (idList) {
+    return {
+        activate() {
+            if (idList) {
+                this.handles = idList.map((id) => (new pinHandle(this.getHost(), id)));
+                this.handles.forEach((item) => {
+                   this.getHandleLayer().addChild(item);
+                });
+            }
+        },
+
+        dectivate() {
+            if (this.handles) {
+                this.handles.forEach((item) => {
+                    this.getHandleLayer().removeChild(item);
+                });
+            }
+        }
+    }
+};
+
 
 
     /***************************************右键菜单***************************************/
@@ -203,7 +263,7 @@ let defaultData = {
 };
 
 //默认组件
-var stepCommonCpt = {
+    var stepCommonCpt = {
     name: 'common',
     paletteUrl: "assets/image/editor/palette_component_stepCommonCpt.gif",
     url: 'assets/image/editor/event_component_stepCommonCpt.gif',
@@ -228,7 +288,9 @@ var stepCommonCpt = {
 
         'despText': $AG.policy.TextPolicy('Desp', location),
 
-        'nodeEditor': openNodeEditor
+        'nodeEditor': openNodeEditor,
+
+        'pin': pinPolicy(['0', '1'])
     },
 
     //特性
@@ -264,7 +326,8 @@ var serviceInvokdEntered = {
 
     policies : {
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'nodeEditor': closeNodeEditor
+        'nodeEditor': closeNodeEditor,
+        'pin': pinPolicy(['0', '1'])
     },
 
     //数据
@@ -293,7 +356,8 @@ var nodeStart = {
     refresh,
 
     policies : {
-        'despText': $AG.policy.TextPolicy('Desp', location)
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['1'])
     }
 };
 
@@ -315,7 +379,8 @@ var nodeEnd = {
     refresh,
 
     policies : {
-        'despText': $AG.policy.TextPolicy('Desp', location)
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['1'])
     }
 };
 
@@ -337,7 +402,8 @@ var nodeAbnormalEnd = {
     refresh,
 
     policies : {
-        'despText': $AG.policy.TextPolicy('Desp', location)
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['1'])
     }
 };
 
@@ -360,7 +426,8 @@ var nodeErrorDelegate = {
     refresh,
 
     policies : {
-        'despText': $AG.policy.TextPolicy('Desp', location)
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['0', '1'])
     }
 };
 
@@ -384,7 +451,8 @@ var componentInvoke = {
     refresh,
 
     policies : {
-        'despText': $AG.policy.TextPolicy('Desp', location)
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['0', '1'])
     }
 };
 
@@ -407,7 +475,8 @@ var tradeInvoke = {
     refresh,
 
     policies : {
-        'despText': $AG.policy.TextPolicy('Desp', location)
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['0', '1'])
     }
 };
 
@@ -429,7 +498,8 @@ var transfer = {
     refresh,
 
     policies : {
-        'despText': $AG.policy.TextPolicy('Desp', location)
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['1'])
     }
 };
 
@@ -446,8 +516,8 @@ const stepBaseCfg = {
         0: {
             name: '默认组件',
             items: {
-                '3': serviceInvokdEntered,
                 '5': stepCommonCpt,
+                '3': serviceInvokdEntered,
             }
         },
         1: {

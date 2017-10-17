@@ -24,12 +24,14 @@
 <script>
     export default {
         props: {
-            skip: {
+            model: {
                 default() {
                     /*字符串*/
                     return {
-                        Enable: '0',
-                        Branch: '1'
+                        Skip: {
+                            Enable: '0',
+                            Branch: '1'
+                        }
                     }
                 }
             }
@@ -52,10 +54,18 @@
         },
         methods: {
             initModification() {
+                if (this.model.Skip) {
+                    return {
+                        Enable: this.model.Skip.Enable,
+                        Branch: this.model.Skip.Branch
+                    }
+                }
+
+                /*默认*/
                 return {
-                    Enable: this.skip.Enable,
-                    Branch: this.skip.Branch
-                };
+                    Enable: '0',
+                    Branch: '1'
+                }
             },
 
             /*获取修改后的数据*/
