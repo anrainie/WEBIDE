@@ -380,25 +380,25 @@ var items = {
 }
 
 function match1 (id,newItems) {
-  let item = items[id]
+  let item = items[id];
   if (item) {
-    let newItem = $.extend(true, {}, item)
+    let newItem = $.extend(true, {}, item);
     if (newItem){
-      newItems.push(newItem)
+      newItems.push(newItem);
     }
   }
 }
 
 module.exports = {
   match1: function (id) {
-    var newItems = []
-    match1(id, newItems)
-    return newItems
+    var newItems = [];
+    match1(id, newItems);
+    return newItems;
   },
   getItem: function (id) {
-    var item = items[id]
+    var item = items[id];
     if (item) {
-      return $.extend(true, {}, item)
+      return $.extend(true, {}, item);
     }
   }
 }
