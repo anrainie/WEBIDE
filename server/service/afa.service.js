@@ -53,7 +53,7 @@ module.exports = {
       handler: ioService
     },{
       //内部场景调用加载场景
-      id: 'loadSitu',
+      id: 'loadScene',
       type: 'IOService',
       handler: ioService
     }
