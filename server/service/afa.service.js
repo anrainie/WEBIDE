@@ -41,12 +41,19 @@ module.exports = {
       type: 'IOService',
       handler: ioService
     }, {
+    //加载业务组件
       id: 'loadBcpt',
       type: 'IOService',
       handler: ioService
     }
     , {
+      //加载技术组件
       id: 'loadTcpt',
+      type: 'IOService',
+      handler: ioService
+    },{
+      //内部场景调用加载场景
+      id: 'loadSitu',
       type: 'IOService',
       handler: ioService
     }
