@@ -107,39 +107,43 @@
 
             },
             handleOk(){
+              if(!this.name||!this.description){
+                alert("名字和描述不能为空");
+              }else {
                 this.dialogFormVisible = false;
                 IDE.socket.emit("createNewResource", {
-                    type: IDE.type,
-                    event: 'createNewResource',
-                    data: {
-                        style: this.style,
-                        path: this.path,
-                        resourceId: this.resourceId,
-                        type: this.type,
-                        name: this.name == "" ? this.namelabel.value : this.name,
-                        description: this.description,
-                        directory: this.directory,
-                        group: this.selectedGroup,
-                        ref: this.selectedRef
-                    }
+                  type: IDE.type,
+                  event: 'createNewResource',
+                  data: {
+                    style: this.style,
+                    path: this.path,
+                    resourceId: this.resourceId,
+                    type: this.type,
+                    name: this.name == "" ? this.namelabel.value : this.name,
+                    description: this.description,
+                    directory: this.directory,
+                    group: this.selectedGroup,
+                    ref: this.selectedRef
+                  }
                 }, function (result) {
-                    if (result) {
-                        if (result.state === 'success') {
+                  if (result) {
+                    if (result.state === 'success') {
 
-                            var type = result.data.type;
-                            var path = result.data.path;
-                            var parentPath = result.data.parentPath
-                            IDE.navigator.refresh(parentPath,10);
-                            setTimeout(function () {
-                                if (type === 'file') {
-                                    let item = IDE.navigator.getItem(path);
-                                    let input = result.data.input;
-                                    IDE.editorPart.openEditor(item, input);
-                                }
-                            },700)
+                      var type = result.data.type;
+                      var path = result.data.path;
+                      var parentPath = result.data.parentPath
+                      IDE.navigator.refresh(parentPath, 10);
+                      setTimeout(function () {
+                        if (type === 'file') {
+                          let item = IDE.navigator.getItem(path);
+                          let input = result.data.input;
+                          IDE.editorPart.openEditor(item, input);
                         }
+                      }, 700)
                     }
+                  }
                 });
+              }
                 //删除dialog
 //        var dialog = document.getElementById("wizard")
 //        document.body.removeChild(dialog)
