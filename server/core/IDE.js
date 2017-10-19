@@ -19,5 +19,20 @@ module.exports = {
             }
         }
         return uuid.join('');
+    },
+    mergeService(source,target){
+        let s_services = source.services;
+        let t_services = target.services;
+        let services = {};
+        for(let i = 0 ; i < t_services.length ; i++){
+            let service = t_services[i];
+            services[service.id] = null;
+        }
+        for(let i = 0 ; i < s_services.length ; i++){
+            let service = s_services[i];
+            if(!(service.id in services)){
+                t_services.push(service);
+            }
+        }
     }
 }
