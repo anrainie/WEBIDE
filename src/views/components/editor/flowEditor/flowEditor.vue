@@ -183,7 +183,7 @@
                             <el-collapse v-if="isVisibility" v-model="activeNames" accordion>
                                 <el-collapse-item v-bind:title="value.name" v-bind:name="index" v-for="(value, key, index) in getGroup()">
                                     <el-row v-for="(item, type) in value.items">
-                                        <el-col :span="24"><img v-drag="{editor: editor, item: item, type: type}" /></el-col>
+                                        <el-col :span="24"><img v-drag="{editor: editor, item: item, type: type}" />{{item.desc}}</el-col>
                                     </el-row>
                                 </el-collapse-item>
                             </el-collapse>
