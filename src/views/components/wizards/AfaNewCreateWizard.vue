@@ -16,8 +16,8 @@
                         <!--@change="handleChange">-->
                 <!--</el-cascader>-->
             </el-form-item>
-            <el-form-item :label="desclabel" :label-width="labelWidth">
-                <el-input v-model="desc" auto-complete="off"></el-input>
+            <el-form-item :label="desclabel.label" :label-width="labelWidth">
+                <el-input v-model="desc" auto-complete="off">{{desclabel.value}}</el-input>
             </el-form-item>
         </el-form>
         <el-form-item></el-form-item>
@@ -56,7 +56,10 @@
           label:'',
           value:''
         },
-        desclabel: '',
+        desclabel: {
+          label:'',
+          value:''
+        },
         refLabel: ''
       }
     },
@@ -71,32 +74,43 @@
 
       },
       handleOk(){
-        this.dialogFormVisible = false;
-        IDE.socket.emit("createNewResource",{
-          type: IDE.type,
-          event: 'createNewResource',
-          data: {path: this.path,resourceId:this.resourceId,type:this.type,name:this.name,desc:this.desc}
-        }, function (result) {
-          if (result) {
-            if (result.state === 'success') {
-              let path = result.data.path;
-              //刷新
-              if(path)
-                IDE.navigator.refresh(path);
-              else
-                IDE.navigator.refresh(null);
-              let type = result.data.type;
-              if (type === 'file') {
-                let item = IDE.navigator.getItem(path);
-                let input = result.data.input;
-                if(input){
+
+        if(!this.name||!this.desc){
+           alert("名字和描述不能为空");
+        }else {
+          this.dialogFormVisible = false;
+          IDE.socket.emit("createNewResource", {
+            type: IDE.type,
+            event: 'createNewResource',
+            data: {
+              path: this.path,
+              resourceId: this.resourceId,
+              type: this.type,
+              name: this.name,
+              description: this.desc
+            }
+          }, function (result) {
+            if (result) {
+              if (result.state === 'success') {
+                let path = result.data.path;
+                //刷新
+                if (path)
+                  IDE.navigator.refresh(path);
+                else
+                  IDE.navigator.refresh(null);
+                let type = result.data.type;
+                if (type === 'file') {
+                  let item = IDE.navigator.getItem(path);
+                  let input = result.data.input;
+                  if (input) {
                     //打开编辑器
-                  IDE.editorPart.openEditor(item,input);
+                    IDE.editorPart.openEditor(item, input);
+                  }
                 }
               }
             }
-          }
-        });
+          });
+        }
       },
       handleBroswer(){
         //获取相关引用

@@ -13,10 +13,10 @@ function getAppAction() {
         data: {actionId: this.id, path: this.path}
     }, function (result) {
         if (result.state === 'success') {
-            IDE.navigator.refresh(result.data.path)
-            alert(result.data.content)
+            IDE.navigator.refresh(result.data.path);
+            alert(result.data.content);
         } else {
-            alert(result.errorMsg)
+            alert(result.errorMsg);
         }
     })
 
@@ -24,47 +24,47 @@ function getAppAction() {
 //根据resourceId获取wizard并根据向导配置信息将基本信息传给wizard
 function getWizardByResourceId(newItem, preName) {
 
-    var newWizard = new Vue(wizardVue)
+    var newWizard = new Vue(wizardVue);;
     if (newItem.reference) {
-        newWizard.reference = newItem.reference
-        newWizard.refLabel = newItem.refLabel
+        newWizard.reference = newItem.reference;
+        newWizard.refLabel = newItem.refLabel;
     }
-    newWizard.resourceId = newItem.resourceId
+    newWizard.resourceId = newItem.resourceId;
     newWizard.type = newItem.type;
-    newWizard.wizardtitle = preName + newItem.wizardtitle
-    newWizard.pagedesc = newItem.pagedesc
-    newWizard.pagetitle = preName + newItem.pagetitle
-    newWizard.namelabel.label = newItem.namelabel.label
-    newWizard.namelabel.value = newItem.namelabel.value
+    newWizard.wizardtitle = preName + newItem.wizardtitle;
+    newWizard.pagedesc = newItem.pagedesc;
+    newWizard.pagetitle = preName + newItem.pagetitle;
+    newWizard.namelabel.label = newItem.namelabel.label;
+    newWizard.namelabel.value = newItem.namelabel.value;
     if (newItem.desclabel) {
-        newWizard.desclabel.label = newItem.desclabel.label
-        newWizard.desclabel.value = newItem.desclabel.value
+        newWizard.desclabel.label = newItem.desclabel.label;
+        newWizard.desclabel.value = newItem.desclabel.value;
     }
     if (newItem.directoryLabel) {
-        newWizard.directoryLabel.label = newItem.directoryLabel.label
-        newWizard.directoryLabel.value = newItem.directoryLabel.value
+        newWizard.directoryLabel.label = newItem.directoryLabel.label;
+        newWizard.directoryLabel.value = newItem.directoryLabel.value;
     }
-    return newWizard
+    return newWizard;
 }
 // 调用dialog
 function mountDialog(newWizard) {
-    var oDiv = document.createElement('div');
-    oDiv.id = "wizard"
-    document.body.appendChild(oDiv)
-    newWizard.$mount('#wizard')
+    var oDiv = document.createElement('div');;
+    oDiv.id = "wizard";
+    document.body.appendChild(oDiv);
+    newWizard.$mount('#wizard');
 }
 
 function getNewWizard(selection) {
-    var newWizard
-    var style
-    var path = this.path
+    var newWizard;
+    var style;
+    var path = this.path;
     var reourceId = this.resourceId;
     var preName = "新建";
     var selection = selection[0];
     if (this.id == "cn.com.agree.eci.ide.navigation.action.AfeModifyAction") {
-        style = 1<<1
+        style = 1<<1;
         //修改
-        preName = "修改"
+        preName = "修改";
         //根据path获取资源以及资源的相关信息，resourceId,name,desc,direcotry......
         IDE.socket.emit("beforeCreateOrModify", {
             type: IDE.type,
@@ -73,35 +73,35 @@ function getNewWizard(selection) {
         }, function (result) {
             if (result) {
                 if (result.state === 'success') {
-                    var oldName, oldDescription, oldDirectory, oldGroup, oldRef
-                    reourceId = result.data.resourceId
-                    oldName = result.data.name ? result.data.name : ""
-                    oldDescription = result.data.description ? result.data.description : ""
-                    oldDirectory = result.data.directory ? result.data.directory : ""
-                    oldGroup = result.data.applicationGroupName ? result.data.applicationGroupName : result.data.tradeGroupName ? result.data.tradeGroupName : ""
-                    oldRef = result.data.template ? result.data.template : ""
-                    var newItem = wizardtext.match1(reourceId)[0]
-                    newWizard = getWizardByResourceId.call(this, newItem, preName)
-                    newWizard.style = style
-                    newWizard.name = oldName
-                    newWizard.description = oldDescription
-                    newWizard.directory = oldDirectory
+                    var oldName, oldDescription, oldDirectory, oldGroup, oldRef;
+                    reourceId = result.data.resourceId;
+                    oldName = result.data.name ? result.data.name : "";
+                    oldDescription = result.data.description ? result.data.description : "";
+                    oldDirectory = result.data.directory ? result.data.directory : "";
+                    oldGroup = result.data.applicationGroupName ? result.data.applicationGroupName : result.data.tradeGroupName ? result.data.tradeGroupName : "";
+                    oldRef = result.data.template ? result.data.template : "";
+                    var newItem = wizardtext.match1(reourceId)[0];
+                    newWizard = getWizardByResourceId.call(this, newItem, preName);
+                    newWizard.style = style;
+                    newWizard.name = oldName;
+                    newWizard.description = oldDescription;
+                    newWizard.directory = oldDirectory;
                     if (newItem.groups) {
                         for (var index in result.data.groups) {
-                            var value = result.data.groups[index]
-                            var label = result.data.groups[index]
-                            var groupItem = {value, label}
-                            newWizard.groups.push(groupItem)
+                            var value = result.data.groups[index];
+                            var label = result.data.groups[index];
+                            var groupItem = {value, label};
+                            newWizard.groups.push(groupItem);
                         }
-                        newWizard.groupsLabel = newItem.groupsLabel
-                        newWizard.selectedGroup = oldGroup
+                        newWizard.groupsLabel = newItem.groupsLabel;
+                        newWizard.selectedGroup = oldGroup;
                     }
                     if (newItem.reference) {
-                        newWizard.selectedRef = oldRef
+                        newWizard.selectedRef = oldRef;
                     }
                     newWizard.path = path;
                     newWizard.parent = selection;
-                    mountDialog(newWizard)
+                    mountDialog(newWizard);
                 }
 
             }
@@ -115,22 +115,22 @@ function getNewWizard(selection) {
         }, function (result) {
           if (result) {
             if (result.state === 'success') {
-              var newItem = wizardtext.match1(reourceId)[0]
-              newWizard = getWizardByResourceId.call(this, newItem, preName)
+              var newItem = wizardtext.match1(reourceId)[0];
+              newWizard = getWizardByResourceId.call(this, newItem, preName);
               if (newItem.groups) {
                 for (var index in result.data.groups) {
-                  var value = result.data.groups[index]
-                  var label = result.data.groups[index]
-                  var groupItem = {value, label}
-                  newWizard.groups.push(groupItem)
+                  var value = result.data.groups[index];
+                  var label = result.data.groups[index];
+                  var groupItem = {value, label};
+                  newWizard.groups.push(groupItem);
                 }
-                newWizard.groupsLabel = newItem.groupsLabel
+                newWizard.groupsLabel = newItem.groupsLabel;
               }
               if (newWizard.reference&&newWizard.reference.length) {
-                newWizard.selectedRef = ((newWizard.reference)[0]).label
+                newWizard.selectedRef = ((newWizard.reference)[0]).label;
               }
-              newWizard.path = path
-              mountDialog(newWizard)
+              newWizard.path = path;
+              mountDialog(newWizard);
             }
           }
         }
@@ -153,7 +153,7 @@ var items = {
         name: '管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'applicationAction': {
@@ -164,7 +164,7 @@ var items = {
         name: '应用',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'busAction': {
@@ -174,7 +174,7 @@ var items = {
         name: '总线文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'ctrlAction': {
@@ -184,7 +184,7 @@ var items = {
         name: '渠道控制器文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'rtAction': {
@@ -194,7 +194,7 @@ var items = {
         name: '路由文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'fmcAction': {
@@ -204,7 +204,7 @@ var items = {
         name: '流量控制',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'tccAction': {
@@ -214,7 +214,7 @@ var items = {
         name: '交易控制配置',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'mapAction': {
@@ -224,7 +224,7 @@ var items = {
         name: '映射表文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'tcfAction': {
@@ -234,7 +234,7 @@ var items = {
         name: '交易控制表文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'schAction': {
@@ -244,7 +244,7 @@ var items = {
         name: '定时调度文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'connAction': {
@@ -254,7 +254,7 @@ var items = {
         name: '连接配置文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'tradeAction': {
@@ -265,7 +265,7 @@ var items = {
         name: '交易',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'cwfAction': {
@@ -275,7 +275,7 @@ var items = {
         name: '工作流文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'rcdAction': {
@@ -285,7 +285,7 @@ var items = {
         name: '报文格式文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'dataDictGroupAction': {
@@ -295,7 +295,7 @@ var items = {
         name: '管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'dictAction': {
@@ -305,7 +305,7 @@ var items = {
         name: '数据字典文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'sqlDataDictGroupAction': {
@@ -315,7 +315,7 @@ var items = {
         name: '管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'sqldictAction': {
@@ -325,7 +325,7 @@ var items = {
         name: 'DB字典文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'vtfAction': {
@@ -335,7 +335,7 @@ var items = {
         name: '校验文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'fdAction': {
@@ -345,7 +345,7 @@ var items = {
         name: '文件格式文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'templateGroupAction': {
@@ -355,7 +355,7 @@ var items = {
         name: '模板管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'wftAction': {
@@ -365,7 +365,7 @@ var items = {
         name: '工作流模板',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'systemServerManageAction': {
@@ -375,7 +375,7 @@ var items = {
         name: '测试管理节点',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'multiStepGroupAction': {
@@ -385,7 +385,7 @@ var items = {
         name: '场景测试集',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'paraConfigAction': {
@@ -395,7 +395,7 @@ var items = {
         name: '动态参数配置',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'pcfgAction': {
@@ -405,7 +405,7 @@ var items = {
         name: '动态参数文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'mstAction': {
@@ -415,7 +415,7 @@ var items = {
         name: '场景测试文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'testtradeAction': {
@@ -425,7 +425,7 @@ var items = {
         name: '测试交易',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'mesAction': {
@@ -435,7 +435,7 @@ var items = {
         name: '测试报文文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'trdAction': {
@@ -445,7 +445,7 @@ var items = {
         name: '测试记录文件',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'fmapAction': {
@@ -455,7 +455,7 @@ var items = {
         name:'模拟映射文件',
         type:'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item,selection)
+          return getNewWizard.call(item,selection);
       }
     },
     'scfgAction':{
@@ -465,7 +465,7 @@ var items = {
         name:'流水号配置',
         type:'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item,selection)
+          return getNewWizard.call(item,selection);
        }
     },
     'org.eclipse.ui.DeleteResourceAction': {
@@ -484,7 +484,7 @@ var items = {
         name: '刷新',
         type: 'item',
         handler: function (selection, item) {
-            IDE.navigator.refresh(this.path)
+            IDE.navigator.refresh(this.path);
         }
     },
     'class galaxy.ide.configurable.navigator.action.ExploreFilePathAction': {
@@ -502,7 +502,7 @@ var items = {
         name: '修改',
         type: 'item',
         handler: function (selection, item) {
-            return getNewWizard.call(item,selection)
+            return getNewWizard.call(item,selection);
         }
     },
     'cn.com.agree.eci.ide.navigation.action.AfeExportMessageAction': {
@@ -538,7 +538,7 @@ var items = {
         name: '部署',
         type: 'item',
         handler: function (selection, item) {
-            return getAppAction.call(item)
+            return getAppAction.call(item);
         }
     },
     'cn.com.agree.eci.ide.navigation.action.AfeStartAction': {
@@ -547,7 +547,7 @@ var items = {
         name: '开始',
         type: 'item',
         handler: function (selection, item) {
-            return getAppAction.call(item)
+            return getAppAction.call(item);
         }
     },
     'cn.com.agree.eci.ide.navigation.action.AfeStopAction': {
@@ -556,7 +556,7 @@ var items = {
         name: '停止',
         type: 'item',
         handler: function (selection, item) {
-            return getAppAction.call(item)
+            return getAppAction.call(item);
         }
     },
     'cn.com.agree.eci.ide.navigation.action.AfeRedeployAction': {
@@ -565,7 +565,7 @@ var items = {
         name: '重载',
         type: 'item',
         handler: function (selection, item) {
-            return getAppAction.call(item)
+            return getAppAction.call(item);
         }
     },
     'cn.com.agree.eci.ide.navigation.action.AfeUninstallAction': {
@@ -574,38 +574,38 @@ var items = {
         name: '卸载',
         type: 'item',
         handler: function (selection, item) {
-            return getAppAction.call(item)
+            return getAppAction.call(item);
         }
     },
 }
 function match(originalItems, newItems) {
     for (let x in originalItems) {
-        let oItem = originalItems[x]
-        let item, newItem, arrStr
+        let oItem = originalItems[x];
+        let item, newItem, arrStr;
         if (oItem.id) {
-            let id = oItem.id
+            let id = oItem.id;
             if (id.toString().includes('.')) {
                 // 普通Action
-                item = items[oItem.id]
+                item = items[oItem.id];
             } else {
                 // wizardAction
-                arrStr = id.toString().split('/')
-                let actionName = arrStr[arrStr.length - 1]
-                item = items[actionName]
+                arrStr = id.toString().split('/');
+                let actionName = arrStr[arrStr.length - 1];
+                item = items[actionName];
             }
             if (item) {
-                newItem = $.extend(true, {}, item)
-                newItem.id = oItem.id
-                newItem.path = oItem.path
+                newItem = $.extend(true, {}, item);
+                newItem.id = oItem.id;
+                newItem.path = oItem.path;
                 if (oItem.groups) {
-                    newItem.groups = oItem.groups
+                    newItem.groups = oItem.groups;
                 }
             }
             if (newItem) {
-                newItems.push(newItem)
+                newItems.push(newItem);
                 if (oItem.children) {
-                    newItem.children = []
-                    match(oItem.children, newItem.children)
+                    newItem.children = [];
+                    match(oItem.children, newItem.children);
                 }
             }
         }
@@ -613,14 +613,14 @@ function match(originalItems, newItems) {
 }
 module.exports = {
     match: function (originalItems) {
-        var newItems = []
-        match(originalItems, newItems)
-        return newItems
+        var newItems = [];
+        match(originalItems, newItems);
+        return newItems;
     },
     getItem: function (id) {
-        var item = items[id]
+        var item = items[id];
         if (item) {
-            return $.extend(true, {}, item)
+            return $.extend(true, {}, item);
         }
     }
 }

@@ -330,14 +330,16 @@ function logManager () {
 
           }
         }
-      }
+        var container = document.createElement('div');
+        container.id = 'logManage';
+        document.body.appendChild(container);
+        newLogManageDialog.$mount('#logManage');
+      }else
+        console.log(result.errorMsg);
     }
   });
 
-  var container = document.createElement('div');
-  container.id = 'logManage';
-  document.body.appendChild(container);
-  newLogManageDialog.$mount('#logManage');
+
 
 }
 

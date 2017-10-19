@@ -537,5 +537,4 @@ var gridLayout = Layout.extend({
 
 anra.svg.Image.layoutManager = new fillLayout();
 
-
 export {$AG}

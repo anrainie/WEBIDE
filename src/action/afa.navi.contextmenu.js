@@ -3,30 +3,30 @@ import  wizardVue from '../views/components/wizards/AfaNewCreateWizard.vue'
 import  showCompileErrorMsgDialog from '../views/components/dialog/ShowCompileErrorMsg.vue'
 import Vue from 'vue';
 
-var items
+var items;
 
 function getNewWizard () {
-  var split = this.id.split('/')
-  var id = split[split.length - 1]
-  var newItem = wizardtext.match1(id)[0]
+  var split = this.id.split('/');
+  var id = split[split.length - 1];
+  var newItem = wizardtext.match1(id)[0];
 
-  var newWizard = new Vue(wizardVue)
-  newWizard.path = this.path
-  newWizard.resourceId = newItem.resourceId
-  newWizard.type = newItem.type;
-  newWizard.wizardtitle = newItem.wizardtitle
-  newWizard.pagedesc = newItem.pagedesc
-  newWizard.pagetitle = newItem.pagetitle
-  newWizard.namelabel = newItem.namelabel
-  newWizard.desclabel = newItem.desclabel
-  newWizard.reference = newItem.reference
+  var newWizard = new Vue(wizardVue);
+  newWizard.path = this.path;
+  newWizard.resourceId = newItem.resourceId;
+  newWizard.type = newItem.type;;
+  newWizard.wizardtitle = newItem.wizardtitle;
+  newWizard.pagedesc = newItem.pagedesc;
+  newWizard.pagetitle = newItem.pagetitle;
+  newWizard.namelabel.label = newItem.namelabel;
+  newWizard.desclabel.label = newItem.desclabel;
+  newWizard.reference = newItem.reference;
   if(newWizard.reference == true)
-     newWizard.refLabel = newItem.refLabel
+     newWizard.refLabel = newItem.refLabel;
   var oDiv = document.createElement('div');
-  oDiv.id = "wizard"
+  oDiv.id = "wizard";
   document.body.appendChild(oDiv);
-  newWizard.$mount('#wizard')
-  return newWizard
+  newWizard.$mount('#wizard');
+  return newWizard;
 }
 
 items = {
@@ -43,7 +43,7 @@ items = {
     name: '应用',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'productAction': {
@@ -53,7 +53,7 @@ items = {
     name: '产品',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'solutionAction': {
@@ -63,7 +63,7 @@ items = {
     name: '解决方案',
     'type': 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'workflowProjectAction': {
@@ -73,7 +73,7 @@ items = {
     name: '工作流项目',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'projectAction': {
@@ -83,7 +83,7 @@ items = {
     name: '项目',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   // /**
@@ -98,7 +98,7 @@ items = {
     name: '数据字典',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
 
   },
@@ -117,7 +117,7 @@ items = {
     name: '接口参数定义',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   // 数据实体
@@ -129,7 +129,7 @@ items = {
     name: '数据实体分类',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'cn.com.agree.ide.afa.navigation.action.CreateGeneratorConfigAction': {
@@ -184,7 +184,7 @@ items = {
     name: '分类',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'dbtfAction': {
@@ -194,7 +194,7 @@ items = {
     name: '表文件',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'cn.com.agree.ide.database.reverse.action.DataTableToDictAction': {
@@ -275,7 +275,7 @@ items = {
     name: '组件组',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'tcptAction': {
@@ -285,7 +285,7 @@ items = {
     name: '技术组件',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   // 业务组件
@@ -297,7 +297,7 @@ items = {
     name: '组件包',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'bcptAction': {
@@ -307,7 +307,7 @@ items = {
     name: '业务组件',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   // 流程模型
@@ -319,7 +319,7 @@ items = {
     name: '业务模板定义',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
 
@@ -330,7 +330,7 @@ items = {
     name: '技术模板定义',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
 
@@ -341,7 +341,7 @@ items = {
     name: '交易模板定义',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'cn.com.agree.ide.afa.xmlconvert.action.FormatFlowModuleArgAction': {
@@ -374,7 +374,7 @@ items = {
     name: 'bpmn文件',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   /**
@@ -388,7 +388,7 @@ items = {
     name: '服务分类',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'serviceAction': {
@@ -398,7 +398,7 @@ items = {
     name: '服务',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'serviceRecognitionAction': {
@@ -408,7 +408,7 @@ items = {
     name: '服务识别',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'fcAction': {
@@ -418,7 +418,7 @@ items = {
     name: '流程配置',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'fpckAction': {
@@ -428,7 +428,7 @@ items = {
     name: '自由格式报文',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'natpAction': {
@@ -438,7 +438,7 @@ items = {
     name: 'NATP报文',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   // 服务对外发布
@@ -454,7 +454,7 @@ items = {
     name: '父服务',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
 
@@ -470,7 +470,7 @@ items = {
     name: '子服务',
     type: 'item',
     handler: function (selection,item) {
-      return getNewWizard.call(item)
+      return getNewWizard.call(item);
     }
   },
   'class galaxy.ide.configurable.navigator.action.ExploreFilePathAction': {
@@ -590,29 +590,29 @@ items = {
 
 function match (originalItems, newItems) {
   for (let x in originalItems) {
-    let oItem = originalItems[x]
-    let item, newItem, arrStr
+    let oItem = originalItems[x];
+    let item, newItem, arrStr;
     if (oItem.id) {
-      let id = oItem.id
+      let id = oItem.id;
       if (id.toString().includes('.')) {
         // 普通Action
-        item = items[oItem.id]
+        item = items[oItem.id];
       } else {
         // wizardAction
-        arrStr = id.toString().split('/')
-        let actionName = arrStr[arrStr.length - 1]
-        item = items[actionName]
+        arrStr = id.toString().split('/');
+        let actionName = arrStr[arrStr.length - 1];
+        item = items[actionName];
       }
       if (item) {
-        newItem = $.extend(true, {}, item)
-        newItem.id = oItem.id
-        newItem.path = oItem.path
+        newItem = $.extend(true, {}, item);
+        newItem.id = oItem.id;
+        newItem.path = oItem.path;
       }
       if(newItem) {
-          newItems.push(newItem)
+          newItems.push(newItem);
           if (oItem.children) {
-              newItem.children = []
-              match(oItem.children, newItem.children)
+              newItem.children = [];
+              match(oItem.children, newItem.children);
           }
       }
     }
@@ -686,19 +686,19 @@ function showCompileError(errorMsgs) {
     var container = document.createElement('div');
     container.id = "compileErrorMsg"
     document.body.appendChild(container);
-    newWizard.$mount('#compileErrorMsg')
+    newWizard.$mount('#compileErrorMsg');
 }
 
 module.exports = {
   match: function (originalItems) {
-    var newItems = []
-    match(originalItems, newItems)
-    return newItems
+    var newItems = [];
+    match(originalItems, newItems);
+    return newItems;
   },
   getItem: function (id) {
-    var item = items[id]
+    var item = items[id];
     if (item) {
-      return $.extend(true, {}, item)
+      return $.extend(true, {}, item);
     }
   }
 }
