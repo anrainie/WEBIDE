@@ -43,10 +43,10 @@ export var resolveEditorLine = function(nodesConfig) {
 
                 connection.forEach((item) => {line.push({
                     //id问题
-                    id: Id +　'.' + item.SourceTerminal + '_' + item.targetId + '.' + item.TargetTerminal,
+                    id: Id +　'.' + item.SourceTerminal + '_' + item.TargetId + '.' + item.TargetTerminal,
                     source: Id,
                     type: 0,
-                    target: item.targetId,
+                    target: item.TargetId,
                     exit: item.SourceTerminal,
                     entr: item.TargetTerminal
                 })})

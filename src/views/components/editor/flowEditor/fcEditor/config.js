@@ -31,6 +31,16 @@ var manhattanRoute = {
 };
 
 //策略
+var openPropEditor = {
+    activate(){
+        this.lisn = () => {this.emit(globalConstants.OPEN_FLOWPROP_DIALOG, this.getHost())};
+        this.getHostFigure().on('dblclick', this.lisn);
+    },
+    deactivate(){
+        this.getHostFigure().off('dblclick', this.lisn);
+    }
+};
+
 var openNodeEditor = {
     activate() {
         let self = this;
@@ -123,7 +133,7 @@ var pinPolicy = function (idList) {
             }
         },
 
-        dectivate() {
+        deactivate() {
             if (this.handles) {
                 this.handles.forEach((item) => {
                     this.getHandleLayer().removeChild(item);
@@ -243,7 +253,7 @@ let defaultData = {
     'UUID': undefined,
     'Quote': '0',
     'Type': undefined,
-    'Desp': 'DefaultName',
+    'Desp': undefined,
     'RefImpl': 'DefaultName',
     'Skip': {
         'Enabled': '0',
@@ -276,15 +286,7 @@ let defaultData = {
         {id: 'W', dir: 'w', offset: 0},
     ],
     policies: {
-        'doubleclick': {
-            activate(){
-                this.lisn = () => {this.emit(globalConstants.OPEN_FLOWPROP_DIALOG, this.getHost())};
-                this.getHostFigure().on('dblclick', this.lisn);
-            },
-            deactivate(){
-                this.getHostFigure().off('dblclick', this.lisn);
-            }
-        },
+        'doubleclick': openPropEditor,
 
         'despText': $AG.policy.TextPolicy('Desp', location),
 
@@ -325,6 +327,7 @@ var serviceInvokdEntered = {
     refresh,
 
     policies : {
+        'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'nodeEditor': closeNodeEditor,
         'pin': pinPolicy(['0', '1'])
@@ -334,6 +337,33 @@ var serviceInvokdEntered = {
     size: [160, 60],
     data: defaultData
 };
+
+var bcpt = {
+    url: 'assets/image/editor/event_component_stepBussiness.gif',
+    type: $AG.IMAGE,
+    size: [160,46],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    refresh,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    policies: {
+        'doubleclick': openPropEditor,
+
+        'despText': $AG.policy.TextPolicy('Desp', location),
+
+        'nodeEditor': openNodeEditor,
+
+        'pin': pinPolicy(['0', '1'])
+    }
+
+}
 
 
 
@@ -402,6 +432,7 @@ var nodeAbnormalEnd = {
     refresh,
 
     policies : {
+        'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['1'])
     }
@@ -451,6 +482,7 @@ var componentInvoke = {
     refresh,
 
     policies : {
+        'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['0', '1'])
     }
@@ -498,39 +530,97 @@ var transfer = {
     refresh,
 
     policies : {
+        'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['1'])
     }
 };
+
+let createStepData = function (config) {
+    return Object.assign(config, defaultData);
+}
+
+//默认组件
+let stepDefaultComponent = {
+    name: '默认组件',
+    items: [
+        {
+            name: "通用组件",
+            url: "assets/image/editor/palette_component_stepCommonCpt.gif",
+            data: createStepData({type: '5', size: [160, 60]})
+        },
+        {
+            name: "内部场景调用",
+            url: "assets/image/editor/palette_component_ServiceInvoke.gif",
+            data: createStepData({type: '3', size: [160, 60]})
+        }
+    ]
+}
 
 const stepBaseCfg = {
     id: 'stepEditor',
     children: {
         '3': serviceInvokdEntered,
         '5': stepCommonCpt,
+        '4': bcpt
     },
     lines: {
         0: manhattanRoute
     },
     group: {
-        0: {
-            name: '默认组件',
-            items: {
-                '5': stepCommonCpt,
-                '3': serviceInvokdEntered,
-            }
-        },
-        1: {
+        "default": stepDefaultComponent,
+        "bank": {
             name: '银行',
-            items: {}
+            children: []
         },
-        2: {
+        "app": {
             name: '应用',
-            items: {}
+            children: []
         }
     },
     operations
 };
+
+let nodeDefaultComponent = {
+    name: '默认组件',
+    items: [
+        {
+            name: null,
+            url: "assets/image/editor/palette_component_nodeStart.gif",
+            data: createStepData({type: '2', size: [63, 63]})
+        },
+        {
+            name: null,
+            url: "assets/image/editor/palette_component_nodeEnd.gif",
+            data: createStepData({type: '3', size: [63, 63]})
+        },
+        {
+            name: null,
+            url: "assets/image/editor/palette_component_nodeAbnormalEnd.gif",
+            data: createStepData({type: '4', size: [63, 63]})
+        },
+        {
+            name: null,
+            url: "assets/image/editor/palette_component_nodeErrorDelegate.gif",
+            data: createStepData({type: '6', size: [160, 54]})
+        },
+        {
+            name: null,
+            url: "assets/image/editor/palette_component_ComponentInvoke.gif",
+            data: createStepData({type: '7', size: [160, 54]})
+        },
+        {
+            name: null,
+            url: "assets/image/editor/palette_component_TradeInvoke.gif",
+            data: createStepData({type: '11', size: [160, 44]})
+        },
+        {
+            name: null,
+            url: "assets/image/editor/palette_component_transfer.gif",
+            data: createStepData({type: '10', size: [63, 63]})
+        },
+    ]
+}
 
 const nodeBaseCfg = {
     id: 'nodeEditor',
@@ -547,18 +637,7 @@ const nodeBaseCfg = {
         0: manhattanRoute
     },
     group: {
-        '0': {
-            name: '基本组件',
-            items: {
-                '2': nodeStart,
-                '3': nodeEnd,
-                '4': nodeAbnormalEnd,
-                '6': nodeErrorDelegate,
-                '7': componentInvoke,
-                '11': tradeInvoke,
-                '10': transfer
-            }
-        },
+        '0': nodeDefaultComponent,
         '1': {
             name: '平台',
         },
@@ -679,74 +758,3 @@ export class stepConfigBuilder {
          return this.baseCfg;
      }
  }
-
- /*exm*/
-/*
-Events = function() {
-
-    var listen, log, obj, one, remove, trigger, __this;
-
-    obj = {};
-
-    __this = this;
-
-    listen = function (key, eventfn) {
-
-        var stack, _ref;
-
-        stack = ( _ref = obj[key] ) != null ? _ref : obj[key] = [];
-
-        return stack.push(eventfn);
-
-    };
-
-    one = function (key, eventfn) {
-
-        remove(key);
-
-        return listen(key, eventfn);
-
-    };
-
-    remove = function (key) {
-
-        var _ref;
-
-        return ( _ref = obj[key] ) != null ? _ref.length = 0 : void 0;
-
-    };
-
-    trigger = function () {
-
-        var fn, stack, _i, _len, _ref, key;
-
-        key = Array.prototype.shift.call(arguments);
-
-        stack = ( _ref = obj[key] ) != null ? _ref : obj[key] = [];
-
-        for (_i = 0, _len = stack.length; _i < _len; _i++) {
-
-            fn = stack[_i];
-
-            if (fn.apply(__this, arguments) === false) {
-
-                return false;
-
-            }
-
-        }
-    }
-
-        return {
-
-            listen: listen,
-
-            one: one,
-
-            remove: remove,
-
-            trigger: trigger
-
-        }
-
-}*/

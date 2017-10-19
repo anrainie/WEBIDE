@@ -26,10 +26,10 @@ let createID = (() => {
 //暂时性
 $AG.Editor.prototype.createID = createID;
 
-$AG.Editor.prototype.createNodeWithPalette = function(type, item) {
+$AG.Editor.prototype.createNodeWithPalette = function(data) {
     let editor = this, tool = new anra.gef.CreationTool();
     
-    if (!(item && type)) {
+    if (data == null || data["type"] == null) {
         return null;
     }
     
@@ -38,9 +38,8 @@ $AG.Editor.prototype.createNodeWithPalette = function(type, item) {
 
         node.props = Object.assign({
             id: editor.createID(),
-            type: type,
-            bounds: [0, 0, item.size[0], item.size[1]]
-        }, defaultsDeep(item.data));
+            bounds: [0, 0, data.size[0], data.size[1]]
+        }, defaultsDeep(data));
         tool.model = node;
         
         editor.setActiveTool(tool);

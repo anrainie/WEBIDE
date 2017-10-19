@@ -52,7 +52,7 @@
 
     //服务调用
     let templateB = `
-        <el-form  inline="true" class="demo-form-inline">
+        <el-form  :inline="true" class="demo-form-inline">
 
             <el-form-item label="服务类型（在当前线程中执行）">
                 <el-switch
@@ -78,9 +78,7 @@
                         off-text="异步">
                 </el-switch>
             </el-form-item>
-        </el-form>
 
-        <el-form  inline="true" class="demo-form-inline">
             <el-form-item label="目标服务">
                 <el-input></el-input>
 
@@ -93,10 +91,6 @@
             <el-form-item label="服务名称">
                 <el-input ></el-input>
             </el-form-item>
-
-      </el-form>
-
-       <el-form>
 
             <el-form-item label="服务描述">
                 <el-input></el-input>
@@ -202,10 +196,6 @@
                 <el-checkbox >动态调用</el-checkbox>
             </el-form-item>
 
-        </el-form>
-
-        <el-form  inline="true" class="demo-form-inline">
-
             <el-form-item label="目标组件">
                 <el-input disable="true"></el-input>
             </el-form-item>
@@ -226,10 +216,6 @@
                 <el-input disable="true"></el-input>
             </el-form-item>
 
-      </el-form>
-
-       <el-form>
-
             <el-form-item label="服务描述">
                 <el-input></el-input>
             </el-form-item>
@@ -239,7 +225,7 @@
             </el-form-item>
 
         </el-form>
-    `
+    `;
 
 
 
@@ -266,8 +252,6 @@
             //TODO type不对或没有type类型的模板
             return Vue.compile(templateRouter[this.type]).render.apply(this, arguments);
         },
-        /*render: res.render,
-        staticRenderFns: res.staticRenderFns,*/
         props: {
             model: {
                 default(){

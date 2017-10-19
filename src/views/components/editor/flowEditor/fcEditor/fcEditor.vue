@@ -10,6 +10,7 @@
                     :editorConfig="stepEditorCfg"
                     :bindEvent="bindEvent"
                     :save="saveHandle"
+                    :openPaletteEvent="stepPaletteOpenEvent"
                     @dblclickCanvas="stepDoubleClickCanvas"></flowEditor>
 
             <flowEditor
@@ -218,12 +219,63 @@
                     .getConfig();
             },
 
+            stepPaletteOpenEvent() {
+                let filePath = this.file.model.path, cache = {},
+                    packUrl = "assets/image/editor/folder_catelog.gif",
+                    comUrl = "assets/image/editor/palette_component_businessComponent.gif";
+                return function (index, indexPath, config) {
+                    let path = indexPath[0];
+                    if (path == "default") return;
+
+                    IDE.socket.emit('loadBcpt', {
+                        type: IDE.type,
+                        event: 'loadBcpt',
+                        data: {
+                            path: filePath
+                        }
+                    }, (result) => {
+                        if (result.state == "success") {
+                            let data = result.data[path];
+
+                            if (data == null || data.length == 0) return;
+
+                            let children = [];
+
+                            data.forEach((item) => {
+                                children.push({
+                                    name: item.componentPackage,
+                                    url: packUrl,
+                                    items: item.bcpt.map((bcpt) => {
+                                        return {
+                                            url: comUrl,
+                                            data: Object.assign(bcpt.Component, {type: "4", size: [160, 46]}),
+                                            name: bcpt.Component.Desp,
+                                        }
+                                    })
+                                })
+                            })
+
+                            config[path].children = children
+
+                        } else {
+                            //TODO
+                        }
+                    });
+                }
+            },
+
             nodeEditorCfg() {
                 return nodeConfigBuilder
                     .BuildConfig()
                     .setEditorAttr(this.nodeEditorInput)
                     .resolveModel(this.nodeEditorInput)
                     .getConfig();
+            },
+
+            nodePaletteOpenEvent() {
+                return function () {
+                    console.log('ssss')
+                }
             },
 
             stepEditorID() {
@@ -236,6 +288,8 @@
         },
         updated() {
             this.updateNodeEditorBuffer();
+        },
+        mounted() {
         },
         methods: {
             isDirty() {
