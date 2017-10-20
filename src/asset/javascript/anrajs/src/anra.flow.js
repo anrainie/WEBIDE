@@ -71,6 +71,7 @@
  * @type {{}}
  */
 import {anra} from './anra.gef'
+import {defaultsDeep} from 'lodash'
 
 anra.addExtend('./anra.policy')
 
@@ -151,7 +152,7 @@ $AG.Editor = anra.gef.Editor.extend({
             this.cmdStack.canRedo(cmd);
     },
     createEditPart: function (parentControl, model) {
-        var nodeConfig = this.config.children[model.props.type];
+        var nodeConfig = parentControl.config.children[model.props.type];
         if (nodeConfig == null)throw 'can not found EditPart config on node [' + model.props.type + ']';
         var e = new anra.gef.NodeEditPart();
         e.config = nodeConfig;
@@ -248,9 +249,7 @@ var doInit = function (input, parentModel, config) {
     var i, len;
     //节点处理
     if (input.data) {
-        for (i = 0, len = input.data.length; i < len; i++) {
-            parentModel.addChild($AG.Node.create(input.data[i]));
-        }
+        $AG.Node.addChildren(parentModel, input.data, config["children"]);
     }
     //连线处理
     var lines = config.line;
@@ -298,6 +297,41 @@ $AG.Node.create = function (data) {
     n.uuid = data.UUID;
     return n;
 };
+
+$AG.Node.addChildren = function (parentModel, data, config) {
+
+    if (config == null) {
+        data.forEach((item) => {
+            parentModel.addChild($AG.Node.create(item));
+        });
+        return;
+    }
+
+    data.forEach((item) => {
+        parentModel.addChild($AG.Node.create(item), (model) => {
+            let childConfig;
+
+            try {
+                childConfig = config[model.get("type")];
+            } catch (e) {
+                return;
+            }
+
+            if (childConfig["size"] && model.props.bounds == null) {
+                model.set("bounds", [
+                    0,
+                    0,
+                    childConfig["size"][0],
+                    childConfig["size"][1]
+                ]);
+            }
+
+            if (item["children"] && childConfig["children"]) {
+                $AG.Node.addChildren(model, item["children"], childConfig["children"]);
+            }
+        });
+    });
+}
 
 $AG.ConnectionPolicy = anra.gef.ConnectionPolicy.extend({});
 
