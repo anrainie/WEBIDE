@@ -10,7 +10,7 @@ let baseDialogComponent = {
                         
                         <el-collapse-item title="index" :name="index" v-for="(item, name, index) in group">
                             <keep-alive>
-                                <component :is="name" :model="getProps" ref="name" ></component>
+                                <component :is="name" :model="getProps" :ref="name" ></component>
                             </keep-alive>
                         </el-collapse-item>
                         
@@ -29,7 +29,7 @@ let baseDialogComponent = {
         },
         /*通过refs调用子组件*/
         saveHandle(refsName) {
-            this.$refs[refsName].savePropsToModel(this.model);
+            this.$refs[refsName][0].savePropsToModel(this.model);
         },
         clickConfirm() {
             if (this.group) {
@@ -48,28 +48,39 @@ let baseDialogComponent = {
 }
 
 let createDialog = function (config) {
+    let result = {};
     if (config) {
-        for (let [name, compoment] of Object.entries(config)) {
-            baseDialogComponent.components[name] = compoment;
-        }
+        result.components = config;
     }
 
-    baseDialogComponent.data = () => ({group: config});
+    result.data = () => ({group: config});
 
-    return baseDialogComponent;
+    return Object.assign({}, baseDialogComponent, result);
 };
 
-export let propDialogs = {
-    //服务调用
-    "3": createDialog({basicInfo,paramsGrop}),
+let stepDialogs = {
+    "3": createDialog({basicInfo, skipInfo: skipGroup}),
     //通用组件
-    "5": createDialog({basicInfo, skipInfo: skipGroup}),
+    "5": createDialog({basicInfo: basicInfo, skipInfo: skipGroup}),
+    //多出口组件
+    "7": createDialog({basicInfo, skipInfo: skipGroup}),
+    //bcpt
+    "4": null
+}
+
+export let propDialogs = {
+    //内部场景调用
+    "3": createDialog({basicInfo, skipInfo: skipGroup}),
+    //通用组件
+    "5": createDialog({basicInfo: basicInfo, skipInfo: skipGroup}),
+    //多出口组件
+    "7": createDialog({basicInfo, skipInfo: skipGroup}),
     //自定义结束
     "4": createDialog({basicInfo}),
     //组件调用
-    "7": createDialog({basicInfo,paramsGrop}),
+    "7": createDialog({basicInfo, skipInfo: skipGroup}),
     //服务调用
-    "10": createDialog({basicInfo,paramsGrop})
+    "10": createDialog({basicInfo, skipInfo: skipGroup})
 }
 
 

@@ -1,6 +1,6 @@
 <template>
     <div :id="editorID" class="editor" v-bind:style="style">
-        <palette :editor='editor'></palette>
+        <palette :editor='editor' :openPaletteEvent="openPaletteEvent"></palette>
     </div>
 </template>
 <style>
@@ -48,6 +48,10 @@
                         width: "100%"
                     }
                 }
+            },
+
+            openPaletteEvent: {
+                type: Function
             }
         },
 
@@ -114,10 +118,9 @@
 
         components: {
             palette: {
-                props: ['editor'],
-                data: function () {
+                props: ['editor', 'openPaletteEvent'],
+                data () {
                     return {
-                        activeNames: [0]
                     }
                 },
                 methods: {
@@ -126,6 +129,9 @@
                         if (e && e.hasOwnProperty('config')) {
                             return e.config.group;
                         }
+                    },
+                    openHandle(index, indexPath) {
+                        this.openPaletteEvent && this.openPaletteEvent(index, indexPath, this.getGroup());
                     }
                 },
                 computed: {
@@ -139,10 +145,10 @@
                 },
                 directives: {
                     drag: {
-                        bind (el, {value : {editor, item, type}}) {
-                            el.onmousedown = editor.createNodeWithPalette(type, item);
+                        bind (el, {value : {editor, item}}) {
+                            el.onmousedown = editor.createNodeWithPalette(item.data);
                             el.ondragstart = () => false;
-                            el.setAttribute('src', item.paletteUrl);
+                            el.setAttribute('src', item.url);
                         }
                     },
                     selectTool: {
@@ -170,6 +176,7 @@
                 template: `
                 <div v-if="editor" style="position: relative;top: 0;width: 10%;height: 100%;background-color: #d3d3d3;float:left">
                     <p></p>
+
                     <el-row type="flex" justify="center">
                         <el-col :span="9" :offset="2">
                             <el-button v-selectTool="editor" type="primary" icon="edit" size="mini"></el-button>
@@ -180,16 +187,37 @@
                     </el-row>
                     <el-row>
                         <el-col :span="24">
-                            <el-collapse v-if="isVisibility" v-model="activeNames" accordion>
-                                <el-collapse-item v-bind:title="value.name" v-bind:name="index" v-for="(value, key, index) in getGroup()">
-                                    <el-row v-for="(item, type) in value.items">
-                                        <el-col :span="24"><img v-drag="{editor: editor, item: item, type: type}" />{{item.desc}}</el-col>
-                                    </el-row>
-                                </el-collapse-item>
-                            </el-collapse>
+                            <el-menu v-if="isVisibility" default-active="2" class="el-menu-vertical-demo" @open="openHandle">
+                                <el-submenu :index="key" v-for="(value, key, index) in getGroup()">
+                                    <template slot="title">{{value.name}}</template>
+
+                                     <el-menu-item style="padding-left: 0px;min-width: 150px;width: auto" v-if="value.items" v-for="item in value.items" :index="item.name"
+                                     >
+                                       <img v-drag="{editor: editor, item: item}"/>
+                                       {{item.name}}
+                                     </el-menu-item>
+
+                                     <el-menu-item-group v-if="value.group">
+                                        <el-menu-item style="padding-left: 0px;min-width: 150px;width: auto"  v-for="item in value.group" :index="item.name"
+                                     >
+                                       <img v-drag="{editor: editor, item: item}"/>
+                                       {{item.name}}
+                                     </el-menu-item>
+
+                                    </el-menu-item-group>
+
+                                     <el-submenu v-if="value.children" v-for="child in value.children" :index="child.name" >
+                                        <template slot="title"><img v-drag="{editor: editor, item: child}"/>{{child.name}}</template>
+                                        <el-menu-item style="padding-left: 20px" v-if="child.items" v-for="suChild in child.items" :index="suChild.name">
+                                            <img v-drag="{editor: editor, item: suChild}"/>
+                                            {{suChild.name}}
+                                        </el-menu-item>
+                                    </el-submenu>
+                                </el-submenu>
+                            </el-menu>
                         </el-col>
                     </el-row>
-                </div>`
+                </div>`,
             }
         }
     }

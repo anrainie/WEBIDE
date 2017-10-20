@@ -31,6 +31,16 @@ var manhattanRoute = {
 };
 
 //策略
+var openPropEditor = {
+    activate(){
+        this.lisn = () => {this.emit(globalConstants.OPEN_FLOWPROP_DIALOG, this.getHost())};
+        this.getHostFigure().on('dblclick', this.lisn);
+    },
+    deactivate(){
+        this.getHostFigure().off('dblclick', this.lisn);
+    }
+};
+
 var openNodeEditor = {
     activate() {
         let self = this;
@@ -124,7 +134,7 @@ var pinPolicy = function (idList) {
             }
         },
 
-        dectivate() {
+        deactivate() {
             if (this.handles) {
                 this.handles.forEach((item) => {
                     this.getHandleLayer().removeChild(item);
@@ -244,7 +254,7 @@ let defaultData = {
     'UUID': undefined,
     'Quote': '0',
     'Type': undefined,
-    'Desp': 'DefaultName',
+    'Desp': undefined,
     'RefImpl': 'DefaultName',
     'Skip': {
         'Enabled': '0',
@@ -263,11 +273,13 @@ let defaultData = {
     'False': '0'
 };
 
-//默认组件
-    var stepCommonCpt = {
+/****** step ******/
+
+/*默认组件*/
+
+//通用组件
+var stepCommonCpt = {
     name: 'common',
-      desc: '通用组件',
-    paletteUrl: "assets/image/editor/palette_component_stepCommonCpt.gif",
     url: 'assets/image/editor/event_component_stepCommonCpt.gif',
     type: $AG.IMAGE,
     anchor: [
@@ -278,15 +290,7 @@ let defaultData = {
         {id: 'W', dir: 'w', offset: 0},
     ],
     policies: {
-        'doubleclick': {
-            activate(){
-                this.lisn = () => {this.emit(globalConstants.OPEN_FLOWPROP_DIALOG, this.getHost())};
-                this.getHostFigure().on('dblclick', this.lisn);
-            },
-            deactivate(){
-                this.getHostFigure().off('dblclick', this.lisn);
-            }
-        },
+        'doubleclick': openPropEditor,
 
         'despText': $AG.policy.TextPolicy('Desp', location),
 
@@ -302,14 +306,12 @@ let defaultData = {
     refresh,
 
     //数据
-    size: [160, 60],
-    data: defaultData
+    size: [160, 60]
 };
 
+//内部场景调用
 var serviceInvokdEntered = {
     name: 'service',
-    desc: '内部场景调用',
-    paletteUrl: 'assets/image/editor/palette_component_ServiceInvoke.gif',
     url: 'assets/image/editor/event_component_ServiceInvokdEntered.gif',
     type: $AG.IMAGE,
     anchor: [
@@ -328,53 +330,77 @@ var serviceInvokdEntered = {
     refresh,
 
     policies : {
+        'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'nodeEditor': closeNodeEditor,
         'pin': pinPolicy(['0', '1'])
     },
+};
 
-    //数据
+//内部场景调用
+var stepMultiOutletCpt = {
+    url: 'assets/image/editor/event_component_stepMultiOutletCpt.gif',
+    type: $AG.IMAGE,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0}
+    ],
     size: [160, 60],
-    data: defaultData
+
+    //特性
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    refresh,
+
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'nodeEditor': closeNodeEditor,
+        'pin': pinPolicy(['0', '1'])
+    },
 };
 
-//多出口组件
-var multiOutletCpt = {
-  name: 'multiOutletCpt',
-  desc: '多出口组件',
-  paletteUrl: 'assets/image/editor/palette_component_stepMultiOutletCpt.gif',
-  url: 'assets/image/editor/event_component_stepMultiOutletCpt.gif',
-  type: $AG.IMAGE,
-  anchor: [
-    {id: 'N', dir: 'n', offset: 0},
-    {id: 'E', dir: 'e', offset: 0},
-    {id: 'W', dir: 'w', offset: 0}
-  ],
-  size: [160, 60],
+//业务组件
+var bcpt = {
+    url: 'assets/image/editor/event_component_stepBussiness.gif',
+    type: $AG.IMAGE,
+    size: [160,46],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    refresh,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    policies: {
+        'doubleclick': openPropEditor,
 
-  //特性
-  canDrag: true,
-  linkable: true,
-  selectable: true,
-  refresh,
+        'despText': $AG.policy.TextPolicy('Desp', location),
 
-  policies : {
-    'despText': $AG.policy.TextPolicy('Desp', location),
-    'nodeEditor': closeNodeEditor,
-    'pin': pinPolicy([])
-  },
+        'nodeEditor': openNodeEditor,
 
-  //数据
-  size: [160, 60],
-  data: defaultData
-};
+        'pin': pinPolicy(['0', '1'])
+    }
+
+}
+
+/***** node *****/
 
 //基本组件
+
+//开始
 var nodeStart = {
     name: 'start',
     desc: '开始',
     url: 'assets/image/editor/event_component_nodeStart.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeStart.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -394,12 +420,11 @@ var nodeStart = {
     }
 };
 
-
+//正常结束
 var nodeEnd = {
     name: 'end',
     desc: '结束',
     url: 'assets/image/editor/event_component_nodeEnd.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeEnd.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -419,11 +444,11 @@ var nodeEnd = {
     }
 };
 
+//异常结束
 var nodeAbnormalEnd = {
     name: 'eend',
     desc: '异常结束',
     url: 'assets/image/editor/event_component_nodeAbnormalEnd.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeAbnormalEnd.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -438,38 +463,40 @@ var nodeAbnormalEnd = {
     refresh,
 
     policies : {
+        'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['1'])
     }
 };
-var customEnd = {
-  name: 'customEnd',
-  desc: '自定义结束',
-  url: 'assets/image/editor/event_component_nodeCustomEnd.gif',
-  paletteUrl: 'assets/image/editor/palette_component_nodeCustomEnd.gif',
-  type: $AG.IMAGE,
-  size: [63, 63],
-  canDrag: true,
-  linkable: true,
-  selectable: true,
-  anchor: [
-    {id: 'N', dir: 'n', offset: 0},
-    {id: '1', dir: 's', offset: 0},
-    {id: 'E', dir: 'e', offset: 0},
-    {id: 'W', dir: 'w', offset: 0},
-  ],
-  refresh,
 
-  policies : {
-    'despText': $AG.policy.TextPolicy('Desp', location),
-    'pin': pinPolicy(['1'])
-  }
+//自定义结束
+var nodeCustomEnd = {
+    url: 'assets/image/editor/event_component_nodeCustomEnd.gif',
+    type: $AG.IMAGE,
+    size: [63, 63],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '1', dir: 's', offset: 0},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh,
+
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['1'])
+    }
 };
+
+//默认逻辑委托错误
 var nodeErrorDelegate = {
     name: 'error',
     desc: '默认逻辑错误委托',
     url: 'assets/image/editor/event_component_nodeErrorDelegate.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeErrorDelegate.gif',
     type: $AG.IMAGE,
     size: [160, 54],
     canDrag: true,
@@ -490,12 +517,11 @@ var nodeErrorDelegate = {
     }
 };
 
-
+//组件调用
 var componentInvoke = {
     name: 'context',
     desc: '组件调用',
     url: 'assets/image/editor/event_component_ComponentInvoke.gif',
-    paletteUrl: 'assets/image/editor/palette_component_ComponentInvoke.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -511,16 +537,17 @@ var componentInvoke = {
     refresh,
 
     policies : {
+        'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['0', '1'])
     }
 };
 
+//内部场景调用
 var tradeInvoke = {
     name: 'serivceX',
     desc: '内部场景调用',
     url: 'assets/image/editor/event_node_component_TradeInvoke.gif',
-    paletteUrl: 'assets/image/editor/palette_component_TradeInvoke.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -541,11 +568,11 @@ var tradeInvoke = {
     }
 };
 
+//中转节点
 var transfer = {
     name: 'mid',
     desc: '中转节点',
     url: 'assets/image/editor/event_component_transfer.gif',
-    paletteUrl: 'assets/image/editor/palette_component_transfer.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -560,156 +587,221 @@ var transfer = {
     refresh,
 
     policies : {
+        'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['1'])
     }
 };
 
-///场景同步调用
-var syncInvoke = {
-  name: 'syncInvoke',
-  desc: '场景同步调用',
-  url: 'assets/image/editor/event_node_component_tradeSync.gif',
-  paletteUrl: 'assets/image/editor/palette_component_tradeSync.gif',
-  type: $AG.IMAGE,
-  size: [160, 44],
-  canDrag: true,
-  linkable: true,
-  selectable: true,
-  anchor: [
-    {id: 'N', dir: 'n', offset: 0},
-    {id: '0', dir: 's', offset: -50},
-    {id: '1', dir: 's', offset: 0},
-    {id: '2', dir: 's', offset: 50},
-    {id: 'E', dir: 'e', offset: 0},
-    {id: 'W', dir: 'w', offset: 0}
-  ],
-  refresh,
+//场景同步调用
+var tradeSync = {
+    url: 'assets/image/editor/event_component_tradeSync.gif',
+    type: $AG.IMAGE,
+    size: [160, 44],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh,
 
-  policies : {
-    'despText': $AG.policy.TextPolicy('Desp', location),
-    'pin': pinPolicy(['0', '1','2'])
-  }
-};
-//场景异步调用
-var asyncInvoke = {
-  name: 'asyncInvoke',
-  desc: '场景异步调用',
-  url: 'assets/image/editor/event_node_component_Async.gif',
-  paletteUrl: 'assets/image/editor/palette_component_tradeAsync.gif',
-  type: $AG.IMAGE,
-  size: [160, 44],
-  canDrag: true,
-  linkable: true,
-  selectable: true,
-  anchor: [
-    {id: 'N', dir: 'n', offset: 0},
-    {id: '0', dir: 's', offset: -25},
-    {id: '1', dir: 's', offset: 25},
-    {id: 'E', dir: 'e', offset: 0},
-    {id: 'W', dir: 'w', offset: 0}
-  ],
-  refresh,
-
-  policies : {
-    'despText': $AG.policy.TextPolicy('Desp', location),
-    'pin': pinPolicy(['0', '1'])
-  }
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['0', '1'])
+    }
 };
 
+var Async = {
+    url: 'assets/image/editor/event_component_Async.gif',
+    type: $AG.IMAGE,
+    size: [160, 44],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh,
 
-//并行组件
-var parallelComponent = {
-  name: 'parallelComponent',
-  desc: '并行组件',
-  url: 'assets/image/editor/Parallel_leave.gif',
-  paletteUrl: 'assets/image/editor/Parallel.gif',
-  type: $AG.IMAGE,
-  size: [44, 160],
-  canDrag: true,
-  linkable: true,
-  selectable: true,
-  anchor: [
-    {id: 'N', dir: 'n', offset: 0},
-    {id: 'E', dir: 'e', offset: 0},
-    {id: 'W', dir: 'w', offset: 0}
-  ],
-  refresh,
-
-  policies : {
-    'despText': $AG.policy.TextPolicy('Desp', location),
-    'pin': pinPolicy([''])
-  }
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['0', '1'])
+    }
 };
+
+var parallel = {
+    url: 'assets/image/editor/Parallel_leave.gif',
+    type: $AG.IMAGE,
+    size: [40, 160],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: 0}
+    ],
+    refresh,
+
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['0'])
+    }
+}
+
+/***** 编辑器配置 *****/
+
+let createStepData = function (config) {
+    return Object.assign(config, defaultData);
+}
+
+/*step画板配置*/
+let stepDefaultComponent = {
+    name: '默认组件',
+    items: [
+        {
+            name: "通用组件",
+            url: "assets/image/editor/palette_component_stepCommonCpt.gif",
+            data: createStepData({type: '5', size: [160, 60]})
+        },
+        {
+            name: "内部场景调用",
+            url: "assets/image/editor/palette_component_ServiceInvoke.gif",
+            data: createStepData({type: '3', size: [160, 60]})
+        },
+        {
+            name: "多出口组件",
+            url: "assets/image/editor/palette_component_stepMultiOutletCpt.gif",
+            data: createStepData({type: '7', size: [160, 60]})
+        }
+    ]
+}
+
+/*step编辑器配置*/
 const stepBaseCfg = {
     id: 'stepEditor',
     children: {
-        '5': stepCommonCpt,
         '3': serviceInvokdEntered,
-        '7': multiOutletCpt
+        '5': stepCommonCpt,
+        '7': stepMultiOutletCpt,
+        '4': bcpt
     },
     lines: {
         0: manhattanRoute
     },
     group: {
-        0: {
-            name: '默认组件',
-            items: {
-                '5': stepCommonCpt,
-                '3': serviceInvokdEntered,
-                '7': multiOutletCpt
-            }
-        },
-        1: {
+        "default": stepDefaultComponent,
+        "bank": {
             name: '银行',
-            items: {}
+            children: []
         },
-        2: {
+        "app": {
             name: '应用',
-            items: {}
+            children: []
         }
     },
     operations
 };
 
+/*node画板配置*/
+let nodeDefaultComponent = {
+    name: '默认组件',
+    items: [
+        {
+            name: "开始",
+            url: "assets/image/editor/palette_component_nodeStart.gif",
+            data: createStepData({type: '2', size: [63, 63]})
+        },
+        {
+            name: "正常结束",
+            url: "assets/image/editor/palette_component_nodeEnd.gif",
+            data: createStepData({type: '3', size: [63, 63]})
+        },
+        {
+            name: "异常结束",
+            url: "assets/image/editor/palette_component_nodeAbnormalEnd.gif",
+            data: createStepData({type: '4', size: [63, 63]})
+        },
+        {
+            name: "自定义结束",
+            url: "assets/image/editor/palette_component_nodeCustomEnd.gif",
+            data: createStepData({type: '14', size: [63, 63]})
+        },
+        {
+            name: "默认逻辑错误委托",
+            url: "assets/image/editor/palette_component_nodeErrorDelegate.gif",
+            data: createStepData({type: '6', size: [160, 54]})
+        },
+        {
+            name: "组件调用",
+            url: "assets/image/editor/palette_component_ComponentInvoke.gif",
+            data: createStepData({type: '7', size: [160, 54]})
+        },
+        {
+            name: "内部场景调用",
+            url: "assets/image/editor/palette_component_TradeInvoke.gif",
+            data: createStepData({type: '12', size: [160, 44]})
+        },
+        {
+            name: "中转节点",
+            url: "assets/image/editor/palette_component_transfer.gif",
+            data: createStepData({type: '10', size: [63, 63]})
+        }
+    ],
+    group: [
+        {
+            name: "场景同步调用",
+            url: "assets/image/editor/palette_component_tradeSync.gif",
+            data: createStepData({type: '18', size: [160, 44]})
+        },
+        {
+            name: "场景异步调用",
+            url: "assets/image/editor/palette_component_tradeAsync.gif",
+            data: createStepData({type: '4', size: [160, 44]})
+        },
+        {
+            name: "平行组件",
+            url: "assets/image/editor/Parallel.gif",
+            data: createStepData({type: '17', size: [40, 160]})
+        }
+    ]
+}
+
+/*node编辑器配置*/
 const nodeBaseCfg = {
     id: 'nodeEditor',
     children: {
         '2': nodeStart,
         '3': nodeEnd,
         '4': nodeAbnormalEnd,
-        '14': customEnd,
+        '14': nodeCustomEnd,
         '6': nodeErrorDelegate,
         '7': componentInvoke,
         '12': tradeInvoke,
         '10': transfer,
-        '11': asyncInvoke,
-        '18': syncInvoke,
-        '17': parallelComponent
+        '18': tradeSync,
+        '11': Async,
+        '17': parallel
     },
     lines: {
         0: manhattanRoute
     },
     group: {
-        '0': {
-            name: '基本组件',
-            items: {
-              '2': nodeStart,
-              '3': nodeEnd,
-              '4': nodeAbnormalEnd,
-              '14': customEnd,
-              '6': nodeErrorDelegate,
-              '7': componentInvoke,
-              '12': tradeInvoke,
-              '10': transfer,
-              '11': asyncInvoke,
-              '18': syncInvoke,
-              '17': parallelComponent
-
-            }
-        },
+        '0': nodeDefaultComponent,
         '1': {
             name: '平台',
+
         },
         '2': {
             name: '银行'
@@ -721,7 +813,7 @@ const nodeBaseCfg = {
     operations
 };
 
-
+/*数据处理、过滤*/
 export class stepConfigBuilder {
 
     baseCfg;
@@ -828,74 +920,3 @@ export class stepConfigBuilder {
          return this.baseCfg;
      }
  }
-
- /*exm*/
-/*
-Events = function() {
-
-    var listen, log, obj, one, remove, trigger, __this;
-
-    obj = {};
-
-    __this = this;
-
-    listen = function (key, eventfn) {
-
-        var stack, _ref;
-
-        stack = ( _ref = obj[key] ) != null ? _ref : obj[key] = [];
-
-        return stack.push(eventfn);
-
-    };
-
-    one = function (key, eventfn) {
-
-        remove(key);
-
-        return listen(key, eventfn);
-
-    };
-
-    remove = function (key) {
-
-        var _ref;
-
-        return ( _ref = obj[key] ) != null ? _ref.length = 0 : void 0;
-
-    };
-
-    trigger = function () {
-
-        var fn, stack, _i, _len, _ref, key;
-
-        key = Array.prototype.shift.call(arguments);
-
-        stack = ( _ref = obj[key] ) != null ? _ref : obj[key] = [];
-
-        for (_i = 0, _len = stack.length; _i < _len; _i++) {
-
-            fn = stack[_i];
-
-            if (fn.apply(__this, arguments) === false) {
-
-                return false;
-
-            }
-
-        }
-    }
-
-        return {
-
-            listen: listen,
-
-            one: one,
-
-            remove: remove,
-
-            trigger: trigger
-
-        }
-
-}*/
