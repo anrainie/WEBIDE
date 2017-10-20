@@ -52,9 +52,9 @@
 
     //服务调用
     let templateB = `
-        <el-form  :inline="true" class="demo-form-inline">
+        <el-form ref="form" label-width="90px" >
 
-            <el-form-item label="服务类型（在当前线程中执行）">
+            <el-form-item label="服务类型">
                 <el-switch
                         v-model="modification.RefImpl"
                         on-color="#44ffaa"
@@ -64,6 +64,7 @@
                         on-text="开启"
                         off-text="关闭">
                 </el-switch>
+                在当前线程中执行
             </el-form-item>
 
             <el-form-item label="调用类型">
@@ -81,11 +82,7 @@
 
             <el-form-item label="目标服务">
                 <el-input></el-input>
-
-            </el-form-item>
-
-            <el-form-item>
-              <el-button icon="more" ></el-button>
+                 <el-button icon="more" ></el-button>
             </el-form-item>
 
             <el-form-item label="服务名称">
@@ -144,14 +141,12 @@
                     <el-option value="1" label="定制">
                     </el-option>
                 </el-select>
+
+                <el-checkbox v-model="modification.Readonly">只读</el-checkbox>
              </el-form-item>
 
-            <el-form-item label="只读" :required="true">
-                <el-input v-model="modification.Readonly"></el-input>
-            </el-form-item>
-            
             <el-form-item label="注释" :required="true">
-                <el-input v-model="modification.Tooltip"></el-input>
+                <el-input type="textarea" v-model="modification.Tooltip"></el-input>
             </el-form-item>
 
         </el-form>
@@ -160,7 +155,7 @@
 
     //自定义结束
     let templateE = `
-        <el-form  inline="true" class="demo-form-inline">
+        <el-form  :inline="true" class="demo-form-inline">
             <el-form-item label="目标组件">
                 <el-input :disabled="true"></el-input>
             </el-form-item>
@@ -227,23 +222,47 @@
         </el-form>
     `;
 
+    let bcpt = `
+        <el-form>
+            <el-form-item label="目标组件">
+                <el-input disable="true"></el-input>
+            </el-form-item>
+
+            <el-form-item label="组件名称">
+                <el-input disable="true"></el-input>
+            </el-form-item>
+
+            <el-form-item label="组件级别">
+                <el-input disable="true"></el-input>
+            </el-form-item>
+
+            <el-form-item label="组件注释">
+                <el-input type="textarea"></el-input>
+            </el-form-item>
+        </el-form>
+    `;
+
 
 
     /*配置模板字符串*/
     const templateRouter = {
-        '3': templateB,
+        '0': templateA,
+        '1': templateB,
+        '2': templateC,
+        '3': templateD,
         '4': templateE,
-        '5': templateA,
-        '7': templateF,
-        '10': templateB
+        '5': templateF,
+        //场景同步、异步调用
+        '6': null,
+        '7': bcpt
     }
 
     /*默认属性*/
     const DEFAULTS = {
-        readonly: false,
-        remarks: 0,
-        refImpl: 0,
-        async: 0,
+        Readonly: false,
+        Remarks: 0,
+        RefImpl: 0,
+        Async: 0,
     }
 
     export default{
@@ -253,6 +272,11 @@
             return Vue.compile(templateRouter[this.type]).render.apply(this, arguments);
         },
         props: {
+            type: {
+                default() {
+                    return '0'
+                }
+            },
             model: {
                 default(){
                     return DEFAULTS
@@ -263,7 +287,6 @@
         data() {
             return {
                 modification: this.initModification(),
-                type: this.model.type ?  this.model.type : 1
             }
         },
         methods: {

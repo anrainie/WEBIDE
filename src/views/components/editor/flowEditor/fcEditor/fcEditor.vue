@@ -20,6 +20,7 @@
                     ref="nodeEditor"
                     :inputStyle="{width: '50%'}"
                     :editorConfig="nodeEditorCfg"
+                    :bindEvent="nodeBindEvent"
                     :save="saveHandle"
                     @dblclickCanvas="nodeDoubleClickCanvas"></flowEditor>
 
@@ -39,7 +40,7 @@
     import * as Constants from 'Constants'
     import skipGroup from '../../../flowPropDialog/skipGroup.vue';
     import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
-    import {propDialogs} from './propDialog'
+    import {stepDialogs, nodeDialogs} from './propDialog'
 
 
     /*用于参数忽略的时候*/
@@ -143,7 +144,7 @@
                 stepBindEvent: {
                     [Constants.OPEN_FLOWPROP_DIALOG](editPart) {
                         self.dialogTarget = editPart.model;
-                        self.dialogType = editPart.model.get("type");
+                        self.dialogType = editPart.model.get("type") + "step";
                         self.showProperties = true;
                     },
 
@@ -196,6 +197,13 @@
                         self.nodeVisible = false;
                     }
                 },
+                nodeBindEvent: {
+                    [Constants.OPEN_FLOWPROP_DIALOG](editPart) {
+                        self.dialogTarget = editPart.model;
+                        self.dialogType = editPart.model.get("type") + "node";
+                        self.showProperties = true;
+                    }
+                },
                 nodeEditorInput: null,
                 nodeEditorBuffer: new Map(),
                 saveHandle: commonDoSave,
@@ -238,11 +246,11 @@
                         if (result.state == "success") {
                             let data = result.data[path];
 
-                            if (data == null || data.length == 0) return;
+                            if (data == null || data["componentPackage"] == null) return;
 
                             let children = [];
 
-                            data.forEach((item) => {
+                            data["componentPackage"].forEach((item) => {
                                 children.push({
                                     name: item.componentPackage,
                                     url: packUrl,
@@ -369,6 +377,6 @@
         components: Object.assign({
             flowEditor,
             editorContainer
-        }, propDialogs)
+        }, stepDialogs, nodeDialogs)
     }
 </script>

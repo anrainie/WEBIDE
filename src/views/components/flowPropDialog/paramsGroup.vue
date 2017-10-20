@@ -47,7 +47,7 @@
                                 label: 'TRACE'
                             }],
                         }]
-                }
+                },
             }
         },
         props: {
