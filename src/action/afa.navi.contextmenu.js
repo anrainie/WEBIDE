@@ -572,7 +572,14 @@ var items = {
     'org.eclipse.ui.RefreshAction': {
         id: 'org.eclipse.ui.RefreshAction',
         name: 'Refresh',
-        type: 'item'
+        type: 'item',
+        handler:function (selection,item) {
+            if (selection instanceof Array) {
+                for (let index in selection) {
+                    selection[index].refresh();
+                }
+            }
+        }
     },
     'org.eclipse.ui.CopyAction': {
         id: 'org.eclipse.ui.CopyAction',

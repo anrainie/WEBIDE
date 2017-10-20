@@ -1,12 +1,13 @@
 <template>
     <div class="toolbar">
-        <div :title="item.tooltip" v-for="item in items"
-             :class="{'toolbar-item contextmenu-dropdown':item.type !='separator','toolbar-separator':item.type ==='separator'}"
-             @click="execute(item,$event)" v-show="item.enable"
-        >
-            <img v-if="item.type !='separator'" v-bind:src="item.img"/>
-            <div v-if="item.type ==='group'"/>
-        </div>
+        <el-tooltip v-for="item in items" class="item" effect="light" :content="item.tooltip" placement="top">
+            <div :class="{'toolbar-item contextmenu-dropdown':item.type !='separator','toolbar-separator':item.type ==='separator'}"
+                 @click="execute(item,$event)" v-show="item.enable"
+            >
+                <img v-if="item.type !='separator'" v-bind:src="item.img"/>
+                <div v-if="item.type ==='group'"/>
+            </div>
+        </el-tooltip>
     </div>
 </template>
 <style rel="stylesheet">
@@ -52,9 +53,9 @@
     .toolbar > div > img {
         position: relative;
         top: 50%;
-        margin-top: -10px;
-        width: 16px;
-        height: 16px;
+        margin-top: -7px;
+        width: 14px;
+        height: 14px;
     }
 </style>
 <script>

@@ -119,58 +119,7 @@
                 pageName: "pageName",
                 naviContextMenuItems: [],
                 contextMenuConfig: {},
-                toolItems: [
-                    {
-                        id: 'item1',
-                        desp: 'desp1',
-                        type: 'item',
-                        img: "assets/image/nav-folder.png"
-                    },
-                    {
-                        type: 'separator',
-                    },
-                    {
-                        id: 'item2',
-                        desp: 'desp2',
-                        type: 'item',
-                        img: "assets/image/nav-folder.png"
-                    }, {
-                        id: 'item3',
-                        desp: 'desp3',
-                        type: 'group',
-                        img: 'assets/image/nav-folder.png',
-                        children: [
-                            {
-                                id: "031",
-                                desp: 'desp2',
-                                name: "011",
-                                img: 'assets/image/nav-folder.png',
-                                type: 'item',
-                            }, {
-                                id: "031",
-                                desp: 'desp2',
-                                name: "011",
-                                img: 'assets/image/nav-folder.png',
-                                type: 'item',
-                            }
-                        ]
-                    },
-                    {
-                        id: 'item4',
-                        desp: 'desp4',
-                        type: 'item',
-                        img: "assets/image/nav-folder.png"
-                    },
-                    {
-                        type: 'separator',
-                    },
-                    {
-                        id: 'item5',
-                        desp: 'desp5',
-                        type: 'item',
-                        img: "assets/image/nav-folder.png"
-                    }
-                ],
+                toolItems: [],
                 toolbarConfig: {
                     onclick: function (item) {
                         console.info("toolbar item onclick : " + item.id);
@@ -382,28 +331,10 @@
                     image: "assets/image/nav-folder.png",
                     actions: [
                         {
-                            id: 'refreshAction',
-                            name: 'refresh',
-                            type: 'item',
-                            img: "assets/image/file_awb.gif",
-                            tooltip: 'refresh',
-                            validate(){
-                                return true;
-                            },
-                            onclick(selection){
-                                if (selection instanceof Array) {
-                                    for (let index in selection) {
-                                        selection[index].refresh();
-                                    }
-                                }
-
-                            }
-                        },
-                        {
                             id: 'linkWithEditorAction',
                             name: "linkWithEditor",
                             type: 'item',
-                            img: 'assets/image/file_awb.gif',
+                            img: 'assets/image/nav-link.png',
                             tooltip: "LinkWithEditor",
                             validate(){
                                 return true;
