@@ -110,7 +110,8 @@ var pinHandle = $AG.Handle.extend($AG.CIRCLE).extend({
     },
     colorMap: {
         "0": "red",
-        "1": "green"
+        "1": "green",
+        "2": "yellow"
     },
     refreshLocation: function (figure) {
         var anchor = figure.getSourceAnchorByTerminal(this.anchorId);
@@ -276,8 +277,8 @@ let defaultData = {
 
 /*默认组件*/
 
-    //通用组件
-    var stepCommonCpt = {
+//通用组件
+var stepCommonCpt = {
     name: 'common',
     url: 'assets/image/editor/event_component_stepCommonCpt.gif',
     type: $AG.IMAGE,
@@ -398,6 +399,7 @@ var bcpt = {
 //开始
 var nodeStart = {
     name: 'start',
+    desc: '开始',
     url: 'assets/image/editor/event_component_nodeStart.gif',
     type: $AG.IMAGE,
     size: [63, 63],
@@ -421,6 +423,7 @@ var nodeStart = {
 //正常结束
 var nodeEnd = {
     name: 'end',
+    desc: '结束',
     url: 'assets/image/editor/event_component_nodeEnd.gif',
     type: $AG.IMAGE,
     size: [63, 63],
@@ -444,6 +447,7 @@ var nodeEnd = {
 //异常结束
 var nodeAbnormalEnd = {
     name: 'eend',
+    desc: '异常结束',
     url: 'assets/image/editor/event_component_nodeAbnormalEnd.gif',
     type: $AG.IMAGE,
     size: [63, 63],
@@ -491,6 +495,7 @@ var nodeCustomEnd = {
 //默认逻辑委托错误
 var nodeErrorDelegate = {
     name: 'error',
+    desc: '默认逻辑错误委托',
     url: 'assets/image/editor/event_component_nodeErrorDelegate.gif',
     type: $AG.IMAGE,
     size: [160, 54],
@@ -515,6 +520,7 @@ var nodeErrorDelegate = {
 //组件调用
 var componentInvoke = {
     name: 'context',
+    desc: '组件调用',
     url: 'assets/image/editor/event_component_ComponentInvoke.gif',
     type: $AG.IMAGE,
     size: [160, 44],
@@ -540,6 +546,7 @@ var componentInvoke = {
 //内部场景调用
 var tradeInvoke = {
     name: 'serivceX',
+    desc: '内部场景调用',
     url: 'assets/image/editor/event_node_component_TradeInvoke.gif',
     type: $AG.IMAGE,
     size: [160, 44],
@@ -564,6 +571,7 @@ var tradeInvoke = {
 //中转节点
 var transfer = {
     name: 'mid',
+    desc: '中转节点',
     url: 'assets/image/editor/event_component_transfer.gif',
     type: $AG.IMAGE,
     size: [63, 63],
@@ -749,7 +757,9 @@ let nodeDefaultComponent = {
             name: "中转节点",
             url: "assets/image/editor/palette_component_transfer.gif",
             data: createStepData({type: '10', size: [63, 63]})
-        },
+        }
+    ],
+    group: [
         {
             name: "场景同步调用",
             url: "assets/image/editor/palette_component_tradeSync.gif",

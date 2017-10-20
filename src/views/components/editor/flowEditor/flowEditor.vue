@@ -189,15 +189,22 @@
                         <el-col :span="24">
                             <el-menu v-if="isVisibility" default-active="2" class="el-menu-vertical-demo" @open="openHandle">
                                 <el-submenu :index="key" v-for="(value, key, index) in getGroup()">
-                                    <template slot="title"><i class="el-icon-message"></i>{{value.name}}</template>
+                                    <template slot="title">{{value.name}}</template>
 
-                                     <el-menu-item style="padding-left: 20px;min-width: 100px;width: auto" v-if="value.items" v-for="item in value.items" :index="item.name"
+                                     <el-menu-item style="padding-left: 0px;min-width: 150px;width: auto" v-if="value.items" v-for="item in value.items" :index="item.name"
                                      >
                                        <img v-drag="{editor: editor, item: item}"/>
                                        {{item.name}}
                                      </el-menu-item>
 
-                                     <el-menu-item-group v-if="value.group"></el-menu-item-group>
+                                     <el-menu-item-group v-if="value.group">
+                                        <el-menu-item style="padding-left: 0px;min-width: 150px;width: auto"  v-for="item in value.group" :index="item.name"
+                                     >
+                                       <img v-drag="{editor: editor, item: item}"/>
+                                       {{item.name}}
+                                     </el-menu-item>
+
+                                    </el-menu-item-group>
 
                                      <el-submenu v-if="value.children" v-for="child in value.children" :index="child.name" >
                                         <template slot="title"><img v-drag="{editor: editor, item: child}"/>{{child.name}}</template>

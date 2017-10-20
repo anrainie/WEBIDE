@@ -3,11 +3,12 @@
  */
 
 var socket_io = require('socket.io');
-var parseCookie = require('cookie-parser')
-var shareSession = require('express-socket.io-session')
-var dbConstants = require('./constants/DBConstants')
+var parseCookie = require('cookie-parser');
+var shareSession = require('express-socket.io-session');
+var dbConstants = require('./constants/DBConstants');
 var productDao = require('./dao/ProductDao');
-var Product = require('./product/Product')
+var Product = require('./product/Product');
+var ideServices = require('./service/ide.service');
 
 function Servlet(serviceConfigs, session, http) {
     this.serviceConfigs = serviceConfigs;
@@ -19,6 +20,10 @@ function Servlet(serviceConfigs, session, http) {
 Servlet.prototype.start = function () {
     var self = this;
     var server = socket_io(this.http);
+
+    for(let i = 0 ; i < this.serviceConfigs.length; i++){
+        IDE.mergeService(ideServices,this.serviceConfigs[i]);
+    }
 
     server.use(shareSession(this.session, {
         autoSave: true
