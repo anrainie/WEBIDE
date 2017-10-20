@@ -563,6 +563,7 @@ var tradeInvoke = {
     refresh,
 
     policies : {
+        'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['0', '1'])
     }
@@ -595,7 +596,7 @@ var transfer = {
 
 //场景同步调用
 var tradeSync = {
-    url: 'assets/image/editor/event_component_tradeSync.gif',
+    url: 'assets/image/editor/event_node_component_tradeSync.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -618,7 +619,7 @@ var tradeSync = {
 };
 
 var Async = {
-    url: 'assets/image/editor/event_component_Async.gif',
+    url: 'assets/image/editor/event_node_component_Async.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -768,7 +769,7 @@ let nodeDefaultComponent = {
         {
             name: "场景异步调用",
             url: "assets/image/editor/palette_component_tradeAsync.gif",
-            data: createStepData({type: '4', size: [160, 44]})
+            data: createStepData({type: '11', size: [160, 44]})
         },
         {
             name: "平行组件",
@@ -831,11 +832,15 @@ export class stepConfigBuilder {
     }
 
     setEditorAttr(input) {
-        this.baseCfg.DateInfo = input.Root.DateInfo;
-        this.baseCfg.NodeMaxnimum = input.Root.NodeMaxnimum;
-        this.baseCfg.uuid = input.Root.UUID;
+        try {
+            this.baseCfg.uuid = input.Root.UUID;
+            this.baseCfg.DateInfo = input.Root.DateInfo;
+            this.baseCfg.NodeMaxnimum = input.Root.NodeMaxnimum;
+        } catch (e) {
 
-        return this;
+        } finally {
+            return this;
+        }
     }
 
     resolveModel(input) {
