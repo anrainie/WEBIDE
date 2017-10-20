@@ -29,7 +29,11 @@ let baseDialogComponent = {
         },
         /*通过refs调用子组件*/
         saveHandle(refsName) {
-            this.$refs[refsName][0].savePropsToModel(this.model);
+            try {
+                this.$refs[refsName][0].savePropsToModel(this.model);
+            } catch (e) {
+                 //TODO
+            }
         },
         clickConfirm() {
             if (this.group) {
@@ -77,11 +81,11 @@ export let stepDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: null
+            group: paramsGrop
         },
         outputParam: {
             name: '出口参数',
-            group: null
+            group: paramsGrop
         }
     }),
     //通用组件
@@ -121,11 +125,11 @@ export let stepDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: null
+            group: paramsGrop
         },
         outputParam: {
             name: '出口参数',
-            group: null
+            group: paramsGrop
         }
     })
 };
@@ -153,11 +157,11 @@ export let nodeDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: null
+            group: paramsGrop
         },
         outputParam: {
             name: '出口参数',
-            group: null
+            group: paramsGrop
         }
     }),
     //内部场景调用
@@ -173,11 +177,11 @@ export let nodeDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: null
+            group: paramsGrop
         },
         outputParam: {
             name: '出口参数',
-            group: null
+            group: paramsGrop
         }
     }),
     //同步
@@ -193,11 +197,11 @@ export let nodeDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: null
+            group: paramsGrop
         },
         outputParam: {
             name: '出口参数',
-            group: null
+            group: paramsGrop
         }
     }),
     //异步
@@ -213,11 +217,11 @@ export let nodeDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: null
+            group: paramsGrop
         },
         outputParam: {
             name: '出口参数',
-            group: null
+            group: paramsGrop
         }
     })
 };

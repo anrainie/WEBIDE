@@ -25,9 +25,7 @@
                     @dblclickCanvas="nodeDoubleClickCanvas"></flowEditor>
 
             <!--对话框-->
-            <keep-alive>
-                <component :is="dialogType" :showProperties.sync="showProperties" :model="dialogTarget"></component>
-            </keep-alive>
+            <component :is="dialogType" :showProperties.sync="showProperties" :model="dialogTarget"></component>
 
         </div>
     </editorContainer>

@@ -298,7 +298,6 @@
                     /*如果是对象还需要继续*/
                     options[item] = this.model[item];
                 });
-
                 return Object.assign({}, DEFAULTS, options);
             },
 

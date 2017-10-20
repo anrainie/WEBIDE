@@ -1,7 +1,5 @@
 <template>
-    <el-collapse-item :title="title">
-        <itable :tableConfig="tableConfig" :model="model"></itable>
-    </el-collapse-item>
+    <itable :tableConfig="tableConfig" :model="tempModel"></itable>
 </template>
 <style>
 
@@ -11,6 +9,7 @@
     export default{
         data(){
             return {
+                tempModel:[],
                 tableConfig: {
                     pageSize: 10,
                     pageSizes: [10, 20, 50],
