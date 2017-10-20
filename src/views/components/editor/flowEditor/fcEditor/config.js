@@ -272,10 +272,13 @@ let defaultData = {
     'False': '0'
 };
 
-//默认组件
+/****** step ******/
+
+/*默认组件*/
+
+    //通用组件
     var stepCommonCpt = {
     name: 'common',
-    paletteUrl: "assets/image/editor/palette_component_stepCommonCpt.gif",
     url: 'assets/image/editor/event_component_stepCommonCpt.gif',
     type: $AG.IMAGE,
     anchor: [
@@ -302,13 +305,12 @@ let defaultData = {
     refresh,
 
     //数据
-    size: [160, 60],
-    data: defaultData
+    size: [160, 60]
 };
 
+//内部场景调用
 var serviceInvokdEntered = {
     name: 'service',
-    paletteUrl: 'assets/image/editor/palette_component_ServiceInvoke.gif',
     url: 'assets/image/editor/event_component_ServiceInvokdEntered.gif',
     type: $AG.IMAGE,
     anchor: [
@@ -332,12 +334,36 @@ var serviceInvokdEntered = {
         'nodeEditor': closeNodeEditor,
         'pin': pinPolicy(['0', '1'])
     },
-
-    //数据
-    size: [160, 60],
-    data: defaultData
 };
 
+//内部场景调用
+var stepMultiOutletCpt = {
+    url: 'assets/image/editor/event_component_stepMultiOutletCpt.gif',
+    type: $AG.IMAGE,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0}
+    ],
+    size: [160, 60],
+
+    //特性
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    refresh,
+
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'nodeEditor': closeNodeEditor,
+        'pin': pinPolicy(['0', '1'])
+    },
+};
+
+//业务组件
 var bcpt = {
     url: 'assets/image/editor/event_component_stepBussiness.gif',
     type: $AG.IMAGE,
@@ -365,13 +391,14 @@ var bcpt = {
 
 }
 
-
+/***** node *****/
 
 //基本组件
+
+//开始
 var nodeStart = {
     name: 'start',
     url: 'assets/image/editor/event_component_nodeStart.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeStart.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -391,10 +418,10 @@ var nodeStart = {
     }
 };
 
+//正常结束
 var nodeEnd = {
     name: 'end',
     url: 'assets/image/editor/event_component_nodeEnd.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeEnd.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -414,10 +441,10 @@ var nodeEnd = {
     }
 };
 
+//异常结束
 var nodeAbnormalEnd = {
     name: 'eend',
     url: 'assets/image/editor/event_component_nodeAbnormalEnd.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeAbnormalEnd.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -438,10 +465,33 @@ var nodeAbnormalEnd = {
     }
 };
 
+//自定义结束
+var nodeCustomEnd = {
+    url: 'assets/image/editor/event_component_nodeCustomEnd.gif',
+    type: $AG.IMAGE,
+    size: [63, 63],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '1', dir: 's', offset: 0},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh,
+
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['1'])
+    }
+};
+
+//默认逻辑委托错误
 var nodeErrorDelegate = {
     name: 'error',
     url: 'assets/image/editor/event_component_nodeErrorDelegate.gif',
-    paletteUrl: 'assets/image/editor/palette_component_nodeErrorDelegate.gif',
     type: $AG.IMAGE,
     size: [160, 54],
     canDrag: true,
@@ -462,11 +512,10 @@ var nodeErrorDelegate = {
     }
 };
 
-
+//组件调用
 var componentInvoke = {
     name: 'context',
     url: 'assets/image/editor/event_component_ComponentInvoke.gif',
-    paletteUrl: 'assets/image/editor/palette_component_ComponentInvoke.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -488,10 +537,10 @@ var componentInvoke = {
     }
 };
 
+//内部场景调用
 var tradeInvoke = {
     name: 'serivceX',
     url: 'assets/image/editor/event_node_component_TradeInvoke.gif',
-    paletteUrl: 'assets/image/editor/palette_component_TradeInvoke.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -512,10 +561,10 @@ var tradeInvoke = {
     }
 };
 
+//中转节点
 var transfer = {
     name: 'mid',
     url: 'assets/image/editor/event_component_transfer.gif',
-    paletteUrl: 'assets/image/editor/palette_component_transfer.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -536,11 +585,80 @@ var transfer = {
     }
 };
 
+//场景同步调用
+var tradeSync = {
+    url: 'assets/image/editor/event_component_tradeSync.gif',
+    type: $AG.IMAGE,
+    size: [160, 44],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh,
+
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['0', '1'])
+    }
+};
+
+var Async = {
+    url: 'assets/image/editor/event_component_Async.gif',
+    type: $AG.IMAGE,
+    size: [160, 44],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: -25},
+        {id: '1', dir: 's', offset: 25},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh,
+
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['0', '1'])
+    }
+};
+
+var parallel = {
+    url: 'assets/image/editor/Parallel_leave.gif',
+    type: $AG.IMAGE,
+    size: [40, 160],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: '0', dir: 's', offset: 0}
+    ],
+    refresh,
+
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'pin': pinPolicy(['0'])
+    }
+}
+
+/***** 编辑器配置 *****/
+
 let createStepData = function (config) {
     return Object.assign(config, defaultData);
 }
 
-//默认组件
+/*step画板配置*/
 let stepDefaultComponent = {
     name: '默认组件',
     items: [
@@ -553,15 +671,22 @@ let stepDefaultComponent = {
             name: "内部场景调用",
             url: "assets/image/editor/palette_component_ServiceInvoke.gif",
             data: createStepData({type: '3', size: [160, 60]})
+        },
+        {
+            name: "多出口组件",
+            url: "assets/image/editor/palette_component_stepMultiOutletCpt.gif",
+            data: createStepData({type: '7', size: [160, 60]})
         }
     ]
 }
 
+/*step编辑器配置*/
 const stepBaseCfg = {
     id: 'stepEditor',
     children: {
         '3': serviceInvokdEntered,
         '5': stepCommonCpt,
+        '7': stepMultiOutletCpt,
         '4': bcpt
     },
     lines: {
@@ -581,57 +706,83 @@ const stepBaseCfg = {
     operations
 };
 
+/*node画板配置*/
 let nodeDefaultComponent = {
     name: '默认组件',
     items: [
         {
-            name: null,
+            name: "开始",
             url: "assets/image/editor/palette_component_nodeStart.gif",
             data: createStepData({type: '2', size: [63, 63]})
         },
         {
-            name: null,
+            name: "正常结束",
             url: "assets/image/editor/palette_component_nodeEnd.gif",
             data: createStepData({type: '3', size: [63, 63]})
         },
         {
-            name: null,
+            name: "异常结束",
             url: "assets/image/editor/palette_component_nodeAbnormalEnd.gif",
             data: createStepData({type: '4', size: [63, 63]})
         },
         {
-            name: null,
+            name: "自定义结束",
+            url: "assets/image/editor/palette_component_nodeCustomEnd.gif",
+            data: createStepData({type: '14', size: [63, 63]})
+        },
+        {
+            name: "默认逻辑错误委托",
             url: "assets/image/editor/palette_component_nodeErrorDelegate.gif",
             data: createStepData({type: '6', size: [160, 54]})
         },
         {
-            name: null,
+            name: "组件调用",
             url: "assets/image/editor/palette_component_ComponentInvoke.gif",
             data: createStepData({type: '7', size: [160, 54]})
         },
         {
-            name: null,
+            name: "内部场景调用",
             url: "assets/image/editor/palette_component_TradeInvoke.gif",
-            data: createStepData({type: '11', size: [160, 44]})
+            data: createStepData({type: '12', size: [160, 44]})
         },
         {
-            name: null,
+            name: "中转节点",
             url: "assets/image/editor/palette_component_transfer.gif",
             data: createStepData({type: '10', size: [63, 63]})
         },
+        {
+            name: "场景同步调用",
+            url: "assets/image/editor/palette_component_tradeSync.gif",
+            data: createStepData({type: '18', size: [160, 44]})
+        },
+        {
+            name: "场景异步调用",
+            url: "assets/image/editor/palette_component_tradeAsync.gif",
+            data: createStepData({type: '4', size: [160, 44]})
+        },
+        {
+            name: "平行组件",
+            url: "assets/image/editor/Parallel.gif",
+            data: createStepData({type: '17', size: [40, 160]})
+        }
     ]
 }
 
+/*node编辑器配置*/
 const nodeBaseCfg = {
     id: 'nodeEditor',
     children: {
         '2': nodeStart,
         '3': nodeEnd,
         '4': nodeAbnormalEnd,
+        '14': nodeCustomEnd,
         '6': nodeErrorDelegate,
         '7': componentInvoke,
-        '11': tradeInvoke,
-        '10': transfer
+        '12': tradeInvoke,
+        '10': transfer,
+        '18': tradeSync,
+        '11': Async,
+        '17': parallel
     },
     lines: {
         0: manhattanRoute
@@ -640,6 +791,7 @@ const nodeBaseCfg = {
         '0': nodeDefaultComponent,
         '1': {
             name: '平台',
+
         },
         '2': {
             name: '银行'
@@ -651,7 +803,7 @@ const nodeBaseCfg = {
     operations
 };
 
-
+/*数据处理、过滤*/
 export class stepConfigBuilder {
 
     baseCfg;

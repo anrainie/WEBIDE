@@ -58,11 +58,23 @@ let createDialog = function (config) {
     return Object.assign({}, baseDialogComponent, result);
 };
 
-export let propDialogs = {
-    //服务调用
+let stepDialogs = {
     "3": createDialog({basicInfo, skipInfo: skipGroup}),
     //通用组件
     "5": createDialog({basicInfo: basicInfo, skipInfo: skipGroup}),
+    //多出口组件
+    "7": createDialog({basicInfo, skipInfo: skipGroup}),
+    //bcpt
+    "4": null
+}
+
+export let propDialogs = {
+    //内部场景调用
+    "3": createDialog({basicInfo, skipInfo: skipGroup}),
+    //通用组件
+    "5": createDialog({basicInfo: basicInfo, skipInfo: skipGroup}),
+    //多出口组件
+    "7": createDialog({basicInfo, skipInfo: skipGroup}),
     //自定义结束
     "4": createDialog({basicInfo}),
     //组件调用

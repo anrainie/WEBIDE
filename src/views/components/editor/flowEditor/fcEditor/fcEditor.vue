@@ -8,7 +8,7 @@
                     v-show="stepVisible"
                     ref="stepEditor"
                     :editorConfig="stepEditorCfg"
-                    :bindEvent="bindEvent"
+                    :bindEvent="stepBindEvent"
                     :save="saveHandle"
                     :openPaletteEvent="stepPaletteOpenEvent"
                     @dblclickCanvas="stepDoubleClickCanvas"></flowEditor>
@@ -140,10 +140,10 @@
                 nodeVisible: false,
                 nodeExist: false,
                 stepVisible: true,
-                bindEvent: {
+                stepBindEvent: {
                     [Constants.OPEN_FLOWPROP_DIALOG](editPart) {
                         self.dialogTarget = editPart.model;
-                        self.dialogType = editPart.model.get("Type");
+                        self.dialogType = editPart.model.get("type");
                         self.showProperties = true;
                     },
 
@@ -201,7 +201,8 @@
                 saveHandle: commonDoSave,
                 showProperties: false,
                 dialogTarget: null,
-                dialogType: null
+                dialogType: null,
+                stepNodeType: null,
             }
         },
         computed: {

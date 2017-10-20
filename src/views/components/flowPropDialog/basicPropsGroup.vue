@@ -263,7 +263,7 @@
         data() {
             return {
                 modification: this.initModification(),
-                type: this.model.type ?  this.model.Type : 1
+                type: this.model.type ?  this.model.type : 1
             }
         },
         methods: {
