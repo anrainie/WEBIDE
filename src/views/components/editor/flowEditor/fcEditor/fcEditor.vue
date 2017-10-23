@@ -227,7 +227,7 @@
             },
 
             stepPaletteOpenEvent() {
-                let filePath = this.file.model.path, cache = {},
+                let filePath = this.file.path, cache = {},
                     packUrl = "assets/image/editor/folder_catelog.gif",
                     comUrl = "assets/image/editor/palette_component_businessComponent.gif";
                 return function (index, indexPath, config) {
@@ -286,11 +286,11 @@
             },
 
             stepEditorID() {
-                return "step_editor" + this.file.model.path.replace(/(\/)/g, "_").replace(/(\.)/, "-")
+                return "step_editor" + this.file.path.replace(/(\/)/g, "_").replace(/(\.)/, "-")
             },
 
             nodeEditorID() {
-                return "node_editor" + this.file.model.path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
+                return "node_editor" + this.file.path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
             }
         },
         updated() {
@@ -337,7 +337,7 @@
                 this.nodeEditorBuffer.clear();
                 if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;
                 //this.setStepFromInput(stepEditor.getSaveData(stepPropsName));
-                this.msgHub.$emit('dirtyStateChangxe', this.file, false);
+                this.msgHub.$emit('dirtyStateChange', this.file, false);
                 return true;
             },
             focus() {
