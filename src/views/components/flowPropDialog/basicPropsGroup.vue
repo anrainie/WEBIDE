@@ -323,24 +323,6 @@
           model.set(key, item)
         }
       },
-      /*打开选择场景对话框*/
-      openChooseSceneDialog () {
-        //打开之前先从后台获取可选择服务
-        IDE.socket.emit('loadScene', {
-          type: IDE.type,
-          event: 'loadScene',
-          data: {path: ''}
-        }, function (result) {
-          if (result) {
-            if (result.state == 'success') {
-              this.sceneData = result.data
-              this.$refs.chooseSceneDialog.openDialog()
-            } else {
-              console.log('当前没有可选择的服务')
-            }
-          }
-        })
-      }
     }
   }
 </script>
