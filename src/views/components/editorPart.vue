@@ -204,7 +204,7 @@
             },
             showEditor: function (model) {
                 if (this.activeEditor && (this.activeEditor.file.path === model.path)) {
-                    return;
+                    return this.activeEditor;
                 }
                 let oldEditor = this.getEditor(model);
                 if (oldEditor) {
@@ -230,7 +230,9 @@
                     while (this.needCollapse()) {
                         this.emptyOutEditorIndicate();
                     }
+                    return this.activeEditor;
                 }
+                return null;
             },
             getActiveEditor: function () {
                 return this.activeEditor;
@@ -259,15 +261,14 @@
                     model = item;
                 let oldEditor = this.getEditor(model);
                 if (oldEditor) {
-                    this.showEditor(model);
-                    return;
+                    return this.showEditor(model);
                 }
-                this.doOpenEditor(model, input);
+                return this.doOpenEditor(model, input);
             },
             doOpenEditor: function (model, content) {
                 let resId = model.resId;
                 if (resId == null)
-                    resId = model.path.substr(model.path.lastIndexOf('.')+1);
+                    resId = model.path.substr(model.path.lastIndexOf('.') + 1);
                 let editorDecorator = this.getEditorDecorator(resId);
                 if (!editorDecorator) {
                     debug.error("can not found editorDecorator with : " + resId);
@@ -346,6 +347,7 @@
                 }
 
                 this.editors.unshift(newEditor);
+                return newEditor;
             },
             emptyOutEditorIndicate: function () {
                 for (let i = this.editors.length - 1; i > 0; i--) {

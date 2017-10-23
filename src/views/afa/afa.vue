@@ -160,7 +160,6 @@
         },
         methods: {
             _openEditor(model){
-                console.log(model);
                 IDE.shade.open();
                 IDE.socket.emit("getFile", {
                     type: IDE.type,
@@ -172,7 +171,11 @@
                     IDE.shade.hide();
                     if (result.state === 'success') {
                         if (!model.isParent) {
-                            IDE.editorPart.openEditor(model, result.data);
+                            let editor = IDE.editorPart.openEditor(model, result.data);
+                            console.log('编辑器', editor);
+                            if(editor){
+                                editor.$children[0].$emit('maximize');
+                            }
                         }
                     } else {
                         debug.error('resource dbclick , ' + result);

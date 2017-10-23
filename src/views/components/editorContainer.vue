@@ -2,7 +2,8 @@
     <div class="editor-container">
         <div class="editor-header">
             <div class="editor-toolbar">
-                <el-tooltip v-for="item in toolItems" class="item" effect="dark" :content="item.tooltip" placement="top-start">
+                <el-tooltip v-for="item in toolItems" class="item" effect="dark" :content="item.tooltip"
+                            placement="top-start">
                     <div class="editor-toolItem" @click="itemClick(item)">
                         <img v-bind:src="item.img"/>
                     </div>
@@ -19,12 +20,12 @@
 </style>
 <script>
     export default{
-        name:'editorContainer',
-        props:{
-            editor:null,
-            editorActions:{
-                type:Array,
-                default:function () {
+        name: 'editorContainer',
+        props: {
+            editor: null,
+            editorActions: {
+                type: Array,
+                default: function () {
                     return [];
                 }
             }
@@ -32,44 +33,52 @@
         ,
         data(){
             return {
-                isHide:true,
-                $editorHeader:null,
+                isHide: true,
+                $editorHeader: null,
                 toolItems: [
                     {
                         id: "lock",
                         tooltip: "锁定文件",
                         img: "/assets/image/lock.png",
-                        handler:this.lock
+                        handler: this.lock
                     },
                     {
                         id: "release_lock",
                         img: "/assets/image/unlock.png",
                         tooltip: "解锁文件",
-                        handler:this.release
+                        handler: this.release
                     },
                     {
                         id: "peek_lock",
                         img: "/assets/image/peek_lock.png",
                         tooltip: "查看文件锁",
-                        handler:this.peek
+                        handler: this.peek
                     }
                 ]
             }
         },
-        methods:{
+        methods: {
             itemClick(item){
-                if(item.handler){
+                if (item.handler) {
                     item.handler.call(this.editor);
                 }
+            },
+            maximize(){
+                console.log('最大化',this);
+                this.$el.classList.add('MAXIMIZE');
+            },
+            normalize(){
+                console.log('editorContainer回复常态的函数');
+                this.$el.classList.remove('MAXIMIZE');
             },
             indicatorClick(){
                 this.changeHeader(this.isHide = !this.isHide);
             },
             changeHeader(isHide){
                 var indicatorTop = 0;
-                if(isHide){
+                if (isHide) {
                     indicatorTop = '1px';
-                }else{
+                } else {
                     indicatorTop = '26px';
                 }
                 this.$editorHeader.animate({height: 'toggle', opacity: 'toggle'}, "slow");
@@ -86,24 +95,24 @@
                 var minute = replenish(date.getMinutes());
                 var second = replenish(date.getSeconds());
                 return "[" + date.getFullYear() + "-" + month + "-" + dateStr
-                        + " " + hour + ":" + minute + ":" + second + "]";
+                    + " " + hour + ":" + minute + ":" + second + "]";
             },
             lock(){
                 var self = this;
                 IDE.socket.emit('lockFile',
                     {
-                        type:IDE.type,
-                        event:'lockFile',
-                        data:{
-                            path:this.editor.file.model.path
+                        type: IDE.type,
+                        event: 'lockFile',
+                        data: {
+                            path: this.editor.file.model.path
                         }
-                    },function (respData) {
-                        if(respData.state === 'success'){
+                    }, function (respData) {
+                        if (respData.state === 'success') {
                             self.$notify({
                                 title: '提示',
                                 message: '上锁成功',
                             });
-                        }else if(respData.state === 'error'){
+                        } else if (respData.state === 'error') {
                             self.$notify({
                                 title: '提示',
                                 message: '上锁失败,' + respData.errorMsg,
@@ -116,21 +125,21 @@
                 var self = this;
                 IDE.socket.emit('releaseFilelock',
                     {
-                        type:IDE.type,
-                        event:'releaseFilelock',
-                        data:{
-                            path:this.editor.file.model.path
+                        type: IDE.type,
+                        event: 'releaseFilelock',
+                        data: {
+                            path: this.editor.file.model.path
                         }
-                    },function (respData) {
-                        if(respData.state === 'success'){
+                    }, function (respData) {
+                        if (respData.state === 'success') {
                             self.$notify({
                                 title: '提示',
                                 message: '解锁成功',
                             });
-                        }else if(respData.state === 'error'){
+                        } else if (respData.state === 'error') {
                             self.$notify({
                                 title: '提示',
-                                message: '解锁失败,'+ respData.errorMsg,
+                                message: '解锁失败,' + respData.errorMsg,
                             });
                         }
                     }
@@ -140,18 +149,18 @@
                 var self = this;
                 IDE.socket.emit('peekFileLock',
                     {
-                        type:IDE.type,
-                        event:'peekFileLock',
-                        data:{
-                            path:this.editor.file.model.path
+                        type: IDE.type,
+                        event: 'peekFileLock',
+                        data: {
+                            path: this.editor.file.model.path
                         }
-                    },function (respData) {
-                        if(respData.data == null){
+                    }, function (respData) {
+                        if (respData.data == null) {
                             self.$notify({
                                 title: '提示',
                                 message: '该文件未被上锁',
                             });
-                        }else{
+                        } else {
                             self.$notify({
                                 title: '提示',
                                 message: '该文件已被上锁，持有者：' + respData.data.username,
@@ -164,13 +173,21 @@
         },
         mounted(){
             this.$editorHeader = $(this.$el).find(".editor-header");
-            this.$headerIndicator =  $(this.$el).find(".editor-header-indicator");
+            this.$headerIndicator = $(this.$el).find(".editor-header-indicator");
 
-            if(this.editorActions){
-                for(let i = 0 ; i < this.editorActions.length ; i ++){
+            if (this.editorActions) {
+                for (let i = 0; i < this.editorActions.length; i++) {
                     this.toolItems.push(this.editorActions[i]);
                 }
             }
+
+            this.$on('maximize', () => {
+                this.maximize();
+            });
+
+            this.$on('normalize', () => {
+                this.normalize();
+            });
 
             this.changeHeader(true);
         }
