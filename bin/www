@@ -1,0 +1,37 @@
+var Server = require('../server/server');
+var server = new Server();
+var port = normalizePort(process.env.PORT || '3000');
+
+server.use(require('connect-history-api-fallback')());
+
+server.start(port, function (err) {
+    if (err) {
+        console.log(err);
+        return;
+    }
+});
+server.on('listening', onListening);
+
+function normalizePort(val) {
+    var port = parseInt(val, 10);
+
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
+
+    if (port >= 0) {
+        // port number
+        return port;
+    }
+
+    return false;
+}
+
+function onListening() {
+  var addr = server.server.address();
+  var bind = typeof addr === 'string'
+    ? 'pipe ' + addr
+    : 'port ' + addr.port;
+  console.info('Listening on ' + bind);
+}

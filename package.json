@@ -3,7 +3,9 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "dev": "node ./build/dev-server.js"
+    "dev": "node ./build/server.dev.js",
+    "build": "node ./build/build.js",
+    "start": "node ./bin/www"
   },
   "dependencies": {
     "@types/socket.io-client": "^1.4.30",
@@ -44,7 +46,11 @@
     "vuetable-2": "^1.6.6",
     "vuex": "^2.4.1",
     "ztree": "^3.5.24",
-    "q":"2.0.3"
+    "q":"2.0.3",
+    "ora": "^1.1.0",
+    "rimraf": "^2.6.0",
+    "chalk": "^1.1.3",
+    "optimize-css-assets-webpack-plugin": "^1.3.0"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
@@ -64,12 +70,12 @@
     "eslint-plugin-html": "^2.0.3",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^2.3.1",
-    "extract-text-webpack-plugin": "^2.1.2",
+    "extract-text-webpack-plugin": "^1.0.1",
     "html-loader": "^0.4.5",
     "lodash.debounce": "^4.0.8",
     "vue-html-loader": "^1.2.3",
     "vue-loader": "^7.3.0",
-    "webpack": "^1.13.1",
+    "webpack": "^1.9.11",
     "webpack-dev-middleware": "^1.12.0",
     "webpack-dev-server": "^1.14.1",
     "webpack-hot-middleware": "^2.19.1",

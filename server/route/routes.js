@@ -1,6 +1,8 @@
 /**
  * Created by pang on 2017/6/8.
  */
+const fs = require('fs');
+const path = require('path');
 const userDao = require('../dao/UserDao');
 const productDao = require('../dao/ProductDao');
 
@@ -11,7 +13,13 @@ module.exports = function (app) {
         app.locals.user = _user
 
         next();
-    })
+    });
+
+   /* app.get('*', function(req, res) {
+        const html = fs.readFileSync(path.resolve(__dirname, '../../dist/index.html'), 'utf-8')
+        res.send(html)
+    }) */
+
     // 注册
     app.post('/user/signup', function (req, res) {
         var newUser = req.body;

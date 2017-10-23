@@ -353,60 +353,6 @@
                     image: "assets/image/nav-folder.png",
                     init(){
                         WORKBENCH.property = this;
-                    },
-                    data: {
-                        toolItems: [
-                            {
-                                id: 'item1',
-                                desp: 'desp1',
-                                type: 'item',
-                                img: "assets/image/nav-folder.png"
-                            },
-                            {
-                                type: 'separator',
-                            },
-                            {
-                                id: 'item2',
-                                desp: 'desp2',
-                                type: 'item',
-                                img: "assets/image/nav-folder.png"
-                            }, {
-                                id: 'item3',
-                                desp: 'desp3',
-                                type: 'group',
-                                img: 'assets/image/nav-folder.png',
-                                children: [
-                                    {
-                                        id: "031",
-                                        desp: 'desp2',
-                                        name: "011",
-                                        img: 'assets/image/nav-folder.png',
-                                        type: 'item',
-                                    }, {
-                                        id: "031",
-                                        desp: 'desp2',
-                                        name: "011",
-                                        img: 'assets/image/nav-folder.png',
-                                        type: 'item',
-                                    }
-                                ]
-                            },
-                            {
-                                id: 'item4',
-                                desp: 'desp4',
-                                type: 'item',
-                                img: "assets/image/nav-folder.png"
-                            },
-                            {
-                                type: 'separator',
-                            },
-                            {
-                                id: 'item5',
-                                desp: 'desp5',
-                                type: 'item',
-                                img: "assets/image/nav-folder.png"
-                            }
-                        ]
                     }
                 },
                 'console': {

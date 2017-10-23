@@ -25,15 +25,6 @@ module.exports = {
     },
     module: {
         loaders: [
-            // {
-            //     test: /\.(js|vue)$/,
-            //     loader: 'eslint-loader',
-            //     enforce: "pre",
-            //     include: [resolve('src'), resolve('test')],
-            //     options: {
-            //         formatter: require('eslint-friendly-formatter')
-            //     }
-            // },
             {
                 test: /\.vue$/,
                 loader: 'vue-loader',
@@ -49,7 +40,7 @@ module.exports = {
             },
             {
                 test: /\.js$/,
-                loader: 'babel',
+                loader: 'babel-loader',
                 include: [resolve('src')]
             },
             {
@@ -69,29 +60,6 @@ module.exports = {
                 }
             }
         ]
-        // loaders: [{
-        //     test: /\.vue$/,
-        //     exclude: /node_modules/,
-        //     loader: 'vue-loader'
-        // }, {
-        //     test: /\.css$/,
-        //     exclude: /node_modules/,
-        //     loader: 'style-loader!css-loader'
-        // }, {
-        //     test: /\.js$/,
-        //     exclude: /node_modules/,
-        //     loader: 'babel'
-        // }, {
-        //     test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
-        //     loader: 'file-loader'
-        // }, {
-        //     test: /\.(png|jpg|gif)$/,
-        //     loader: 'url-loader',
-        //     options: {
-        //         name: '[name].[ext]?[hash]'
-        //     }
-        // }
-        // ]
     },
     resolve: {
         alias: {
