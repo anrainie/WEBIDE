@@ -661,6 +661,26 @@ var parallel = {
     }
 }
 
+var tcpt = {
+    url: "assets/image/editor/event_component_nodeTechnology.gif",
+    type: $AG.IMAGE,
+    size: [160, 46],
+    canDrag: true,
+    linkable: true,
+    selectable: true,
+    anchor: [
+        {id: 'N', dir: 'n', offset: 0},
+        {id: 'E', dir: 'e', offset: 0},
+        {id: 'W', dir: 'w', offset: 0},
+    ],
+    refresh,
+
+    policies : {
+        'doubleclick': openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', location)
+    }
+}
+
 /***** 编辑器配置 *****/
 
 let createStepData = function (config) {
@@ -690,7 +710,7 @@ let stepDefaultComponent = {
 }
 
 /*step编辑器配置*/
-const stepBaseCfg = {
+export const stepBaseCfg = {
     id: 'stepEditor',
     children: {
         '3': serviceInvokdEntered,
@@ -769,7 +789,7 @@ let nodeDefaultComponent = {
         {
             name: "场景异步调用",
             url: "assets/image/editor/palette_component_tradeAsync.gif",
-            data: createStepData({type: '11', size: [160, 44]})
+            data: createStepData({type: '111', size: [160, 44]})
         },
         {
             name: "平行组件",
@@ -780,7 +800,7 @@ let nodeDefaultComponent = {
 }
 
 /*node编辑器配置*/
-const nodeBaseCfg = {
+export const nodeBaseCfg = {
     id: 'nodeEditor',
     children: {
         '2': nodeStart,
@@ -792,136 +812,27 @@ const nodeBaseCfg = {
         '12': tradeInvoke,
         '10': transfer,
         '18': tradeSync,
-        '11': Async,
-        '17': parallel
+        '111': Async,
+        '17': parallel,
+        '11': tcpt
     },
     lines: {
         0: manhattanRoute
     },
     group: {
-        '0': nodeDefaultComponent,
-        '1': {
+        'default': nodeDefaultComponent,
+        'platform': {
             name: '平台',
-
+            children: []
         },
-        '2': {
-            name: '银行'
+        'bank': {
+            name: '银行',
+            children: []
         },
-        '3': {
-            name: '应用'
+        'app': {
+            name: '应用',
+            children: []
         }
     },
     operations
 };
-
-/*数据处理、过滤*/
-export class stepConfigBuilder {
-
-    baseCfg;
-
-    constructor(config) {
-        this.baseCfg = config || stepConfigBuilder.createConfig();
-    }
-
-    static BuildConfig(config) {
-        return new stepConfigBuilder(config);
-    }
-
-    static createConfig(options) {
-        return Object.assign({}, stepBaseCfg, options);
-    }
-
-    setEditorAttr(input) {
-        try {
-            this.baseCfg.uuid = input.Root.UUID;
-            this.baseCfg.DateInfo = input.Root.DateInfo;
-            this.baseCfg.NodeMaxnimum = input.Root.NodeMaxnimum;
-        } catch (e) {
-
-        } finally {
-            return this;
-        }
-    }
-
-    resolveModel(input) {
-        /*{Root: {Regulation: {Step: nodes}}}*/
-        let nodes;
-        try {
-            nodes = input.Root.Regulation.Step;
-        } catch (e) {
-            nodes = [];
-        }
-
-        if (nodes) {
-            var nodeData = nodes instanceof Array ? nodes : [nodes];
-
-            this.baseCfg.data = resolveEditorData(nodeData, this.baseCfg.children);
-            this.baseCfg.line = resolveEditorLine(nodeData);
-        }
-        return this;
-    }
-
-    /*画板节点类型*/
-    addNodeType(input) {
-        return this;
-    }
-
-    setting(func) {
-        func.call(this, this.baseCfg);
-
-        return this;
-    }
-
-    getConfig() {
-        console.log(this.baseCfg)
-        return this.baseCfg;
-    }
- }
-
- export class nodeConfigBuilder {
-
-     baseCfg;
-
-     constructor(config) {
-         this.baseCfg = config || nodeConfigBuilder.createConfig();
-     }
-
-     static BuildConfig(config) {
-         return new nodeConfigBuilder(config);
-     }
-
-     static createConfig(options) {
-         return Object.assign({}, nodeBaseCfg, options);
-     }
-
-     setEditorAttr(input) {
-         this.baseCfg.uuid = input.UUID;
-
-         return this;
-     }
-
-     resolveModel({Node: nodes}) {
-         if (nodes) {
-             var nodeData = nodes instanceof Array ? nodes : [nodes];
-
-             this.baseCfg.data = resolveEditorData(nodeData, this.baseCfg.children);
-             this.baseCfg.line = resolveEditorLine(nodeData);
-         }
-         return this;
-     }
-
-     /*画板节点类型*/
-     addNodeType(input) {
-         return this;
-     }
-
-     setting(func) {
-         func.call(this, this.baseCfg);
-
-         return this;
-     }
-
-     getConfig() {
-         return this.baseCfg;
-     }
- }

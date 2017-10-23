@@ -81,11 +81,13 @@ export let stepDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'InArgs'
         },
         outputParam: {
             name: '出口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'OutArgs'
         }
     }),
     //通用组件

@@ -12,7 +12,7 @@
         height: 100%;
         background-color: rgb(13, 13, 13);
         float: left;
-        overflow: hidden;
+        overflow: auto;
     }
 </style>
 <script type="text/javascript">
@@ -132,6 +132,7 @@
                     },
                     openHandle(index, indexPath) {
                         this.openPaletteEvent && this.openPaletteEvent(index, indexPath, this.getGroup());
+                        console.log(this)
                     }
                 },
                 computed: {
@@ -174,7 +175,7 @@
                     }
                 },
                 template: `
-                <div v-if="editor" style="position: relative;top: 0;width: 10%;height: 100%;background-color: #d3d3d3;float:left">
+                <div v-if="editor" style="position: relative;top: 0;width: 10%;height: 100%;background-color: #d3d3d3;float:left; overflow: auto">
                     <p></p>
 
                     <el-row type="flex" justify="center">

@@ -22,6 +22,7 @@
                     :editorConfig="nodeEditorCfg"
                     :bindEvent="nodeBindEvent"
                     :save="saveHandle"
+                    :openPaletteEvent="nodePaletteOpenEvent"
                     @dblclickCanvas="nodeDoubleClickCanvas"></flowEditor>
 
             <!--对话框-->
@@ -34,7 +35,7 @@
 <script type="text/javascript">
     import flowEditor from "../flowEditor.vue"
     import editorContainer from '../../../editorContainer.vue'
-    import {stepConfigBuilder, nodeConfigBuilder} from './config'
+    import {stepInput2Config, nodeInput2Config} from './resolve'
     import * as Constants from 'Constants'
     import skipGroup from '../../../flowPropDialog/skipGroup.vue';
     import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
@@ -214,16 +215,7 @@
         computed: {
             /*根据input初始化配置*/
             stepEditorCfg() {
-                return stepConfigBuilder
-                    .BuildConfig()
-                    /*主要是为了UUID*/
-                    .setEditorAttr(this.input)
-                    /*图数据，即模型数据*/
-                    .resolveModel(this.input)
-                    /*节点类型*/
-                    .addNodeType(null)
-                    /*获取配置*/
-                    .getConfig();
+                return stepInput2Config(this.input)
             },
 
             stepPaletteOpenEvent() {
@@ -272,16 +264,47 @@
             },
 
             nodeEditorCfg() {
-                return nodeConfigBuilder
-                    .BuildConfig()
-                    .setEditorAttr(this.nodeEditorInput)
-                    .resolveModel(this.nodeEditorInput)
-                    .getConfig();
+                return nodeInput2Config(this.nodeEditorInput)
             },
 
             nodePaletteOpenEvent() {
-                return function () {
-                    console.log('ssss')
+                let filePath = this.file.model.path, cache = {},
+                    packUrl = "assets/image/editor/folder_public_technologyComponentGroup.gif",
+                    comUrl = "assets/image/editor/palette_component_technologyComponent.gif";
+                return function (index, indexPath, config) {
+                    let path = indexPath[0];
+                    if (path == "default") return;
+
+                    IDE.socket.emit('loadTcpt', {
+                        type: IDE.type,
+                        event: 'loadTcpt',
+                        data: {
+                            path: filePath
+                        }
+                    }, function (result) {
+                        if (result.state == "success" && result.data[path]) {
+                            var children = [];
+
+                            result.data[path].forEach((item) => {
+                                children.push({
+                                    name: item.componentGroup,
+                                    url: packUrl,
+                                    items: item.tcpt.map((bcpt) => {
+                                        return {
+                                            url: comUrl,
+                                            data: Object.assign(bcpt.Component, {type: "11", size: [160, 46]}),
+                                            name: bcpt.Component.Desp,
+                                        }
+                                    })
+                                })
+                            })
+
+                            config[path].children = children;
+
+                        } else {
+                            //TODO
+                        }
+                    });
                 }
             },
 

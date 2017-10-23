@@ -5,12 +5,12 @@
 
     /*key: type, value: props name array*/
     const propsKey = {
-        '0' : ["RefImpl", "Desp", "Remarks", "Readonly", "Tooltip"],
+        '0' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
         '1' : ["RefImpl", "Async"],
-        '2' : ["RefImpl", "Desp", "Remarks", "Readonly", "Tooltip"],
-        '3' : ["RefImpl", "Desp", "Remarks", "Readonly", "Tooltip"],
-        '4' : ["RefImpl", "Desp", "Remarks", "Readonly", "Tooltip"],
-        '5' : ["RefImpl", "Desp", "Remarks", "Readonly", "Tooltip"]
+        '2' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
+        '3' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
+        '4' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
+        '5' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"]
     };
 
     /*通用组件模板*/
@@ -45,7 +45,7 @@
             </el-form-item>
 
             <el-form-item label="注释" :required="true">
-                <el-input v-model="modification.Tooltip" type="textarea"></el-input>
+                <el-input v-model="modification.ToolTip" type="textarea"></el-input>
             </el-form-item>
         </el-form>
     `;
@@ -80,21 +80,21 @@
                 </el-switch>
             </el-form-item>
 
-            <el-form-item label="目标服务">
+            <el-form-item label="目标场景">
                 <el-input></el-input>
                  <el-button icon="more" ></el-button>
             </el-form-item>
 
-            <el-form-item label="服务名称">
-                <el-input ></el-input>
+            <el-form-item label="场景名称">
+                <el-input v-model="modification.Name"></el-input>
             </el-form-item>
 
-            <el-form-item label="服务描述">
-                <el-input></el-input>
+            <el-form-item label="场景描述">
+                <el-input v-model="modification.Desp"></el-input>
             </el-form-item>
 
             <el-form-item label="组件注释">
-                <el-input type="textarea"></el-input>
+                <el-input type="textarea" v-model="modification.ToolTip"></el-input>
             </el-form-item>
 
         </el-form>
@@ -118,7 +118,7 @@
                 <el-input v-model="modification.Readonly"></el-input>
             </el-form-item>
             <el-form-item label="注释" :required="true">
-                <el-input v-model="modification.Tooltip"></el-input>
+                <el-input v-model="modification.ToolTip"></el-input>
             </el-form-item>
         </el-form>
     `;
@@ -146,7 +146,7 @@
              </el-form-item>
 
             <el-form-item label="注释" :required="true">
-                <el-input type="textarea" v-model="modification.Tooltip"></el-input>
+                <el-input type="textarea" v-model="modification.ToolTip"></el-input>
             </el-form-item>
 
         </el-form>
@@ -157,15 +157,15 @@
     let templateE = `
         <el-form  :inline="true" class="demo-form-inline">
             <el-form-item label="目标组件">
-                <el-input :disabled="true"></el-input>
+                <el-input v-model="modification.Target" :disabled="true"></el-input>
             </el-form-item>
 
             <el-form-item label="组件名称">
-                <el-input :disabled="true"></el-input>
+                <el-input v-model="modification.Name" :disabled="true"></el-input>
             </el-form-item>
 
             <el-form-item label="组件描述">
-                <el-input></el-input>
+                <el-input v-model="modification.Desp"></el-input>
             </el-form-item>
 
             <el-form-item label="组件级别">
@@ -173,11 +173,16 @@
             </el-form-item>
 
             <el-form-item label="组件注释">
-                <el-input type="textarea"></el-input>
+                <el-input v-model="modification.ToolTip" type="textarea"></el-input>
             </el-form-item>
 
             <el-form-item label="结束分支">
-                <el-select></el-select>
+                <el-select v-model="modification.Value">
+                    <el-option v-for="item in [2, 3, 4, 5, 6, 7, 8]"
+                               :key="item"
+                               :label="item"
+                               :value="item"></el-option>
+                </el-select>
             </el-form-item>
 
         </el-form>
@@ -192,7 +197,7 @@
             </el-form-item>
 
             <el-form-item label="目标组件">
-                <el-input disable="true"></el-input>
+                <el-input v-model="modification.Target" disable="true"></el-input>
             </el-form-item>
 
             <el-form-item>
@@ -200,23 +205,19 @@
             </el-form-item>
 
             <el-form-item label="组件名称">
-                <el-input disable="true"></el-input>
+                <el-input v-model="modification.Name" disable="true"></el-input>
             </el-form-item>
 
             <el-form-item label="组件描述">
-                <el-input ></el-input>
+                <el-input v-model="modification.Desp"></el-input>
             </el-form-item>
 
             <el-form-item label="组件级别">
                 <el-input disable="true"></el-input>
             </el-form-item>
 
-            <el-form-item label="服务描述">
-                <el-input></el-input>
-            </el-form-item>
-
             <el-form-item label="组件注释">
-                <el-input type="textarea"></el-input>
+                <el-input v-model="modification.ToolTip" type="textarea"></el-input>
             </el-form-item>
 
         </el-form>
@@ -225,11 +226,11 @@
     let bcpt = `
         <el-form>
             <el-form-item label="目标组件">
-                <el-input disable="true"></el-input>
+                <el-input v-model="modification.RefImpl" disable="true"></el-input>
             </el-form-item>
 
             <el-form-item label="组件名称">
-                <el-input disable="true"></el-input>
+                <el-input v-model="modification.Desp" disable="true"></el-input>
             </el-form-item>
 
             <el-form-item label="组件级别">
@@ -237,7 +238,7 @@
             </el-form-item>
 
             <el-form-item label="组件注释">
-                <el-input type="textarea"></el-input>
+                <el-input v-model="modification.ToolTip" type="textarea"></el-input>
             </el-form-item>
         </el-form>
     `;
@@ -291,7 +292,7 @@
         },
         methods: {
             /*暂时通过函数输入获取所需属性*/
-            initModification(keys = ["RefImpl", "Desp", "Remarks", "Readonly", "Tooltip"]) {
+            initModification(keys = ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip", "Name", "Target", "Value"]) {
                 var options = {};
 
                 keys.forEach((item) => {
