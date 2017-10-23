@@ -104,14 +104,14 @@
     };
     export default{
         data(){
-            var self = this;
+            let self = this;
             return {
                 editorPartConfig: {
                     editorRefs: {
-                        dict:dictEditor,
-                        java:javaEditor,
-                        tcpt:tcptEditor,
-                        fc:fcEditor
+                        dict: dictEditor,
+                        java: javaEditor,
+                        tcpt: tcptEditor,
+                        fc: fcEditor
                     }
                 },
                 vertical: false,
@@ -158,17 +158,63 @@
                 menuData: menuData
             }
         },
-        methods: {},
+        methods: {
+            _openEditor(model){
+                IDE.shade.open();
+                IDE.socket.emit("getFile", {
+                    type: IDE.type,
+                    event: 'getFile',
+                    data: {
+                        path: model.path
+                    }
+                }, function (result) {
+                    IDE.shade.hide();
+                    if (result.state === 'success') {
+                        if (!model.isParent) {
+                            let editor = IDE.editorPart.openEditor(model, result.data);
+                            console.log('编辑器', editor);
+                            if(editor){
+                                editor.$children[0].$emit('maximize');
+                            }
+                        }
+                    } else {
+                        debug.error('resource dbclick , ' + result);
+                    }
+                });
+            },
+        },
         mounted(){
-            var self = this;
+
+            let self = this;
             IDE.type = 'afa';
             IDE.contextmenu = self.$refs.ide_contextMenu;
             IDE.shade = self.$refs.ide_shade;
             IDE.menu = self.$refs.ide_menu;
             IDE.socket = new IDESocket();
+
+            if (this.$route.params) {
+                let serverId = this.$route.params.serverId;
+                let serverParam = this.$route.params.param;
+                switch (serverId) {
+                    case 'openEditor':
+                        console.log(serverParam);
+                        setTimeout(() => {
+                            this._openEditor({
+                                isParent: false,
+                                name: "flowConfig.fc",
+                                path: "/hello/app1/service1/flow/flowConfig.fc",
+                            });
+                        }, 1000);
+                        break;
+                    default:
+                        console.log('服务类型异常');
+                }
+            } else {
+                console.log('没有服务');
+            }
         },
         beforeCreate(){
-            var self = this;
+            let self = this;
             window.viewRegistry = {
                 'navigator': {
                     name: '导航器',
@@ -254,7 +300,7 @@
                                     );
                                 },
                                 delete: function (item) {
-                                    var editor = IDE.editorPart.getEditor(item);
+                                    let editor = IDE.editorPart.getEditor(item);
                                     if (editor) {
                                         IDE.editorPart.closeEditor(item);
                                     }
@@ -270,34 +316,20 @@
                                 click: function (item) {
                                 },
                                 dblclick: function () {
-                                    var item = this;
+                                    let item = this;
                                     if (!item.model.isParent) {
-                                        let editor = IDE.editorPart.getEditor(item);
+                                        let editor = IDE.editorPart.getEditor(item.model);
                                         if (editor) {
-                                            IDE.editorPart.showEditor(item);
+                                            IDE.editorPart.showEditor(item.model);
                                             return;
                                         }
-                                        IDE.shade.open();
-                                        IDE.socket.emit("getFile", {
-                                            type: IDE.type,
-                                            event: 'getFile',
-                                            data: {
-                                                path: item.model.path
-                                            }
-                                        }, function (result) {
-                                            IDE.shade.hide();
-                                            if (result.state === 'success') {
-                                                if (!item.model.isParent) {
-                                                    IDE.editorPart.openEditor(item, result.data);
-                                                }
-                                            } else {
-                                                debug.error('resource dbclick , ' + result);
-                                            }
-                                        });
+
+                                        self._openEditor(item.model);
+
                                     }
                                 },
                                 rightClick: function (event) {
-                                    var item = this;
+                                    let item = this;
                                     IDE.socket.emit('getNaviMenu', {
                                         type: IDE.type,
                                         event: 'getNaviMenu',
@@ -328,13 +360,13 @@
                             }
                         },
                     },
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                     actions: [
                         {
                             id: 'linkWithEditorAction',
                             name: "linkWithEditor",
                             type: 'item',
-                            img: 'assets/image/nav-link.png',
+                            img: '/assets/image/nav-link.png',
                             tooltip: "LinkWithEditor",
                             validate(){
                                 return true;
@@ -350,26 +382,26 @@
                 },
                 'properties': {
                     name: '属性',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                     init(){
                         WORKBENCH.property = this;
                     }
                 },
                 'console': {
                     name: '控制台',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 },
                 'error': {
                     name: '错误控制',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 },
                 'problem': {
                     name: '问题',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 },
                 'version': {
                     name: '版本',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 }
             };
         },

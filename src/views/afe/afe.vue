@@ -131,7 +131,7 @@
                         id: 'item1',
                         desp: 'desp1',
                         type: 'item',
-                        img: "assets/image/nav-folder.png"
+                        img: "/assets/image/nav-folder.png"
                     },
                     {
                         type: 'separator',
@@ -140,7 +140,7 @@
                         id: 'item2',
                         desp: 'desp2',
                         type: 'item',
-                        img: "assets/image/nav-folder.png"
+                        img: "/assets/image/nav-folder.png"
                     }, {
                         id: 'item3',
                         desp: 'desp3',
@@ -166,7 +166,7 @@
                         id: 'item4',
                         desp: 'desp4',
                         type: 'item',
-                        img: "assets/image/nav-folder.png"
+                        img: "/assets/image/nav-folder.png"
                     },
                     {
                         type: 'separator',
@@ -175,7 +175,7 @@
                         id: 'item5',
                         desp: 'desp5',
                         type: 'item',
-                        img: "assets/image/nav-folder.png"
+                        img: "/assets/image/nav-folder.png"
                     }
                 ],
                 toolbarConfig: {
@@ -386,7 +386,7 @@
                             }
                         },
                     },
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                     actions: [
                         {
                             id: 'refreshAction',
@@ -434,7 +434,7 @@
                 },
                 'properties': {
                     name: '属性',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                     init(){
                         WORKBENCH.property = this;
                     },
@@ -444,7 +444,7 @@
                                 id: 'item1',
                                 desp: 'desp1',
                                 type: 'item',
-                                img: "assets/image/nav-folder.png"
+                                img: "/assets/image/nav-folder.png"
                             },
                             {
                                 type: 'separator',
@@ -453,7 +453,7 @@
                                 id: 'item2',
                                 desp: 'desp2',
                                 type: 'item',
-                                img: "assets/image/nav-folder.png"
+                                img: "/assets/image/nav-folder.png"
                             }, {
                                 id: 'item3',
                                 desp: 'desp3',
@@ -479,7 +479,7 @@
                                 id: 'item4',
                                 desp: 'desp4',
                                 type: 'item',
-                                img: "assets/image/nav-folder.png"
+                                img: "/assets/image/nav-folder.png"
                             },
                             {
                                 type: 'separator',
@@ -488,26 +488,26 @@
                                 id: 'item5',
                                 desp: 'desp5',
                                 type: 'item',
-                                img: "assets/image/nav-folder.png"
+                                img: "/assets/image/nav-folder.png"
                             }
                         ]
                     }
                 },
                 'console': {
                     name: '控制台',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 },
                 'error': {
                     name: '错误控制',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 },
                 'problem': {
                     name: '问题',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 },
                 'version': {
                     name: '版本',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 }
             };
         },

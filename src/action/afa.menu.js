@@ -11,7 +11,7 @@ var items = [
                     id: 'main/about',
                     name: 'About',
                     type: 'group',
-                    img: "assets/image/nav-folder.png",
+                    img: "/assets/image/nav-folder.png",
                     children: [
                         {
                             id: 'main/about/test1',
@@ -20,7 +20,7 @@ var items = [
                             children: [
                                 {
                                     id: 'main/about/test1/test1_t1',
-                                    img: "assets/image/nav-folder.png",
+                                    img: "/assets/image/nav-folder.png",
                                     name: 'test1_t1',
                                     type: 'action'
                                 }

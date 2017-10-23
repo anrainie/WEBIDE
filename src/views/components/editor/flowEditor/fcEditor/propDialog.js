@@ -5,7 +5,7 @@ import paramsGrop from '../../../flowPropDialog/paramsGroup.vue';
 
 let baseDialogComponent = {
     template: `
-                <el-dialog title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="tiny">
+                <el-dialog title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="small">
                     <el-collapse v-model="activeName" value="1" v-if="showProperties">
                         
                         <el-collapse-item  :title="item.name" :name="index" v-for="(item, name, index) in group">
