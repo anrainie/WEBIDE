@@ -108,69 +108,69 @@
         methods:{
             /**
              * 根据item获取editor
-             * @param item
+             * @param model
              * @returns {*}
              */
-            getEditor:function (item) {
-                for(var i = 0 ; i < this.editors.length ; i ++){
-                    var editor = this.editors[i];
-                    if(item.model.path === editor.file.model.path){
+            getEditor:function (model) {
+                for(let i = 0 ; i < this.editors.length ; i ++){
+                    let editor = this.editors[i];
+                    if(model.path === editor.file.path){
                         return editor;
                     }
                 }
                 return null;
             },
-            removeEditorFromEditors:function (item) {
-                for(var i = 0 ; i < this.editors.length ; i ++){
-                    var editor = this.editors[i];
-                    if(item.model.path === editor.file.model.path){
+            removeEditorFromEditors:function (model) {
+                for(let i = 0 ; i < this.editors.length ; i ++){
+                    let editor = this.editors[i];
+                    if(model.path === editor.file.path){
                         this.editors.splice(i,1);
                         break;
                     }
                 }
             },
-            removeEditorFromCollapsedEditors:function (item) {
-                for(var i = 0 ; i < this.collapsedEditors.length ; i ++){
-                    var editor = this.collapsedEditors[i];
-                    if(item.model.path === editor.file.model.path){
+            removeEditorFromCollapsedEditors:function (model) {
+                for(let i = 0 ; i < this.collapsedEditors.length ; i ++){
+                    let editor = this.collapsedEditors[i];
+                    if(model.path === editor.file.path){
                         this.collapsedEditors.splice(i,1);
                         break;
                     }
                 }
             },
-            _doCloseEditor:function (item) {
-                if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path)){
+            _doCloseEditor:function (model) {
+                if(this.activeEditor && (this.activeEditor.file.path === model.path)){
                     this.activeEditor = null;
                 }
 
-                var editorElement = this.getEditorElement(item.model.path);
+                let editorElement = this.getEditorElement(model.path);
                 editorElement.remove();
 
-                var editorIndicate = this.getEditorIndicate(item.model.path);
+                let editorIndicate = this.getEditorIndicate(model.path);
                 editorIndicate.remove();
 
-                this.removeEditorFromEditors(item);
+                this.removeEditorFromEditors(model);
 
                 if(this.editors.length > 0){
                     this.showEditor(this.editors[0].file);
                 }else if(this.collapsedEditors.length > 0){
-                    var editor = this.collapsedEditors[0];
+                    let editor = this.collapsedEditors[0];
                     this.collapsedEditors.splice(0,1);
                     this.showEditor(editor.file);
                 }
             },
-            closeEditor:function (item) {
-                var self = this;
-                var editor =  this.getEditor(item);
+            closeEditor:function (model) {
+                let self = this;
+                let editor =  this.getEditor(model);
                 if(editor){
                    if(editor.isDirty()) {
                        this.saveDialog.visible = true;
                        this.saveDialog.save = function () {
-                           var dtd = self.saveEditor();
+                           let dtd = self.saveEditor();
                            if(dtd){
                                dtd.done(function () {
                                    if(!editor.isDirty()) {
-                                       self._doCloseEditor(item);
+                                       self._doCloseEditor(model);
                                        editor.$destroy();
                                    }
                                }).fail(function () {
@@ -180,12 +180,12 @@
                            self.resetSaveDialog();
                        }
                        this.saveDialog.donotSave = function () {
-                           self._doCloseEditor(item);
+                           self._doCloseEditor(model);
                            editor.$destroy();
                            self.resetSaveDialog();
                        }
                    }else {
-                       this._doCloseEditor(item);
+                       this._doCloseEditor(model);
                        editor.$destroy();
                    }
                }
@@ -195,29 +195,29 @@
                 this.saveDialog.save = null;
                 this.saveDialog.donotSave = null;
             },
-            showEditor:function (item) {
-                if(this.activeEditor && (this.activeEditor.file.model.path === item.model.path) ){
+            showEditor:function (model) {
+                if(this.activeEditor && (this.activeEditor.file.path === model.path) ){
                     return;
                 }
-                var oldEditor = this.getEditor(item);
+                let oldEditor = this.getEditor(model);
                 if(oldEditor){
-                    var new_path = this.revisePath(item.model.path);
+                    let new_path = this.revisePath(model.path);
 
                     this.hideAllEditor();
                     this.unActiveAllTabIndicate();
 
-                    var $li = $("[href='#"+ new_path + "']").parent();
+                    let $li = $("[href='#"+ new_path + "']").parent();
                     $li.attr("class","editor-tab-active");
                     $li.css("display","block");
 
-                    var editor = $('#' + new_path);
+                    let editor = $('#' + new_path);
                     editor.css('display','block');
 
-                    this.removeEditorFromCollapsedEditors(item);
-                    this.removeEditorFromEditors(item);
+                    this.removeEditorFromCollapsedEditors(model);
+                    this.removeEditorFromEditors(model);
                     this.editors.unshift(oldEditor);
 
-                    this.activeEditor = this.getEditor(item);
+                    this.activeEditor = this.getEditor(model);
                     this.activeEditor.focus();
 
                     while(this.needCollapse()){
@@ -230,7 +230,7 @@
             },
             needCollapse(){
                 let allLiWidth = 0 ;
-                var $lis = this.PAGE_INDICATE.find("li");
+                let $lis = this.PAGE_INDICATE.find("li");
                 for(let i = 0 ; i < $lis.length ; i++){
                     if($lis[i].style.display != 'none') {
                         allLiWidth += ( $lis[i].clientWidth + 2);
@@ -245,68 +245,73 @@
                 return false;
             },
             openEditor:function (item,input) {
-                var oldEditor = this.getEditor(item);
+                let model;
+                if(item.$el){
+                    model=item.model;
+                }else
+                    model=item;
+                let oldEditor = this.getEditor(model);
                 if(oldEditor){
-                   this.showEditor(item);
+                   this.showEditor(model);
                    return;
                 }
-                this.doOpenEditor(item,input);
+                this.doOpenEditor(model,input);
             },
-            doOpenEditor:function (item,content) {
-                var editorDecorator = this.getEditorDecorator(item.model.resId);
+            doOpenEditor:function (model,content) {
+                let editorDecorator = this.getEditorDecorator(model.resId);
                 if(!editorDecorator){
-                    debug.error("can not found editorDecorator with : " + item.model.resId);
+                    debug.error("can not found editorDecorator with : " + model.resId);
                     return;
                 }
 
                 this.hideAllEditor();
                 this.unActiveAllTabIndicate();
 
-                var indicateWidth = this.getIndicateWidth(item.model.name);
+                let indicateWidth = this.getIndicateWidth(model.name);
 
                 //创建tab-indicator
-                var path = this.revisePath(item.model.path);
-                var $li = $("<li></li>");
+                let path = this.revisePath(model.path);
+                let $li = $("<li></li>");
                 $li.css('width',indicateWidth);
                 $li.attr("class","editor-tab-active");
-                $li.click((function (item,self) {
+                $li.click((function (model,self) {
                     return function () {
-                        self.showEditor(item);
+                        self.showEditor(model);
                     }
-                })(item,this));
+                })(model,this));
 
-                var $a = $("<span></span>");
-                $a.text(this.getIndicateName(item.model.name));
+                let $a = $("<span></span>");
+                $a.text(this.getIndicateName(model.name));
                 $a.attr("href","#" + path);
                 $li.append($a);
 
-                var $close = $("<div></div>");
+                let $close = $("<div></div>");
                 $close.attr('class','editor-tab-delete');
 
                 $a.append($close);
-                $close.click((function (item,vue) {
+                $close.click((function (model,vue) {
                     return function () {
-                        vue.closeEditor(item);
+                        vue.closeEditor(model);
                     }
-                })(item,this));
+                })(model,this));
 
-                $li.contextmenu((function (item,edtiorPart) {
+                $li.contextmenu((function (model,edtiorPart) {
                     return function ($event) {
                         $event.preventDefault();
-                        edtiorPart.openIndicatorMenu($event,item);
+                        edtiorPart.openIndicatorMenu($event,model);
                     }
-                })(item,this));
+                })(model,this));
 
                 this.PAGE_INDICATE.append($li);
 
 
                 //创建tab-container
-                var $div = $("<div></div>");
+                let $div = $("<div></div>");
                 $div.attr("id",path);
                 $div.append($("<div id='editor'></div>"));
                 this.PAGE_CONTENT.append($div);
 
-                var newEditor = new Vue(editorDecorator);
+                let newEditor = new Vue(editorDecorator);
 
                 if(!newEditor.hasOwnProperty("input") || !newEditor.hasOwnProperty("file") || !newEditor.hasOwnProperty("msgHub")){
                     debug.error("$props must has three properties : input,file,msgHub");
@@ -320,7 +325,7 @@
                 }
 
                 newEditor.$props.input = content;
-                newEditor.$props.file = item;
+                newEditor.$props.file = model;
                 newEditor.$props.msgHub = this.msgHub;
                 newEditor.$mount('#' + path + " #editor");
 
@@ -335,7 +340,7 @@
             emptyOutEditorIndicate:function () {
                 for(let i = this.editors.length - 1 ; i > 0 ; i--){
                     let lastEditor = this.editors[i];
-                    var lastEditorIndicate = this.getEditorIndicate(lastEditor.file.model.path);
+                    let lastEditorIndicate = this.getEditorIndicate(lastEditor.file.path);
                     if(lastEditorIndicate.css('display') != 'none'){
                         lastEditorIndicate.css('display','none');
                         this.collapsedEditors.push(lastEditor);
@@ -350,9 +355,9 @@
                 return path.replace(/(\/)/g, "_").replace(/(\.)/,"-");
             },
             getIndicateWidth:function (name) {
-                var num = 0;
-                for (var i = 0; i < name.length; i++) {
-                    var c = name.charCodeAt(i);
+                let num = 0;
+                for (let i = 0; i < name.length; i++) {
+                    let c = name.charCodeAt(i);
                     if (c >= 0 && c <= 128)
                         num += 1;
                     else
@@ -381,7 +386,7 @@
                 let collMenuItems = [];
                 for(let key in this.collapsedEditors){
                     let editor = this.collapsedEditors[key];
-                    let file = editor.file.model;
+                    let file = editor.file;
                     let item = {
                         id:file.path,
                         name:file.name,
@@ -398,8 +403,8 @@
             /**
              * 打开头标签的右键菜单
              */
-            openIndicatorMenu:function ($event,item) {
-                this.showEditor(item);
+            openIndicatorMenu:function ($event,model) {
+                this.showEditor(model);
                 IDE.contextmenu.setItems(editorPartTab);
                 IDE.contextmenu.show($event.clientX,$event.clientY,this.activeEditor);
             },
@@ -407,8 +412,8 @@
              * 隐藏所有editor
              */
             hideAllEditor:function () {
-                for(var i = 0 ; i < this.editors.length ; i++){
-                    var editor = this.editors[i];
+                for(let i = 0 ; i < this.editors.length ; i++){
+                    let editor = this.editors[i];
                     if(editor.$el.parentNode.style.display != 'none'){
                         editor.$el.parentNode.style.display = 'none';
                     }
@@ -418,9 +423,9 @@
              * 把所有头标签设置为不活动状态
              */
             unActiveAllTabIndicate:function () {
-                var indicates = $('.editor-tab-active');
-                for(var i = 0 ; i < indicates.length ; i ++){
-                    var indicate = indicates[i];
+                let indicates = $('.editor-tab-active');
+                for(let i = 0 ; i < indicates.length ; i ++){
+                    let indicate = indicates[i];
                     indicate.className = 'editor-tab-unactive';
                 }
             },
@@ -441,12 +446,12 @@
                 return $("#" + p);
             },
             saveEditor(){
-                var that = this;
+                let that = this;
                 if(this.activeEditor && this.activeEditor.isDirty() && this.activeEditor.save()) {
-                    var dtd = $.Deferred();
+                    let dtd = $.Deferred();
                     IDE.socket.emit("saveFile", {
                         type: IDE.type,
-                        path: this.activeEditor.file.model.path,
+                        path: this.activeEditor.file.path,
                         content:this.activeEditor.input,
                         event: 'saveFile',
                     }, function (result) {

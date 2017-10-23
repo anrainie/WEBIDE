@@ -26,12 +26,12 @@ const routes = [
     {
         path: '/afa', meta: {requireAuth: true}, component: resolve => {
         require(['../views/afa/afa.vue'], resolve)
-    }, name: 'afa'
+    }, name: 'afa', children: [{path: '/afa/:serverId/:param'}]
     },
     {
-        path:'/afe',meta: {requireAuth: true},component: resolve =>{
-            require(['../views/afe/afe.vue'],resolve)
-    },name: 'afe'
+        path: '/afe', meta: {requireAuth: true}, component: resolve => {
+        require(['../views/afe/afe.vue'], resolve)
+    }, name: 'afe'
     },
     {path: '/aweb', meta: {requireAuth: true}, component: aweb, name: 'aweb'}
 ];

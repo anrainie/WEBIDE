@@ -108,10 +108,10 @@
             return {
                 editorPartConfig: {
                     editorRefs: {
-                        dict:dictEditor,
-                        java:javaEditor,
-                        tcpt:tcptEditor,
-                        fc:fcEditor
+                        dict: dictEditor,
+                        java: javaEditor,
+                        tcpt: tcptEditor,
+                        fc: fcEditor
                     }
                 },
                 vertical: false,
@@ -160,6 +160,19 @@
         },
         methods: {},
         mounted(){
+            if (this.$route.params) {
+                let serverId = this.$route.params.serverId;
+                let serverParam = this.$route.params.param;
+                switch (serverId) {
+                    case 'openEditor':
+                        console.log(serverParam);
+                        break;
+                    default:
+                        console.log('服务类型异常');
+                }
+            }else{
+                console.log('没有服务');
+            }
             var self = this;
             IDE.type = 'afa';
             IDE.contextmenu = self.$refs.ide_contextMenu;
