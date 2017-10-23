@@ -38,18 +38,18 @@
                     {
                         id: "lock",
                         tooltip: "锁定文件",
-                        img: "assets/image/lock.png",
+                        img: "/assets/image/lock.png",
                         handler:this.lock
                     },
                     {
                         id: "release_lock",
-                        img: "assets/image/unlock.png",
+                        img: "/assets/image/unlock.png",
                         tooltip: "解锁文件",
                         handler:this.release
                     },
                     {
                         id: "peek_lock",
-                        img: "assets/image/peek_lock.png",
+                        img: "/assets/image/peek_lock.png",
                         tooltip: "查看文件锁",
                         handler:this.peek
                     }

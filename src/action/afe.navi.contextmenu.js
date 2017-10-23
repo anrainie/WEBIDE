@@ -143,7 +143,7 @@ var items = {
     'new': {
         id: 'new',
         name: '新建',
-        icon: 'assets/image/nav-folder.png',
+        icon: '/assets/image/nav-folder.png',
         type: 'group'
     },
     'applicationManageAction': {
