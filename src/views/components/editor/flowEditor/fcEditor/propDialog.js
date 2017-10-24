@@ -6,8 +6,8 @@ import debugGroup from '../../../flowPropDialog/debugGroup.vue'
 
 let baseDialogComponent = {
     template: `
-                <el-dialog title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="small">
-                    <el-collapse v-model="activeName" value="1" v-if="showProperties">
+                <el-dialog :modal-append-to-body="false" title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="small">
+                 <el-collapse v-model="activeName" value="1" v-if="showProperties">
                         
                         <el-collapse-item  :title="item.name" :name="index" v-for="(item, name, index) in group">
                             <keep-alive>
@@ -23,7 +23,7 @@ let baseDialogComponent = {
                     </span>
                 </el-dialog>`,
     components: {},
-    props: ["showProperties", "model", "path"],
+    props: ["showProperties", "model"],
     methods: {
         updateVisible(vaule) {
             this.$emit('update:showProperties', vaule);
@@ -33,7 +33,7 @@ let baseDialogComponent = {
             try {
                 this.$refs[refsName][0].savePropsToModel(this.model);
             } catch (e) {
-                 //TODO
+                //TODO
             }
         },
         clickConfirm() {
@@ -56,7 +56,7 @@ let createDialog = function (config) {
     let result = {};
     if (config) {
         result.components = {};
-        for(let [refName, com] of Object.entries(config)) {
+        for (let [refName, com] of Object.entries(config)) {
             result.components[refName] = com["group"]
         }
     }
@@ -70,7 +70,7 @@ let createDialog = function (config) {
 
 const STEP = "step";
 export let stepDialogs = {
-    ["3" + STEP]: createDialog({
+    step3: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -92,7 +92,7 @@ export let stepDialogs = {
         }
     }),
     //通用组件
-    ["5" + STEP]: createDialog({
+    step5: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -104,7 +104,7 @@ export let stepDialogs = {
         }
     }),
     //多出口组件
-    ["7" + STEP]: createDialog({
+    step7: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -116,7 +116,7 @@ export let stepDialogs = {
         }
     }),
     //bcpt
-    ["4" + STEP]: createDialog({
+    step4: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -142,7 +142,7 @@ export let stepDialogs = {
 const NODE = "node";
 export let nodeDialogs = {
     //自定义结束
-    ['14' + NODE]: createDialog({
+    node14: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -150,7 +150,7 @@ export let nodeDialogs = {
         }
     }),
     //组件调用
-    ['7' + NODE]: createDialog({
+    node7: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -172,7 +172,7 @@ export let nodeDialogs = {
         }
     }),
     //内部场景调用
-    ['12' + NODE]: createDialog({
+    node12: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -194,7 +194,7 @@ export let nodeDialogs = {
         }
     }),
     //同步
-    ['18' + NODE]: createDialog({
+    node18: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -220,32 +220,7 @@ export let nodeDialogs = {
         }
     }),
     //异步
-    ['111' + NODE]: createDialog({
-        basicInfo: {
-            name: "基本信息",
-            group: basicInfo,
-            type: '6'
-        },
-        skipInfo: {
-            name: '伪执行',
-            group: skipGroup,
-        },
-        debugGroup: {
-            name: '调试交易',
-            group: debugGroup
-        },
-        inputParam: {
-            name: '入口参数',
-            group: paramsGrop,
-            type: 'InArgs'
-        },
-        outputParam: {
-            name: '出口参数',
-            group: paramsGrop,
-            type: 'OutArgs'
-        }
-    }),
-    ['11' + NODE]: createDialog({
+    node11: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,

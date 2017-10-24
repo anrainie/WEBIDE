@@ -1,7 +1,7 @@
 <template>
     <div>
         <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
-        <toolbar :toolItems="toolItems" :config="toolbarConfig" style="border: 1px solid;float: right;width: 100%"></toolbar>
+        <toolbar :toolitems="toolItems" :config="toolbarConfig" style="border: 1px solid;float: right;width: 100%"></toolbar>
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
             <!--<viewpart :model="naviModel" :config="naviConfig" class="col-sm-2 col-md-2 col-xs-4">-->

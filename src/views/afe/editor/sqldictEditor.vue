@@ -1,5 +1,5 @@
 <template>
-    <editorContainer :editor="this">
+    <editor-Container :editor="this">
         <div slot="editor-content" class="sqlDictEditor">
         <el-card class="sqlDict-info box-card">
             <div slot="header" class="clearfix">
@@ -57,7 +57,7 @@
 
         </el-dialog>
     </div>
-    </editorContainer>
+    </editor-Container>
 </template>
 <style>
     .sqlDictEditor{

@@ -1,12 +1,12 @@
 <template>
 
-    <editorContainer :editor="this">
+    <editor-Container :editor="this">
         <div slot="editor-content">
 
             <flow-editor
                     editorConfig=""></flow-editor>
         </div>
-    </editorContainer>
+    </editor-Container>
 
 </template>
 
@@ -15,7 +15,7 @@
     import editorContainer from '../../../editorContainer.vue'
 
     export default {
-        components: {flowEditor}
+        components: {flowEditor,editorContainer}
 
     }
 </script>

@@ -1,5 +1,5 @@
 <template>
-    <div :id="editorID" class="editor" v-bind:style="style">
+    <div :id="editorid" class="editor" v-bind:style="style">
         <palette :editor='editor' :openPaletteEvent="openPaletteEvent"></palette>
     </div>
 </template>
@@ -22,7 +22,7 @@
     export default {
         name: 'flowEditor',
         props: {
-            editorID: {
+            editorid: {
                 required: true,
                 type: String
             },
@@ -69,14 +69,9 @@
                 this.initEditor(newConfig);
             }
         },
-
-        computed() {
-
-        },
-
         methods: {
             initEditor(config) {
-                this.editor = new $AG.Editor(defaultsDeep({id: this.editorID}, config));
+                this.editor = new $AG.Editor(defaultsDeep({id: this.editorid}, config));
                 this.bindEventToEditor();
                 this.activateChangeWidth();
 

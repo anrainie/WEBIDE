@@ -1,21 +1,21 @@
 <template>
     <div class="ide_root">
         <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
-        <toolbar class="top_toolbar" :config="toolbarConfig" :toolItems="toolItems"
+        <toolbar class="top_toolbar" :config="toolbarConfig" :toolitems="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
             <workbench id="ide_workbench_center" :views="views" ref="workbench"
-                       :editorPartConfig="editorPartConfig"></workbench>
+                       :editorconfig="editorPartConfig"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
-        <contextMenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
+        <contextmenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
                      :items="naviContextMenuItems"
                      :config="contextMenuConfig"
-        ></contextMenu>
-
+        ></contextmenu>
+        npm
         <shade ref="ide_shade"></shade>
 
         <span id="__RULER" style="visibility: hidden; white-space: nowrap;">test</span>
@@ -104,14 +104,14 @@
     };
     export default{
         data(){
-            var self = this;
+            let self = this;
             return {
                 editorPartConfig: {
                     editorRefs: {
-                        dict:dictEditor,
-                        java:javaEditor,
-                        tcpt:tcptEditor,
-                        fc:fcEditor
+                        dict: dictEditor,
+                        java: javaEditor,
+                        tcpt: tcptEditor,
+                        fc: fcEditor
                     }
                 },
                 vertical: false,
@@ -119,58 +119,7 @@
                 pageName: "pageName",
                 naviContextMenuItems: [],
                 contextMenuConfig: {},
-                toolItems: [
-                    {
-                        id: 'item1',
-                        desp: 'desp1',
-                        type: 'item',
-                        img: "assets/image/nav-folder.png"
-                    },
-                    {
-                        type: 'separator',
-                    },
-                    {
-                        id: 'item2',
-                        desp: 'desp2',
-                        type: 'item',
-                        img: "assets/image/nav-folder.png"
-                    }, {
-                        id: 'item3',
-                        desp: 'desp3',
-                        type: 'group',
-                        img: 'assets/image/nav-folder.png',
-                        children: [
-                            {
-                                id: "031",
-                                desp: 'desp2',
-                                name: "011",
-                                img: 'assets/image/nav-folder.png',
-                                type: 'item',
-                            }, {
-                                id: "031",
-                                desp: 'desp2',
-                                name: "011",
-                                img: 'assets/image/nav-folder.png',
-                                type: 'item',
-                            }
-                        ]
-                    },
-                    {
-                        id: 'item4',
-                        desp: 'desp4',
-                        type: 'item',
-                        img: "assets/image/nav-folder.png"
-                    },
-                    {
-                        type: 'separator',
-                    },
-                    {
-                        id: 'item5',
-                        desp: 'desp5',
-                        type: 'item',
-                        img: "assets/image/nav-folder.png"
-                    }
-                ],
+                toolItems: [],
                 toolbarConfig: {
                     onclick: function (item) {
                         console.info("toolbar item onclick : " + item.id);
@@ -209,17 +158,62 @@
                 menuData: menuData
             }
         },
-        methods: {},
+        methods: {
+            _openEditor(model, maximize){
+                IDE.shade.open();
+                IDE.socket.emit("getFile", {
+                    type: IDE.type,
+                    event: 'getFile',
+                    data: {
+                        path: model.path
+                    }
+                }, function (result) {
+                    IDE.shade.hide();
+                    if (result.state === 'success') {
+                        if (!model.isParent) {
+                            let editor = IDE.editorPart.openEditor(model, result.data);
+                            if (editor && maximize) {
+                                editor.$children[0].$emit('maximize');
+                            }
+                        }
+                    } else {
+                        debug.error('resource dbclick , ' + result);
+                    }
+                });
+            },
+        },
         mounted(){
-            var self = this;
+
+            let self = this;
             IDE.type = 'afa';
             IDE.contextmenu = self.$refs.ide_contextMenu;
             IDE.shade = self.$refs.ide_shade;
             IDE.menu = self.$refs.ide_menu;
             IDE.socket = new IDESocket();
+
+            if (this.$route.params) {
+                let serverId = this.$route.params.serverId;
+                let serverParam = this.$route.params.param;
+                switch (serverId) {
+                    case 'openEditor':
+                        let self = this;
+                        setTimeout(function () {
+                            self._openEditor({
+                                isParent: false,
+                                name: "flowConfig.fc",
+                                path: "/AGREE_WEB/App_01/Service/flow/flowConfig.fc",
+                            }, true);
+                        }, 1000);
+                        break;
+                    default:
+                        console.error('服务类型异常');
+                }
+            } else {
+                console.error('没有服务');
+            }
         },
         beforeCreate(){
-            var self = this;
+            let self = this;
             window.viewRegistry = {
                 'navigator': {
                     name: '导航器',
@@ -305,7 +299,7 @@
                                     );
                                 },
                                 delete: function (item) {
-                                    var editor = IDE.editorPart.getEditor(item);
+                                    let editor = IDE.editorPart.getEditor(item);
                                     if (editor) {
                                         IDE.editorPart.closeEditor(item);
                                     }
@@ -321,34 +315,20 @@
                                 click: function (item) {
                                 },
                                 dblclick: function () {
-                                    var item = this;
+                                    let item = this;
                                     if (!item.model.isParent) {
-                                        let editor = IDE.editorPart.getEditor(item);
+                                        let editor = IDE.editorPart.getEditor(item.model);
                                         if (editor) {
-                                            IDE.editorPart.showEditor(item);
+                                            IDE.editorPart.showEditor(item.model);
                                             return;
                                         }
-                                        IDE.shade.open();
-                                        IDE.socket.emit("getFile", {
-                                            type: IDE.type,
-                                            event: 'getFile',
-                                            data: {
-                                                path: item.model.path
-                                            }
-                                        }, function (result) {
-                                            IDE.shade.hide();
-                                            if (result.state === 'success') {
-                                                if (!item.model.isParent) {
-                                                    IDE.editorPart.openEditor(item, result.data);
-                                                }
-                                            } else {
-                                                debug.error('resource dbclick , ' + result);
-                                            }
-                                        });
+
+                                        self._openEditor(item.model);
+
                                     }
                                 },
                                 rightClick: function (event) {
-                                    var item = this;
+                                    let item = this;
                                     IDE.socket.emit('getNaviMenu', {
                                         type: IDE.type,
                                         event: 'getNaviMenu',
@@ -379,31 +359,13 @@
                             }
                         },
                     },
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                     actions: [
-                        {
-                            id: 'refreshAction',
-                            name: 'refresh',
-                            type: 'item',
-                            img: "assets/image/file_awb.gif",
-                            tooltip: 'refresh',
-                            validate(){
-                                return true;
-                            },
-                            onclick(selection){
-                                if (selection instanceof Array) {
-                                    for (let index in selection) {
-                                        selection[index].refresh();
-                                    }
-                                }
-
-                            }
-                        },
                         {
                             id: 'linkWithEditorAction',
                             name: "linkWithEditor",
                             type: 'item',
-                            img: 'assets/image/file_awb.gif',
+                            img: '/assets/image/nav-link.png',
                             tooltip: "LinkWithEditor",
                             validate(){
                                 return true;
@@ -419,80 +381,26 @@
                 },
                 'properties': {
                     name: '属性',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                     init(){
                         WORKBENCH.property = this;
-                    },
-                    data: {
-                        toolItems: [
-                            {
-                                id: 'item1',
-                                desp: 'desp1',
-                                type: 'item',
-                                img: "assets/image/nav-folder.png"
-                            },
-                            {
-                                type: 'separator',
-                            },
-                            {
-                                id: 'item2',
-                                desp: 'desp2',
-                                type: 'item',
-                                img: "assets/image/nav-folder.png"
-                            }, {
-                                id: 'item3',
-                                desp: 'desp3',
-                                type: 'group',
-                                img: 'assets/image/nav-folder.png',
-                                children: [
-                                    {
-                                        id: "031",
-                                        desp: 'desp2',
-                                        name: "011",
-                                        img: 'assets/image/nav-folder.png',
-                                        type: 'item',
-                                    }, {
-                                        id: "031",
-                                        desp: 'desp2',
-                                        name: "011",
-                                        img: 'assets/image/nav-folder.png',
-                                        type: 'item',
-                                    }
-                                ]
-                            },
-                            {
-                                id: 'item4',
-                                desp: 'desp4',
-                                type: 'item',
-                                img: "assets/image/nav-folder.png"
-                            },
-                            {
-                                type: 'separator',
-                            },
-                            {
-                                id: 'item5',
-                                desp: 'desp5',
-                                type: 'item',
-                                img: "assets/image/nav-folder.png"
-                            }
-                        ]
                     }
                 },
                 'console': {
                     name: '控制台',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 },
                 'error': {
                     name: '错误控制',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 },
                 'problem': {
                     name: '问题',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 },
                 'version': {
                     name: '版本',
-                    image: "assets/image/nav-folder.png",
+                    image: "/assets/image/nav-folder.png",
                 }
             };
         },
@@ -500,7 +408,7 @@
             menubar: menu,
             navigator: navi,
             editorPage: editorPage,
-            contextMenu: contextMenu,
+            contextmenu: contextMenu,
             shade: shade,
             toolbar: toolbar,
             fastbar: fastbar,
