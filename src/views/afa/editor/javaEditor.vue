@@ -1,6 +1,6 @@
 <template>
-    <div class="hello">
-        <monacoeditor
+    <editor-Container :editor="this">
+        <monacoeditor slot="editor-content"
                 :width="width"
                 :height="width"
                 language="java"
@@ -11,10 +11,11 @@
                 srcPath=""
         >
         </monacoeditor>
-    </div>
+    </editor-Container>
 </template>
 
 <script>
+    import editorContainer from '../../components/editorContainer.vue'
     import monacoeditor from 'vue-monaco-editor';
     const CTRL_CHAR = String.fromCharCode(13);
 
@@ -91,10 +92,14 @@
             },
             isDirty(){
                 return false;
+            },
+            dirtyStateChange(){
+
             }
         },
         components: {
-            monacoeditor
+            monacoeditor,
+            editorContainer
         }
     }
 </script>

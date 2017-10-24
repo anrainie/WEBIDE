@@ -1,13 +1,13 @@
 <template>
     <div class="ide_root">
-        <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
-        <toolbar class="top_toolbar" :config="toolbarConfig" :toolitems="toolItems"
+        <menubar id="ide_menu" ref="ide_menu" :menu_data="menuData"></menubar>
+        <toolbar class="top_toolbar" :config="toolbarConfig" :tool-Items="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
             <workbench id="ide_workbench_center" :views="views" ref="workbench"
-                       :editorconfig="editorPartConfig"></workbench>
+                       :editor-Part-Config="editorPartConfig"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
@@ -201,15 +201,15 @@
                             self._openEditor({
                                 isParent: false,
                                 name: "flowConfig.fc",
-                                path: "/AGREE_WEB/App_01/Service/flow/flowConfig.fc",
+                                path: "/hello/app1/service1/flow/flowConfig.fc",
                             }, true);
                         }, 1000);
                         break;
                     default:
-                        console.error('服务类型异常');
+                        console.log('服务类型异常');
                 }
             } else {
-                console.error('没有服务');
+                console.log('没有服务');
             }
         },
         beforeCreate(){
@@ -373,7 +373,8 @@
                             onclick(selection){
                                 let editor = IDE.editorPart.getActiveEditor();
                                 if (editor) {
-                                    IDE.navigator.setSelection(editor.file);
+                                    var item = IDE.navigator.getItem(editor.file.path);
+                                    IDE.navigator.setSelection(item);
                                 }
                             }
                         }

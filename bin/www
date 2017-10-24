@@ -1,3 +1,4 @@
+process.env.NODE_ENV = 'production'
 var Server = require('../server/server');
 var server = new Server();
 var port = normalizePort(process.env.PORT || '3000');
@@ -29,7 +30,7 @@ function normalizePort(val) {
 }
 
 function onListening() {
-  var addr = server.server.address();
+  var addr = server.http.address();
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;

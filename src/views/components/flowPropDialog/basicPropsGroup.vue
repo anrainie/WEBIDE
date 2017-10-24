@@ -229,7 +229,7 @@
 
   //组件调用
   let templateF = `
-        <el-form  inline="true">
+        <el-form  :inline="true">
             <el-row>
                 <el-form-item label="调用方式">
                     <el-checkbox >动态调用</el-checkbox>
