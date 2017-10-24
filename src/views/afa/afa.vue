@@ -201,15 +201,15 @@
                             self._openEditor({
                                 isParent: false,
                                 name: "flowConfig.fc",
-                                path: "/hello/app1/service1/flow/flowConfig.fc",
+                                path: "/AGREE_WEB/App_01/Service/flow/flowConfig.fc",
                             }, true);
                         }, 1000);
                         break;
                     default:
-                        console.log('服务类型异常');
+                        console.error('服务类型异常');
                 }
             } else {
-                console.log('没有服务');
+                console.error('没有服务');
             }
         },
         beforeCreate(){

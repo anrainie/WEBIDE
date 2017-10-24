@@ -5,8 +5,8 @@ import paramsGrop from '../../../flowPropDialog/paramsGroup.vue';
 
 let baseDialogComponent = {
     template: `
-                <el-dialog title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="small">
-                    <el-collapse v-model="activeName" value="1" v-if="showProperties">
+                <el-dialog :modal-append-to-body="false" title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="small">
+                 <el-collapse v-model="activeName" value="1" v-if="showProperties">
                         
                         <el-collapse-item  :title="item.name" :name="index" v-for="(item, name, index) in group">
                             <keep-alive>
@@ -23,6 +23,9 @@ let baseDialogComponent = {
                 </el-dialog>`,
     components: {},
     props: ["showProperties", "model"],
+    mounted(){
+        console.log('dialog mounted: ', this.showProperties);
+    },
     methods: {
         updateVisible(vaule) {
             this.$emit('update:showProperties', vaule);
@@ -32,7 +35,7 @@ let baseDialogComponent = {
             try {
                 this.$refs[refsName][0].savePropsToModel(this.model);
             } catch (e) {
-                 //TODO
+                //TODO
             }
         },
         clickConfirm() {
@@ -55,7 +58,7 @@ let createDialog = function (config) {
     let result = {};
     if (config) {
         result.components = {};
-        for(let [refName, com] of Object.entries(config)) {
+        for (let [refName, com] of Object.entries(config)) {
             result.components[refName] = com["group"]
         }
     }
@@ -69,7 +72,7 @@ let createDialog = function (config) {
 
 const STEP = "step";
 export let stepDialogs = {
-    ["3" + STEP]: createDialog({
+    step3: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -89,7 +92,7 @@ export let stepDialogs = {
         }
     }),
     //通用组件
-    ["5" + STEP]: createDialog({
+    step5: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -101,7 +104,7 @@ export let stepDialogs = {
         }
     }),
     //多出口组件
-    ["7" + STEP]: createDialog({
+    step7: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -113,7 +116,7 @@ export let stepDialogs = {
         }
     }),
     //bcpt
-    ["4" + STEP]: createDialog({
+    step4: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -137,7 +140,7 @@ export let stepDialogs = {
 const NODE = "node";
 export let nodeDialogs = {
     //自定义结束
-    ['14' + NODE]: createDialog({
+    node14: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -145,7 +148,7 @@ export let nodeDialogs = {
         }
     }),
     //组件调用
-    ['7' + NODE]: createDialog({
+    node7: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -165,7 +168,7 @@ export let nodeDialogs = {
         }
     }),
     //内部场景调用
-    ['12' + NODE]: createDialog({
+    node12: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -185,7 +188,7 @@ export let nodeDialogs = {
         }
     }),
     //同步
-    ['18' + NODE]: createDialog({
+    node18: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,
@@ -205,7 +208,7 @@ export let nodeDialogs = {
         }
     }),
     //异步
-    ['11' + NODE]: createDialog({
+    node11: createDialog({
         basicInfo: {
             name: "基本信息",
             group: basicInfo,

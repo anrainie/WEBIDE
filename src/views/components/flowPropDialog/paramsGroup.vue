@@ -1,5 +1,5 @@
 <template>
-    <itable :tableConfig="tableConfig" :model="tempModel"></itable>
+    <itable :table-config="tableConfig" :model="tempModel"></itable>
 </template>
 <style>
 

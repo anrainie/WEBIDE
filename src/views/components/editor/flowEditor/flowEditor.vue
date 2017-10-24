@@ -41,7 +41,7 @@
             },
 
             /*外观*/
-            inputstyle: {
+            inputStyle: {
                 type: Object,
                 default() {
                     return {
@@ -63,9 +63,9 @@
         },
 
         watch: {
-            editorconfig(newConfig) {
+            editorConfig(newConfig) {
                 this.removeContent();
-                this.editorconfig = newConfig;
+                this.editorConfig = newConfig;
                 this.initEditor(newConfig);
             }
         },
@@ -108,7 +108,7 @@
         },
 
         mounted() {
-            this.initEditor(this.editorconfig);
+            this.initEditor(this.editorConfig);
         },
 
         components: {

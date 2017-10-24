@@ -145,19 +145,19 @@
                         id: 'item3',
                         desp: 'desp3',
                         type: 'group',
-                        img: 'assets/image/nav-folder.png',
+                        img: '/assets/image/nav-folder.png',
                         children: [
                             {
                                 id: "031",
                                 desp: 'desp2',
                                 name: "011",
-                                img: 'assets/image/nav-folder.png',
+                                img: '/assets/image/nav-folder.png',
                                 type: 'item',
                             }, {
                                 id: "031",
                                 desp: 'desp2',
                                 name: "011",
-                                img: 'assets/image/nav-folder.png',
+                                img: '/assets/image/nav-folder.png',
                                 type: 'item',
                             }
                         ]
@@ -392,7 +392,7 @@
                             id: 'refreshAction',
                             name: 'refresh',
                             type: 'item',
-                            img: "assets/image/file_awb.gif",
+                            img: "/assets/image/file_awb.gif",
                             tooltip: 'refresh',
                             validate(){
                                 return true;
@@ -410,7 +410,7 @@
                             id: 'linkWithEditorAction',
                             name: "linkWithEditor",
                             type: 'item',
-                            img: 'assets/image/file_awb.gif',
+                            img: '/assets/image/file_awb.gif',
                             tooltip: "LinkWithEditor",
                             validate(){
                                 return true;
@@ -458,19 +458,19 @@
                                 id: 'item3',
                                 desp: 'desp3',
                                 type: 'group',
-                                img: 'assets/image/nav-folder.png',
+                                img: '/assets/image/nav-folder.png',
                                 children: [
                                     {
                                         id: "031",
                                         desp: 'desp2',
                                         name: "011",
-                                        img: 'assets/image/nav-folder.png',
+                                        img: '/assets/image/nav-folder.png',
                                         type: 'item',
                                     }, {
                                         id: "031",
                                         desp: 'desp2',
                                         name: "011",
-                                        img: 'assets/image/nav-folder.png',
+                                        img: '/assets/image/nav-folder.png',
                                         type: 'item',
                                     }
                                 ]
