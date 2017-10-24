@@ -1,5 +1,5 @@
 <template>
-    <div :id="editorID" class="editor" v-bind:style="style">
+    <div :id="editorid" class="editor" v-bind:style="style">
         <palette :editor='editor' :openPaletteEvent="openPaletteEvent"></palette>
     </div>
 </template>
@@ -12,7 +12,7 @@
         height: 100%;
         background-color: rgb(13, 13, 13);
         float: left;
-        overflow: hidden;
+        overflow: auto;
     }
 </style>
 <script type="text/javascript">
@@ -22,7 +22,7 @@
     export default {
         name: 'flowEditor',
         props: {
-            editorID: {
+            editorid: {
                 required: true,
                 type: String
             },
@@ -69,14 +69,9 @@
                 this.initEditor(newConfig);
             }
         },
-
-        computed() {
-
-        },
-
         methods: {
             initEditor(config) {
-                this.editor = new $AG.Editor(defaultsDeep({id: this.editorID}, config));
+                this.editor = new $AG.Editor(defaultsDeep({id: this.editorid}, config));
                 this.bindEventToEditor();
                 this.activateChangeWidth();
 
@@ -174,7 +169,7 @@
                     }
                 },
                 template: `
-                <div v-if="editor" style="position: relative;top: 0;width: 10%;height: 100%;background-color: #d3d3d3;float:left">
+                <div v-if="editor" style="position: relative;top: 0;width: 10%;height: 100%;background-color: #d3d3d3;float:left; overflow: auto">
                     <p></p>
 
                     <el-row type="flex" justify="center">

@@ -14,7 +14,7 @@ var items = [{
             let copy = IDE.editorPart.editors.concat([]);
             for(let key in copy){
                 let editor = copy[key];
-                if(editor.file.model.path !=selectedEditor.file.model.path) {
+                if(editor.file.path !=selectedEditor.file.path) {
                     IDE.editorPart.closeEditor(editor.file);
                 }
             }

@@ -64,11 +64,9 @@
                 }
             },
             maximize(){
-                console.log('最大化',this);
                 this.$el.classList.add('MAXIMIZE');
             },
             normalize(){
-                console.log('editorContainer回复常态的函数');
                 this.$el.classList.remove('MAXIMIZE');
             },
             indicatorClick(){

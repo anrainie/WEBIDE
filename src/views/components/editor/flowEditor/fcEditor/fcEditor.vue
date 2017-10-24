@@ -4,28 +4,29 @@
         <div slot="editor-content">
 
             <flow-Editor
-                    :editorID="stepEditorID"
+                    :editorid="stepEditorID"
                     v-show="stepVisible"
                     ref="stepEditor"
-                    :editorConfig="stepEditorCfg"
-                    :bindEvent="stepBindEvent"
+                    :editor-config="stepEditorCfg"
+                    :bind-event="stepBindEvent"
                     :save="saveHandle"
-                    :openPaletteEvent="stepPaletteOpenEvent"
+                    :open-palette-event="stepPaletteOpenEvent"
                     @dblclickCanvas="stepDoubleClickCanvas"></flow-Editor>
 
             <flow-Editor
-                    :editorID="nodeEditorID"
+                    :editorid="nodeEditorID"
                     v-if="nodeExist"
                     v-show="nodeVisible"
                     ref="nodeEditor"
-                    :inputStyle="{width: '50%'}"
-                    :editorConfig="nodeEditorCfg"
-                    :bindEvent="nodeBindEvent"
+                    :input-style="{width: '50%'}"
+                    :editor-config="nodeEditorCfg"
+                    :bind-event="nodeBindEvent"
                     :save="saveHandle"
+                    :openPaletteEvent="nodePaletteOpenEvent"
                     @dblclickCanvas="nodeDoubleClickCanvas"></flow-Editor>
 
             <!--对话框-->
-            <component :is="dialogType" :showProperties.sync="showProperties" :model="dialogTarget"></component>
+            <component :is="dialogType" :showProperties.sync="showproperties" :model="dialogTarget" :path="file.path"></component>
 
         </div>
     </editor-Container>
@@ -34,7 +35,7 @@
 <script type="text/javascript">
     import flowEditor from "../flowEditor.vue"
     import editorContainer from '../../../editorContainer.vue'
-    import {stepConfigBuilder, nodeConfigBuilder} from './config'
+    import {stepInput2Config, nodeInput2Config} from './resolve'
     import * as Constants from 'Constants'
     import skipGroup from '../../../flowPropDialog/skipGroup.vue';
     import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
@@ -54,7 +55,7 @@
         let editor = this;
 
         //更新节点位置
-        nodeStore().update(function (){
+        nodeStore().update(function () {
             let {Constraint, bounds, id} = this;
             Constraint.Location = [bounds[0], bounds[1]].toString();
             this.Id = id;
@@ -78,11 +79,13 @@
             };
 
             if (!hasSourceConnections) {
-                nodeStore({Id: source}).update({SourceConnections:　{
-                    Connection : [
-                        connect
-                    ]
-                }});
+                nodeStore({Id: source}).update({
+                    SourceConnections: {
+                        Connection: [
+                            connect
+                        ]
+                    }
+                });
             } else {
                 let {SourceConnections: {Connection: storeConnect}} = nodeStore({Id: source}).first();
 
@@ -142,8 +145,8 @@
                 stepBindEvent: {
                     [Constants.OPEN_FLOWPROP_DIALOG](editPart) {
                         self.dialogTarget = editPart.model;
-                        self.dialogType = editPart.model.get("type") + "step";
-                        self.showProperties = true;
+                        self.dialogType = "step" + editPart.model.get("type");
+                        self.showproperties = true;
                     },
 
                     [Constants.OPEN_NODE_EDITOR](model) {
@@ -178,7 +181,7 @@
                         /*从缓冲取出编辑器实例*/
                         function replace(editor) {
                             this.$data.editor = editor;
-                            editor.createContent(this.editorID)
+                            editor.createContent(this.editorid)
                         }
 
                         /*不严谨,FlowEdior的Config不一致*/
@@ -198,14 +201,14 @@
                 nodeBindEvent: {
                     [Constants.OPEN_FLOWPROP_DIALOG](editPart) {
                         self.dialogTarget = editPart.model;
-                        self.dialogType = editPart.model.get("type") + "node";
-                        self.showProperties = true;
+                        self.dialogType = "node" + editPart.model.get("type");
+                        self.showproperties = true;
                     }
                 },
                 nodeEditorInput: null,
                 nodeEditorBuffer: new Map(),
                 saveHandle: commonDoSave,
-                showProperties: false,
+                showproperties: false,
                 dialogTarget: null,
                 dialogType: null,
                 stepNodeType: null,
@@ -214,22 +217,13 @@
         computed: {
             /*根据input初始化配置*/
             stepEditorCfg() {
-                return stepConfigBuilder
-                    .BuildConfig()
-                    /*主要是为了UUID*/
-                    .setEditorAttr(this.input)
-                    /*图数据，即模型数据*/
-                    .resolveModel(this.input)
-                    /*节点类型*/
-                    .addNodeType(null)
-                    /*获取配置*/
-                    .getConfig();
+                return stepInput2Config(this.input)
             },
 
             stepPaletteOpenEvent() {
                 let filePath = this.file.path, cache = {},
-                    packUrl = "assets/image/editor/folder_catelog.gif",
-                    comUrl = "assets/image/editor/palette_component_businessComponent.gif";
+                    packUrl = "/assets/image/editor/folder_catelog.gif",
+                    comUrl = "/assets/image/editor/palette_component_businessComponent.gif";
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
@@ -272,16 +266,47 @@
             },
 
             nodeEditorCfg() {
-                return nodeConfigBuilder
-                    .BuildConfig()
-                    .setEditorAttr(this.nodeEditorInput)
-                    .resolveModel(this.nodeEditorInput)
-                    .getConfig();
+                return nodeInput2Config(this.nodeEditorInput)
             },
 
             nodePaletteOpenEvent() {
-                return function () {
-                    console.log('ssss')
+                let filePath = this.file.path, cache = {},
+                    packUrl = "assets/image/editor/folder_public_technologyComponentGroup.gif",
+                    comUrl = "assets/image/editor/palette_component_technologyComponent.gif";
+                return function (index, indexPath, config) {
+                    let path = indexPath[0];
+                    if (path == "default") return;
+
+                    IDE.socket.emit('loadTcpt', {
+                        type: IDE.type,
+                        event: 'loadTcpt',
+                        data: {
+                            path: filePath
+                        }
+                    }, function (result) {
+                        if (result.state == "success" && result.data[path]) {
+                            var children = [];
+
+                            result.data[path].forEach((item) => {
+                                children.push({
+                                    name: item.componentGroup,
+                                    url: packUrl,
+                                    items: item.tcpt.map((bcpt) => {
+                                        return {
+                                            url: comUrl,
+                                            data: Object.assign(bcpt.Component, {type: "11", size: [160, 46]}),
+                                            name: bcpt.Component.Desp,
+                                        }
+                                    })
+                                })
+                            })
+
+                            config[path].children = children;
+
+                        } else {
+                            //TODO
+                        }
+                    });
                 }
             },
 
@@ -295,8 +320,6 @@
         },
         updated() {
             this.updateNodeEditorBuffer();
-        },
-        mounted() {
         },
         methods: {
             isDirty() {
@@ -325,7 +348,7 @@
                             record["Implementation"]["Node"] = editor.getSaveData(nodePropsName);
                         } catch (e) {
                             record["Implementation"] = {
-                                Node : editor.getSaveData(nodePropsName)
+                                Node: editor.getSaveData(nodePropsName)
                             }
                         }
                     }
@@ -354,7 +377,7 @@
                 if (style['width'] == "100%") {
                     style['width'] = "50%";
                     this.stepVisible = true;
-                } else  {
+                } else {
                     style['width'] = "100%";
                     this.stepVisible = false;
                 }

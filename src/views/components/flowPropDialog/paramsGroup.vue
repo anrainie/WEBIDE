@@ -1,5 +1,5 @@
 <template>
-    <itable :tableConfig="tableConfig" :model="tempModel"></itable>
+    <itable :tableConfig="tableConfig" :model="modification"></itable>
 </template>
 <style>
 
@@ -9,13 +9,12 @@
     export default{
         data(){
             return {
-                tempModel:[],
                 tableConfig: {
                     pageSize: 10,
                     pageSizes: [10, 20, 50],
                     paginationLayout: "total, sizes, prev, pager, next, jumper",
                     selectionChanged(v, old){
-                        _self.selection = v;
+                        //_self.selection = v;
                     },
                     columnConfig: [
                         {
@@ -47,15 +46,41 @@
                             }],
                         }]
                 },
+                modification: this.initModification(),
             }
         },
         props: {
             model: {
-                default: []
+                required: true
+            },
+            type: {
+                required: true,
+                validator(value) {
+                    return value == "InArgs" || value == "OutArgs";
+                }
+            },
+            path: {
+                type: String
             }
         },
         components: {
             itable: table
         },
+        methods: {
+            initModification() {
+                if (this.model[this.type] && this.model[this.type]["Arg"]) {
+                    let model = [].concat(this.model[this.type]["Arg"]);
+
+                    return model.map((item) => {
+                        return {
+                            name: item.Name + (item.Type ? ("(" + item.Type + ")") : ""),
+                            log: item.Level
+                        }
+                    });
+                }
+
+                return [];
+            }
+        }
     }
 </script>
