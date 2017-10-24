@@ -34,6 +34,9 @@
                         }
                     }
                 }
+            },
+            path: {
+                type: String
             }
         },
         computed: {

@@ -17,7 +17,7 @@ module.exports = {
         app: './src/main.js',
         vendor: ['anrajs']
     },
-  //出口，控制 webpack 如何向硬盘写入编译文件，不管入口起点有多少个，出口只有一个
+    //出口，控制 webpack 如何向硬盘写入编译文件，不管入口起点有多少个，出口只有一个
     output: {
         path: resolve(__dirname, '../dist'),
         filename: '[name].js',
