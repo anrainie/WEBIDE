@@ -1,13 +1,13 @@
 <template>
     <div class="ide_root">
         <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
-        <toolbar class="top_toolbar" :config="toolbarConfig" :tool-Items="toolItems"
+        <toolbar class="top_toolbar" :config="toolbarConfig" :toolitems="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
             <workbench id="ide_workbench_center" :views="views" ref="workbench"
-                       :editor-Part-Config="editorPartConfig"></workbench>
+                       :editorconfig="editorPartConfig"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>

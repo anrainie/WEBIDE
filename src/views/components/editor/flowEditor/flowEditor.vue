@@ -1,5 +1,5 @@
 <template>
-    <div :id="editorID" class="editor" v-bind:style="style">
+    <div :id="editorid" class="editor" v-bind:style="style">
         <palette :editor='editor' :openPaletteEvent="openPaletteEvent"></palette>
     </div>
 </template>
@@ -22,7 +22,7 @@
     export default {
         name: 'flowEditor',
         props: {
-            editorID: {
+            editorid: {
                 required: true,
                 type: String
             },
@@ -41,7 +41,7 @@
             },
 
             /*外观*/
-            inputStyle: {
+            inputstyle: {
                 type: Object,
                 default() {
                     return {
@@ -63,20 +63,15 @@
         },
 
         watch: {
-            editorConfig(newConfig) {
+            editorconfig(newConfig) {
                 this.removeContent();
-                this.editorConfig = newConfig;
+                this.editorconfig = newConfig;
                 this.initEditor(newConfig);
             }
         },
-
-        computed() {
-
-        },
-
         methods: {
             initEditor(config) {
-                this.editor = new $AG.Editor(defaultsDeep({id: this.editorID}, config));
+                this.editor = new $AG.Editor(defaultsDeep({id: this.editorid}, config));
                 this.bindEventToEditor();
                 this.activateChangeWidth();
 
@@ -113,7 +108,7 @@
         },
 
         mounted() {
-            this.initEditor(this.editorConfig);
+            this.initEditor(this.editorconfig);
         },
 
         components: {

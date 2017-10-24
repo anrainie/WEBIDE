@@ -4,28 +4,28 @@
         <div slot="editor-content">
 
             <flow-Editor
-                    :editorID="stepEditorID"
+                    :editorid="stepEditorID"
                     v-show="stepVisible"
                     ref="stepEditor"
-                    :editorConfig="stepEditorCfg"
-                    :bindEvent="stepBindEvent"
+                    :editor-config="stepEditorCfg"
+                    :bindevent="stepBindEvent"
                     :save="saveHandle"
-                    :openPaletteEvent="stepPaletteOpenEvent"
-                    @dblclickCanvas="stepDoubleClickCanvas"></flow-Editor>
+                    :open-palette-event="stepPaletteOpenEvent"
+                    @dblclick-canvas="stepDoubleClickCanvas"></flow-Editor>
 
             <flow-Editor
-                    :editorID="nodeEditorID"
+                    :editorid="nodeEditorID"
                     v-if="nodeExist"
                     v-show="nodeVisible"
                     ref="nodeEditor"
-                    :inputStyle="{width: '50%'}"
-                    :editorConfig="nodeEditorCfg"
-                    :bindEvent="nodeBindEvent"
+                    :inputstyle="{width: '50%'}"
+                    :editor-config="nodeEditorCfg"
+                    :bind-event="nodeBindEvent"
                     :save="saveHandle"
-                    @dblclickCanvas="nodeDoubleClickCanvas"></flow-Editor>
+                    @dblclick-canvas="nodeDoubleClickCanvas"></flow-Editor>
 
             <!--对话框-->
-            <component :is="dialogType" :showProperties.sync="showProperties" :model="dialogTarget"></component>
+            <component :is="dialogType" :show-Properties.sync="showProperties" :model="dialogTarget"></component>
 
         </div>
     </editor-Container>
@@ -178,7 +178,7 @@
                         /*从缓冲取出编辑器实例*/
                         function replace(editor) {
                             this.$data.editor = editor;
-                            editor.createContent(this.editorID)
+                            editor.createContent(this.editorid)
                         }
 
                         /*不严谨,FlowEdior的Config不一致*/

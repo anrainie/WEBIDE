@@ -61,7 +61,7 @@
 <script>
     var selection = null;
     export default{
-        props: ['toolItems'],
+        props: ['toolitems'],
         data: function () {
             return {
                 name: "test",
@@ -90,12 +90,12 @@
             }
         },
         mounted: function () {
-            for (let i = 0; i < this.toolItems.length; i++) {
-                if (this.toolItems[i].validate)
-                    this.toolItems[i].enable = this.toolItems[i].validate(null);
-                else this.toolItems[i].enable = true;
+            for (let i = 0; i < this.toolitems.length; i++) {
+                if (this.toolitems[i].validate)
+                    this.toolitems[i].enable = this.toolitems[i].validate(null);
+                else this.toolitems[i].enable = true;
             }
-            this.items = this.toolItems;
+            this.items = this.toolitems;
             window.tool = this;
         }
     }
