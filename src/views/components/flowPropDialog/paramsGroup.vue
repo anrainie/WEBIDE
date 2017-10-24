@@ -58,6 +58,9 @@
                 validator(value) {
                     return value == "InArgs" || value == "OutArgs";
                 }
+            },
+            path: {
+                type: String
             }
         },
         components: {

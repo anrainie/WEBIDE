@@ -280,7 +280,7 @@ let defaultData = {
 //通用组件
 var stepCommonCpt = {
     name: 'common',
-    url: 'assets/image/editor/event_component_stepCommonCpt.gif',
+    url: '/assets/image/editor/event_component_stepCommonCpt.gif',
     type: $AG.IMAGE,
     anchor: [
         {id: 'N', dir: 'n', offset: 0},
@@ -312,7 +312,7 @@ var stepCommonCpt = {
 //内部场景调用
 var serviceInvokdEntered = {
     name: 'service',
-    url: 'assets/image/editor/event_component_ServiceInvokdEntered.gif',
+    url: '/assets/image/editor/event_component_ServiceInvokdEntered.gif',
     type: $AG.IMAGE,
     anchor: [
         {id: 'N', dir: 'n', offset: 0},
@@ -339,7 +339,7 @@ var serviceInvokdEntered = {
 
 //内部场景调用
 var stepMultiOutletCpt = {
-    url: 'assets/image/editor/event_component_stepMultiOutletCpt.gif',
+    url: '/assets/image/editor/event_component_stepMultiOutletCpt.gif',
     type: $AG.IMAGE,
     anchor: [
         {id: 'N', dir: 'n', offset: 0},
@@ -366,7 +366,7 @@ var stepMultiOutletCpt = {
 
 //业务组件
 var bcpt = {
-    url: 'assets/image/editor/event_component_stepBussiness.gif',
+    url: '/assets/image/editor/event_component_stepBussiness.gif',
     type: $AG.IMAGE,
     size: [160,46],
     canDrag: true,
@@ -400,7 +400,7 @@ var bcpt = {
 var nodeStart = {
     name: 'start',
     desc: '开始',
-    url: 'assets/image/editor/event_component_nodeStart.gif',
+    url: '/assets/image/editor/event_component_nodeStart.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -424,7 +424,7 @@ var nodeStart = {
 var nodeEnd = {
     name: 'end',
     desc: '结束',
-    url: 'assets/image/editor/event_component_nodeEnd.gif',
+    url: '/assets/image/editor/event_component_nodeEnd.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -448,7 +448,7 @@ var nodeEnd = {
 var nodeAbnormalEnd = {
     name: 'eend',
     desc: '异常结束',
-    url: 'assets/image/editor/event_component_nodeAbnormalEnd.gif',
+    url: '/assets/image/editor/event_component_nodeAbnormalEnd.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -471,7 +471,7 @@ var nodeAbnormalEnd = {
 
 //自定义结束
 var nodeCustomEnd = {
-    url: 'assets/image/editor/event_component_nodeCustomEnd.gif',
+    url: '/assets/image/editor/event_component_nodeCustomEnd.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -496,7 +496,7 @@ var nodeCustomEnd = {
 var nodeErrorDelegate = {
     name: 'error',
     desc: '默认逻辑错误委托',
-    url: 'assets/image/editor/event_component_nodeErrorDelegate.gif',
+    url: '/assets/image/editor/event_component_nodeErrorDelegate.gif',
     type: $AG.IMAGE,
     size: [160, 54],
     canDrag: true,
@@ -521,7 +521,7 @@ var nodeErrorDelegate = {
 var componentInvoke = {
     name: 'context',
     desc: '组件调用',
-    url: 'assets/image/editor/event_component_ComponentInvoke.gif',
+    url: '/assets/image/editor/event_component_ComponentInvoke.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -547,7 +547,7 @@ var componentInvoke = {
 var tradeInvoke = {
     name: 'serivceX',
     desc: '内部场景调用',
-    url: 'assets/image/editor/event_node_component_TradeInvoke.gif',
+    url: '/assets/image/editor/event_node_component_TradeInvoke.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -573,7 +573,7 @@ var tradeInvoke = {
 var transfer = {
     name: 'mid',
     desc: '中转节点',
-    url: 'assets/image/editor/event_component_transfer.gif',
+    url: '/assets/image/editor/event_component_transfer.gif',
     type: $AG.IMAGE,
     size: [63, 63],
     canDrag: true,
@@ -596,7 +596,7 @@ var transfer = {
 
 //场景同步调用
 var tradeSync = {
-    url: 'assets/image/editor/event_node_component_tradeSync.gif',
+    url: '/assets/image/editor/event_node_component_tradeSync.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -619,7 +619,7 @@ var tradeSync = {
 };
 
 var Async = {
-    url: 'assets/image/editor/event_node_component_Async.gif',
+    url: '/assets/image/editor/event_node_component_Async.gif',
     type: $AG.IMAGE,
     size: [160, 44],
     canDrag: true,
@@ -642,7 +642,7 @@ var Async = {
 };
 
 var parallel = {
-    url: 'assets/image/editor/Parallel_leave.gif',
+    url: '/assets/image/editor/Parallel_leave.gif',
     type: $AG.IMAGE,
     size: [40, 160],
     canDrag: true,
@@ -693,17 +693,17 @@ let stepDefaultComponent = {
     items: [
         {
             name: "通用组件",
-            url: "assets/image/editor/palette_component_stepCommonCpt.gif",
+            url: "/assets/image/editor/palette_component_stepCommonCpt.gif",
             data: createStepData({type: '5', size: [160, 60]})
         },
         {
             name: "内部场景调用",
-            url: "assets/image/editor/palette_component_ServiceInvoke.gif",
+            url: "/assets/image/editor/palette_component_ServiceInvoke.gif",
             data: createStepData({type: '3', size: [160, 60]})
         },
         {
             name: "多出口组件",
-            url: "assets/image/editor/palette_component_stepMultiOutletCpt.gif",
+            url: "/assets/image/editor/palette_component_stepMultiOutletCpt.gif",
             data: createStepData({type: '7', size: [160, 60]})
         }
     ]
@@ -741,49 +741,49 @@ let nodeDefaultComponent = {
     items: [
         {
             name: "开始",
-            url: "assets/image/editor/palette_component_nodeStart.gif",
+            url: "/assets/image/editor/palette_component_nodeStart.gif",
             data: createStepData({type: '2', size: [63, 63]})
         },
         {
             name: "正常结束",
-            url: "assets/image/editor/palette_component_nodeEnd.gif",
+            url: "/assets/image/editor/palette_component_nodeEnd.gif",
             data: createStepData({type: '3', size: [63, 63]})
         },
         {
             name: "异常结束",
-            url: "assets/image/editor/palette_component_nodeAbnormalEnd.gif",
+            url: "/assets/image/editor/palette_component_nodeAbnormalEnd.gif",
             data: createStepData({type: '4', size: [63, 63]})
         },
         {
             name: "自定义结束",
-            url: "assets/image/editor/palette_component_nodeCustomEnd.gif",
+            url: "/assets/image/editor/palette_component_nodeCustomEnd.gif",
             data: createStepData({type: '14', size: [63, 63]})
         },
         {
             name: "默认逻辑错误委托",
-            url: "assets/image/editor/palette_component_nodeErrorDelegate.gif",
+            url: "/assets/image/editor/palette_component_nodeErrorDelegate.gif",
             data: createStepData({type: '6', size: [160, 54]})
         },
         {
             name: "组件调用",
-            url: "assets/image/editor/palette_component_ComponentInvoke.gif",
+            url: "/assets/image/editor/palette_component_ComponentInvoke.gif",
             data: createStepData({type: '7', size: [160, 54]})
         },
         {
             name: "内部场景调用",
-            url: "assets/image/editor/palette_component_TradeInvoke.gif",
+            url: "/assets/image/editor/palette_component_TradeInvoke.gif",
             data: createStepData({type: '12', size: [160, 44]})
         },
         {
             name: "中转节点",
-            url: "assets/image/editor/palette_component_transfer.gif",
+            url: "/assets/image/editor/palette_component_transfer.gif",
             data: createStepData({type: '10', size: [63, 63]})
         }
     ],
     group: [
         {
             name: "场景同步调用",
-            url: "assets/image/editor/palette_component_tradeSync.gif",
+            url: "/assets/image/editor/palette_component_tradeSync.gif",
             data: createStepData({type: '18', size: [160, 44]})
         },
         {
@@ -793,7 +793,7 @@ let nodeDefaultComponent = {
         },
         {
             name: "平行组件",
-            url: "assets/image/editor/Parallel.gif",
+            url: "/assets/image/editor/Parallel.gif",
             data: createStepData({type: '17', size: [40, 160]})
         }
     ]

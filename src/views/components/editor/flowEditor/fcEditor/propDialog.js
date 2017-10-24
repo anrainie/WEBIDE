@@ -2,15 +2,16 @@
 import skipGroup from '../../../flowPropDialog/skipGroup.vue';
 import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
 import paramsGrop from '../../../flowPropDialog/paramsGroup.vue';
+import debugGroup from '../../../flowPropDialog/debugGroup.vue'
 
 let baseDialogComponent = {
     template: `
-                <el-dialog title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="tiny">
+                <el-dialog title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="small">
                     <el-collapse v-model="activeName" value="1" v-if="showProperties">
                         
                         <el-collapse-item  :title="item.name" :name="index" v-for="(item, name, index) in group">
                             <keep-alive>
-                                <component :is="name" :model="getProps" :type="item.type" :ref="name" ></component>
+                                <component :is="name" :model="getProps" :type="item.type" :ref="name" :path="path"></component>
                             </keep-alive>
                         </el-collapse-item>
                         
@@ -22,7 +23,7 @@ let baseDialogComponent = {
                     </span>
                 </el-dialog>`,
     components: {},
-    props: ["showProperties", "model"],
+    props: ["showProperties", "model", "path"],
     methods: {
         updateVisible(vaule) {
             this.$emit('update:showProperties', vaule);
@@ -127,11 +128,13 @@ export let stepDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'InArgs'
         },
         outputParam: {
             name: '出口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'OutArgs'
         }
     })
 };
@@ -159,11 +162,13 @@ export let nodeDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'InArgs'
         },
         outputParam: {
             name: '出口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'OutArgs'
         }
     }),
     //内部场景调用
@@ -179,11 +184,13 @@ export let nodeDialogs = {
         },
         inputParam: {
             name: '入口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'InArgs'
         },
         outputParam: {
             name: '出口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'OutArgs'
         }
     }),
     //同步
@@ -197,16 +204,47 @@ export let nodeDialogs = {
             name: '伪执行',
             group: skipGroup,
         },
+        debugGroup: {
+            name: '调试交易',
+            group: debugGroup
+        },
         inputParam: {
             name: '入口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'InArgs'
         },
         outputParam: {
             name: '出口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'OutArgs'
         }
     }),
     //异步
+    ['111' + NODE]: createDialog({
+        basicInfo: {
+            name: "基本信息",
+            group: basicInfo,
+            type: '6'
+        },
+        skipInfo: {
+            name: '伪执行',
+            group: skipGroup,
+        },
+        debugGroup: {
+            name: '调试交易',
+            group: debugGroup
+        },
+        inputParam: {
+            name: '入口参数',
+            group: paramsGrop,
+            type: 'InArgs'
+        },
+        outputParam: {
+            name: '出口参数',
+            group: paramsGrop,
+            type: 'OutArgs'
+        }
+    }),
     ['11' + NODE]: createDialog({
         basicInfo: {
             name: "基本信息",
@@ -217,13 +255,19 @@ export let nodeDialogs = {
             name: '伪执行',
             group: skipGroup,
         },
+        debugGroup: {
+            name: '调试交易',
+            group: debugGroup
+        },
         inputParam: {
             name: '入口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'InArgs'
         },
         outputParam: {
             name: '出口参数',
-            group: paramsGrop
+            group: paramsGrop,
+            type: 'OutArgs'
         }
     })
 };

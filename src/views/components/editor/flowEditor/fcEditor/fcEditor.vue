@@ -26,7 +26,7 @@
                     @dblclickCanvas="nodeDoubleClickCanvas"></flowEditor>
 
             <!--对话框-->
-            <component :is="dialogType" :showProperties.sync="showProperties" :model="dialogTarget"></component>
+            <component :is="dialogType" :showProperties.sync="showProperties" :model="dialogTarget" :path="file.path"></component>
 
         </div>
     </editorContainer>
@@ -219,7 +219,7 @@
             },
 
             stepPaletteOpenEvent() {
-                let filePath = this.file.model.path, cache = {},
+                let filePath = this.file.path, cache = {},
                     packUrl = "assets/image/editor/folder_catelog.gif",
                     comUrl = "assets/image/editor/palette_component_businessComponent.gif";
                 return function (index, indexPath, config) {
@@ -268,7 +268,7 @@
             },
 
             nodePaletteOpenEvent() {
-                let filePath = this.file.model.path, cache = {},
+                let filePath = this.file.path, cache = {},
                     packUrl = "assets/image/editor/folder_public_technologyComponentGroup.gif",
                     comUrl = "assets/image/editor/palette_component_technologyComponent.gif";
                 return function (index, indexPath, config) {
@@ -309,17 +309,15 @@
             },
 
             stepEditorID() {
-                return "step_editor" + this.file.model.path.replace(/(\/)/g, "_").replace(/(\.)/, "-")
+                return "step_editor" + this.file.path.replace(/(\/)/g, "_").replace(/(\.)/, "-")
             },
 
             nodeEditorID() {
-                return "node_editor" + this.file.model.path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
+                return "node_editor" + this.file.path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
             }
         },
         updated() {
             this.updateNodeEditorBuffer();
-        },
-        mounted() {
         },
         methods: {
             isDirty() {
@@ -360,7 +358,7 @@
                 this.nodeEditorBuffer.clear();
                 if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;
                 //this.setStepFromInput(stepEditor.getSaveData(stepPropsName));
-                this.msgHub.$emit('dirtyStateChangxe', this.file, false);
+                this.msgHub.$emit('dirtyStateChange', this.file, false);
                 return true;
             },
             focus() {

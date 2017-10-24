@@ -132,7 +132,6 @@
                     },
                     openHandle(index, indexPath) {
                         this.openPaletteEvent && this.openPaletteEvent(index, indexPath, this.getGroup());
-                        console.log(this)
                     }
                 },
                 computed: {
