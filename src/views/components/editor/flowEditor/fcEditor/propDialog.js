@@ -23,7 +23,7 @@ let baseDialogComponent = {
                     </span>
                 </el-dialog>`,
     components: {},
-    props: ["showProperties", "model"],
+    props: ["showProperties", "model", "path"],
     methods: {
         updateVisible(vaule) {
             this.$emit('update:showProperties', vaule);
@@ -220,6 +220,31 @@ export let nodeDialogs = {
         }
     }),
     //异步
+    node111: createDialog({
+        basicInfo: {
+            name: "基本信息",
+            group: basicInfo,
+            type: '6'
+        },
+        skipInfo: {
+            name: '伪执行',
+            group: skipGroup,
+        },
+        debugGroup: {
+            name: '调试交易',
+            group: debugGroup
+        },
+        inputParam: {
+            name: '入口参数',
+            group: paramsGrop,
+            type: 'InArgs'
+        },
+        outputParam: {
+            name: '出口参数',
+            group: paramsGrop,
+            type: 'OutArgs'
+        }
+    }),
     node11: createDialog({
         basicInfo: {
             name: "基本信息",

@@ -107,34 +107,34 @@ function getNewWizard(selection) {
             }
         });
     } else {
-      //创建之前先获取appGroup
-      IDE.socket.emit("beforeCreateOrModify", {
-          type: IDE.type,
-          event: 'beforeCreateOrModify',
-          data: {path: this.path,style:style}
-        }, function (result) {
-          if (result) {
-            if (result.state === 'success') {
-              var newItem = wizardtext.match1(reourceId)[0];
-              newWizard = getWizardByResourceId.call(this, newItem, preName);
-              if (newItem.groups) {
-                for (var index in result.data.groups) {
-                  var value = result.data.groups[index];
-                  var label = result.data.groups[index];
-                  var groupItem = {value, label};
-                  newWizard.groups.push(groupItem);
+        //创建之前先获取appGroup
+        IDE.socket.emit("beforeCreateOrModify", {
+                type: IDE.type,
+                event: 'beforeCreateOrModify',
+                data: {path: this.path,style:style}
+            }, function (result) {
+                if (result) {
+                    if (result.state === 'success') {
+                        var newItem = wizardtext.match1(reourceId)[0];
+                        newWizard = getWizardByResourceId.call(this, newItem, preName);
+                        if (newItem.groups) {
+                            for (var index in result.data.groups) {
+                                var value = result.data.groups[index];
+                                var label = result.data.groups[index];
+                                var groupItem = {value, label};
+                                newWizard.groups.push(groupItem);
+                            }
+                            newWizard.groupsLabel = newItem.groupsLabel;
+                        }
+                        if (newWizard.reference&&newWizard.reference.length) {
+                            newWizard.selectedRef = ((newWizard.reference)[0]).label;
+                        }
+                        newWizard.path = path;
+                        mountDialog(newWizard);
+                    }
                 }
-                newWizard.groupsLabel = newItem.groupsLabel;
-              }
-              if (newWizard.reference&&newWizard.reference.length) {
-                newWizard.selectedRef = ((newWizard.reference)[0]).label;
-              }
-              newWizard.path = path;
-              mountDialog(newWizard);
             }
-          }
-        }
-      )
+        )
 
     }
     return newWizard
@@ -143,7 +143,7 @@ var items = {
     'new': {
         id: 'new',
         name: '新建',
-        icon: 'assets/image/nav-folder.png',
+        icon: '/assets/image/nav-folder.png',
         type: 'group'
     },
     'applicationManageAction': {
@@ -455,8 +455,8 @@ var items = {
         name:'模拟映射文件',
         type:'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item,selection);
-      }
+            return getNewWizard.call(item,selection);
+        }
     },
     'scfgAction':{
         id:'scfgAction',
@@ -465,8 +465,8 @@ var items = {
         name:'流水号配置',
         type:'item',
         handler: function (selection, item) {
-          return getNewWizard.call(item,selection);
-       }
+            return getNewWizard.call(item,selection);
+        }
     },
     'org.eclipse.ui.DeleteResourceAction': {
         id: 'org.eclipse.ui.DeleteResourceAction',

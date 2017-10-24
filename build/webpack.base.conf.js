@@ -17,7 +17,7 @@ module.exports = {
         app: './src/main.js',
         vendor: ['anrajs']
     },
-  //出口，控制 webpack 如何向硬盘写入编译文件，不管入口起点有多少个，出口只有一个
+    //出口，控制 webpack 如何向硬盘写入编译文件，不管入口起点有多少个，出口只有一个
     output: {
         path: resolve(__dirname, '../dist'),
         filename: '[name].js',
@@ -25,15 +25,6 @@ module.exports = {
     },
     module: {
         loaders: [
-            // {
-            //     test: /\.(js|vue)$/,
-            //     loader: 'eslint-loader',
-            //     enforce: "pre",
-            //     include: [resolve('src'), resolve('test')],
-            //     options: {
-            //         formatter: require('eslint-friendly-formatter')
-            //     }
-            // },
             {
                 test: /\.vue$/,
                 loader: 'vue-loader',
@@ -49,7 +40,7 @@ module.exports = {
             },
             {
                 test: /\.js$/,
-                loader: 'babel',
+                loader: 'babel-loader',
                 include: [resolve('src')]
             },
             {
@@ -69,29 +60,6 @@ module.exports = {
                 }
             }
         ]
-        // loaders: [{
-        //     test: /\.vue$/,
-        //     exclude: /node_modules/,
-        //     loader: 'vue-loader'
-        // }, {
-        //     test: /\.css$/,
-        //     exclude: /node_modules/,
-        //     loader: 'style-loader!css-loader'
-        // }, {
-        //     test: /\.js$/,
-        //     exclude: /node_modules/,
-        //     loader: 'babel'
-        // }, {
-        //     test: /\.(eot|svg|ttf|woff|woff2)(\?\S*)?$/,
-        //     loader: 'file-loader'
-        // }, {
-        //     test: /\.(png|jpg|gif)$/,
-        //     loader: 'url-loader',
-        //     options: {
-        //         name: '[name].[ext]?[hash]'
-        //     }
-        // }
-        // ]
     },
     resolve: {
         alias: {

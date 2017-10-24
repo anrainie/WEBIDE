@@ -1,6 +1,8 @@
 /**
  * Created by pang on 2017/6/8.
  */
+const fs = require('fs');
+const path = require('path');
 const userDao = require('../dao/UserDao');
 const productDao = require('../dao/ProductDao');
 
@@ -11,7 +13,13 @@ module.exports = function (app) {
         app.locals.user = _user
 
         next();
-    })
+    });
+
+    // app.get('*', function (req, res) {
+    //     const html = fs.readFileSync(path.resolve(__dirname, '../../dist/index.html'), 'utf-8')
+    //     res.send(html)
+    // })
+
     // 注册
     app.post('/user/signup', function (req, res) {
         var newUser = req.body;
@@ -24,13 +32,13 @@ module.exports = function (app) {
         } else {
             newUser.createTime = newUser.updateTime = new Date();
             newUser.id = IDE.genUUID();
-            userDao.save(newUser,function (err) {
-                if(!err){
+            userDao.save(newUser, function (err) {
+                if (!err) {
                     res.json({
                         errno: 0,
                         msg: '注册成功'
                     });
-                }else{
+                } else {
                     res.json({
                         errno: 1,
                         msg: '注册失败'
@@ -48,15 +56,15 @@ module.exports = function (app) {
         var username = _user.username;
         var password = _user.password;
 
-        var userInDB = userDao.findUser({'username':username})
-        if(!userInDB){
+        var userInDB = userDao.findUser({'username': username})
+        if (!userInDB) {
             res.json({
                 errno: 1,
                 msg: '用户不存在'
             })
-        }else{
+        } else {
             if (!!password) {
-                userDao.comparePassword(password,userInDB.password, function (err, isMatch) {
+                userDao.comparePassword(password, userInDB.password, function (err, isMatch) {
                     if (err) {
                         console.log(err);
                     }
@@ -67,7 +75,7 @@ module.exports = function (app) {
                             msg: '登录成功',
                             name: username
                         })
-                        console.log('user login success:' ,userInDB.username);
+                        console.log('user login success:', userInDB.username);
                     } else {
                         res.json({
                             errno: 1,
@@ -83,7 +91,7 @@ module.exports = function (app) {
             }
         }
     });
-    app.post('/product/add',function (req,res) {
+    app.post('/product/add', function (req, res) {
         var newProduct = req.body;
         newProduct.id = IDE.genUUID();
         newProduct.createTime = newProduct.updateTime = new Date();
@@ -95,39 +103,39 @@ module.exports = function (app) {
         })
 
     });
-    app.get('/product/list',function (req,res) {
+    app.get('/product/list', function (req, res) {
         let ps = productDao.getAllProducts();
         res.json({
-            state:'success',
-            data:ps
+            state: 'success',
+            data: ps
         });
     });
-    app.post('/product/del',function (req,res) {
+    app.post('/product/del', function (req, res) {
         let id = req.body.id;
         let product = IDE.Servlet.getProduct(id);
-        if(product != null){
-            productDao.delProduct({'id':this.id});
+        if (product != null) {
+            productDao.delProduct({'id': this.id});
             IDE.Servlet.unregisterProduct(product);
             res.json({
-                state:'success',
-                data:'删除成功'
+                state: 'success',
+                data: '删除成功'
             });
         }
     });
 
-    app.post('/product/update',function (req,res) {
+    app.post('/product/update', function (req, res) {
         let product = req.body;
-        productDao.updateProduct(product,function (err) {
-            if(!err){
+        productDao.updateProduct(product, function (err) {
+            if (!err) {
                 IDE.Servlet.updateProduct(product);
                 res.json({
-                    state:'success',
-                    data:'更新成功'
+                    state: 'success',
+                    data: '更新成功'
                 });
-            }else{
+            } else {
                 res.json({
-                    state:'error',
-                    errorMsg:'删除失败'
+                    state: 'error',
+                    errorMsg: '删除失败'
                 });
             }
         });
