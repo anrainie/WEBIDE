@@ -525,7 +525,7 @@
                     type: IDE.type,
                     event: 'loadPlanEditorArchitecture',
                     data: {
-                        path: this.file.model.path
+                        path: this.file.path
                     }
                 }, function (result) {
                     if (result) {

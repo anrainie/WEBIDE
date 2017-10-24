@@ -64,11 +64,9 @@
                 }
             },
             maximize(){
-                console.log('最大化',this);
                 this.$el.classList.add('MAXIMIZE');
             },
             normalize(){
-                console.log('editorContainer回复常态的函数');
                 this.$el.classList.remove('MAXIMIZE');
             },
             indicatorClick(){
@@ -104,7 +102,7 @@
                         type: IDE.type,
                         event: 'lockFile',
                         data: {
-                            path: this.editor.file.model.path
+                            path: this.editor.file.path
                         }
                     }, function (respData) {
                         if (respData.state === 'success') {
@@ -128,7 +126,7 @@
                         type: IDE.type,
                         event: 'releaseFilelock',
                         data: {
-                            path: this.editor.file.model.path
+                            path: this.editor.file.path
                         }
                     }, function (respData) {
                         if (respData.state === 'success') {
@@ -152,7 +150,7 @@
                         type: IDE.type,
                         event: 'peekFileLock',
                         data: {
-                            path: this.editor.file.model.path
+                            path: this.editor.file.path
                         }
                     }, function (respData) {
                         if (respData.data == null) {
