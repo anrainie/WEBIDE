@@ -1,6 +1,6 @@
 <template>
     <div class="ide_root">
-        <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
+        <menubar id="ide_menu" ref="ide_menu" :menu_data="menuData"></menubar>
         <toolbar class="top_toolbar" :config="toolbarConfig" :tool-Items="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
@@ -373,7 +373,8 @@
                             onclick(selection){
                                 let editor = IDE.editorPart.getActiveEditor();
                                 if (editor) {
-                                    IDE.navigator.setSelection(editor.file);
+                                    var item = IDE.navigator.getItem(editor.file.path);
+                                    IDE.navigator.setSelection(item);
                                 }
                             }
                         }

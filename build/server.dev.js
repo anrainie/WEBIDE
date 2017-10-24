@@ -1,6 +1,7 @@
 /**
  * Created by zcn on 2017/5/10.
  */
+process.env.NODE_ENV = 'development'
 var opn = require('opn');
 var path = require('path');
 var webpack = require('webpack');

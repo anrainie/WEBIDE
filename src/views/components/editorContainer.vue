@@ -104,7 +104,7 @@
                         type: IDE.type,
                         event: 'lockFile',
                         data: {
-                            path: this.editor.file.model.path
+                            path: this.editor.file.path
                         }
                     }, function (respData) {
                         if (respData.state === 'success') {
@@ -128,7 +128,7 @@
                         type: IDE.type,
                         event: 'releaseFilelock',
                         data: {
-                            path: this.editor.file.model.path
+                            path: this.editor.file.path
                         }
                     }, function (respData) {
                         if (respData.state === 'success') {
@@ -152,7 +152,7 @@
                         type: IDE.type,
                         event: 'peekFileLock',
                         data: {
-                            path: this.editor.file.model.path
+                            path: this.editor.file.path
                         }
                     }, function (respData) {
                         if (respData.data == null) {

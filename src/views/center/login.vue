@@ -1,5 +1,3 @@
-//登录
-
 <template>
     <div class="login" id="login">
         <a href="javascript:" class="log-close"><i class="icons close"></i></a>
@@ -28,6 +26,7 @@
 
 <script>
     import Loading from './Loading.vue';
+    import VueRouter from  '../../router/routes';
     export default {
         name: 'Login',
         data(){
@@ -57,7 +56,7 @@
                 }
             },
             register(){
-                window.location.href="/regist";
+                VueRouter.push({path:'/regist'});
             }
         }
     }

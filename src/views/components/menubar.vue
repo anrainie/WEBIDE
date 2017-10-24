@@ -1,9 +1,9 @@
 <template>
     <div id="bar">
         <ul id="menuBar">
-            <MenuItem v-for="menuItem in menuData.items" :children="menuItem" :config="menuData.config"></MenuItem>
+            <menu_item v-for="menuItem in menu_data.items" :children="menuItem" :config="menu_data.config"></menu_item>
         </ul>
-        <QuickToolBar></QuickToolBar>
+        <quick_tool_bar></quick_tool_bar>
     </div>
 </template>
 <style>
@@ -35,7 +35,7 @@
     import QuickTool from './quickTool.vue'
     export default {
         name:'menu',
-        props: ['menuData'],
+        props: ['menu_data'],
         data() {
             return {
 
@@ -43,9 +43,8 @@
 
         },
         components:{
-            MenuItem:MItem,
-            QuickToolBar:QuickTool,
-
+            menu_item:MItem,
+            quick_tool_bar:QuickTool,
         }
     }
 </script>

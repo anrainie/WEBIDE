@@ -15,10 +15,7 @@ module.exports = function (app) {
         next();
     });
 
-    app.get('*', function (req, res) {
-        const html = fs.readFileSync(path.resolve(__dirname, '../../dist/index.html'), 'utf-8')
-        res.send(html)
-    })
+
 
     // 注册
     app.post('/user/signup', function (req, res) {
