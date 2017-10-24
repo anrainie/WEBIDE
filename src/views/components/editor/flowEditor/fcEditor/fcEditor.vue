@@ -1,9 +1,9 @@
 <template>
 
-    <editorContainer :editor="this">
+    <editor-Container :editor="this">
         <div slot="editor-content">
 
-            <flowEditor
+            <flow-Editor
                     :editorID="stepEditorID"
                     v-show="stepVisible"
                     ref="stepEditor"
@@ -11,9 +11,9 @@
                     :bindEvent="stepBindEvent"
                     :save="saveHandle"
                     :openPaletteEvent="stepPaletteOpenEvent"
-                    @dblclickCanvas="stepDoubleClickCanvas"></flowEditor>
+                    @dblclickCanvas="stepDoubleClickCanvas"></flow-Editor>
 
-            <flowEditor
+            <flow-Editor
                     :editorID="nodeEditorID"
                     v-if="nodeExist"
                     v-show="nodeVisible"
@@ -22,13 +22,13 @@
                     :editorConfig="nodeEditorCfg"
                     :bindEvent="nodeBindEvent"
                     :save="saveHandle"
-                    @dblclickCanvas="nodeDoubleClickCanvas"></flowEditor>
+                    @dblclickCanvas="nodeDoubleClickCanvas"></flow-Editor>
 
             <!--对话框-->
             <component :is="dialogType" :showProperties.sync="showProperties" :model="dialogTarget"></component>
 
         </div>
-    </editorContainer>
+    </editor-Container>
 
 </template>
 <script type="text/javascript">

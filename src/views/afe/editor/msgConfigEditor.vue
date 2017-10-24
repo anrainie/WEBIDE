@@ -1,6 +1,6 @@
 <template>
     <!--报文格式编辑器-->
-    <editorContainer :editor="this">
+    <editor-Container :editor="this">
         <div slot="editor-content" class="rcdEditor">
             <contextMenu ref="menu" :items="menuItems" :config="menuConfig"></contextMenu>
             <el-dialog title="方法参数编辑" :visible.sync="dialogVisible">
@@ -264,7 +264,7 @@
                 </div>
             </div>
         </div>
-    </editorContainer>
+    </editor-Container>
 
 
 </template>

@@ -11,8 +11,8 @@
             </div>
             <div id="wb_main" class="split split-horizontal content">
 
-                <editorPart id="ide_editorPart" :config="editorPartConfig" ref="ide_editorPart">
-                </editorPart>
+                <editorpart id="ide_editorPart" :config="editorPartConfig" ref="ide_editorPart">
+                </editorpart>
             </div>
             <div id="wb_e" class="split split-horizontal">
 
@@ -242,7 +242,7 @@
         },
         components: {
             viewpart: viewpart,
-            editorPart: editorPart
+            editorpart: editorPart
         }
     }
 </script>

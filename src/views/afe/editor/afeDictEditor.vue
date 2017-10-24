@@ -1,5 +1,5 @@
 <template>
-    <editorContainer :editor="this">
+    <editor-Container :editor="this">
         <div slot="editor-content" class="dictEditor">
             <div class="dictEditor-toolbar">
                 <el-button @click="addDictItem">添加词条</el-button>
@@ -164,7 +164,7 @@
             </el-dialog>
 
         </div>
-    </editorContainer>
+    </editor-Container>
 </template>
 <style>
     .dictEditor {

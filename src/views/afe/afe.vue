@@ -1,7 +1,7 @@
 <template>
     <div class="ide_root">
         <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
-        <toolbar class="top_toolbar" :config="toolbarConfig" :toolItems="toolItems"
+        <toolbar class="top_toolbar" :config="toolbarConfig" :tool-Items="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
@@ -514,7 +514,7 @@
         components: {
             menubar: menu,
             navigator: navi,
-            editorPage: editorPage,
+            editorpage: editorPage,
             contextMenu: contextMenu,
             shade: shade,
             toolbar: toolbar,

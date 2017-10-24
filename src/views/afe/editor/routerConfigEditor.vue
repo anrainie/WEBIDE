@@ -1,7 +1,7 @@
 <!--suppress ALL -->
 <template>
     <!--路由编辑器-->
-    <editorContainer :editor="this">
+    <editor-Container :editor="this">
         <div slot="editor-content" style=" border: 1px solid;    height: 100%;">
             <el-dialog title="方法参数编辑" :visible.sync="targetItemDialogVisible" :before-close="editTargetItem">
                 <el-form :model="selectTarget" ref="editTargetForm" label-width="100px">
@@ -259,7 +259,7 @@
                 </el-col>
             </el-row>
         </div>
-    </editorContainer>
+    </editor-Container>
 </template>
 <style>
     .routerItemSpan {

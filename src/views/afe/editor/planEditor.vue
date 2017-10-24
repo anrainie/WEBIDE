@@ -1,5 +1,5 @@
 <template>
-    <editorContainer :editor="this">
+    <editor-Container :editor="this">
         <div slot="editor-content" class="planEditor">
             <tree ref="tree" class="left-side split split-horizontal" :model="treeArchitecture" :props="treeProps"
                   :config="treeConfig"></tree>
@@ -128,7 +128,7 @@
 
             </div>
         </div>
-    </editorContainer>
+    </editor-Container>
 </template>
 
 <style>

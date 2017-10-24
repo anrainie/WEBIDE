@@ -1,5 +1,5 @@
 <template>
-    <editorContainer :editor="this">
+    <editor-Container :editor="this">
         <div slot="editor-content" class="verifyFileEditor">
             <tree ref="tree" class="left-side split split-horizontal" :model="treeModel" :config="treeConfig"></tree>
             <div class="right-side split split-horizontal">
@@ -73,7 +73,7 @@
             </div>
             <contextMenu ref="menu" :items="menuItems" :config="menuConfig"></contextMenu>
         </div>
-    </editorContainer>
+    </editor-Container>
 </template>
 
 <style>

@@ -1,21 +1,21 @@
 <template>
     <div class="ide_root">
         <menubar id="ide_menu" ref="ide_menu" :menuData="menuData"></menubar>
-        <toolbar class="top_toolbar" :config="toolbarConfig" :toolItems="toolItems"
+        <toolbar class="top_toolbar" :config="toolbarConfig" :tool-Items="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
             <workbench id="ide_workbench_center" :views="views" ref="workbench"
-                       :editorPartConfig="editorPartConfig"></workbench>
+                       :editor-Part-Config="editorPartConfig"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
-        <contextMenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
+        <contextmenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
                      :items="naviContextMenuItems"
                      :config="contextMenuConfig"
-        ></contextMenu>
-
+        ></contextmenu>
+        npm
         <shade ref="ide_shade"></shade>
 
         <span id="__RULER" style="visibility: hidden; white-space: nowrap;">test</span>
@@ -159,7 +159,7 @@
             }
         },
         methods: {
-            _openEditor(model){
+            _openEditor(model, maximize){
                 IDE.shade.open();
                 IDE.socket.emit("getFile", {
                     type: IDE.type,
@@ -172,8 +172,7 @@
                     if (result.state === 'success') {
                         if (!model.isParent) {
                             let editor = IDE.editorPart.openEditor(model, result.data);
-                            console.log('编辑器', editor);
-                            if(editor){
+                            if (editor && maximize) {
                                 editor.$children[0].$emit('maximize');
                             }
                         }
@@ -197,13 +196,13 @@
                 let serverParam = this.$route.params.param;
                 switch (serverId) {
                     case 'openEditor':
-                        console.log(serverParam);
-                        setTimeout(() => {
-                            this._openEditor({
+                        let self = this;
+                        setTimeout(function () {
+                            self._openEditor({
                                 isParent: false,
                                 name: "flowConfig.fc",
                                 path: "/hello/app1/service1/flow/flowConfig.fc",
-                            });
+                            }, true);
                         }, 1000);
                         break;
                     default:
@@ -409,7 +408,7 @@
             menubar: menu,
             navigator: navi,
             editorPage: editorPage,
-            contextMenu: contextMenu,
+            contextmenu: contextMenu,
             shade: shade,
             toolbar: toolbar,
             fastbar: fastbar,

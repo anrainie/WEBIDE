@@ -3,7 +3,7 @@
         <div :id="viewId" class="view_head">
             <span class="view_title" ref="view_title">{{title}}</span>
 
-            <toolbar class="view_toolbar" :toolItems="actions" :config="actionConfig"
+            <toolbar class="view_toolbar" :tool-Items="actions" :config="actionConfig"
                      ref="view_toolbar"></toolbar>
         </div>
         <div :id="contentId" class="view_content">

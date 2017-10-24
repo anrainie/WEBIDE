@@ -2,7 +2,7 @@
     映射表文件编辑器
 -->
 <template>
-    <editorContainer :editor="this">
+    <editor-Container :editor="this">
         <div slot="editor-content" class="mapEditor">
             <div class="left-side split split-horizontal">
                 <div style="margin-left: 10px">
@@ -10,10 +10,12 @@
                     <el-button @click="importMap" size="small" type="text">导入</el-button>
                     <el-button @click="exportMap" size="small" type="text">导出</el-button>
                 </div>
-                <el-table class="mapEditor-tree" :data="inputJo.Tables.Table" :show-header="false" @current-change="handleTableClick" highlight-current-row>
+                <el-table class="mapEditor-tree" :data="inputJo.Tables.Table" :show-header="false"
+                          @current-change="handleTableClick" highlight-current-row>
                     <el-table-column label="表名">
                         <template scope="scope">
-                            <input class="cellEditor" v-model="scope.row['-Name']" @change="dirtyStateChange(true)"></input>
+                            <input class="cellEditor" v-model="scope.row['-Name']"
+                                   @change="dirtyStateChange(true)"></input>
                         </template>
                     </el-table-column>
                     <el-table-column fixed="right" label="操作" width="70">
@@ -28,29 +30,34 @@
                     <div slot="header" class="clearfix">
                         <h3>表信息</h3>
                     </div>
-                        <div class="mapEditor-tableTools">
-                            <el-button @click="addRow" size="small" type="primary">添加行</el-button>
-                            <el-button @click="addColumn" size="small" type="primary">添加列</el-button>
-                            <el-button @click="delColumn" size="small" type="danger">删除列</el-button>
-                        </div>
-                        <el-table class="mapEditor-table" :data="selected.Row" border highlight-current-row>
-                            <el-table-column v-for="(cellDefine,index) in selected.Define.CellDefine" :label="cellDefine['-DisplayName']" min-width="120">
-                                <template scope="scope">
-                                    <input class="cellEditor" v-model="scope.row.Cell[index]['-Value']" @change="dirtyStateChange(true)"></input>
-                                </template>
-                            </el-table-column>
-                            <el-table-column fixed="right" label="操作" width="200">
-                                <template scope="scope">
-                                    <el-button @click="upRow(scope.$index, scope.row)" type="primary" size="small">上移</el-button>
-                                    <el-button @click="downRow(scope.$index, scope.row)" type="primary" size="small">下移</el-button>
-                                    <el-button @click="deleteRow(scope.$index, scope.row)" type="danger" size="small">删除</el-button>
-                                </template>
-                            </el-table-column>
-                        </el-table>
+                    <div class="mapEditor-tableTools">
+                        <el-button @click="addRow" size="small" type="primary">添加行</el-button>
+                        <el-button @click="addColumn" size="small" type="primary">添加列</el-button>
+                        <el-button @click="delColumn" size="small" type="danger">删除列</el-button>
+                    </div>
+                    <el-table class="mapEditor-table" :data="selected.Row" border highlight-current-row>
+                        <el-table-column v-for="(cellDefine,index) in selected.Define.CellDefine"
+                                         :label="cellDefine['-DisplayName']" min-width="120">
+                            <template scope="scope">
+                                <input class="cellEditor" v-model="scope.row.Cell[index]['-Value']"
+                                       @change="dirtyStateChange(true)"></input>
+                            </template>
+                        </el-table-column>
+                        <el-table-column fixed="right" label="操作" width="200">
+                            <template scope="scope">
+                                <el-button @click="upRow(scope.$index, scope.row)" type="primary" size="small">上移
+                                </el-button>
+                                <el-button @click="downRow(scope.$index, scope.row)" type="primary" size="small">下移
+                                </el-button>
+                                <el-button @click="deleteRow(scope.$index, scope.row)" type="danger" size="small">删除
+                                </el-button>
+                            </template>
+                        </el-table-column>
+                    </el-table>
                 </el-card>
             </div>
         </div>
-    </editorContainer>
+    </editor-Container>
 </template>
 <style>
     .mapEditor {
@@ -58,7 +65,8 @@
         height: 100%;
         background: #fff;
     }
-    .mapEditor .mapEditor-tree{
+
+    .mapEditor .mapEditor-tree {
         height: 100%;
         overflow-y: auto;
     }
@@ -66,17 +74,18 @@
     .mapEditor .right-side {
         overflow-y: auto;
     }
-    .mapEditor-table{
+
+    .mapEditor-table {
         width: 100%;
         height: 100%;
     }
 
-    .mapEditor-tableInfo .el-card__body{
-        padding:0
+    .mapEditor-tableInfo .el-card__body {
+        padding: 0
     }
 
-    .mapEditor-tableTools{
-        float:right;
+    .mapEditor-tableTools {
+        float: right;
         margin: 25px 10px 10px 0px;
     }
 </style>
@@ -87,17 +96,17 @@
     import editorContainer from '../../components/editorContainer.vue'
 
     export default{
-        name:'mapEditor',
-        props:['file', 'msgHub', 'input'],
+        name: 'mapEditor',
+        props: ['file', 'msgHub', 'input'],
         data(){
             return {
-                inputJo:{
-                    Tables:{
-                        Table:[]
+                inputJo: {
+                    Tables: {
+                        Table: []
                     }
                 },
-                dirty:false,
-                selected:null
+                dirty: false,
+                selected: null
             }
         },
         mounted(){
@@ -110,35 +119,35 @@
                 sizes: [25, 75]
             });
 
-            this.inputJo = $.extend(true,{},this.input);
-            let table = this.inputJo.Tables.Table =  this.decorateToArray(this.inputJo.Tables,'Table');
-            for(let i = 0 ; i < table.length ; i++){
+            this.inputJo = $.extend(true, {}, this.input);
+            let table = this.inputJo.Tables.Table = this.decorateToArray(this.inputJo.Tables, 'Table');
+            for (let i = 0; i < table.length; i++) {
                 let t = table[i];
-                if(!t.Define) {
-                    this.$set(t,'Define',{CellDefine: []});
+                if (!t.Define) {
+                    this.$set(t, 'Define', {CellDefine: []});
                 }
-                if(t.Define.CellDefine) {
+                if (t.Define.CellDefine) {
                     this.decorateToArray(t.Define, 'CellDefine');
                 }
                 this.decorateToArray(t, 'Row');
 
-                $.each(t.Row,function (k,row) {
-                    if(!row.Cell){
+                $.each(t.Row, function (k, row) {
+                    if (!row.Cell) {
                         row.Cell = [];
-                    }else{
+                    } else {
                         self.decorateToArray(row, 'Cell');
                     }
                 })
             }
         },
-        methods:{
-            decorateToArray(o,key){
+        methods: {
+            decorateToArray(o, key){
                 let chd = o[key];
-                if(chd){
-                    if(!$.isArray(chd)){
+                if (chd) {
+                    if (!$.isArray(chd)) {
                         o[key] = [chd];
                     }
-                }else{
+                } else {
                     o[key] = [];
                 }
                 return o[key];
@@ -154,17 +163,17 @@
                 this.$prompt('请输入表名', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消'
-                }).then(({ value }) => {
+                }).then(({value}) => {
                     self.inputJo.Tables.Table.push({
-                        '-Name':value,
-                        Define:{CellDefine:[]},
-                        Row:[]
+                        '-Name': value,
+                        Define: {CellDefine: []},
+                        Row: []
                     });
                     self.dirtyStateChange(true);
                 })
             },
             delTable(index){
-                this.inputJo.Tables.Table.splice(index,1);
+                this.inputJo.Tables.Table.splice(index, 1);
                 this.dirtyStateChange(true);
             },
             addColumn(){
@@ -172,18 +181,18 @@
                 this.$prompt('请输入列名', '提示', {
                     confirmButtonText: '确定',
                     cancelButtonText: '取消'
-                }).then(({ value }) => {
+                }).then(({value}) => {
                     let row = self.selected.Row;
-                    for(let i = 0 ; i < row.length ; i++){
+                    for (let i = 0; i < row.length; i++) {
                         let cell = row[i].Cell;
                         cell.push({
-                            '-Value':""
+                            '-Value': ""
                         })
                     }
                     self.selected.Define.CellDefine.push({
-                        '-DataType':'String',
-                        '-DisplayName':value,
-                        '-Name':value
+                        '-DataType': 'String',
+                        '-DisplayName': value,
+                        '-Name': value
                     })
                     self.dirtyStateChange(true);
                 })
@@ -195,13 +204,13 @@
                     cancelButtonText: '取消',
                     inputPattern: /^[1-9]*$/,
                     inputErrorMessage: '请输入正整数'
-                }).then(({ value }) => {
+                }).then(({value}) => {
                     value = parseInt(value);
-                    if(self.selected.Define.CellDefine.length >= value) {
-                        self.selected.Define.CellDefine.splice(value - 1,1);
-                        for(let i = 0 ,length = self.selected.Row.length; i < length ; i++){
+                    if (self.selected.Define.CellDefine.length >= value) {
+                        self.selected.Define.CellDefine.splice(value - 1, 1);
+                        for (let i = 0, length = self.selected.Row.length; i < length; i++) {
                             let cells = self.selected.Row[i].Cell;
-                            cells.splice(value - 1,1);
+                            cells.splice(value - 1, 1);
                         }
                         self.dirtyStateChange(true);
                     }
@@ -209,7 +218,7 @@
                 this.dirtyStateChange(true);
             },
             upRow(index){
-                if(index != 0){
+                if (index != 0) {
                     var selected = this.selected.Row[index];
                     var above = this.selected.Row[index - 1];
 
@@ -220,7 +229,7 @@
                 }
             },
             downRow(index){
-                if(index < this.selected.Row.length - 1){
+                if (index < this.selected.Row.length - 1) {
                     var selected = this.selected.Row[index];
                     var above = this.selected.Row[index + 1];
 
@@ -232,20 +241,20 @@
                 this.dirtyStateChange(true);
             },
             deleteRow(index){
-                this.selected.Row.splice(index,1);
+                this.selected.Row.splice(index, 1);
                 this.dirtyStateChange(true);
             },
             addRow(){
                 let num = this.selected.Define.CellDefine.length;
-                if(num != 0){
+                if (num != 0) {
                     let cells = [];
-                    for(let i = 0 ; i < num ;i ++){
+                    for (let i = 0; i < num; i++) {
                         cells.push({
-                            '-Value':""
+                            '-Value': ""
                         });
                     }
                     this.selected.Row.push({
-                        Cell:cells
+                        Cell: cells
                     });
                     this.dirtyStateChange(true);
                 }
@@ -260,11 +269,11 @@
                 return this.dirty;
             },
             save(){
-                let newInput = $.extend(true,{},this.inputJo);
+                let newInput = $.extend(true, {}, this.inputJo);
                 //保存时删除无用属性
-                for(let i = 0 ; i < newInput.Tables.Table.length ; i++) {
+                for (let i = 0; i < newInput.Tables.Table.length; i++) {
                     let t = newInput.Tables.Table[i];
-                    if (t.Define && t.Define.CellDefine && t.Define.CellDefine.length === 0 ) {
+                    if (t.Define && t.Define.CellDefine && t.Define.CellDefine.length === 0) {
                         delete t['Define'];
                     }
                 }
@@ -276,8 +285,8 @@
 
             }
         },
-        components:{
-            editorContainer:editorContainer
+        components: {
+            editorContainer: editorContainer
         }
     }
 </script>
