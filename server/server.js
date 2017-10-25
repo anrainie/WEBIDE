@@ -7,7 +7,8 @@ const expressSession = require('express-session');
 const path = require('path');
 const _IDE = require('./core/IDE');
 
-function Server() {
+function Server(config) {
+    this.config = config;
     this.app = express();
     this.http = require('http').Server(this.app);
 
@@ -33,7 +34,7 @@ function Server() {
     require('./route/routes')(this.app);
 
     //初始化IDE
-    global.IDE = new _IDE(this.http,this.session);
+    global.IDE = new _IDE(this.config,this.http,this.session);
     IDE.init();
 }
 

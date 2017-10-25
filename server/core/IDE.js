@@ -1,20 +1,30 @@
 const dbConstants = require('../constants/DBConstants');
 const WebIDEDB = require('../db/WebIDEDB');
+const Logger = require('../core/Logger');
 const Servlet = require('../Servlet');
 const afaServices = require('../service/afa.service');
 const afeServices = require('../service/afe.service');
 
-function IDE(http,session) {
+function IDE(config,http,session) {
+    this.config = config;
     this.http = http;
     this.session = session;
 }
 
 IDE.prototype.init = function () {
     this.initDB();
+    this.initLogger();
 }
 
 IDE.prototype.initLogger = function () {
-    
+    this.logger = new Logger(this.config.logLevel);
+    var defaultLogger = this.logger.getDefault();
+    var consoleLogger = this.logger.getConsole();
+    var ideLogger = this.logger.getIDE();
+
+
+
+
 }
 
 IDE.prototype.initDB = function () {

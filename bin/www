@@ -1,6 +1,8 @@
-process.env.NODE_ENV = 'production'
+process.env.NODE_ENV = 'production';
+
+var config = require('../server/config/index').prod;
 var Server = require('../server/server');
-var server = new Server();
+var server = new Server(config);
 var port = normalizePort(process.env.PORT || '3000');
 
 server.use(require('connect-history-api-fallback')());

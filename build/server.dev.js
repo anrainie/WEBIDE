@@ -7,7 +7,8 @@ var path = require('path');
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.dev.conf');
 var Server = require('../server/server');
-var server = new Server();
+
+var server = new Server(require('../server/config/index').dev);
 var config = require('../config');
 
 
