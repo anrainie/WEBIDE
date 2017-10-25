@@ -16,7 +16,7 @@
                         @change="handleChange">
                 </el-cascader>
              -->
-            </el-form-item>
+            <!--</el-form-item>-->
             <el-form-item :label="desclabel.label" :label-width="labelWidth">
                 <el-input v-model="desc" auto-complete="off">{{desclabel.value}}</el-input>
             </el-form-item>
