@@ -27,7 +27,7 @@ Product.prototype.connect = function () {
     this.socket.on('connect',function () {
         self.online = true;
 
-        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect success");
+        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect success");
 
         if(!self.initialized) {
             self.initialized = true;
@@ -39,7 +39,7 @@ Product.prototype.connect = function () {
             }
 
             self.socket.emit("ready",null,function (data) {
-                console.info('====IDE链接初始化====');
+                IDE.defaultLogger.info(self.ip + ":" + self.port + " socket connect successfully");
             });
 
         }
@@ -48,20 +48,20 @@ Product.prototype.connect = function () {
 
     this.socket.on('connect_failed',function () {
         self.online = false;
-        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect failed");
+        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect failed");
     });
 
     this.socket.on('connect_timeout',function () {
         self.online = false;
-        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect timeout");
+        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect timeout");
     });
 
     this.socket.on('disconnect',function () {
-        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " disconnect");
+        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " disconnect");
     })
 
     this.socket.on('reconnect',function (data) {
-        console.info("product:" + self.type + " ip:" + self.ip + ' port:' + self.port + " reconnect");
+        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " reconnect");
     });
 
     this.socket.on('lockTimeout',function (timeoutlock) {
@@ -104,18 +104,18 @@ Product.prototype.registerService = function (service) {
         let id = service.id;
         let handler = service.handler;
         if(!service.id){
-            console.info('service id can not be null');
+            IDE.ideLogger.error('service id can not be null');
             return;
         }
         if(!service.handler){
-            console.info('service handler can not be null');
+            IDE.ideLogger.error('service handler can not be null');
             return;
         }
         if(service.type === 'IOService') {
             this.services[service.id] = service.handler;
         }
     }else{
-        console.info('product is offline,' + 'type:' + this.type + ' ip:' + this.ip + ' port:' + this.port);
+        IDE.ideLogger.error('product is offline,' + 'type:' + this.type + ' ip:' + this.ip + ' port:' + this.port);
     }
 }
 

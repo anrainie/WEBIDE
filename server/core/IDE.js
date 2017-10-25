@@ -5,42 +5,42 @@ const Servlet = require('../Servlet');
 const afaServices = require('../service/afa.service');
 const afeServices = require('../service/afe.service');
 
-function IDE(config,http,session) {
+function IDE(config, http, session) {
     this.config = config;
     this.http = http;
     this.session = session;
 }
 
 IDE.prototype.init = function () {
-    this.initDB();
     this.initLogger();
+    this.initDB();
 }
 
 IDE.prototype.initLogger = function () {
-    this.logger = new Logger(this.config.logLevel);
-    var defaultLogger = this.logger.getDefault();
-    var consoleLogger = this.logger.getConsole();
-    var ideLogger = this.logger.getIDE();
-
-
-
-
+    var logger = new Logger(this.config.logLevel);
+    this.defaultLogger = logger.getDefault();
+    this.consoleLogger = logger.getConsole();
+    this.ideLogger = logger.getIDE();
 }
 
 IDE.prototype.initDB = function () {
-    var self =this;
-    this.DB = new WebIDEDB({dbpath:'webide.db'});
+    var self = this;
+    this.DB = new WebIDEDB({dbpath: 'webide.db'});
     let dfd = this.DB.start();
     dfd.done(function () {
+        self.defaultLogger.info("Database init successfully");
+
         //init collections
         self.DB.getOrCreateCollection(dbConstants.USER);
         self.DB.getOrCreateCollection(dbConstants.PRODUCT_USER);
         self.DB.getOrCreateCollection(dbConstants.PRODUCT);
 
-        self.Servlet = new Servlet([afaServices,afeServices], self.session, self.http);
+        self.Servlet = new Servlet([afaServices, afeServices], self.session, self.http);
         self.Servlet.start();
 
-    },function (err) {
+        self.defaultLogger.info("Servlet init successfully");
+
+    }, function (err) {
         throw new Error("load loki database error");
     });
 }

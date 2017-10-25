@@ -3,7 +3,7 @@
  */
 module.exports = {
     prod: {
-       logLevel:'ERROR'
+       logLevel:'INFO'
     },
     dev: {
         logLevel:'TRACE'

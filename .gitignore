@@ -4,3 +4,4 @@ dist/
 npm-debug.log
 mongo.bat
 webide.db
+logs

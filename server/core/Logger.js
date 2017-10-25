@@ -1,19 +1,17 @@
 /**
  * Created by zcn on 2017/10/25.
  */
-var log4js = require("log4js");
 function Logger(level){
-console.info('level',level);
     this.level = level;
     this.log4js = require('log4js');
-    log4js.configure({
+    this.log4js.configure({
       appenders: {
         ideLogs: { type: 'dateFile', filename: 'logs/ide.log' ,"pattern": "-yyyy-MM-dd", "alwaysIncludePattern": true},
         console: { type: 'console' }
       },
       categories: {
         ide: { appenders: ['ideLogs'], level: this.level },
-        another: { appenders: ['console'], level: this.level },
+        console: { appenders: ['console'], level: this.level },
         default: { appenders: ['console', 'ideLogs'], level: this.level }
       }
     });
