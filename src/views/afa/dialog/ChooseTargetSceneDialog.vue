@@ -34,7 +34,7 @@
           this.chooseSceneNode = data;
           this.modification.Target = data.target;
           this.modification.Name = data.tc;
-          this.modification.Desc = data.desc;
+          this.modification.Desp = data.desc;
       },
       handleOk(){
         this.dialogFormVisible = false;
