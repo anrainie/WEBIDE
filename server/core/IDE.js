@@ -1,7 +1,7 @@
 const dbConstants = require('../constants/DBConstants');
 const WebIDEDB = require('../db/WebIDEDB');
-const Logger = require('../core/Logger');
-const Servlet = require('../Servlet');
+const IDELogger = require('../core/IDELogger');
+const Servlet = require('./Servlet');
 const afaServices = require('../service/afa.service');
 const afeServices = require('../service/afe.service');
 
@@ -13,17 +13,19 @@ function IDE(config, http, session) {
 
 IDE.prototype.init = function () {
     this.initLogger();
-    this.initDB();
+    this.initDBAndServlet();
 }
 
 IDE.prototype.initLogger = function () {
-    var logger = new Logger(this.config.logLevel);
-    this.defaultLogger = logger.getDefault();
-    this.consoleLogger = logger.getConsole();
-    this.ideLogger = logger.getIDE();
+    this.logger = new IDELogger(this.config.logLevel);
+    this.defaultLogger = this.logger.getDefault();
+    this.consoleLogger = this.logger.getConsole();
+    this.ideLogger = this.IDELogger.getIDE();
 }
 
-IDE.prototype.initDB = function () {
+
+
+IDE.prototype.initDBAndServlet = function () {
     var self = this;
     this.DB = new WebIDEDB({dbpath: 'webide.db'});
     let dfd = this.DB.start();
@@ -44,6 +46,7 @@ IDE.prototype.initDB = function () {
         throw new Error("load loki database error");
     });
 }
+
 
 IDE.prototype.genUUID = function () {
     var len = 32;//32长度

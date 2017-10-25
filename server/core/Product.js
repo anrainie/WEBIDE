@@ -27,7 +27,7 @@ Product.prototype.connect = function () {
     this.socket.on('connect',function () {
         self.online = true;
 
-        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect success");
+        IDE.defaultLogger.info(`${self.ip}:${self.port}-${self.type} connect successfully`);
 
         if(!self.initialized) {
             self.initialized = true;
@@ -39,7 +39,7 @@ Product.prototype.connect = function () {
             }
 
             self.socket.emit("ready",null,function (data) {
-                IDE.defaultLogger.info(self.ip + ":" + self.port + " socket connect successfully");
+                IDE.defaultLogger.info(`socket ${self.ip}:${self.port}-${self.type} connect successfully`);
             });
 
         }
@@ -48,20 +48,20 @@ Product.prototype.connect = function () {
 
     this.socket.on('connect_failed',function () {
         self.online = false;
-        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect failed");
+        IDE.defaultLogger.info(`product ${self.ip}:${self.ip} connect failed`);
     });
 
     this.socket.on('connect_timeout',function () {
         self.online = false;
-        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " connect timeout");
+        IDE.defaultLogger.info(`product ${self.ip}:${self.ip} connect timeout`);
     });
 
     this.socket.on('disconnect',function () {
-        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " disconnect");
+        IDE.defaultLogger.info(`product ${self.ip}:${self.ip} disconnect`);
     })
 
     this.socket.on('reconnect',function (data) {
-        IDE.defaultLogger.info("product-" + self.type + " ip:" + self.ip + ' port:' + self.port + " reconnect");
+        IDE.defaultLogger.info(`product ${self.ip}:${self.ip} reconnect`);
     });
 
     this.socket.on('lockTimeout',function (timeoutlock) {
@@ -115,7 +115,7 @@ Product.prototype.registerService = function (service) {
             this.services[service.id] = service.handler;
         }
     }else{
-        IDE.ideLogger.error('product is offline,' + 'type:' + this.type + ' ip:' + this.ip + ' port:' + this.port);
+        IDE.ideLogger.error(`Product ${this.ip}:${this.port}-${this.port} is offline`);
     }
 }
 
@@ -184,8 +184,9 @@ Product.prototype.unregister = function (p) {
     productDao.delProduct({'id':this.id});
     let p_u = IDE.DB.getCollection(dbConstants.PRODUCT_USER);
     p_u.findAndRemove({id:this.id});
-}
 
+    IDE.ideLogger.info(`unregister product ${this.ip}:${this.port}-${this.type}`)
+}
 
 module.exports =  Product;
 

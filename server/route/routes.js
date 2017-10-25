@@ -13,9 +13,8 @@ module.exports = function (app) {
         app.locals.user = _user
 
         next();
+
     });
-
-
 
     // 注册
     app.post('/user/signup', function (req, res) {

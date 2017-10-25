@@ -1,11 +1,13 @@
 process.env.NODE_ENV = 'production';
 
-var config = require('../server/config/index').prod;
+var config = require('../server/config').prod;
 var Server = require('../server/server');
 var server = new Server(config);
 var port = normalizePort(process.env.PORT || '3000');
 
 server.use(require('connect-history-api-fallback')());
+
+server.on('listening', onListening);
 
 server.start(port, function (err) {
     if (err) {
@@ -13,7 +15,6 @@ server.start(port, function (err) {
         return;
     }
 });
-server.on('listening', onListening);
 
 function normalizePort(val) {
     var port = parseInt(val, 10);

@@ -12,18 +12,18 @@ function Server(config) {
     this.app = express();
     this.http = require('http').Server(this.app);
 
-//静态资源
+    //静态资源
     this.app.use(express.static('node_modules/monaco-editor/min'));
     this.app.use(express.static(path.resolve(__dirname, '../dist')));
 
-//服务器提交的数据json化
+    //服务器提交的数据json化
     this.app.use(bodyParser.json());
     this.app.use(cookieParser('ide'));
     this.app.use(bodyParser.urlencoded({extended: true}));
 
-//session
+    //session
     var sessionStore = new expressSession.MemoryStore({reapInterval: 60000 * 10});
-     this.session = expressSession({
+    this.session = expressSession({
         resave: true,
         saveUninitialized: true,
         secret: 'agree',
@@ -36,8 +36,13 @@ function Server(config) {
     //初始化IDE
     global.IDE = new _IDE(this.config,this.http,this.session);
     IDE.init();
-}
 
+    // ### AUTO LEVEL DETECTION
+    // http responses 3xx, level = WARN
+    // http responses 4xx & 5xx, level = ERROR
+    // else.level = INFO
+    this.app.use(IDE.IDELogger.log4js.connectLogger(IDE.defaultLogger, { level: 'auto' }));
+}
 
 Server.prototype.use = function (obj) {
     this.app.use(obj);

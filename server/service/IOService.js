@@ -5,9 +5,9 @@
  */
 
 function IOService(eventId, data, callback) {
-    console.info("ioservice emit :" + eventId);
+    IDE.consoleLogger.debug(`IOService emit: ${eventId}`);
     this.socket.emit(eventId, JSON.stringify(data),function (respData) {
-        console.info("ioservice callback successful:" + eventId);
+        IDE.consoleLogger.debug(`IOService callback successful: ${eventId}`);
         callback(respData);
     });
 }

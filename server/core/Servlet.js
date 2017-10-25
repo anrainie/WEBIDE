@@ -5,10 +5,10 @@
 var socket_io = require('socket.io');
 var parseCookie = require('cookie-parser');
 var shareSession = require('express-socket.io-session');
-var dbConstants = require('./constants/DBConstants');
-var productDao = require('./dao/ProductDao');
-var Product = require('./product/Product');
-var ideServices = require('./service/ide.service');
+var dbConstants = require('./../constants/DBConstants');
+var productDao = require('./../dao/ProductDao');
+var Product = require('./Product');
+var ideServices = require('./../service/ide.service.js');
 
 function Servlet(serviceConfigs, session, http) {
     this.serviceConfigs = serviceConfigs;
@@ -57,6 +57,7 @@ Servlet.prototype.registerProduct = function (p) {
     let product = new Product(p.id,p.type,p.ip,p.port,service);
     product.connect();
     this.products.push(product);
+    IDE.ideLogger.info(`register product ${p.ip}:${p.port}-${p.type}`);
 }
 
 Servlet.prototype.updateProduct = function (newProduct) {

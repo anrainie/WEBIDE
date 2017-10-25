@@ -6,9 +6,9 @@ var opn = require('opn');
 var path = require('path');
 var webpack = require('webpack');
 var webpackConfig = require('./webpack.dev.conf');
-var Server = require('../server/server');
+var Server = require('../server/Server');
 
-var server = new Server(require('../server/config/index').dev);
+var server = new Server(require('../server/config').dev);
 var config = require('../config');
 
 
