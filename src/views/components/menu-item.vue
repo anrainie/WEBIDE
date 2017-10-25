@@ -1,7 +1,7 @@
 <template>
     <li class="menu_item nav_item">{{children.name}}
         <ul class="subList">
-            <mic v-for="childrenItem in children.children" :children="childrenItem" :config="config"></mic>
+            <MIC v-for="childrenItem in children.children" :children="childrenItem" :config="config" :key="childrenItem.id"></MIC>
         </ul>
     </li>
 </template>
@@ -39,7 +39,7 @@
         name:'menu-item',
         props: ['children','config'],
         components:{
-            mic:MItemChildren
+            MIC:MItemChildren
         },
         data() {
             return {

@@ -2,6 +2,8 @@
 </style>
 <script>
     import Vue from "vue";
+    import chooseTargetSceneDialog from '../../../views/afa/dialog/ChooseTargetSceneDialog.vue';
+    import chooseTargetBcptDialog from '../../../views/afa/dialog/ChooseTargetBcptDialog.vue';
 
     /*通用组件模板*/
     let templateA = `
@@ -76,7 +78,11 @@
                 <el-input v-model="modification.Target" style="width: 390px"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button icon="more"></el-button>
+                 <el-button icon="more" @click="openChooseSceneDialog()"></el-button>
+                <chooseTargetBcptDialog
+                    ref="chooseTargetSceneDialog"
+                   :chooseSceneNode = 'chooseSceneNode'>
+                </chooseTargetBcptDialog>
            </el-form-item>
          </el-row>
 
@@ -241,7 +247,12 @@
                 </el-form-item>
 
                 <el-form-item style="margin-left: -5px">
-                    <el-button icon="more"></el-button>
+                    <el-button icon="more" @click="openChooseBcptDialog"></el-button>
+                    <chooseTargetBcptDialog
+                        ref="chooseTargetBcptDialog"
+                        :chooseBcptNode="chooseBcptNode">
+
+                    </chooseTargetBcptDialog>
                 </el-form-item>
 
                 <el-form-item label="组件名称" style="margin-left: -10px">
@@ -419,10 +430,16 @@
                 type: String
             }
         },
+        components:{
+          chooseTargetBcptDialog,
+          chooseTargetSceneDialog,
+        },
         /*记录数据的props的副本*/
         data() {
             return {
                 modification: this.initModification(propsKey[this.type]),
+                chooseSceneNode:null,
+                chooseBcptNode:null,
             }
         },
         methods: {
@@ -450,7 +467,41 @@
 
                     model.set(key, item);
                 }
-            }
+            },
+          //打开选择场景对话框 打开之前先从后台获取可选择服务
+          openChooseSceneDialog () {
+            var self = this;
+            IDE.socket.emit('loadScene', {
+              type: IDE.type,
+              event: 'loadScene',
+              data: {path: this.path}
+            }, function (result) {
+              if (result) {
+                if (result.state == 'success') {
+                  self.$refs.chooseTargetSceneDialog.openDialog(result.data)
+                } else {
+                  console.log('当前没有可选择的服务')
+                }
+              }
+            })
+          },
+          //打开选择业务组件对话框,打开之前先从后台获取可选择业务组件
+          openChooseBcptDialog () {
+            var self = this;
+            IDE.socket.emit('loadBcpt', {
+              type: IDE.type,
+              event: 'loadBcpt',
+              data: {path: this.path}
+            }, function (result) {
+              if (result) {
+                if (result.state == 'success') {
+                  self.$refs.chooseTargetBcptDialog.openDialog(result.data)
+                } else {
+                  console.log('当前没有可选择的服务')
+                }
+              }
+            })
+          }
         }
     }
 </script>
