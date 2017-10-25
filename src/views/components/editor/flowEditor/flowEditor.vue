@@ -101,7 +101,7 @@
             /*删除编辑器*/
             removeContent() {
                 if (this.editor) {
-                    $(this.editor.canvas.element).remove();
+                    $(this.editor.canvas.element).detach();
                     this.editor = null;
                 }
             }
@@ -179,7 +179,7 @@
                     }
                 },
                 template: `
-                <div style="position: relative;top: 0;width: 150px;height: 100%;background-color: #d3d3d3;float:left; overflow: hidden">
+                <div style="position: absolute;top: 0;bottom: -30px;width: 150px;background-color: #d3d3d3;float:left; overflow: hidden">
                     <div v-if="editor" style="position: relative;height: 100%;width: 240px;background-color: #d3d3d3;float:left; overflow-y: auto">
                         <el-button v-selectTool="editor" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
                         <el-button v-linkTool="editor" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
@@ -193,15 +193,15 @@
                                 </el-menu-item>
 
                                 <el-menu-item-group v-if="value.group">
-                                    <el-menu-item style="padding-left: 10px;min-width: 150px;width: auto" v-for="item in value.group" :index="item.name">
-                                        <img v-loadImg="{item: item}" /> {{item.name}}
+                                    <el-menu-item style="padding-left: 10px;min-width: 150px;width: auto" v-for="groupItem in value.group" :index="groupItem.name" v-createTool="{item: groupItem, editor: editor}">
+                                        <img v-loadImg="{item: groupItem}" /> {{groupItem.name}}
                                     </el-menu-item>
 
                                 </el-menu-item-group>
 
                                 <el-submenu v-if="value.children" v-for="child in value.children" :index="child.name">
                                     <template slot="title"><img style="margin-left: -20px" v-loadImg="{item: child}"/>{{child.name}}</template>
-                                    <el-menu-item v-if="child.items" v-for="suChild in child.items" :index="suChild.name" style="padding-left: 20px">
+                                    <el-menu-item v-if="child.items" v-for="suChild in child.items" :index="suChild.name" style="padding-left: 20px"  v-createTool="{item: suChild, editor: editor}">
                                         <img v-loadImg="{item: suChild}" /> {{suChild.name}}
                                     </el-menu-item>
                                 </el-submenu>

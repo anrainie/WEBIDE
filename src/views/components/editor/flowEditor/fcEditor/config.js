@@ -33,7 +33,9 @@ var manhattanRoute = {
 //策略
 var openPropEditor = {
     activate(){
-        this.lisn = () => {this.emit(globalConstants.OPEN_FLOWPROP_DIALOG, this.getHost())};
+        this.lisn = () => {
+            this.emit(globalConstants.OPEN_FLOWPROP_DIALOG, this.getHost())
+        };
         this.getHostFigure().on('dblclick', this.lisn);
     },
     deactivate(){
@@ -338,7 +340,7 @@ var serviceInvokdEntered = {
     },
 };
 
-//内部场景调用
+//多出口组件
 var stepMultiOutletCpt = {
     url: '/assets/image/editor/event_component_stepMultiOutletCpt.gif',
     type: $AG.IMAGE,
@@ -360,7 +362,7 @@ var stepMultiOutletCpt = {
     policies : {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'nodeEditor': closeNodeEditor,
+        'nodeEditor': openNodeEditor,
         'pin': pinPolicy(['0', '1'])
     },
 };

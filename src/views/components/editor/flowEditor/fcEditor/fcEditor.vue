@@ -26,12 +26,21 @@
                     @dblclickCanvas="nodeDoubleClickCanvas"></flow-Editor>
 
             <!--对话框-->
-            <component :is="dialogType" :showProperties.sync="showproperties" :model="dialogTarget" :path="file.path"></component>
-
+            <!--<component :is="dialogType" :showProperties.sync="showproperties" :model="dialogTarget" :path="file.path"></component>-->
+            <xxx :showProperties.sync="showproperties"
+                 :model="dialogTarget"
+                 :path="file.path"
+                 :editortype="editortype"
+                 :nodetype="dialogType"></xxx>
         </div>
     </editor-Container>
 
 </template>
+<style>
+    .xy {
+        width: 950px;
+    }
+</style>
 <script type="text/javascript">
     import flowEditor from "../flowEditor.vue"
     import editorContainer from '../../../editorContainer.vue'
@@ -39,7 +48,8 @@
     import * as Constants from 'Constants'
     import skipGroup from '../../../flowPropDialog/skipGroup.vue';
     import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
-    import {stepDialogs, nodeDialogs} from './propDialog'
+    //import {stepDialogs, nodeDialogs} from './propDialog'
+    import xxx from './propDialog.vue'
 
 
     /*用于参数忽略的时候*/
@@ -145,7 +155,8 @@
                 stepBindEvent: {
                     [Constants.OPEN_FLOWPROP_DIALOG](editPart) {
                         self.dialogTarget = editPart.model;
-                        self.dialogType = "step" + editPart.model.get("type");
+                        self.dialogType = editPart.model.get("type");
+                        self.editortype = "step";
                         self.showproperties = true;
                     },
 
@@ -167,11 +178,13 @@
                                 self.nodeVisible = true;
                             }
 
+                            console.log('remove editor')
                             self.$refs["nodeEditor"].removeContent();
                         }
 
                         /*不在缓冲中，直接创建*/
                         if (!self.nodeEditorBuffer.has(uuid)) {
+                            console.log("create editor")
 
                             self.nodeEditorInput = Object.assign({}, model.get('Implementation'), {UUID: uuid});
                             self.nodeVisible = self.nodeExist = true;
@@ -181,7 +194,8 @@
                         /*从缓冲取出编辑器实例*/
                         function replace(editor) {
                             this.$data.editor = editor;
-                            editor.createContent(this.editorid)
+                            $(this.$el).append(editor.canvas.element);
+                            //editor.createContent(this.editorid)
                         }
 
                         /*不严谨,FlowEdior的Config不一致*/
@@ -201,7 +215,8 @@
                 nodeBindEvent: {
                     [Constants.OPEN_FLOWPROP_DIALOG](editPart) {
                         self.dialogTarget = editPart.model;
-                        self.dialogType = "node" + editPart.model.get("type");
+                        self.dialogType = editPart.model.get("type");
+                        self.editortype = "node";
                         self.showproperties = true;
                     }
                 },
@@ -212,6 +227,8 @@
                 dialogTarget: null,
                 dialogType: null,
                 stepNodeType: null,
+                editortype: null
+
             }
         },
         computed: {
@@ -435,9 +452,14 @@
                 this.input.Root.Regulation.Step = step;
             }
         },
-        components: Object.assign({
+        /*components: Object.assign({
             flowEditor,
             editorContainer
-        }, stepDialogs, nodeDialogs)
+        }, stepDialogs, nodeDialogs)*/
+        components: {
+            flowEditor,
+            editorContainer,
+            xxx: xxx
+        }
     }
 </script>

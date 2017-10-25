@@ -6,7 +6,7 @@ import debugGroup from '../../../flowPropDialog/debugGroup.vue'
 
 let baseDialogComponent = {
     template: `
-                <el-dialog :modal-append-to-body="false" title="组件属性" :visible="showProperties" @update:visible="updateVisible" size="small">
+                <el-dialog :modal-append-to-body="false" title="组件属性" :visible="showProperties" @update:visible="updateVisible" custom-class="xy">
                 
                 <div v-if="showProperties">
                 <el-tabs v-if="group instanceof Array" type="card">
