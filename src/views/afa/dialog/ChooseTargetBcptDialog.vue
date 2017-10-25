@@ -31,8 +31,10 @@
       handleBcptNodeClick(data){
           this.chooseBcptNode = data;
           this.modification.Target = data.target;
-          this.modification.Name = data.Component.Desp;
-          this.modification.Desp = data.Component.Desp;
+          if(data.Component) {
+            this.modification.Name = data.Component.Desp;
+            this.modification.Desp = data.Component.Desp;
+          }
       },
       handleOk(){
         this.dialogFormVisible = false;
