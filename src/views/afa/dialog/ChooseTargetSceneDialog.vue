@@ -16,7 +16,7 @@
 
   export default {
     name:'chooseTargetSceneDialog',
-    props:['chooseSceneNode'],
+    props:['modification'],
     components: {},
     data () {
       return {
@@ -32,6 +32,9 @@
       },
       handleSceneNodeClick(data){
           this.chooseSceneNode = data;
+          this.modification.Target = data.target;
+          this.modification.Name = data.tc;
+          this.modification.Desp = data.desc;
       },
       handleOk(){
         this.dialogFormVisible = false;
