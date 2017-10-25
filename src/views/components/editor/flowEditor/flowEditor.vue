@@ -12,7 +12,7 @@
         height: 100%;
         background-color: rgb(13, 13, 13);
         float: left;
-        overflow: auto;
+        overflow: hidden;
     }
 </style>
 <script type="text/javascript">
@@ -116,6 +116,11 @@
                 props: ['editor', 'openPaletteEvent'],
                 data () {
                     return {
+                        buttonClass : {
+                            "margin-left": "30px",
+                            "margin-bottom": "10px",
+                            "margin-top": "10px"
+                        }
                     }
                 },
                 methods: {
@@ -139,11 +144,16 @@
                     }
                 },
                 directives: {
-                    drag: {
-                        bind (el, {value : {editor, item}}) {
-                            el.onmousedown = editor.createNodeWithPalette(item.data);
-                            el.ondragstart = () => false;
-                            el.setAttribute('src', item.url);
+                    loadImg: {
+                        bind(el, {value: {item}}) {
+                            if (item.url) {
+                                el.setAttribute('src', item.url)
+                            }
+                        }
+                    },
+                    createTool: {
+                        bind (el, {value : {item, editor}}) {
+                            el.addEventListener('click', editor.createNodeWithPalette(item.data));
                         }
                     },
                     selectTool: {
@@ -169,49 +179,35 @@
                     }
                 },
                 template: `
-                <div v-if="editor" style="position: relative;top: 0;width: 10%;height: 100%;background-color: #d3d3d3;float:left; overflow: auto">
-                    <p></p>
+                <div style="position: relative;top: 0;width: 150px;height: 100%;background-color: #d3d3d3;float:left; overflow: hidden">
+                    <div v-if="editor" style="position: relative;height: 100%;width: 240px;background-color: #d3d3d3;float:left; overflow-y: auto">
+                        <el-button v-selectTool="editor" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
+                        <el-button v-linkTool="editor" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
 
-                    <el-row type="flex" justify="center">
-                        <el-col :span="9" :offset="2">
-                            <el-button v-selectTool="editor" type="primary" icon="edit" size="mini"></el-button>
-                        </el-col>
-                        <el-col :span="9" :offset="2">
-                            <el-button v-linkTool="editor" type="primary" icon="edit" size="mini"></el-button>
-                        </el-col>
-                    </el-row>
-                    <el-row>
-                        <el-col :span="24">
-                            <el-menu v-if="isVisibility" default-active="2" class="el-menu-vertical-demo" @open="openHandle">
-                                <el-submenu :index="key" v-for="(value, key, index) in getGroup()">
-                                    <template slot="title">{{value.name}}</template>
+                        <el-menu v-if="isVisibility" default-active="2" class="el-menu-vertical-demo" @open="openHandle" style="width: 150px">
+                            <el-submenu :index="key" v-for="(value, key, index) in getGroup()">
+                                <template slot="title">{{value.name}}</template>
 
-                                     <el-menu-item style="padding-left: 0px;min-width: 150px;width: auto" v-if="value.items" v-for="item in value.items" :index="item.name"
-                                     >
-                                       <img v-drag="{editor: editor, item: item}"/>
-                                       {{item.name}}
-                                     </el-menu-item>
+                                <el-menu-item style="padding-left: 10px;min-width: 150px;" v-if="value.items" v-for="item in value.items" :index="item.name" v-createTool="{item: item, editor: editor}">
+                                    <img v-loadImg="{item: item}" /> {{item.name}}
+                                </el-menu-item>
 
-                                     <el-menu-item-group v-if="value.group">
-                                        <el-menu-item style="padding-left: 0px;min-width: 150px;width: auto"  v-for="item in value.group" :index="item.name"
-                                     >
-                                       <img v-drag="{editor: editor, item: item}"/>
-                                       {{item.name}}
-                                     </el-menu-item>
+                                <el-menu-item-group v-if="value.group">
+                                    <el-menu-item style="padding-left: 10px;min-width: 150px;width: auto" v-for="item in value.group" :index="item.name">
+                                        <img v-loadImg="{item: item}" /> {{item.name}}
+                                    </el-menu-item>
 
-                                    </el-menu-item-group>
+                                </el-menu-item-group>
 
-                                     <el-submenu v-if="value.children" v-for="child in value.children" :index="child.name" >
-                                        <template slot="title"><img v-drag="{editor: editor, item: child}"/>{{child.name}}</template>
-                                        <el-menu-item style="padding-left: 20px" v-if="child.items" v-for="suChild in child.items" :index="suChild.name">
-                                            <img v-drag="{editor: editor, item: suChild}"/>
-                                            {{suChild.name}}
-                                        </el-menu-item>
-                                    </el-submenu>
+                                <el-submenu v-if="value.children" v-for="child in value.children" :index="child.name">
+                                    <template slot="title"><img style="margin-left: -20px" v-loadImg="{item: child}"/>{{child.name}}</template>
+                                    <el-menu-item v-if="child.items" v-for="suChild in child.items" :index="suChild.name" style="padding-left: 20px">
+                                        <img v-loadImg="{item: suChild}" /> {{suChild.name}}
+                                    </el-menu-item>
                                 </el-submenu>
-                            </el-menu>
-                        </el-col>
-                    </el-row>
+                            </el-submenu>
+                        </el-menu>
+                    </div>
                 </div>`,
             }
         }

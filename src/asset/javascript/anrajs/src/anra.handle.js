@@ -19,9 +19,8 @@ anra.Handle = Control.extend({
     },
 
     createContent:function (s) {
-        var t = this;
-        this.listener = function (f) {
-            t.refreshLocation(f);
+        this.listener = (f) => {
+            this.refreshLocation(f);
         };
         this.editPart.getFigure().addRepaintListener(this.listener);
         this.refreshLocation(this.editPart.getFigure());

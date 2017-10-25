@@ -129,7 +129,8 @@ var pinPolicy = function (idList) {
             if (idList) {
                 this.handles = idList.map((id) => (new pinHandle(this.getHost(), id)));
                 this.handles.forEach((item) => {
-                   this.getHandleLayer().addChild(item);
+                    this.getHandleLayer().addChild(item);
+                    item.disableEvent();
                 });
             }
         },

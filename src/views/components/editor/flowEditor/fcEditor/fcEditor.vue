@@ -236,7 +236,47 @@
                         }
                     }, (result) => {
                         if (result.state == "success") {
-                            let data = result.data[path];
+
+                            try {
+                                let children = [];
+
+                                for (let {children: group, type} of result.data.result) {
+
+                                    if (type == path) {
+
+                                        group.forEach((packageCom) => {
+                                            children.push({
+                                                name: packageCom.desp,
+                                                url: packUrl,
+                                                items: packageCom.children.map((com) => {
+                                                    return {
+                                                        name: com.desp,
+                                                        url: comUrl,
+                                                        data: com.Component
+                                                    }
+                                                })
+                                            })
+                                        })
+
+                                        break;
+                                    }
+
+                                }
+                                config[path].children = children
+                            } catch (e) {
+                                //TOWARN
+                            }
+
+                            /*try {
+                                let children = [];
+                                result.data.result.forEach((item) => {
+                                    if (item.type == path && item.children) {
+
+                                    }
+                                })
+                            }*/
+
+                            /*let data = result.data[path];
 
                             if (data == null || data["componentPackage"] == null) return;
 
@@ -254,9 +294,9 @@
                                         }
                                     })
                                 })
-                            })
+                            })*/
 
-                            config[path].children = children
+                            //config[path].children = children
 
                         } else {
                             //TODO

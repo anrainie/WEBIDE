@@ -352,6 +352,7 @@ $AG.policy = {
                     this.handle.refreshLocation = loc;
                 this.handle.setText(this.getHost().model.get(key));
                 this.getHandleLayer().addChild(this.handle);
+                this.handle.disableEvent();
 
                 //添加一个监听数据的改变
                 this.listener = () => {
