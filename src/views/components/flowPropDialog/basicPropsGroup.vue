@@ -1,12 +1,12 @@
 <style>
 </style>
 <script>
-    import Vue from "vue";
-    import chooseTargetSceneDialog from '../../../views/afa/dialog/ChooseTargetSceneDialog.vue';
-    import chooseTargetBcptDialog from '../../../views/afa/dialog/ChooseTargetBcptDialog.vue';
+  import Vue from "vue";
+  import chooseTargetSceneDialog from '../../../views/afa/dialog/ChooseTargetSceneDialog.vue';
+  import chooseTargetBcptDialog from '../../../views/afa/dialog/ChooseTargetBcptDialog.vue';
 
-    /*通用组件模板*/
-    let templateA = `
+  /*通用组件模板*/
+  let templateA = `
         <el-form ref="form" label-width="90px">
             <el-form-item label="实现名称" :required="true" style="margin-top: 15px">
                 <el-input v-model="modification.RefImpl"></el-input>
@@ -46,7 +46,7 @@
   let templateB = `
         <el-form ref="form" :inline="true">
           <el-row>
-            <el-form-item label="服务类型">
+            <el-form-item label="场景类型">
                 <el-switch
                         v-model="modification.RefImpl"
                         on-color="#44ffaa"
@@ -74,15 +74,15 @@
           </el-row>
 
          <el-row style="margin-top: -20px">
-            <el-form-item label="目标服务">
+            <el-form-item label="目标场景">
                 <el-input v-model="modification.Target" style="width: 390px"></el-input>
             </el-form-item>
             <el-form-item>
                  <el-button icon="more" @click="openChooseSceneDialog()"></el-button>
-                <chooseTargetBcptDialog
+                <chooseTargetSceneDialog
                     ref="chooseTargetSceneDialog"
-                   :chooseSceneNode = 'chooseSceneNode'>
-                </chooseTargetBcptDialog>
+                   :modification="modification">
+                </chooseTargetSceneDialog>
            </el-form-item>
          </el-row>
 
@@ -104,7 +104,7 @@
         </el-form>
     `;
 
-    //node:内部场景调用
+  //node:内部场景调用
   let templateC =  `
         <el-form ref="form" :inline="true">
           <el-row>
@@ -161,7 +161,7 @@
          </el-row>
         </el-form>
     `
-    //通用组件、多出口组件
+  //通用组件、多出口组件
   let templateD = `
         <el-form label-width="90px">
 
@@ -250,7 +250,7 @@
                     <el-button icon="more" @click="openChooseBcptDialog"></el-button>
                     <chooseTargetBcptDialog
                         ref="chooseTargetBcptDialog"
-                        :chooseBcptNode="chooseBcptNode">
+                           :modification="modification">
 
                     </chooseTargetBcptDialog>
                 </el-form-item>
@@ -363,145 +363,145 @@
 
 
 
-    /*配置模板字符串*/
-    const templateRouter = {
-        '0': templateA,
-        //step:内部场景调用
-        '1': templateB,
-        //node:内部场景调用
-        '2': templateC,
-        //通用组件、多出口组件
-        '3': templateD,
-        //自定义结束
-        '4': templateE,
-        //组件调用
-        '5': templateF,
-        //技术组件
-        '6': tcpt,
-        //业务组件
-        '7': bcpt
-    }
+  /*配置模板字符串*/
+  const templateRouter = {
+    '0': templateA,
+    //step:内部场景调用
+    '1': templateB,
+    //node:内部场景调用
+    '2': templateC,
+    //通用组件、多出口组件
+    '3': templateD,
+    //自定义结束
+    '4': templateE,
+    //组件调用
+    '5': templateF,
+    //技术组件
+    '6': tcpt,
+    //业务组件
+    '7': bcpt
+  }
 
-    /*key: type, value: props name array*/
-    const propsKey = {
-        '0' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
-        //step:内部场景调用、
-        '1' : ["RefImpl", "Async", "Target", "Name", "Desp", "ToolTip"],
-        //node:内部场景调用
-        '2' : ["RefImpl", "Async", "Target", "Name", "Desp", "Tooltip"],
-        //通用组件、多出口组件
-        '3' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
-        //自定义结束
-        '4' : ["Target", "Name", "Desp", "Level", "Tooltip", "Value"],
-        //组件调用
-        '5' : ["Target", "Name", "Desp", "Level", "Tooltip"],
-        //技术组件
-        '6' : ["Target", "Name", "Level", "Group", "Desp", "Tooltip"],
-        //业务组件
-        "7" : ["RefImpl", "Desp", "Level", "ToolTip"]
-    };
+  /*key: type, value: props name array*/
+  const propsKey = {
+    '0' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
+    //step:内部场景调用、
+    '1' : ["RefImpl", "Async", "Target", "Name", "Desp", "ToolTip"],
+    //node:内部场景调用
+    '2' : ["RefImpl", "Async", "Target", "Name", "Desp", "Tooltip"],
+    //通用组件、多出口组件
+    '3' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
+    //自定义结束
+    '4' : ["Target", "Name", "Desp", "Level", "Tooltip", "Value"],
+    //组件调用
+    '5' : ["Target", "Name", "Desp", "Level", "Tooltip"],
+    //技术组件
+    '6' : ["Target", "Name", "Level", "Group", "Desp", "Tooltip"],
+    //业务组件
+    "7" : ["RefImpl", "Desp", "Level", "ToolTip"]
+  };
 
-    /*默认属性*/
-    const DEFAULTS = {
-        Readonly: false,
-        Remarks: 0,
-        RefImpl: 0,
-        Async: 0,
-    }
+  /*默认属性*/
+  const DEFAULTS = {
+    Readonly: false,
+    Remarks: 0,
+    RefImpl: 0,
+    Async: 0,
+  }
 
-    export default{
-        /*通过type选择模板字符串，render函数渲染*/
-        render() {
-            //TODO type不对或没有type类型的模板
-            return Vue.compile(templateRouter[this.type]).render.apply(this, arguments);
-        },
-        props: {
-            type: {
-                default() {
-                    return '0'
-                }
-            },
-            model: {
-                default(){
-                    return DEFAULTS
-                }
-            },
-            path: {
-                type: String
-            }
-        },
-        components:{
-          chooseTargetBcptDialog,
-          chooseTargetSceneDialog,
-        },
-        /*记录数据的props的副本*/
-        data() {
-            return {
-                modification: this.initModification(propsKey[this.type]),
-                chooseSceneNode:null,
-                chooseBcptNode:null,
-            }
-        },
-        methods: {
-            /*暂时通过函数输入获取所需属性*/
-            initModification(keys = ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip", "Name", "Target", "Value", "Tooltip", "Group", "Level"]) {
-                var options = {};
-
-                keys.forEach((item) => {
-                    /*如果是对象还需要继续*/
-                    options[item] = this.model[item];
-                });
-
-                return Object.assign({}, DEFAULTS, options);
-            },
-
-            /*获取修改后的数据*/
-            getModelProps() {
-                return this.modification;
-            },
-
-            /*提供一个默认的更新函数*/
-            savePropsToModel(model) {
-                for (let [key, item] of Object.entries(this.modification)) {
-                    if (key == undefined) continue;
-
-                    model.set(key, item);
-                }
-            },
-          //打开选择场景对话框 打开之前先从后台获取可选择服务
-          openChooseSceneDialog () {
-            var self = this;
-            IDE.socket.emit('loadScene', {
-              type: IDE.type,
-              event: 'loadScene',
-              data: {path: this.path}
-            }, function (result) {
-              if (result) {
-                if (result.state == 'success') {
-                  self.$refs.chooseTargetSceneDialog.openDialog(result.data)
-                } else {
-                  console.log('当前没有可选择的服务')
-                }
-              }
-            })
-          },
-          //打开选择业务组件对话框,打开之前先从后台获取可选择业务组件
-          openChooseBcptDialog () {
-            var self = this;
-            IDE.socket.emit('loadBcpt', {
-              type: IDE.type,
-              event: 'loadBcpt',
-              data: {path: this.path}
-            }, function (result) {
-              if (result) {
-                if (result.state == 'success') {
-                  self.$refs.chooseTargetBcptDialog.openDialog(result.data)
-                } else {
-                  console.log('当前没有可选择的服务')
-                }
-              }
-            })
-          }
+  export default{
+    /*通过type选择模板字符串，render函数渲染*/
+    render() {
+      //TODO type不对或没有type类型的模板
+      return Vue.compile(templateRouter[this.type]).render.apply(this, arguments);
+    },
+    props: {
+      type: {
+        default() {
+          return '0'
         }
+      },
+      model: {
+        default(){
+          return DEFAULTS
+        }
+      },
+      path: {
+        type: String
+      }
+    },
+    components:{
+      chooseTargetBcptDialog,
+      chooseTargetSceneDialog,
+    },
+    /*记录数据的props的副本*/
+    data() {
+      return {
+        modification: this.initModification(propsKey[this.type]),
+        chooseSceneNode:null,
+        chooseBcptNode:null,
+      }
+    },
+    methods: {
+      /*暂时通过函数输入获取所需属性*/
+      initModification(keys = ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip", "Name", "Target", "Value", "Tooltip", "Group", "Level"]) {
+        var options = {};
+
+        keys.forEach((item) => {
+          /*如果是对象还需要继续*/
+          options[item] = this.model[item];
+        });
+
+        return Object.assign({}, DEFAULTS, options);
+      },
+
+      /*获取修改后的数据*/
+      getModelProps() {
+        return this.modification;
+      },
+
+      /*提供一个默认的更新函数*/
+      savePropsToModel(model) {
+        for (let [key, item] of Object.entries(this.modification)) {
+          if (key == undefined) continue;
+
+          model.set(key, item);
+        }
+      },
+      //打开选择场景对话框 打开之前先从后台获取可选择服务
+      openChooseSceneDialog () {
+        var self = this;
+        IDE.socket.emit('loadScene', {
+          type: IDE.type,
+          event: 'loadScene',
+          data: {path: this.path}
+        }, function (result) {
+          if (result) {
+            if (result.state == 'success') {
+              self.$refs.chooseTargetSceneDialog.openDialog(result.data)
+            } else {
+              console.log('当前没有可选择的服务')
+            }
+          }
+        })
+      },
+      //打开选择业务组件对话框,打开之前先从后台获取可选择业务组件
+      openChooseBcptDialog () {
+        var self = this;
+        IDE.socket.emit('loadBcpt', {
+          type: IDE.type,
+          event: 'loadBcpt',
+          data: {path: this.path}
+        }, function (result) {
+          if (result) {
+            if (result.state == 'success') {
+              self.$refs.chooseTargetBcptDialog.openDialog(result.data)
+            } else {
+              console.log('当前没有可选择的业务组件')
+            }
+          }
+        })
+      }
     }
+  }
 </script>
