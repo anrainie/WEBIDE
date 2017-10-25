@@ -14,7 +14,7 @@
 <script>
   export default {
     name: 'chooseTargetBcptDialog',
-    props:['chooseBcptNode'],
+    props:['modification'],
     components: {},
     data () {
       return {
@@ -30,6 +30,9 @@
       },
       handleBcptNodeClick(data){
           this.chooseBcptNode = data;
+          this.modification.Target = data.target;
+          this.modification.Name = data.Component.Desp;
+          this.modification.Desp = data.Component.Desp;
       },
       handleOk(){
         this.dialogFormVisible = false;
