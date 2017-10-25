@@ -7,7 +7,7 @@
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
             <workbench id="ide_workbench_center" :views="views" ref="workbench"
-                       :editor-Part-Config="editorPartConfig"></workbench>
+                       :editorconfig="editorPartConfig"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
