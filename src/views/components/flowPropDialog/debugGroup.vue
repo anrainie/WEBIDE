@@ -18,7 +18,7 @@
 
             <el-col :span="12">
                 <el-form-item label="调试代码">
-                    <el-input disabled style="width:250px"></el-input>
+                    <el-input disabled style="width:200px"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button icon="more"></el-button>
@@ -26,10 +26,10 @@
             </el-col>
         </el-row>
 
-        <el-row style="margin-top: -25px">
+        <el-row style="margin-top: -25px;margin-bottom: -15px">
             <el-col :span="12">
                 <el-form-item label="调试结果">
-                    <el-select style="width:250px" value="">
+                    <el-select style="width:200px" value="">
 
                     </el-select>
                 </el-form-item>
@@ -37,7 +37,7 @@
 
             <el-col :span="12">
                 <el-form-item label="调试返回">
-                    <el-input disabled style="width:250px"></el-input>
+                    <el-input disabled style="width:200px"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button icon="more"></el-button>

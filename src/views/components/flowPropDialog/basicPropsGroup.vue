@@ -75,7 +75,7 @@
 
          <el-row style="margin-top: -20px">
             <el-form-item label="目标场景">
-                <el-input v-model="modification.Target" style="width: 390px"></el-input>
+                <el-input v-model="modification.Target" style="width: 575px"></el-input>
             </el-form-item>
             <el-form-item>
                  <el-button icon="more" @click="openChooseSceneDialog()"></el-button>
@@ -88,17 +88,17 @@
 
          <el-row style="margin-top: -20px">
             <el-form-item label="场景名称">
-                <el-input v-model="modification.Name" style="width: 180px" ></el-input>
+                <el-input v-model="modification.Name" style="width: 285px" ></el-input>
             </el-form-item>
 
             <el-form-item label="场景描述" style="margin-left: -10px">
-                <el-input  v-model="modification.Desp" style="width: 180px" ></el-input>
+                <el-input  v-model="modification.Desp" style="width: 280px" ></el-input>
             </el-form-item>
          </el-row>
 
          <el-row style="margin-top: -20px">
             <el-form-item label="组件注释" style="margin-bottom: -15px">
-                <el-input v-model="modification.ToolTip" type="textarea" style="width: 455px"></el-input>
+                <el-input v-model="modification.ToolTip" type="textarea" style="width: 640px"></el-input>
             </el-form-item>
          </el-row>
         </el-form>
@@ -137,7 +137,7 @@
 
          <el-row style="margin-top: -20px">
             <el-form-item label="目标场景">
-                <el-input v-model="modification.Target" style="width: 390px"></el-input>
+                <el-input v-model="modification.Target" style="width: 575px"></el-input>
             </el-form-item>
             <el-form-item>
                 <el-button icon="more" @click="openChooseSceneDialog()"></el-button>
@@ -150,17 +150,17 @@
 
          <el-row style="margin-top: -20px">
             <el-form-item label="场景名称">
-                <el-input v-model="modification.Name" style="width: 180px" ></el-input>
+                <el-input v-model="modification.Name" style="width: 285px" ></el-input>
             </el-form-item>
 
             <el-form-item label="场景描述" style="margin-left: -10px">
-                <el-input  v-model="modification.Desp" style="width: 180px" ></el-input>
+                <el-input  v-model="modification.Desp" style="width: 280px" ></el-input>
             </el-form-item>
          </el-row>
 
          <el-row style="margin-top: -20px">
             <el-form-item label="组件注释" style="margin-bottom: -15px">
-                <el-input v-model="modification.Tooltip" type="textarea" style="width: 455px"></el-input>
+                <el-input v-model="modification.Tooltip" type="textarea" style="width: 640px"></el-input>
             </el-form-item>
          </el-row>
         </el-form>
@@ -177,7 +177,7 @@
             </el-form-item>
 
              <el-form-item label="备注" >
-                <el-select v-model="modification.Remarks"  style="width: 70%">
+                <el-select v-model="modification.Remarks"  style="width: 50%">
                     <el-option value="0" label="通用">
                     </el-option>
                     <el-option value="1" label="定制">
@@ -247,7 +247,7 @@
             </el-row>
             <el-row style="margin-top: -25px">
                 <el-form-item label="目标组件">
-                    <el-input v-model="modification.Target" :disabled="true" style="width: 155px"></el-input>
+                    <el-input v-model="modification.Target" :disabled="true" style="width: 175px"></el-input>
                 </el-form-item>
 
                 <el-form-item style="margin-left: -5px">
@@ -260,21 +260,21 @@
                 </el-form-item>
 
                 <el-form-item label="组件名称" style="margin-left: -10px">
-                    <el-input v-model="modification.Name" :disabled="true" style="width: 155px"></el-input>
+                    <el-input v-model="modification.Name" :disabled="true" style="width: 175px"></el-input>
                 </el-form-item>
             </el-row>
             <el-row style="margin-top: -25px" >
                 <el-form-item label="组件描述">
-                    <el-input v-model="modification.Desp" style="width: 180px"></el-input>
+                    <el-input v-model="modification.Desp" style="width: 205px"></el-input>
                 </el-form-item>
 
                 <el-form-item label="组件级别" style="margin-left: -10px">
-                    <el-input :disabled="true" style="width: 180px"></el-input>
+                    <el-input :disabled="true" style="width: 200px"></el-input>
                 </el-form-item>
             </el-row>
             <el-row style="margin-top: -25px;margin-bottom: -15px" >
                 <el-form-item label="组件注释">
-                    <el-input v-model="modification.Tooltip" type="textarea" style="width: 455px"></el-input>
+                    <el-input v-model="modification.Tooltip" type="textarea" style="width: 480px"></el-input>
                 </el-form-item>
             </el-row>
         </el-form>
@@ -309,13 +309,13 @@
             <el-row>
                 <el-col :span="12">
                     <el-form-item label="目标函数">
-                        <el-input v-model="modification.Target" style="width: 350px" ></el-input>
+                        <el-input v-model="modification.Target" style="width: 280px" ></el-input>
                     </el-form-item>
                 </el-col>
 
                 <el-col :span="12">
                     <el-form-item label="组件名称">
-                        <el-input v-model="modification.Name" style="width:350px"></el-input>
+                        <el-input v-model="modification.Name" style="width:280px"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -323,7 +323,7 @@
             <el-row style="margin-top: -25px">
                 <el-col :span="12">
                     <el-form-item label="组件级别">
-                        <el-select v-model="modification.Level" disabled style="width: 350px">
+                        <el-select v-model="modification.Level" disabled style="width: 280px">
                             <el-option v-for="item in [{value: '0', label: '平台'}, {value: '1', label: '银行'}]"
                                        :key="item.value"
                                        :label="item.label"
@@ -335,7 +335,7 @@
 
                 <el-col :span="12">
                     <el-form-item label="组件组">
-                        <el-input v-model="modification.Group" style="width: 350px;margin-left: 14px"></el-input>
+                        <el-input v-model="modification.Group" style="width: 280px;margin-left: 14px"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -343,7 +343,7 @@
             <el-row style="margin-top: -25px">
                 <el-col :span="12">
                     <el-form-item label="功能描述">
-                        <el-input v-model="modification.Desp" style="width: 350px"></el-input>
+                        <el-input v-model="modification.Desp" style="width: 280px"></el-input>
                     </el-form-item>
                 </el-col>
 
@@ -354,10 +354,10 @@
                 </el-col>
             </el-row>
 
-            <el-row style="margin-top: -25px">
+            <el-row style="margin-top: -25px;margin-bottom: -15px">
                 <el-col :span="24">
                     <el-form-item label="组件注释">
-                        <el-input v-model="modification.Tooltip" style="width: 800px" type="textarea"></el-input>
+                        <el-input v-model="modification.Tooltip" style="width: 640px" type="textarea"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
