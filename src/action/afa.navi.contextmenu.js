@@ -680,6 +680,9 @@ function compileBcpt(selection) {
                     message: '编译成功',
                     type: 'success'
                 });
+              for (let i = 0; i < selection.length; i++) {
+                selection[i].refresh(-1);
+              }
             } else {
                 showCompileError(result.errorMsg);
             }
