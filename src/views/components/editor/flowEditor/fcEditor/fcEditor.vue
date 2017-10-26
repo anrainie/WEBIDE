@@ -27,29 +27,22 @@
 
             <!--对话框-->
             <!--<component :is="dialogType" :showProperties.sync="showproperties" :model="dialogTarget" :path="file.path"></component>-->
-            <xxx :showProperties.sync="showproperties"
+            <propDialog :showProperties.sync="showproperties"
                  :model="dialogTarget"
                  :path="file.path"
                  :editortype="editortype"
-                 :nodetype="dialogType"></xxx>
+                 :nodetype="dialogType"></propDialog>
         </div>
     </editor-Container>
 
 </template>
-<style>
-    .xy {
-        width: 950px;
-    }
-</style>
 <script type="text/javascript">
     import flowEditor from "../flowEditor.vue"
     import editorContainer from '../../../editorContainer.vue'
     import {stepInput2Config, nodeInput2Config} from './resolve'
     import * as Constants from 'Constants'
-    import skipGroup from '../../../flowPropDialog/skipGroup.vue';
-    import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
     //import {stepDialogs, nodeDialogs} from './propDialog'
-    import xxx from './propDialog.vue'
+    import propDialog from './propDialog.vue'
 
 
     /*用于参数忽略的时候*/
@@ -459,7 +452,7 @@
         components: {
             flowEditor,
             editorContainer,
-            xxx: xxx
+            propDialog
         }
     }
 </script>
