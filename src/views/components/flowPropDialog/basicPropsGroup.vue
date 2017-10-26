@@ -140,7 +140,11 @@
                 <el-input v-model="modification.Target" style="width: 390px"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button icon="more"></el-button>
+                <el-button icon="more" @click="openChooseSceneDialog()"></el-button>
+                <chooseTargetSceneDialog
+                    ref="chooseTargetSceneDialog"
+                   :modification="modification">
+                </chooseTargetSceneDialog>
            </el-form-item>
          </el-row>
 
