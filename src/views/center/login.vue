@@ -43,7 +43,6 @@
             login() {
                 var username = this.username;
                 var password = this.password;
-                console.log(password)
                 if (username !== '' && password !== '') {
                     var data = {
                         username: username,

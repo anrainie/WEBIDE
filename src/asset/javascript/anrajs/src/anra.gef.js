@@ -2428,14 +2428,14 @@ anra.gef.BaseModel = Base.extend({
     },
     set: function (key, value, unfire) {
         var o = this.props[key];
-        
+
         if (this.store) {
             var _tj = {};
             _tj[key] = value;
             this.props = this.store.update(_tj).first();
         } else
             this.props[key] = value;
-        
+
         if (this.pls && !unfire)
             this.pls.firePropertyChanged(key, o, value);
     },
