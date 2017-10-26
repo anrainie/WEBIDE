@@ -1,7 +1,7 @@
 <template>
     <div class="ide_root">
         <menubar id="ide_menu" ref="ide_menu" :menu_data="menuData"></menubar>
-        <toolbar class="top_toolbar" :config="toolbarConfig" :tool-Items="toolItems"
+        <toolbar class="top_toolbar" :config="toolbarConfig" :toolitems="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
@@ -95,6 +95,7 @@
 
     import menuData from '../../action/afa.menu';
     import fcEditor from "../components/editor/flowEditor/fcEditor/fcEditor.vue"
+    import bcptEditor from  "../components/editor/flowEditor/fcEditor/bcptEditor.vue"
 
 
     String.prototype.textLength = function () {
@@ -111,7 +112,8 @@
                         dict: dictEditor,
                         java: javaEditor,
                         tcpt: tcptEditor,
-                        fc: fcEditor
+                        fc: fcEditor,
+                        bcpt: bcptEditor
                     }
                 },
                 vertical: false,
@@ -159,6 +161,41 @@
             }
         },
         methods: {
+            applyOpenEditorService(param1, type){
+                let path, name;
+
+                switch (type) {
+                    case 'fc':
+                        path = '/' + param1.split('|').join('/') + '/flow/flowConfig.fc';
+                        name = 'flowConfig.fc';
+                        break;
+                    case 'java':
+                        let p=param1.split('|');
+                        let level=p[1];
+                        path = p.join('/') + '.java';
+                        name = path;
+
+                        switch(level){
+                            case 'bank':
+                            case 'platform':
+                                path='/functionModule/technologyComponent/'+level+'/componentSourceCode/'+path;
+                                break;
+                            default :
+                                path='/functionModule/technologyComponent/projects/'+level+'/componentSourceCode/'+path;
+                        }
+
+                        break;
+                }
+
+                let self = this;
+                setTimeout(function () {
+                    self._openEditor({
+                        isParent: false,
+                        name,
+                        path
+                    }, true);
+                }, 200);
+            },
             _openEditor(model, maximize){
                 IDE.shade.open();
                 IDE.socket.emit("getFile", {
@@ -193,17 +230,11 @@
 
             if (this.$route.params) {
                 let serverId = this.$route.params.serverId;
-                let serverParam = this.$route.params.param;
+                let param1 = this.$route.params.p1;
+                let param2 = this.$route.params.p2;
                 switch (serverId) {
                     case 'openEditor':
-                        let self = this;
-                        setTimeout(function () {
-                            self._openEditor({
-                                isParent: false,
-                                name: "flowConfig.fc",
-                                path: "/hello/app1/service1/flow/flowConfig.fc",
-                            }, true);
-                        }, 1000);
+                        this.applyOpenEditorService(param1, param2);
                         break;
                     default:
                         console.log('服务类型异常');
@@ -248,56 +279,60 @@
                             check: false,
                             async: true,
                             callback: {
-                                asyncLoadItem: function (item, level) {
-                                    if (!level) {
-                                        level = 1
+                              asyncLoadItem: function (item, level) {
+                                if (!level) {
+                                  level = 1
+                                }
+                                IDE.socket.emit('getNaviItems', {
+                                    type: IDE.type,
+                                    event: 'getNaviItems',
+                                    data: {
+                                      path: item.model.path,
+                                      level: level
                                     }
-                                    IDE.socket.emit('getNaviItems', {
-                                            type: IDE.type,
-                                            event: 'getNaviItems',
-                                            data: {
-                                                path: item.model.path,
-                                                level: level
-                                            }
-                                        }, function (result) {
-                                            if (result.state === 'success') {
-                                                let oldChildren = item.model.children
-                                                let newChildren = result.data
-                                                if (!oldChildren || oldChildren.length == 0) {
-                                                    item.model.children = result.data;
-                                                } else {
-                                                    for (let i = 0; i < newChildren.length; i++) {
-                                                        let newChd = newChildren[i];
-                                                        let exist = false;
-                                                        for (let j = 0; j < oldChildren.length; j++) {
-                                                            let oldChd = oldChildren[j];
-                                                            if (newChd.path === oldChd.path) {
-                                                                exist = true;
-                                                                oldChd['##keep##'] = true;
-                                                                break;
-                                                            }
+                                  }, function (result) {
+                                    if (result.state === 'success') {
+                                      let oldChildren = item.model.children
+                                      let newChildren = result.data
+                                      if (!oldChildren || oldChildren.length == 0) {
+                                        item.model.children = result.data
+                                      } else {
+                                        combine(newChildren, oldChildren)
+                                      }
+                                    } else {
+                                      debug.error('refresh resources fail , ' + result)
+                                    }
 
-                                                        }
-                                                        if (!exist) {
-                                                            newChd['##keep##'] = true;
-                                                            oldChildren.push(newChd);
-                                                        }
-                                                    }
-                                                    for (let i = 0; i < oldChildren.length; i++) {
-                                                        let oldChd = oldChildren[i];
-                                                        if (!oldChd['##keep##']) {
-                                                            oldChildren.splice(i, 1);
-                                                            i--;
-                                                        }
-                                                        delete oldChd['##keep##'];
-                                                    }
-                                                }
-                                            } else {
-                                                debug.error('refresh resources fail , ' + result);
-                                            }
+                                    function combine (newChildren, oldChildren) {
+                                      for (let i = 0; i < newChildren.length; i++) {
+                                        let newChd = newChildren[i]
+                                        let exist = false
+                                        for (let j = 0; j < oldChildren.length; j++) {
+                                          let oldChd = oldChildren[j]
+                                          if (newChd.path === oldChd.path) {
+                                            exist = true
+                                            oldChd['##keep##'] = true
+                                            combine(newChd.children ? newChd.children : [], oldChd.children ? oldChd.children : [])
+                                            break
+                                          }
                                         }
-                                    );
-                                },
+                                        if (!exist) {
+                                          newChd['##keep##'] = true
+                                          oldChildren.push(newChd)
+                                        }
+                                      }
+                                      for (let i = 0; i < oldChildren.length; i++) {
+                                        let oldChd = oldChildren[i]
+                                        if (!oldChd['##keep##']) {
+                                          oldChildren.splice(i, 1)
+                                          i--
+                                        }
+                                        delete oldChd['##keep##']
+                                      }
+                                    }
+                                  }
+                                )
+                              },
                                 delete: function (item) {
                                     let editor = IDE.editorPart.getEditor(item);
                                     if (editor) {

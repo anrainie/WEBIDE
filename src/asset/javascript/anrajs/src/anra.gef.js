@@ -2238,11 +2238,16 @@ anra.gef.Editor = Base.extend({
         var i = id + 'Cav';
         var div = document.createElement('div');
         div.setAttribute('id', i);
-        div.style.position = 'relative';
-        div.style.width = '90%';
-        div.style.height = '100%';
-        div.style.float = 'right';
-        div.style.overflow = 'auto';
+        div.style.position = 'absolute';
+        div.style.left = "150px";
+        div.style.right = "0px";
+        div.style.bottom = "30px";
+        div.style.top = "0px";
+        //div.style.width = 'auto';
+        //div.style.height = '90%';
+        div.style.float = 'left';
+        div.style.overflowX = 'auto';
+        div.style.overflowY = 'auto';
         div.style.background = this.background;
         this.element.appendChild(div);
         return new anra.SVG(i);
@@ -2423,14 +2428,14 @@ anra.gef.BaseModel = Base.extend({
     },
     set: function (key, value, unfire) {
         var o = this.props[key];
-        
+
         if (this.store) {
             var _tj = {};
             _tj[key] = value;
             this.props = this.store.update(_tj).first();
         } else
             this.props[key] = value;
-        
+
         if (this.pls && !unfire)
             this.pls.firePropertyChanged(key, o, value);
     },

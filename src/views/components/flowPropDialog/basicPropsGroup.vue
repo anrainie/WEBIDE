@@ -108,7 +108,7 @@
   let templateC =  `
         <el-form ref="form" :inline="true">
           <el-row>
-            <el-form-item label="服务类型">
+            <el-form-item label="场景类型">
                 <el-switch
                         v-model="modification.RefImpl"
                         on-color="#44ffaa"
@@ -136,11 +136,15 @@
           </el-row>
 
          <el-row style="margin-top: -20px">
-            <el-form-item label="目标服务">
+            <el-form-item label="目标场景">
                 <el-input v-model="modification.Target" style="width: 390px"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-button icon="more"></el-button>
+                <el-button icon="more" @click="openChooseSceneDialog()"></el-button>
+                <chooseTargetSceneDialog
+                    ref="chooseTargetSceneDialog"
+                   :modification="modification">
+                </chooseTargetSceneDialog>
            </el-form-item>
          </el-row>
 
@@ -166,25 +170,25 @@
         <el-form label-width="90px">
 
             <el-form-item label="实现名称" :required="true">
-                <el-input v-model="modification.RefImpl"></el-input>
+                <el-input v-model="modification.RefImpl" style="width: 100%"></el-input>
             </el-form-item>
             <el-form-item label="组件名称" :required="true">
-                <el-input v-model="modification.Desp"></el-input>
+                <el-input v-model="modification.Desp" style="width: 100%"></el-input>
             </el-form-item>
 
              <el-form-item label="备注" >
-                <el-select v-model="modification.Remarks" >
+                <el-select v-model="modification.Remarks"  style="width: 70%">
                     <el-option value="0" label="通用">
                     </el-option>
                     <el-option value="1" label="定制">
                     </el-option>
                 </el-select>
 
-                <el-checkbox v-model="modification.Readonly">只读</el-checkbox>
+                <el-checkbox v-model="modification.Readonly" style="width: 30%">只读</el-checkbox>
              </el-form-item>
 
             <el-form-item label="注释" :required="true">
-                <el-input type="textarea" v-model="modification.ToolTip"></el-input>
+                <el-input type="textarea" v-model="modification.ToolTip" style="width: 100%"></el-input>
             </el-form-item>
 
         </el-form>

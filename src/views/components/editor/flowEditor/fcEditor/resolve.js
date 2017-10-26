@@ -47,7 +47,7 @@ var resolveEditorLine = function(nodesConfig) {
                     id: Id +　'.' + item.SourceTerminal + '_' + item.TargetId + '.' + item.TargetTerminal,
                     source: Id,
                     type: 0,
-                    target: item.TargetId,
+                    target: item.targetId,
                     exit: item.SourceTerminal,
                     entr: item.TargetTerminal
                 })})
