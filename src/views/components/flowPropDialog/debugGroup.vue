@@ -61,6 +61,9 @@
     import  debugReturnDialog from '../../../views/afa/dialog/DebugReturnDialog.vue';
     export default{
         props: {
+          model: {
+            required: true
+          },
             enable: {
                 default: false
             },
@@ -71,6 +74,7 @@
                 type: String
             }
 
+
         },
       components:{
           debugCodeDialog,
@@ -79,7 +83,8 @@
       data(){
         return{
           debugCode:[],
-          debugReturn:[]
+          debugReturn:[],
+          modification: this.initModification(),
         }
       },
       methods:{
@@ -88,6 +93,10 @@
         },
         openDebugCodeDialog(){
           this.$refs.debugCodeDialog.openDialog();
+        },
+        initModification(){
+          var model = this.model;
+          console.log(model);
         }
       }
     }
