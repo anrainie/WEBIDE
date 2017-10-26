@@ -1,7 +1,7 @@
 <template>
     <div class="ide_root">
         <menubar id="ide_menu" ref="ide_menu" :menu_data="menuData"></menubar>
-        <toolbar class="top_toolbar" :config="toolbarConfig" :tool-Items="toolItems"
+        <toolbar class="top_toolbar" :config="toolbarConfig" :toolitems="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
@@ -159,6 +159,41 @@
             }
         },
         methods: {
+            applyOpenEditorService(param1, type){
+                let path, name;
+
+                switch (type) {
+                    case 'fc':
+                        path = '/' + param1.split('|').join('/') + '/flow/flowConfig.fc';
+                        name = 'flowConfig.fc';
+                        break;
+                    case 'java':
+                        let p=param1.split('|');
+                        let level=p[1];
+                        path = p.join('/') + '.java';
+                        name = path;
+
+                        switch(level){
+                            case 'bank':
+                            case 'platform':
+                                path='/functionModule/technologyComponent/'+level+'/componentSourceCode/'+path;
+                                break;
+                            default :
+                                path='/functionModule/technologyComponent/projects/'+level+'/componentSourceCode/'+path;
+                        }
+
+                        break;
+                }
+
+                let self = this;
+                setTimeout(function () {
+                    self._openEditor({
+                        isParent: false,
+                        name,
+                        path
+                    }, true);
+                }, 200);
+            },
             _openEditor(model, maximize){
                 IDE.shade.open();
                 IDE.socket.emit("getFile", {
@@ -193,17 +228,11 @@
 
             if (this.$route.params) {
                 let serverId = this.$route.params.serverId;
-                let serverParam = this.$route.params.param;
+                let param1 = this.$route.params.p1;
+                let param2 = this.$route.params.p2;
                 switch (serverId) {
                     case 'openEditor':
-                        let self = this;
-                        setTimeout(function () {
-                            self._openEditor({
-                                isParent: false,
-                                name: "flowConfig.fc",
-                                path: "/hello/app1/service1/flow/flowConfig.fc",
-                            }, true);
-                        }, 1000);
+                        this.applyOpenEditorService(param1, param2);
                         break;
                     default:
                         console.log('服务类型异常');

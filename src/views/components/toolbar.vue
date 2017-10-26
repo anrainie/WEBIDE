@@ -61,7 +61,11 @@
 <script>
     var selection = null;
     export default{
-        props: ['toolitems'],
+        props: {
+            toolitems: {
+                required: true,
+            }
+        },
         data: function () {
             return {
                 name: "test",
