@@ -6,19 +6,23 @@
             class="debugCodeDialog">
             <el-table
                    style="width: 100%"
-                   :data="tableData">
-                <el-col
-                        prop="variable"
-                        label="变量名"
-                        style="width: 50%">
-
-                </el-col>
-                <el-col
-                    prop="value"
-                    label="值"
-                    style="width: 50%">
-
-                </el-col>
+                   :data="tableData"
+                   contenteditable="true"
+                   max-height="200px"
+                   onselect="true"
+                   ref="singleTable"
+                   border
+                   highlight-current-row
+                   @current-change="handleCurrentChange"
+                   @cell-mouse-leave="handleCurrentValue">
+                <el-table-column
+                        prop="variableName"
+                        label="变量名">
+                </el-table-column>
+                <el-table-column
+                        prop="variableValue"
+                        label="值">
+                </el-table-column>
             </el-table>
         <el-button-group align="left" style="margin-top: 10px">
             <el-button size="small" @click="addItem">添加</el-button>
@@ -33,27 +37,45 @@
 <script>
 
   export default {
+    name:'debugCodeDialog',
+    props:['tableData'],
     components: {},
     data () {
       return {
         dialogtitle:'调试代码',
         dialogFormVisible:false,
-        tableData:[],
+        currentRow:null,
       }
     },
     methods:{
       addItem(){
-
+          var variableName = "default"
+          var variableValue =  "default"
+          var newItem = {variableName,variableValue}
+          this.currentRow = newItem;
+          this.tableData.push(newItem);
+          this.$refs.singleTable.setCurrentRow(this.currentRow);
       },
       deleteItem(){
-
+        for(var index in this.tableData){
+          var data = this.tableData[index]
+          if(data === this.currentRow){
+            this.tableData.splice(index,1)
+          }
+        }
       },
       handleOk(){
-
+         this.dialogFormVisible = false;
       },
       openDialog(){
         this.dialogFormVisible = true;
-      }
+      },
+      handleCurrentChange(val) {
+        this.currentRow = val;
+      },
+      handleCurrentValue(row,column,cell,event){
+
+      },
     }
   }
 </script>

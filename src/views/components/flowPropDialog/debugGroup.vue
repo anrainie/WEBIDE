@@ -21,7 +21,11 @@
                     <el-input disabled style="width:200px"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button icon="more"></el-button>
+                    <el-button icon="more" @click="openDebugCodeDialog"></el-button>
+                    <debug-code-dialog
+                        ref="debugCodeDialog"
+                        :tableData="debugCode">
+                    </debug-code-dialog>
                 </el-form-item>
             </el-col>
         </el-row>
@@ -40,7 +44,11 @@
                     <el-input disabled style="width:200px"></el-input>
                 </el-form-item>
                 <el-form-item>
-                    <el-button icon="more"></el-button>
+                    <el-button icon="more" @click="openDebugReturnDialog"></el-button>
+                    <debug-return-dialog
+                            ref="debugReturnDialog"
+                            :tableData="debugReturn">
+                    </debug-return-dialog>
                 </el-form-item>
             </el-col>
         </el-row>
@@ -49,6 +57,8 @@
 <style>
 </style>
 <script>
+    import  debugCodeDialog from '../../../views/afa/dialog/DebugCodeDialog.vue';
+    import  debugReturnDialog from '../../../views/afa/dialog/DebugReturnDialog.vue';
     export default{
         props: {
             enable: {
@@ -61,6 +71,24 @@
                 type: String
             }
 
+        },
+      components:{
+          debugCodeDialog,
+          debugReturnDialog
+      },
+      data(){
+        return{
+          debugCode:[],
+          debugReturn:[]
         }
+      },
+      methods:{
+        openDebugReturnDialog(){
+          this.$refs.debugReturnDialog.openDialog();
+        },
+        openDebugCodeDialog(){
+          this.$refs.debugCodeDialog.openDialog();
+        }
+      }
     }
 </script>

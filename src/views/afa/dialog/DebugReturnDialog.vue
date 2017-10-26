@@ -26,6 +26,13 @@
             <el-table-column
                     prop="convert"
                     label="转码">
+                <el-select v-model="convert">
+                     <el-option v-for="item in convert"
+                                 :key="item.value"
+                                 :label="item.label"
+                                 :value="item.value">
+                     </el-option>
+                </el-select>
             </el-table-column>
         </el-table>
         <div slot="footer" class="dialog-footer">
@@ -35,7 +42,6 @@
     </el-dialog>
 </template>
 <script>
-
   export default {
     name:'debugReturnDialog',
     props:['tableData'],
@@ -45,6 +51,16 @@
         dialogtitle:'调试返回',
         dialogFormVisible:false,
         currentRow:null,
+        convert:[
+          {
+            value:'yes',
+            label:'是'
+          },
+          {
+            value:'no',
+            label:'否'
+          }
+        ],
       }
     },
     methods:{
@@ -58,11 +74,7 @@
         this.currentRow = val;
       },
       handleCurrentValue(row,column,cell,event){
-        if(cell.cellIndex==1){
-          row.variableName = cell.textContent
-        }else if(cell.cellIndex == 2){
-          row.variableValue= cell.textContent
-        }
+
       },
     }
   }
