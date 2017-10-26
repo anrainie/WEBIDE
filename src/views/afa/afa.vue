@@ -279,56 +279,60 @@
                             check: false,
                             async: true,
                             callback: {
-                                asyncLoadItem: function (item, level) {
-                                    if (!level) {
-                                        level = 1
+                              asyncLoadItem: function (item, level) {
+                                if (!level) {
+                                  level = 1
+                                }
+                                IDE.socket.emit('getNaviItems', {
+                                    type: IDE.type,
+                                    event: 'getNaviItems',
+                                    data: {
+                                      path: item.model.path,
+                                      level: level
                                     }
-                                    IDE.socket.emit('getNaviItems', {
-                                            type: IDE.type,
-                                            event: 'getNaviItems',
-                                            data: {
-                                                path: item.model.path,
-                                                level: level
-                                            }
-                                        }, function (result) {
-                                            if (result.state === 'success') {
-                                                let oldChildren = item.model.children
-                                                let newChildren = result.data
-                                                if (!oldChildren || oldChildren.length == 0) {
-                                                    item.model.children = result.data;
-                                                } else {
-                                                    for (let i = 0; i < newChildren.length; i++) {
-                                                        let newChd = newChildren[i];
-                                                        let exist = false;
-                                                        for (let j = 0; j < oldChildren.length; j++) {
-                                                            let oldChd = oldChildren[j];
-                                                            if (newChd.path === oldChd.path) {
-                                                                exist = true;
-                                                                oldChd['##keep##'] = true;
-                                                                break;
-                                                            }
+                                  }, function (result) {
+                                    if (result.state === 'success') {
+                                      let oldChildren = item.model.children
+                                      let newChildren = result.data
+                                      if (!oldChildren || oldChildren.length == 0) {
+                                        item.model.children = result.data
+                                      } else {
+                                        combine(newChildren, oldChildren)
+                                      }
+                                    } else {
+                                      debug.error('refresh resources fail , ' + result)
+                                    }
 
-                                                        }
-                                                        if (!exist) {
-                                                            newChd['##keep##'] = true;
-                                                            oldChildren.push(newChd);
-                                                        }
-                                                    }
-                                                    for (let i = 0; i < oldChildren.length; i++) {
-                                                        let oldChd = oldChildren[i];
-                                                        if (!oldChd['##keep##']) {
-                                                            oldChildren.splice(i, 1);
-                                                            i--;
-                                                        }
-                                                        delete oldChd['##keep##'];
-                                                    }
-                                                }
-                                            } else {
-                                                debug.error('refresh resources fail , ' + result);
-                                            }
+                                    function combine (newChildren, oldChildren) {
+                                      for (let i = 0; i < newChildren.length; i++) {
+                                        let newChd = newChildren[i]
+                                        let exist = false
+                                        for (let j = 0; j < oldChildren.length; j++) {
+                                          let oldChd = oldChildren[j]
+                                          if (newChd.path === oldChd.path) {
+                                            exist = true
+                                            oldChd['##keep##'] = true
+                                            combine(newChd.children ? newChd.children : [], oldChd.children ? oldChd.children : [])
+                                            break
+                                          }
                                         }
-                                    );
-                                },
+                                        if (!exist) {
+                                          newChd['##keep##'] = true
+                                          oldChildren.push(newChd)
+                                        }
+                                      }
+                                      for (let i = 0; i < oldChildren.length; i++) {
+                                        let oldChd = oldChildren[i]
+                                        if (!oldChd['##keep##']) {
+                                          oldChildren.splice(i, 1)
+                                          i--
+                                        }
+                                        delete oldChd['##keep##']
+                                      }
+                                    }
+                                  }
+                                )
+                              },
                                 delete: function (item) {
                                     let editor = IDE.editorPart.getEditor(item);
                                     if (editor) {
