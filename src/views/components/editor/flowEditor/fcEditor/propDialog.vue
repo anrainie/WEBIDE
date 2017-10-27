@@ -34,7 +34,7 @@
 
 <style>
     .large {
-        width: 950px
+        width: 950px;
     }
 
     .small {
@@ -159,7 +159,8 @@
                 inputParam,
                 outputParam
 
-            }
+            },
+            size: 'large'
         },
         //内部场景调用
         12: {
@@ -242,18 +243,20 @@
             },
             /*通过refs调用子组件*/
             saveHandle(refsName) {
-                try {
-                    this.$refs[refsName][0].savePropsToModel(this.model);
-                } catch (e) {
-                    //TODO
-                }
+                 return  this.$refs[refsName][0].savePropsToModel(this.model);
             },
             clickConfirm() {
-                if (this.group) {
-                    for (let name of Object.keys(this.group)) {
-                        this.saveHandle(name);
+                let cmd;
+                if (this.group && this.group.config) {
+                    for (let name of Object.keys(this.group.config)) {
+                        if (cmd) {
+                            cmd = cmd.chain(this.saveHandle(name));
+                        } else {
+                            cmd = this.saveHandle(name)
+                        }
                     }
                 }
+                if (cmd) this.$emit('saveProps', cmd);
                 this.updateVisible(false);
             }
         },

@@ -357,6 +357,7 @@ $AG.policy = {
                 //添加一个监听数据的改变
                 this.listener = () => {
                     this.handle.setText(this.getHost().model.get(key));
+                    this.handle.refreshLocation(this.getHost().figure)
                 };
                 this.getHost().model.addPropertyListener(this.listener, key);
             },

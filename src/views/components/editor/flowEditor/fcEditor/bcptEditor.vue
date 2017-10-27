@@ -3,18 +3,15 @@
     <editor-Container :editor="this">
         <div slot="editor-content">
 
-            <flow-Editor
-                    :editorid="nodeEditorID"
-                    ref="nodeEditor"
-                    :input-style="{width: '100%'}"
-                    :editor-config="nodeEditorCfg"
-                    :bind-event="nodeBindEvent"
-                    :save="saveHandle"
-                    :openPaletteEvent="nodePaletteOpenEvent"
-                    @dblclickCanvas="nodeDoubleClickCanvas"></flow-Editor>
+            <flow-Editor :editorid="nodeEditorID"
+                         ref="editor"
+                         :input-style="{width: '50%'}"
+                         :editor-config="nodeEditorCfg"
+                         :bind-event="nodeBindEvent"
+                         :save="saveHandle"
+                         :openPaletteEvent="nodePaletteOpenEvent"
+                         @dblclickCanvas="nodeDoubleClickCanvas"></flow-Editor>
 
-            <!--对话框-->
-            <!--<component :is="dialogType" :showProperties.sync="showproperties" :model="dialogTarget" :path="file.path"></component>-->
             <propDialog :showProperties.sync="showproperties"
                         :model="dialogTarget"
                         :path="file.path"
@@ -29,7 +26,6 @@
     import editorContainer from '../../../editorContainer.vue'
     import {nodeInput2Config} from './resolve'
     import * as Constants from 'Constants'
-    //import {stepDialogs, nodeDialogs} from './propDialog'
     import propDialog from './propDialog.vue'
 
 
@@ -125,7 +121,7 @@
     ]
 
     export default {
-        name: 'fcEditor',
+        name: 'bcpt-editor',
         props: ['file', 'msgHub', 'input'],
         data() {
             let self = this;
@@ -145,6 +141,13 @@
                 editortype: null
 
             }
+        },
+        mounted() {
+            /*let canvas = this.$refs["editor"].canvas.element;
+
+            $(canvas).mousedown((e) => {
+
+            })*/
         },
         computed: {
             /*根据input初始化配置*/
@@ -200,14 +203,14 @@
         },
         methods: {
             isDirty() {
-                if (this.$refs["nodeEditor"] == null) return false;
+                if (this.$refs["editor"] == null) return false;
 
-                return this.$refs["nodeEditor"].editor.isDirty();
+                return this.$refs["editor"].editor.isDirty();
             },
             save() {
-                let stepEditor = this.$refs["stepEditor"].editor, self = this;
+                /*let stepEditor = this.$refs["stepEditor"].editor, self = this;
 
-                /*处理Node和Step的关系*/
+                /!*处理Node和Step的关系*!/
                 let nodeStore = stepEditor.store.node;
 
                 nodeStore({
@@ -227,14 +230,14 @@
                     }
                 });
 
-                /*step保存*/
+                /!*step保存*!/
                 stepEditor.doSave();
                 console.log(stepEditor.getSaveData(stepPropsName))
                 this.nodeEditorBuffer.clear();
                 if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;
                 //this.setStepFromInput(stepEditor.getSaveData(stepPropsName));
                 this.msgHub.$emit('dirtyStateChange', this.file, false);
-                return true;
+                return true;*/
             },
             focus() {
 
@@ -245,17 +248,8 @@
 
             nodeDoubleClickCanvas(style) {
                 style['width'] = style['width'] == "100%" ? "50%" : "100%";
-            },
-
-
-            setStepFromInput(step) {
-                this.input.Root.Regulation.Step = step;
             }
         },
-        /*components: Object.assign({
-            flowEditor,
-            editorContainer
-        }, stepDialogs, nodeDialogs)*/
         components: {
             flowEditor,
             editorContainer,

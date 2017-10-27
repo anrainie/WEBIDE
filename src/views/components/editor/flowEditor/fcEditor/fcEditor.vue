@@ -13,6 +13,17 @@
                     :open-palette-event="stepPaletteOpenEvent"
                     @dblclickCanvas="stepDoubleClickCanvas"></flow-Editor>
 
+
+            <!--<bcpt-editor v-if="nodeExist"
+                          v-show="nodeVisible"
+                          ref="nodeEditor"
+                          :file="file"
+                          :input="nodeEditorInput"
+                          :msgHub="msgHub">
+
+            </bcpt-editor>-->
+
+
             <flow-Editor
                     :editorid="nodeEditorID"
                     v-if="nodeExist"
@@ -26,8 +37,8 @@
                     @dblclickCanvas="nodeDoubleClickCanvas"></flow-Editor>
 
             <!--对话框-->
-            <!--<component :is="dialogType" :showProperties.sync="showproperties" :model="dialogTarget" :path="file.path"></component>-->
             <propDialog :showProperties.sync="showproperties"
+                        @saveProps="saveProps"
                  :model="dialogTarget"
                  :path="file.path"
                  :editortype="editortype"
@@ -41,8 +52,8 @@
     import editorContainer from '../../../editorContainer.vue'
     import {stepInput2Config, nodeInput2Config} from './resolve'
     import * as Constants from 'Constants'
-    //import {stepDialogs, nodeDialogs} from './propDialog'
     import propDialog from './propDialog.vue'
+    import bcptEditor from './bcptEditor.vue'
 
 
     /*用于参数忽略的时候*/
@@ -171,15 +182,14 @@
                                 self.nodeVisible = true;
                             }
 
-                            console.log('remove editor')
                             self.$refs["nodeEditor"].removeContent();
                         }
 
                         /*不在缓冲中，直接创建*/
                         if (!self.nodeEditorBuffer.has(uuid)) {
-                            console.log("create editor")
 
                             self.nodeEditorInput = Object.assign({}, model.get('Implementation'), {UUID: uuid});
+                            //self.nodeEditorInput = Object.assign({Component:model.props});
                             self.nodeVisible = self.nodeExist = true;
                             return;
                         }
@@ -188,7 +198,6 @@
                         function replace(editor) {
                             this.$data.editor = editor;
                             $(this.$el).append(editor.canvas.element);
-                            //editor.createContent(this.editorid)
                         }
 
                         /*不严谨,FlowEdior的Config不一致*/
@@ -262,7 +271,7 @@
                                                     return {
                                                         name: com.desp,
                                                         url: comUrl,
-                                                        data: com.Component
+                                                        data: Object.assign({}, com.Component, {type: '4', size: [160,46]}),
                                                     }
                                                 })
                                             })
@@ -276,37 +285,6 @@
                             } catch (e) {
                                 //TOWARN
                             }
-
-                            /*try {
-                                let children = [];
-                                result.data.result.forEach((item) => {
-                                    if (item.type == path && item.children) {
-
-                                    }
-                                })
-                            }*/
-
-                            /*let data = result.data[path];
-
-                            if (data == null || data["componentPackage"] == null) return;
-
-                            let children = [];
-
-                            data["componentPackage"].forEach((item) => {
-                                children.push({
-                                    name: item.componentPackage,
-                                    url: packUrl,
-                                    items: item.bcpt.map((bcpt) => {
-                                        return {
-                                            url: comUrl,
-                                            data: Object.assign(bcpt.Component, {type: "4", size: [160, 46]}),
-                                            name: bcpt.Component.Desp,
-                                        }
-                                    })
-                                })
-                            })*/
-
-                            //config[path].children = children
 
                         } else {
                             //TODO
@@ -443,16 +421,17 @@
 
             setStepFromInput(step) {
                 this.input.Root.Regulation.Step = step;
+            },
+
+            saveProps(cmd) {
+                this.$refs[this.editortype + "Editor"]["editor"].execute(cmd);
             }
         },
-        /*components: Object.assign({
-            flowEditor,
-            editorContainer
-        }, stepDialogs, nodeDialogs)*/
         components: {
             flowEditor,
             editorContainer,
-            propDialog
+            propDialog,
+            bcptEditor
         }
     }
 </script>
