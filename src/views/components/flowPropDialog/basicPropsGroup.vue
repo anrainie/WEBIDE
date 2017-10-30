@@ -1,14 +1,14 @@
-<style>
-</style>
 <script>
     import Vue from "vue";
     import chooseTargetSceneDialog from '../../../views/afa/dialog/ChooseTargetSceneDialog.vue';
     import chooseTargetBcptDialog from '../../../views/afa/dialog/ChooseTargetBcptDialog.vue';
     import {$AG} from 'anrajs'
 
+    const saveCmd = $AG.SetPropsCommand;
+
     /*通用组件模板*/
     let templateA = `
-        <el-form ref="form" label-width="90px">
+        <el-form ref="form">
             <el-form-item label="实现名称" :required="true" style="margin-top: 15px">
                 <el-input v-model="modification.RefImpl"></el-input>
             </el-form-item>
@@ -78,10 +78,10 @@
             </el-col>
           </el-row>
 
-          <el-row style="margin-top: -20px">
+          <el-row v-bind:style="rowSpan">
             <el-col :span="12">
-                <el-form-item label="目标服务">
-                 <el-input v-model="modification.Target" style="width: 300px"></el-input>
+                <el-form-item label="目标场景">
+                 <el-input v-model="modification.Target" v-bind:style="inputStyle.largeSize.halfWithButton"></el-input>
                 </el-form-item>
 
 
@@ -93,21 +93,21 @@
 
             <el-col :span="12">
                 <el-form-item label="场景名称">
-                    <el-input v-model="modification.Name" style="width: 360px" ></el-input>
+                    <el-input v-model="modification.Name" v-bind:style="inputStyle.largeSize.half" ></el-input>
                 </el-form-item>
             </el-col>
           </el-row>
 
 
-          <el-row style="margin-top: -20px">
+          <el-row v-bind:style="rowSpan">
             <el-form-item label="场景描述">
-                <el-input  v-model="modification.Desp" style="width: 800px" ></el-input>
+                <el-input  v-model="modification.Desp" v-bind:style="inputStyle.largeSize.full" ></el-input>
             </el-form-item>
           </el-row>
 
-          <el-row style="margin-top: -20px">
-            <el-form-item label="组件注释" style="margin-bottom: -15px">
-                <el-input v-model="modification.ToolTip" type="textarea" style="width: 800px"></el-input>
+          <el-row v-bind:style="rowSpan">
+            <el-form-item label="组件注释">
+                <el-input v-model="modification.ToolTip" type="textarea" v-bind:style="inputStyle.largeSize.full"></el-input>
             </el-form-item>
           </el-row>
         </el-form>
@@ -148,10 +148,10 @@
             </el-col>
           </el-row>
 
-          <el-row style="margin-top: -20px">
+          <el-row v-bind:style="rowSpan">
             <el-col :span="12">
                 <el-form-item label="目标服务">
-                 <el-input v-model="modification.Target" style="width: 300px"></el-input>
+                 <el-input v-model="modification.Target" v-bind:style="inputStyle.largeSize.halfWithButton"></el-input>
                 </el-form-item>
 
 
@@ -163,50 +163,63 @@
 
             <el-col :span="12">
                 <el-form-item label="场景名称">
-                    <el-input v-model="modification.Name" style="width: 360px" ></el-input>
+                    <el-input v-model="modification.Name" v-bind:style="inputStyle.largeSize.half" ></el-input>
                 </el-form-item>
             </el-col>
           </el-row>
 
 
-          <el-row style="margin-top: -20px">
+          <el-row v-bind:style="rowSpan">
             <el-form-item label="场景描述">
-                <el-input  v-model="modification.Desp" style="width: 800px" ></el-input>
+                <el-input  v-model="modification.Desp" v-bind:style="inputStyle.largeSize.full" ></el-input>
             </el-form-item>
           </el-row>
 
-          <el-row style="margin-top: -20px">
+          <el-row v-bind:style="rowSpan">
             <el-form-item label="组件注释" style="margin-bottom: -15px">
-                <el-input v-model="modification.Tooltip" type="textarea" style="width: 800px"></el-input>
+                <el-input v-model="modification.Tooltip" type="textarea" v-bind:style="inputStyle.largeSize.full"></el-input>
             </el-form-item>
           </el-row>
         </el-form>
     `
     //通用组件、多出口组件
     let templateD = `
-        <el-form label-width="90px">
+        <el-form labelWidth="78px" :inline="true" label-position="left">
 
-            <el-form-item label="实现名称" :required="true">
-                <el-input v-model="modification.RefImpl"></el-input>
-            </el-form-item>
-            <el-form-item label="组件名称" :required="true">
-                <el-input v-model="modification.Desp"></el-input>
-            </el-form-item>
+            <el-row>
+                <el-form-item label="实现名称" :required="true">
+                    <el-input v-model="modification.RefImpl" v-bind:style="inputStyle.smallSize.full"></el-input>
+                </el-form-item>
+            </el-row>
 
-             <el-form-item label="备注" >
-                <el-select v-model="modification.Remarks" >
-                    <el-option value="0" label="通用">
-                    </el-option>
-                    <el-option value="1" label="定制">
-                    </el-option>
-                </el-select>
+            <el-row v-bind:style="rowSpan">
+                <el-form-item label="组件名称" :required="true">
+                    <el-input v-model="modification.Desp" v-bind:style="inputStyle.smallSize.full"></el-input>
+                </el-form-item>
+            </el-row>
 
-                <el-checkbox v-model="modification.Readonly">只读</el-checkbox>
-             </el-form-item>
+            <el-row v-bind:style="rowSpan">
 
-            <el-form-item label="注释" :required="true">
-                <el-input type="textarea" v-model="modification.ToolTip"></el-input>
-            </el-form-item>
+                <el-form-item label="备注" :required="true">
+                    <el-select v-model="modification.Remarks" v-bind:style="inputStyle.smallSize.half">
+                        <el-option value="0" label="通用">
+                        </el-option>
+                        <el-option value="1" label="定制">
+                        </el-option>
+                    </el-select>
+                </el-form-item>
+
+
+                <el-form-item label="只读" :required="true">
+                    <el-checkbox v-model="modification.Readonly" style="margin-top: 8px"></el-checkbox>
+                </el-form-item>
+            </el-row>
+
+            <el-row v-bind:style="rowSpan">
+                <el-form-item label="注释" :required="true">
+                    <el-input type="textarea" v-model="modification.ToolTip" v-bind:style="inputStyle.smallSize.full"></el-input>
+                </el-form-item>
+            </el-row>
 
         </el-form>
     `
@@ -216,34 +229,34 @@
         <el-form  :inline="true" class="demo-form-inline">
         <el-row>
             <el-form-item label="目标组件">
-                <el-input v-model="modification.Target" :disabled="true" style="width: 190px"></el-input>
+                <el-input v-model="modification.Target" :disabled="true" v-bind:style="inputStyle.smallSize.half"></el-input>
             </el-form-item>
 
             <el-form-item label="组件名称" style="margin-left: 20px">
-                <el-input v-model="modification.Name" :disabled="true" style="width: 190px"></el-input>
+                <el-input v-model="modification.Name" :disabled="true" v-bind:style="inputStyle.smallSize.half"></el-input>
 
             </el-form-item>
         </el-row>
 
-        <el-row style="margin-top: -25px">
+        <el-row v-bind:style="rowSpan">
             <el-form-item label="组件描述">
-                <el-input v-model="modification.Desp" style="width: 190px"></el-input>
+                <el-input v-model="modification.Desp" v-bind:style="inputStyle.smallSize.half"></el-input>
             </el-form-item>
 
             <el-form-item label="组件级别" style="margin-left: 20px">
-                <el-input :disabled="true" style="width: 190px"></el-input>
+                <el-input :disabled="true" v-bind:style="inputStyle.smallSize.half"></el-input>
             </el-form-item>
         </el-row>
 
-        <el-row style="margin-top: -25px">
+        <el-row v-bind:style="rowSpan">
             <el-form-item label="组件注释">
-                <el-input v-model="modification.Tooltip" type="textarea" style="width: 480px"></el-input>
+                <el-input v-model="modification.Tooltip" type="textarea" v-bind:style="inputStyle.smallSize.full"></el-input>
             </el-form-item>
         </el-row>
 
-        <el-row style="margin-top: -25px;margin-bottom: -15px">
+        <el-row v-bind:style="rowSpan">
             <el-form-item label="结束分支">
-                <el-select style="width: 480px" v-model="modification.Value">
+                <el-select v-bind:style="inputStyle.smallSize.full" v-model="modification.Value">
                     <el-option v-for="item in [2, 3, 4, 5, 6, 7, 8]"
                                :key="item"
                                :label="item"
@@ -262,10 +275,10 @@
                     <el-checkbox >动态调用</el-checkbox>
                 </el-form-item>
             </el-row>
-            <el-row style="margin-top: -25px">
+            <el-row v-bind:style="rowSpan">
                 <el-col :span="12">
                     <el-form-item label="目标组件">
-                        <el-input v-model="modification.Target" :disabled="true" style="width: 300px"></el-input>
+                        <el-input v-model="modification.Target" :disabled="true" v-bind:style="inputStyle.largeSize.halfWithButton"></el-input>
                     </el-form-item>
 
 
@@ -280,21 +293,21 @@
 
                 <el-col :span="12">
                     <el-form-item label="组件名称" style="margin-left: -10px">
-                        <el-input v-model="modification.Name" :disabled="true" style="width: 360px"></el-input>
+                        <el-input v-model="modification.Name" :disabled="true" v-bind:style="inputStyle.largeSize.half"></el-input>
                     </el-form-item>
                 </el-col>
 
             </el-row>
-            <el-row style="margin-top: -25px" >
+            <el-row v-bind:style="rowSpan" >
                 <el-col :span="12">
                     <el-form-item label="组件描述">
-                        <el-input v-model="modification.Desp" style="width: 360px"></el-input>
+                        <el-input v-model="modification.Desp" v-bind:style="inputStyle.largeSize.half"></el-input>
                     </el-form-item>
                 </el-col>
 
                 <el-col :span="12">
                     <el-form-item label="组件级别" style="margin-left: -10px">
-                        <el-select v-model="modification.Level" disabled style="width: 360px">
+                        <el-select v-model="modification.Level" disabled v-bind:style="inputStyle.largeSize.half">
                             <el-option v-for="item in [{value: '0', label: '平台'}, {value: '1', label: '银行'}]"
                                        :key="item.value"
                                        :label="item.label"
@@ -304,9 +317,9 @@
                     </el-form-item>
                 </el-col>
             </el-row>
-            <el-row style="margin-top: -25px" >
+            <el-row v-bind:style="rowSpan" >
                 <el-form-item label="组件注释">
-                    <el-input v-model="modification.Tooltip" type="textarea" style="width: 800px"></el-input>
+                    <el-input v-model="modification.Tooltip" type="textarea" v-bind:style="inputStyle.largeSize.full"></el-input>
                 </el-form-item>
             </el-row>
         </el-form>
@@ -317,19 +330,19 @@
             <el-row>
                 <el-col :span="12">
                     <el-form-item label="目标组件">
-                       <el-input v-model="modification.RefImpl" :disabled="true" style="width: 360px"></el-input>
+                       <el-input v-model="modification.RefImpl" :disabled="true" v-bind:style="inputStyle.largeSize.half"></el-input>
                     </el-form-item>
                 </el-col>
 
                 <el-form-item label="组件名称">
-                    <el-input v-model="modification.Desp"  :disabled="true" style="width: 360px"></el-input>
+                    <el-input v-model="modification.Desp"  :disabled="true" v-bind:style="inputStyle.largeSize.half"></el-input>
                 </el-form-item>
             </el-row>
 
-            <el-row style="margin-top: -25px">
+            <el-row v-bind:style="rowSpan">
                 <el-col :span="12" :pull="12">
                 <el-form-item label="组件级别">
-                        <el-select v-model="modification.Level" disabled style="width: 360px">
+                        <el-select v-model="modification.Level" disabled v-bind:style="inputStyle.largeSize.half">
                             <el-option v-for="item in [{value: '0', label: '平台'}, {value: '1', label: '银行'}]"
                                        :key="item.value"
                                        :label="item.label"
@@ -340,9 +353,9 @@
                 </el-col>
             </el-row>
 
-            <el-row style="margin-top: -25px">
+            <el-row v-bind:style="rowSpan">
                 <el-form-item label="组件注释">
-                    <el-input v-model="modification.ToolTip" type="textarea" style="width:800px"></el-input>
+                    <el-input v-model="modification.ToolTip" type="textarea" v-bind:style="inputStyle.largeSize.full"></el-input>
                 </el-form-item>
              </el-row>
         </el-form>
@@ -353,21 +366,21 @@
             <el-row>
                 <el-col :span="12">
                     <el-form-item label="目标函数">
-                        <el-input v-model="modification.Target" style="width: 360px" ></el-input>
+                        <el-input v-model="modification.Target" v-bind:style="inputStyle.largeSize.half" ></el-input>
                     </el-form-item>
                 </el-col>
 
                 <el-col :span="12">
                     <el-form-item label="组件名称">
-                        <el-input v-model="modification.Name" style="width:360px"></el-input>
+                        <el-input v-model="modification.Name" v-bind:style="inputStyle.largeSize.half"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
 
-            <el-row style="margin-top: -25px">
+            <el-row v-bind:style="rowSpan">
                 <el-col :span="12">
                     <el-form-item label="组件级别">
-                        <el-select v-model="modification.Level" disabled style="width: 360px">
+                        <el-select v-model="modification.Level" disabled v-bind:style="inputStyle.largeSize.half">
                             <el-option v-for="item in [{value: '0', label: '平台'}, {value: '1', label: '银行'}]"
                                        :key="item.value"
                                        :label="item.label"
@@ -379,15 +392,15 @@
 
                 <el-col :span="12">
                     <el-form-item label="组件组">
-                        <el-input v-model="modification.Group" style="width: 360px;margin-left: 14px"></el-input>
+                        <el-input v-model="modification.Group" v-bind:style="[inputStyle.largeSize.half, {'margin-left' : '14px'}]" ></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
 
-            <el-row style="margin-top: -25px">
+            <el-row v-bind:style="rowSpan">
                 <el-col :span="12">
                     <el-form-item label="功能描述">
-                        <el-input v-model="modification.Desp" style="width: 360px"></el-input>
+                        <el-input v-model="modification.Desp" v-bind:style="inputStyle.largeSize.half"></el-input>
                     </el-form-item>
                 </el-col>
 
@@ -398,10 +411,10 @@
                 </el-col>
             </el-row>
 
-            <el-row style="margin-top: -25px">
+            <el-row v-bind:style="rowSpan">
                 <el-col :span="24">
                     <el-form-item label="组件注释">
-                        <el-input v-model="modification.Tooltip" style="width: 800px" type="textarea"></el-input>
+                        <el-input v-model="modification.Tooltip" v-bind:style="inputStyle.largeSize.full" type="textarea"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -488,6 +501,23 @@
                 modification: this.initModification(propsKey[this.type]),
                 chooseSceneNode:null,
                 chooseBcptNode:null,
+
+                inputStyle: {
+                    largeSize: {
+                        half: {width: "360px"},
+                        full: {width: "800px"},
+                        halfWithButton: {width: "300px"}
+                    },
+                    smallSize: {
+                        half: {with: "190px"},
+                        full: {width: "480px"}
+                    }
+                },
+
+                //行距离
+                rowSpan: {
+                    "margin-top": "-25px"
+                }
             }
         },
         methods: {
@@ -515,9 +545,9 @@
                     if (key == undefined) continue;
 
                     if (cmd) {
-                        cmd = cmd.chain(new $AG.SetPropsCommand(key, item, model));
+                        cmd = cmd.chain(new saveCmd(key, item, model));
                     } else {
-                        cmd = new $AG.SetPropsCommand(key, item, model);
+                        cmd = new saveCmd(key, item, model);
                     }
                 }
 

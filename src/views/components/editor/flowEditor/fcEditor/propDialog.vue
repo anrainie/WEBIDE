@@ -8,7 +8,7 @@
 
                         <el-collapse-item  :title="item.name" :name="index" v-for="(item, name, index) in tab.config">
                             <keep-alive>
-                                <component :is="name" :model="getProps" :type="item.type" :ref="name" :path="path"></component>
+                                <component :is="item.group" :model="getProps" :type="item.type" :ref="name" :path="path"></component>
                             </keep-alive>
                         </el-collapse-item>
 
@@ -109,7 +109,8 @@
                             type: '3'
                         },
                         skipInfo
-                    }},
+                    }
+                },
                 {
                     name: "step出口",
                     config: {

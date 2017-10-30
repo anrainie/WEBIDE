@@ -60,7 +60,6 @@
             path: {
                 type: String
             }
-
         }
     }
 </script>
