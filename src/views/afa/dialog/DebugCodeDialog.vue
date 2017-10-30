@@ -99,7 +99,11 @@
         this.currentRow = val;
       },
       handleCurrentValue(row,column,cell,event){
-
+        if(cell.cellIndex==0){
+          row.variableName = cell.textContent
+        }else if(cell.cellIndex == 1){
+          row.variableValue= cell.textContent
+        }
       },
     }
   }
