@@ -4,7 +4,7 @@
             <el-col :span="12">
                 <el-form-item label="调试模式">
                     <el-switch
-                            value="1"
+                            v-model="modification.isDebug"
                             style="margin-top: 8px"
                             on-color="#13ce66"
                             off-color="#ff4949"
@@ -18,13 +18,13 @@
 
             <el-col :span="12">
                 <el-form-item label="调试代码">
-                    <el-input disabled style="width:200px"></el-input>
+                    <el-input disabled style="width:200px" v-model="modification.code"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button icon="more" @click="openDebugCodeDialog"></el-button>
                     <debug-code-dialog
                         ref="debugCodeDialog"
-                        :tableData="debugCode">
+                        :modification="modification">
                     </debug-code-dialog>
                 </el-form-item>
             </el-col>
@@ -33,21 +33,27 @@
         <el-row style="margin-top: -25px;margin-bottom: -15px">
             <el-col :span="12">
                 <el-form-item label="调试结果">
-                    <el-select style="width:200px" value="">
-
+                    <el-select style="width:200px" value="" v-model="modification.result">
+                       <el-option
+                           v-for="item in debugResult"
+                           :key="item.value"
+                           :value="item.value"
+                           :label="item.label">
+                       </el-option>
                     </el-select>
                 </el-form-item>
             </el-col>
 
             <el-col :span="12">
                 <el-form-item label="调试返回">
-                    <el-input disabled style="width:200px"></el-input>
+                    <el-input disabled style="width:200px" v-model="modification.returnCode"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button icon="more" @click="openDebugReturnDialog"></el-button>
                     <debug-return-dialog
                             ref="debugReturnDialog"
-                            :tableData="debugReturn">
+                            :debugReturn="modification.item"
+                            :ougArgs="modification.outArgs">
                     </debug-return-dialog>
                 </el-form-item>
             </el-col>
@@ -82,8 +88,16 @@
       },
       data(){
         return{
-          debugCode:[],
-          debugReturn:[],
+          debugResult:[
+            {
+              label:'0',
+              value:'0',
+            },
+            {
+              label:'1',
+              value:'1'
+            }
+          ],
           modification: this.initModification(),
         }
       },
@@ -95,8 +109,15 @@
           this.$refs.debugCodeDialog.openDialog();
         },
         initModification(){
-          var model = this.model;
-          console.log(model);
+          if(this.model.Debug) {
+            var code = this.model.Debug.Codes.Code;
+            var result = this.model.Debug.Result;
+            var item = this.model.Debug.ReturnList.Item;
+            var isDebug = this.model.IsDebug;
+            var outArgs = this.model.OutArgs;
+            var returnCode = this.model.Debug.Return;
+            return {code, result, item, returnCode, isDebug, outArgs};
+          }
         }
       }
     }
