@@ -2,13 +2,14 @@
  * Created by zcn on 2017/6/15.
  */
 
-var socket_io = require('socket.io');
-var parseCookie = require('cookie-parser');
-var shareSession = require('express-socket.io-session');
-var dbConstants = require('./../constants/DBConstants');
-var productDao = require('./../dao/ProductDao');
-var Product = require('./Product');
-var ideServices = require('./../service/ide.service.js');
+const socket_io = require('socket.io');
+const parseCookie = require('cookie-parser');
+const shareSession = require('express-socket.io-session');
+const dbConstants = require('./../constants/DBConstants');
+const productDao = require('./../dao/ProductDao');
+const Product = require('./Product');
+const ideServices = require('./../service/ide.service.js');
+
 
 function Servlet(serviceConfigs, session, http) {
     this.serviceConfigs = serviceConfigs;

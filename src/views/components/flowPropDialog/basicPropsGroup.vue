@@ -86,7 +86,10 @@
 
 
                 <el-form-item style="margin-left: -5px">
-                    <el-button icon="more"></el-button>
+                    <el-button icon="more" @click="openChooseSceneDialog()"></el-button>
+                        <chooseTargetSceneDialog ref="chooseTargetSceneDialog"
+                                                 :modification="modification">
+                </chooseTargetSceneDialog>
                 </el-form-item>
             </el-col>
 
@@ -97,7 +100,6 @@
                 </el-form-item>
             </el-col>
           </el-row>
-
 
           <el-row v-bind:style="rowSpan">
             <el-form-item label="场景描述">
@@ -156,7 +158,10 @@
 
 
                 <el-form-item style="margin-left: -5px">
-                    <el-button icon="more"></el-button>
+                    <el-button icon="more" @click="openChooseSceneDialog()"></el-button>
+                    <chooseTargetSceneDialog ref="chooseTargetSceneDialog"
+                                             :modification="modification">
+                    </chooseTargetSceneDialog>
                 </el-form-item>
             </el-col>
 
@@ -167,7 +172,6 @@
                 </el-form-item>
             </el-col>
           </el-row>
-
 
           <el-row v-bind:style="rowSpan">
             <el-form-item label="场景描述">
@@ -280,7 +284,6 @@
                     <el-form-item label="目标组件">
                         <el-input v-model="modification.Target" :disabled="true" v-bind:style="inputStyle.largeSize.halfWithButton"></el-input>
                     </el-form-item>
-
 
                     <el-form-item style="margin-left: -5px">
                         <el-button icon="more" @click="openChooseBcptDialog"></el-button>

@@ -202,6 +202,9 @@
             }
         },
         methods: {
+            getPartName() {
+                return this.file.name;
+            },
             isDirty() {
                 if (this.$refs["editor"] == null) return false;
 

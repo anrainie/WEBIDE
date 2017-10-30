@@ -48,20 +48,21 @@ Product.prototype.connect = function () {
 
     this.socket.on('connect_failed',function () {
         self.online = false;
-        IDE.defaultLogger.info(`product ${self.ip}:${self.ip} connect failed`);
+        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} connect failed`);
     });
 
     this.socket.on('connect_timeout',function () {
         self.online = false;
-        IDE.defaultLogger.info(`product ${self.ip}:${self.ip} connect timeout`);
+        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} connect timeout`);
     });
 
     this.socket.on('disconnect',function () {
-        IDE.defaultLogger.info(`product ${self.ip}:${self.ip} disconnect`);
+        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} disconnect`);
     })
 
     this.socket.on('reconnect',function (data) {
-        IDE.defaultLogger.info(`product ${self.ip}:${self.ip} reconnect`);
+        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} reconnect`);
+        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} reconnect`);
     });
 
     this.socket.on('lockTimeout',function (timeoutlock) {
@@ -86,7 +87,7 @@ Product.prototype.runServiceHandler = function (reqData, callback) {
         if (!handler) {
             callback({state: "error", returnMsg: "service is unregisted"});
         } else {
-            handler.call(this,reqData.event,reqData,function (rspData) {
+            handler.call(this,reqData,function (rspData) {
                 callback(rspData);
             });
         }

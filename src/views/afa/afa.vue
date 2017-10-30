@@ -1,16 +1,16 @@
 <template>
     <div class="ide_root">
-        <menubar id="ide_menu" ref="ide_menu" :menu_data="menuData"></menubar>
+        <menubar v-if="showMenuBar" id="ide_menu" ref="ide_menu" :menu_data="menuData"></menubar>
         <toolbar class="top_toolbar" :config="toolbarConfig" :toolitems="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
-            <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
-            <workbench id="ide_workbench_center" :views="views" ref="workbench"
+            <fastbar v-if="showFastBarLeft" id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
+            <workbench v-if="showWorkbench" id="ide_workbench_center" :views="views" ref="workbench"
                        :editorconfig="editorPartConfig"></workbench>
-            <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
+            <fastbar v-if="showFastBarRight" id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
-        <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
+        <fastbar v-if="showFastBarBottom" id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
         <contextmenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
                      :items="naviContextMenuItems"
                      :config="contextMenuConfig"
@@ -116,6 +116,11 @@
                         bcpt: bcptEditor
                     }
                 },
+                showFastBarLeft: true,
+                showFastBarRight: true,
+                showFastBarBottom: true,
+                showMenuBar: true,
+                showWorkbench: true,
                 vertical: false,
                 horizontal: true,
                 pageName: "pageName",
@@ -143,7 +148,7 @@
                         open: false,
                     }],
                     right: [{
-                        id: 'console',
+                        id: 'problem',
                         subgroup: 1,
                         open: false,
                     }, {
@@ -152,7 +157,7 @@
                         open: false,
                     }],
                     bottom: [{
-                        id: 'problem',
+                        id: 'console',
                         subgroup: 1,
                         open: false,
                     }]
@@ -170,18 +175,18 @@
                         name = 'flowConfig.fc';
                         break;
                     case 'java':
-                        let p=param1.split('|');
-                        let level=p[1];
+                        let p = param1.split('|');
+                        let level = p[1];
                         path = p.join('/') + '.java';
                         name = path;
 
-                        switch(level){
+                        switch (level) {
                             case 'bank':
                             case 'platform':
-                                path='/functionModule/technologyComponent/'+level+'/componentSourceCode/'+path;
+                                path = '/functionModule/technologyComponent/' + level + '/componentSourceCode/' + path;
                                 break;
                             default :
-                                path='/functionModule/technologyComponent/projects/'+level+'/componentSourceCode/'+path;
+                                path = '/functionModule/technologyComponent/projects/' + level + '/componentSourceCode/' + path;
                         }
 
                         break;
@@ -219,6 +224,8 @@
                 });
             },
         },
+        created(){
+        },
         mounted(){
 
             let self = this;
@@ -244,6 +251,19 @@
             }
         },
         beforeCreate(){
+
+            if (this.$route.params) {
+                let serverId = this.$route.params.serverId;
+                switch (serverId) {
+                    case 'openEditor':
+                        this.showMenuBar = false;
+                        this.showFastBarLeft = false;
+                        this.showFastBarRight = false;
+                        this.showFastBarBottom = false;
+                        break;
+                }
+            }
+
             let self = this;
             window.viewRegistry = {
                 'navigator': {
@@ -295,39 +315,48 @@
                                                 let oldChildren = item.model.children
                                                 let newChildren = result.data
                                                 if (!oldChildren || oldChildren.length == 0) {
-                                                    item.model.children = result.data;
+                                                    item.model.children = result.data
                                                 } else {
-                                                    for (let i = 0; i < newChildren.length; i++) {
-                                                        let newChd = newChildren[i];
-                                                        let exist = false;
-                                                        for (let j = 0; j < oldChildren.length; j++) {
-                                                            let oldChd = oldChildren[j];
-                                                            if (newChd.path === oldChd.path) {
-                                                                exist = true;
-                                                                oldChd['##keep##'] = true;
-                                                                break;
-                                                            }
-
-                                                        }
-                                                        if (!exist) {
-                                                            newChd['##keep##'] = true;
-                                                            oldChildren.push(newChd);
-                                                        }
-                                                    }
-                                                    for (let i = 0; i < oldChildren.length; i++) {
-                                                        let oldChd = oldChildren[i];
-                                                        if (!oldChd['##keep##']) {
-                                                            oldChildren.splice(i, 1);
-                                                            i--;
-                                                        }
-                                                        delete oldChd['##keep##'];
-                                                    }
+                                                    combine(newChildren, oldChildren,level)
                                                 }
                                             } else {
-                                                debug.error('refresh resources fail , ' + result);
+                                                debug.error('refresh resources fail , ' + result)
+                                            }
+
+                                            //合并文件，不存在的文件删除，已存在的文件保留并对比其children。
+                                            function combine(newChildren, oldChildren,level) {
+                                                newChildren = newChildren || [];
+                                                oldChildren = oldChildren || [];
+                                                for (let i = 0; i < newChildren.length; i++) {
+                                                    let newChd = newChildren[i];
+                                                    let exist = false;
+                                                    for (let j = 0; j < oldChildren.length; j++) {
+                                                        let oldChd = oldChildren[j];
+                                                        if (newChd.path === oldChd.path) {
+                                                            exist = true;
+                                                            oldChd['##keep##'] = true;
+                                                            if( (level - 1) > 0) {
+                                                                combine(newChd.children, oldChd.children,level - 1);
+                                                            }
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (!exist) {
+                                                        newChd['##keep##'] = true;
+                                                        oldChildren.push(newChd);
+                                                    }
+                                                }
+                                                for (var i = 0; i < oldChildren.length; i++) {
+                                                    var oldChd = oldChildren[i];
+                                                    if (!oldChd['##keep##']) {
+                                                        oldChildren.splice(i, 1);
+                                                        i--;
+                                                    }
+                                                    delete oldChd['##keep##'];
+                                                }
                                             }
                                         }
-                                    );
+                                    )
                                 },
                                 delete: function (item) {
                                     let editor = IDE.editorPart.getEditor(item);

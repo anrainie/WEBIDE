@@ -350,6 +350,9 @@
             this.updateNodeEditorBuffer();
         },
         methods: {
+            getPartName() {
+                return this.file.name;
+            },
             isDirty() {
                 if (this.$refs["stepEditor"] == null) return false;
 

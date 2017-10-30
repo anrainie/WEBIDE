@@ -5,7 +5,7 @@
                 :height="width"
                 language="java"
                 :code="input"
-                :editorOptions="options"
+                :options="options"
                 @mounted="onMounted"
                 @codeChange="onCodeChange"
                 srcPath=""
@@ -25,7 +25,8 @@
         data() {
             return {
                 options: {
-                    selectOnLineNumbers: false
+                    selectOnLineNumbers: false,
+                    automaticLayout:true,
                 },
                 width: '100%',
                 height: '100%',
@@ -95,6 +96,9 @@
             },
             dirtyStateChange(){
 
+            },
+            getPartName(){
+                return this.file.label + ' [技术组件]';
             }
         },
         components: {
