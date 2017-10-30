@@ -7,56 +7,53 @@ const expressSession = require('express-session');
 const path = require('path');
 const _IDE = require('./core/IDE');
 
-class Server {
-    constructor(config){
-        this.config = config;
-        this.app = express();
-        this.http = require('http').Server(this.app);
+function Server(config) {
+    this.config = config;
+    this.app = express();
+    this.http = require('http').Server(this.app);
 
-        //静态资源
-        this.app.use(express.static('node_modules/monaco-editor/min'));
-        this.app.use(express.static(path.resolve(__dirname, '../dist')));
+    //静态资源
+    this.app.use(express.static('node_modules/monaco-editor/min'));
+    this.app.use(express.static(path.resolve(__dirname, '../dist')));
 
-        //服务器提交的数据json化
-        this.app.use(bodyParser.json());
-        this.app.use(cookieParser('ide'));
-        this.app.use(bodyParser.urlencoded({extended: true}));
+    //服务器提交的数据json化
+    this.app.use(bodyParser.json());
+    this.app.use(cookieParser('ide'));
+    this.app.use(bodyParser.urlencoded({extended: true}));
 
-        //session
-        var sessionStore = new expressSession.MemoryStore({reapInterval: 60000 * 10});
-        this.session = expressSession({
-            resave: true,
-            saveUninitialized: true,
-            secret: 'agree',
-            key: 'ide',
-            store: sessionStore
-        });
-        this.app.use(this.session);
-        require('./route/routes')(this.app);
+    //session
+    var sessionStore = new expressSession.MemoryStore({reapInterval: 60000 * 10});
+    this.session = expressSession({
+        resave: true,
+        saveUninitialized: true,
+        secret: 'agree',
+        key: 'ide',
+        store: sessionStore
+    });
+    this.app.use(this.session);
+    require('./route/routes')(this.app);
 
-        //初始化IDE
-        global.IDE = new _IDE(this.config,this.http,this.session);
-        IDE.init();
+    //初始化IDE
+    global.IDE = new _IDE(this.config,this.http,this.session);
+    IDE.init();
 
-        // ### AUTO LEVEL DETECTION
-        // http responses 3xx, level = WARN
-        // http responses 4xx & 5xx, level = ERROR
-        // else.level = INFO
-        //this.app.use(IDE.logger.connectLogger(IDE.defaultLogger,{ level: 'ERROR' }));
-    }
+    // ### AUTO LEVEL DETECTION
+    // http responses 3xx, level = WARN
+    // http responses 4xx & 5xx, level = ERROR
+    // else.level = INFO
+    this.app.use(IDE.IDELogger.log4js.connectLogger(IDE.defaultLogger, { level: 'auto' }));
+}
 
-    use(obj){
-        this.app.use(obj);
-    }
+Server.prototype.use = function (obj) {
+    this.app.use(obj);
+}
 
-    start(port, f) {
-        this.http.listen(port, f);
-    }
+Server.prototype.start = function (port, f) {
+    this.http.listen(port, f);
+}
 
-    on(key, func) {
-        this.http.on(key, func);
-    }
-
+Server.prototype.on = function (key, func) {
+    this.http.on(key, func);
 }
 
 module.exports = Server;

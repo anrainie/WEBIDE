@@ -170,16 +170,11 @@
                 return checkedItems;
             },
             deleteItem: function (item) {
-                let self = this;
-                let parent = item.getParent();
-                let children;
-                if(parent === this){
-                    children = this.model;
-                }else{
-                    children = this.getProp(parent.model,'children');
-                }
-                for (let i = 0; i < children.length; i++) {
-                    let child = children[i];
+                var self = this;
+                var parent = item.getParent();
+                var children = this.getProp(parent.model,'children');
+                for (var i = 0; i < children.length; i++) {
+                    var child = children[i];
                     if (this.getProp(child,'label') === this.getProp(item.model,'label')) {
                         children.splice(i, 1);
                         if (item.selected) {

@@ -6,8 +6,7 @@
 
         <div id="ide_workbench">
             <fastbar v-if="showFastBarLeft" id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
-            <workbench v-if="showWorkbench" id="ide_workbench_center" :views="views" ref="workbench"
-                       :editorconfig="editorPartConfig"></workbench>
+            <workbench v-if="showWorkbench" id="ide_workbench_center" :views="views" ref="workbench"></workbench>
             <fastbar v-if="showFastBarRight" id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar v-if="showFastBarBottom" id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
@@ -15,10 +14,6 @@
                      :items="naviContextMenuItems"
                      :config="contextMenuConfig"
         ></contextmenu>
-        npm
-        <shade ref="ide_shade"></shade>
-
-        <span id="__RULER" style="visibility: hidden; white-space: nowrap;">test</span>
     </div>
 </template>
 <style>
@@ -85,37 +80,16 @@
     import menu from "../components/menubar.vue";
     import editorPage from "../components/editorPart.vue";
     import contextMenu from "../components/contextMenu.vue";
-    import shade from "../components/shade.vue";
     import toolbar from "../components/toolbar.vue"
-    import IDESocket from "../../core/IDESocket"
     import navContextMenus from '../../action/afa.navi.contextmenu';
-    import dictEditor from './editor/dictEditor.vue';
-    import javaEditor from './editor/javaEditor.vue';
-    import tcptEditor from './editor/TcptEditor.vue'
-
     import menuData from '../../action/afa.menu';
-    import fcEditor from "../components/editor/flowEditor/fcEditor/fcEditor.vue"
-    import bcptEditor from  "../components/editor/flowEditor/fcEditor/bcptEditor.vue"
 
 
-    String.prototype.textLength = function () {
-        let ruler = $("#__RULER");
-        ruler.text(this);
-        return ruler[0].offsetWidth;
-    };
+
     export default{
         data(){
             let self = this;
             return {
-                editorPartConfig: {
-                    editorRefs: {
-                        dict: dictEditor,
-                        java: javaEditor,
-                        tcpt: tcptEditor,
-                        fc: fcEditor,
-                        bcpt: bcptEditor
-                    }
-                },
                 showFastBarLeft: true,
                 showFastBarRight: true,
                 showFastBarBottom: true,
@@ -148,7 +122,7 @@
                         open: false,
                     }],
                     right: [{
-                        id: 'problem',
+                        id: 'console',
                         subgroup: 1,
                         open: false,
                     }, {
@@ -157,7 +131,7 @@
                         open: false,
                     }],
                     bottom: [{
-                        id: 'console',
+                        id: 'problem',
                         subgroup: 1,
                         open: false,
                     }]
@@ -166,110 +140,28 @@
             }
         },
         methods: {
-            applyOpenEditorService(param1, type){
-                let path, name;
-
-                switch (type) {
-                    case 'fc':
-                        path = '/' + param1.split('|').join('/') + '/flow/flowConfig.fc';
-                        name = 'flowConfig.fc';
-                        break;
-                    case 'java':
-                        let p = param1.split('|');
-                        let level = p[1];
-                        path = p.join('/') + '.java';
-                        name = path;
-
-                        switch (level) {
-                            case 'bank':
-                            case 'platform':
-                                path = '/functionModule/technologyComponent/' + level + '/componentSourceCode/' + path;
-                                break;
-                            default :
-                                path = '/functionModule/technologyComponent/projects/' + level + '/componentSourceCode/' + path;
-                        }
-
-                        break;
-                }
-
-                let self = this;
-                setTimeout(function () {
-                    self._openEditor({
-                        isParent: false,
-                        name,
-                        path
-                    }, true);
-                }, 200);
-            },
-            _openEditor(model, maximize){
-                IDE.shade.open();
-                IDE.socket.emit("getFile", {
-                    type: IDE.type,
-                    event: 'getFile',
-                    data: {
-                        path: model.path
-                    }
-                }, function (result) {
-                    IDE.shade.hide();
-                    if (result.state === 'success') {
-                        if (!model.isParent) {
-                            let editor = IDE.editorPart.openEditor(model, result.data);
-                            if (editor && maximize) {
-                                editor.$children[0].$emit('maximize');
-                            }
-                        }
-                    } else {
-                        debug.error('resource dbclick , ' + result);
-                    }
-                });
-            },
         },
         created(){
         },
         mounted(){
+            //注册服务
+            require('./config/services.js');
 
             let self = this;
             IDE.type = 'afa';
             IDE.contextmenu = self.$refs.ide_contextMenu;
-            IDE.shade = self.$refs.ide_shade;
             IDE.menu = self.$refs.ide_menu;
-            IDE.socket = new IDESocket();
-
-            if (this.$route.params) {
-                let serverId = this.$route.params.serverId;
-                let param1 = this.$route.params.p1;
-                let param2 = this.$route.params.p2;
-                switch (serverId) {
-                    case 'openEditor':
-                        this.applyOpenEditorService(param1, param2);
-                        break;
-                    default:
-                        console.log('服务类型异常');
-                }
-            } else {
-                console.log('没有服务');
-            }
+//            IDE.socket = new IDESocket();
+            IDE.socket.getSocket('afa');
         },
         beforeCreate(){
-
-            if (this.$route.params) {
-                let serverId = this.$route.params.serverId;
-                switch (serverId) {
-                    case 'openEditor':
-                        this.showMenuBar = false;
-                        this.showFastBarLeft = false;
-                        this.showFastBarRight = false;
-                        this.showFastBarBottom = false;
-                        break;
-                }
-            }
-
             let self = this;
             window.viewRegistry = {
                 'navigator': {
                     name: '导航器',
                     component: './tree.vue',
                     init(callback){
+                        console.log('init navigator');
                         IDE.shade.open();
                         IDE.socket.emit('getNaviItems', {
                             type: IDE.type,
@@ -317,42 +209,37 @@
                                                 if (!oldChildren || oldChildren.length == 0) {
                                                     item.model.children = result.data
                                                 } else {
-                                                    combine(newChildren, oldChildren,level)
+                                                    combine(newChildren, oldChildren)
                                                 }
                                             } else {
                                                 debug.error('refresh resources fail , ' + result)
                                             }
 
-                                            //合并文件，不存在的文件删除，已存在的文件保留并对比其children。
-                                            function combine(newChildren, oldChildren,level) {
-                                                newChildren = newChildren || [];
-                                                oldChildren = oldChildren || [];
+                                            function combine(newChildren, oldChildren) {
                                                 for (let i = 0; i < newChildren.length; i++) {
-                                                    let newChd = newChildren[i];
-                                                    let exist = false;
+                                                    let newChd = newChildren[i]
+                                                    let exist = false
                                                     for (let j = 0; j < oldChildren.length; j++) {
-                                                        let oldChd = oldChildren[j];
+                                                        let oldChd = oldChildren[j]
                                                         if (newChd.path === oldChd.path) {
-                                                            exist = true;
-                                                            oldChd['##keep##'] = true;
-                                                            if( (level - 1) > 0) {
-                                                                combine(newChd.children, oldChd.children,level - 1);
-                                                            }
-                                                            break;
+                                                            exist = true
+                                                            oldChd['##keep##'] = true
+                                                            combine(newChd.children ? newChd.children : [], oldChd.children ? oldChd.children : [])
+                                                            break
                                                         }
                                                     }
                                                     if (!exist) {
-                                                        newChd['##keep##'] = true;
-                                                        oldChildren.push(newChd);
+                                                        newChd['##keep##'] = true
+                                                        oldChildren.push(newChd)
                                                     }
                                                 }
-                                                for (var i = 0; i < oldChildren.length; i++) {
-                                                    var oldChd = oldChildren[i];
+                                                for (let i = 0; i < oldChildren.length; i++) {
+                                                    let oldChd = oldChildren[i]
                                                     if (!oldChd['##keep##']) {
-                                                        oldChildren.splice(i, 1);
-                                                        i--;
+                                                        oldChildren.splice(i, 1)
+                                                        i--
                                                     }
-                                                    delete oldChd['##keep##'];
+                                                    delete oldChd['##keep##']
                                                 }
                                             }
                                         }
@@ -382,9 +269,7 @@
                                             IDE.editorPart.showEditor(item.model);
                                             return;
                                         }
-
-                                        self._openEditor(item.model);
-
+                                        IDE.editorPart.openEditor(item.model);
                                     }
                                 },
                                 rightClick: function (event) {
@@ -470,7 +355,6 @@
             navigator: navi,
             editorPage: editorPage,
             contextmenu: contextMenu,
-            shade: shade,
             toolbar: toolbar,
             fastbar: fastbar,
             statusbar: statusbar,

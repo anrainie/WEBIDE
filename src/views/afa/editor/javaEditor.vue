@@ -96,9 +96,6 @@
             },
             dirtyStateChange(){
 
-            },
-            getPartName(){
-                return this.file.label + ' [技术组件]';
             }
         },
         components: {

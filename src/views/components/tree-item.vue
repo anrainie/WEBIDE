@@ -37,7 +37,7 @@
                 selected:false,
                 loaded:false,
                 checked: this.model.checked ? this.model.checked :false ,
-                itemImageSrc: (this.model.icon ? ("/assets/image/" + this.model.icon) : "/assets/image/")
+                itemImageSrc: (this.model.icon ? ("/assets/image/" + this.model.icon) : "")
             }
         },
         computed: {
@@ -83,7 +83,7 @@
                     this.loaded = true;
                 }
                 if (this.isFolder) {
-                    this.open = !this.open;
+                    this.open = !this.open
                 }
 
             },

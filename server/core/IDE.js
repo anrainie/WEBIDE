@@ -20,8 +20,10 @@ IDE.prototype.initLogger = function () {
     this.logger = new IDELogger(this.config.logLevel);
     this.defaultLogger = this.logger.getDefault();
     this.consoleLogger = this.logger.getConsole();
-    this.ideLogger = this.logger.getIDE();
+    this.IDELogger = this.logger;
+    this.ideLogger = this.IDELogger.getIDE();
 }
+
 
 
 IDE.prototype.initDBAndServlet = function () {
