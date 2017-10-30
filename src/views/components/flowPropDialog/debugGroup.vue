@@ -4,7 +4,7 @@
             <el-col :span="12">
                 <el-form-item label="调试模式">
                     <el-switch
-                            v-model="modification.isDebug"
+                            value="1"
                             style="margin-top: 8px"
                             on-color="#13ce66"
                             off-color="#ff4949"
@@ -18,13 +18,13 @@
 
             <el-col :span="12">
                 <el-form-item label="调试代码">
-                    <el-input disabled style="width:200px" v-model="modification.code"></el-input>
+                    <el-input disabled style="width:200px"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button icon="more" @click="openDebugCodeDialog"></el-button>
                     <debug-code-dialog
-                        ref="debugCodeDialog"
-                        :modification="modification">
+                            ref="debugCodeDialog"
+                            :tableData="debugCode">
                     </debug-code-dialog>
                 </el-form-item>
             </el-col>
@@ -33,27 +33,21 @@
         <el-row style="margin-top: -25px;margin-bottom: -15px">
             <el-col :span="12">
                 <el-form-item label="调试结果">
-                    <el-select style="width:200px" value="" v-model="modification.result">
-                       <el-option
-                           v-for="item in debugResult"
-                           :key="item.value"
-                           :value="item.value"
-                           :label="item.label">
-                       </el-option>
+                    <el-select style="width:200px" value="">
+
                     </el-select>
                 </el-form-item>
             </el-col>
 
             <el-col :span="12">
                 <el-form-item label="调试返回">
-                    <el-input disabled style="width:200px" v-model="modification.returnCode"></el-input>
+                    <el-input disabled style="width:200px"></el-input>
                 </el-form-item>
                 <el-form-item>
                     <el-button icon="more" @click="openDebugReturnDialog"></el-button>
                     <debug-return-dialog
                             ref="debugReturnDialog"
-                            :debugReturn="modification.item"
-                            :ougArgs="modification.outArgs">
+                            :tableData="debugReturn">
                     </debug-return-dialog>
                 </el-form-item>
             </el-col>
@@ -67,9 +61,9 @@
     import  debugReturnDialog from '../../../views/afa/dialog/DebugReturnDialog.vue';
     export default{
         props: {
-          model: {
-            required: true
-          },
+            model: {
+                required: true
+            },
             enable: {
                 default: false
             },
@@ -79,45 +73,29 @@
             path: {
                 type: String
             }
-
         },
-      components:{
-          debugCodeDialog,
-          debugReturnDialog
-      },
-      data(){
-        return{
-          debugResult:[
-            {
-              label:'0',
-              value:'0',
-            },
-            {
-              label:'1',
-              value:'1'
+        components:{
+            debugCodeDialog,
+            debugReturnDialog
+        },
+        data(){
+            return{
+                debugCode:[],
+                debugReturn:[],
+                modification: this.initModification(),
             }
-          ],
-          modification: this.initModification(),
-        }
-      },
-      methods:{
-        openDebugReturnDialog(){
-          this.$refs.debugReturnDialog.openDialog();
         },
-        openDebugCodeDialog(){
-          this.$refs.debugCodeDialog.openDialog();
-        },
-        initModification(){
-          if(this.model.Debug) {
-            var code = this.model.Debug.Codes.Code;
-            var result = this.model.Debug.Result;
-            var item = this.model.Debug.ReturnList.Item;
-            var isDebug = this.model.IsDebug;
-            var outArgs = this.model.OutArgs;
-            var returnCode = this.model.Debug.Return;
-            return {code, result, item, returnCode, isDebug, outArgs};
-          }
+        methods:{
+            openDebugReturnDialog(){
+                this.$refs.debugReturnDialog.openDialog();
+            },
+            openDebugCodeDialog(){
+                this.$refs.debugCodeDialog.openDialog();
+            },
+            initModification(){
+                var model = this.model;
+                console.log(model);
+            }
         }
-      }
     }
 </script>

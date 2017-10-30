@@ -223,7 +223,6 @@
             IDE.contextmenu = self.$refs.ide_contextMenu;
             IDE.shade = self.$refs.ide_shade;
             IDE.menu = self.$refs.ide_menu;
-            IDE.socket = new IDESocket();
         },
         beforeCreate(){
             var self = this;

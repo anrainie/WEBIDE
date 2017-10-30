@@ -33,7 +33,13 @@ const routes = [
         require(['../views/afe/afe.vue'], resolve)
     }, name: 'afe'
     },
-    {path: '/aweb', meta: {requireAuth: true}, component: aweb, name: 'aweb'}
+    {path: '/aweb', meta: {requireAuth: true}, component: aweb, name: 'aweb'},
+    {
+        path: '/openEditor/:domain/:type/:path/:ticket',
+        component: resolve => {
+            require(['../views/components/editorPart.vue'], resolve)
+        }, name: 'openEditor', meta: {requireAuth: false}
+    }
 ];
 
 
