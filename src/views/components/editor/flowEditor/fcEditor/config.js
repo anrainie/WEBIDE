@@ -1,6 +1,5 @@
 import {$AG, constants, smoothRouter} from 'anrajs'
 import * as globalConstants from 'Constants'
-import {resolveEditorData, resolveEditorLine} from './resolve'
 
 var refresh = function () {
     if (this.model && this.figure) {
@@ -147,9 +146,6 @@ var pinPolicy = function (idList) {
     }
 };
 
-
-
-
 /***************************************右键菜单***************************************/
 var operations = [
 
@@ -250,7 +246,7 @@ var location = function (figure) {
 
     this.setBounds({
         x: figure.bounds.x + (figure.bounds.width - 7.5 * length) / 2,
-        y: figure.bounds.y + 15 + (figure.bounds.height - 15) / 2,
+        y: figure.bounds.y + (figure.bounds.height + 15)/2,
     })
 };
 
@@ -259,7 +255,7 @@ var idLocation = function (figure) {
     var text = this.text;
 
     this.setBounds({
-        x: figure.bounds.x,
+        x: figure.bounds.x + 20,
         y: figure.bounds.y + 15 + (figure.bounds.height - 15) / 2,
     })
 }
@@ -349,8 +345,10 @@ var serviceInvokdEntered = {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'nodeEditor': closeNodeEditor,
-        'pin': pinPolicy(['0', '1'])
+        'pin': pinPolicy(['0', '1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     },
+
 };
 
 //多出口组件
@@ -376,7 +374,8 @@ var stepMultiOutletCpt = {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'nodeEditor': openNodeEditor,
-        'pin': pinPolicy(['0', '1'])
+        'pin': pinPolicy(['0', '1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     },
 };
 
@@ -403,7 +402,8 @@ var bcpt = {
 
         'nodeEditor': openNodeEditor,
 
-        'pin': pinPolicy(['0', '1'])
+        'pin': pinPolicy(['0', '1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 
 }
@@ -432,7 +432,8 @@ var nodeStart = {
 
     policies : {
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['1'])
+        'pin': pinPolicy(['1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -456,7 +457,8 @@ var nodeEnd = {
 
     policies : {
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['1'])
+        'pin': pinPolicy(['1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -481,7 +483,8 @@ var nodeAbnormalEnd = {
     policies : {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['1'])
+        'pin': pinPolicy(['1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -504,7 +507,8 @@ var nodeCustomEnd = {
     policies : {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['1'])
+        'pin': pinPolicy(['1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -529,7 +533,8 @@ var nodeErrorDelegate = {
 
     policies : {
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0', '1'])
+        'pin': pinPolicy(['0', '1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -555,7 +560,8 @@ var componentInvoke = {
     policies : {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0', '1'])
+        'pin': pinPolicy(['0', '1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -581,7 +587,8 @@ var tradeInvoke = {
     policies : {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0', '1'])
+        'pin': pinPolicy(['0', '1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -606,7 +613,8 @@ var transfer = {
     policies : {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['1'])
+        'pin': pinPolicy(['1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -630,7 +638,8 @@ var tradeSync = {
     policies : {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0', '1'])
+        'pin': pinPolicy(['0', '1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -653,7 +662,8 @@ var Async = {
     policies : {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0', '1'])
+        'pin': pinPolicy(['0', '1']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 };
 
@@ -673,7 +683,8 @@ var parallel = {
     policies : {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0'])
+        'pin': pinPolicy(['0']),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 }
 
@@ -693,7 +704,8 @@ var tcpt = {
 
     policies : {
         'doubleclick': openPropEditor,
-        'despText': $AG.policy.TextPolicy('Desp', location)
+        'despText': $AG.policy.TextPolicy('Desp', location),
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     }
 }
 

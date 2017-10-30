@@ -36,13 +36,19 @@ $AG.Editor.prototype.initRootEditPart = function (editPart) {
     editPart.addNotify();
 };
 
-let createID = (() => {
-    let count = 100;
-    return () => count++
-})();
 
 //暂时性
-$AG.Editor.prototype.createID = createID;
+$AG.Editor.prototype.createID = function() {
+    let arr =Object.keys(this.rootModel.children)
+        .map((item) => parseInt(item))
+        .sort();
+    for (let [index, id] of arr.entries()) {
+        if (id == index + 1) continue;
+        return index + 1;
+    }
+
+    return arr.length + 1;
+};
 
 $AG.Editor.prototype.createNodeWithPalette = function(data) {
     let editor = this, tool = new anra.gef.CreationTool();
