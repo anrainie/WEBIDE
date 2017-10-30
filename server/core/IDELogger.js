@@ -8,7 +8,7 @@ class IDELogger{
         this.log4js = require('log4js');
         this.log4js.configure({
             appenders: {
-                ideLogs: { type: 'dateFile', filename: 'logs/ide.log' ,"pattern": "-yyyy-MM-dd", "alwaysIncludePattern": true},
+                ideLogs: { type: 'dateFile', filename: 'logs/IDE' ,"pattern": "_yyyy-MM-dd.log", "alwaysIncludePattern": true},
                 console: { type: 'console' }
             },
             categories: {

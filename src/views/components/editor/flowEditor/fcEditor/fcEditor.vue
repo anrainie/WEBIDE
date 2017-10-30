@@ -443,6 +443,10 @@
 
             setStepFromInput(step) {
                 this.input.Root.Regulation.Step = step;
+            },
+            getPartName(){
+                let item = IDE.navigator.getItem(this.file.path).getParent().getParent();
+                return item.model.label + ' [流程配置]';
             }
         },
         /*components: Object.assign({

@@ -143,7 +143,7 @@
                         open: false,
                     }],
                     right: [{
-                        id: 'console',
+                        id: 'problem',
                         subgroup: 1,
                         open: false,
                     }, {
@@ -152,7 +152,7 @@
                         open: false,
                     }],
                     bottom: [{
-                        id: 'problem',
+                        id: 'console',
                         subgroup: 1,
                         open: false,
                     }]
@@ -170,18 +170,18 @@
                         name = 'flowConfig.fc';
                         break;
                     case 'java':
-                        let p=param1.split('|');
-                        let level=p[1];
+                        let p = param1.split('|');
+                        let level = p[1];
                         path = p.join('/') + '.java';
                         name = path;
 
-                        switch(level){
+                        switch (level) {
                             case 'bank':
                             case 'platform':
-                                path='/functionModule/technologyComponent/'+level+'/componentSourceCode/'+path;
+                                path = '/functionModule/technologyComponent/' + level + '/componentSourceCode/' + path;
                                 break;
                             default :
-                                path='/functionModule/technologyComponent/projects/'+level+'/componentSourceCode/'+path;
+                                path = '/functionModule/technologyComponent/projects/' + level + '/componentSourceCode/' + path;
                         }
 
                         break;
@@ -279,60 +279,65 @@
                             check: false,
                             async: true,
                             callback: {
-                              asyncLoadItem: function (item, level) {
-                                if (!level) {
-                                  level = 1
-                                }
-                                IDE.socket.emit('getNaviItems', {
-                                    type: IDE.type,
-                                    event: 'getNaviItems',
-                                    data: {
-                                      path: item.model.path,
-                                      level: level
+                                asyncLoadItem: function (item, level) {
+                                    if (!level) {
+                                        level = 1
                                     }
-                                  }, function (result) {
-                                    if (result.state === 'success') {
-                                      let oldChildren = item.model.children
-                                      let newChildren = result.data
-                                      if (!oldChildren || oldChildren.length == 0) {
-                                        item.model.children = result.data
-                                      } else {
-                                        combine(newChildren, oldChildren)
-                                      }
-                                    } else {
-                                      debug.error('refresh resources fail , ' + result)
-                                    }
+                                    IDE.socket.emit('getNaviItems', {
+                                            type: IDE.type,
+                                            event: 'getNaviItems',
+                                            data: {
+                                                path: item.model.path,
+                                                level: level
+                                            }
+                                        }, function (result) {
+                                            if (result.state === 'success') {
+                                                let oldChildren = item.model.children
+                                                let newChildren = result.data
+                                                if (!oldChildren || oldChildren.length == 0) {
+                                                    item.model.children = result.data
+                                                } else {
+                                                    combine(newChildren, oldChildren,level)
+                                                }
+                                            } else {
+                                                debug.error('refresh resources fail , ' + result)
+                                            }
 
-                                    function combine (newChildren, oldChildren) {
-                                      for (let i = 0; i < newChildren.length; i++) {
-                                        let newChd = newChildren[i]
-                                        let exist = false
-                                        for (let j = 0; j < oldChildren.length; j++) {
-                                          let oldChd = oldChildren[j]
-                                          if (newChd.path === oldChd.path) {
-                                            exist = true
-                                            oldChd['##keep##'] = true
-                                            combine(newChd.children ? newChd.children : [], oldChd.children ? oldChd.children : [])
-                                            break
-                                          }
+                                            //合并文件，不存在的文件删除，已存在的文件保留并对比其children。
+                                            function combine(newChildren, oldChildren,level) {
+                                                newChildren = newChildren || [];
+                                                oldChildren = oldChildren || [];
+                                                for (let i = 0; i < newChildren.length; i++) {
+                                                    let newChd = newChildren[i];
+                                                    let exist = false;
+                                                    for (let j = 0; j < oldChildren.length; j++) {
+                                                        let oldChd = oldChildren[j];
+                                                        if (newChd.path === oldChd.path) {
+                                                            exist = true;
+                                                            oldChd['##keep##'] = true;
+                                                            if( (level - 1) > 0) {
+                                                                combine(newChd.children, oldChd.children,level - 1);
+                                                            }
+                                                            break;
+                                                        }
+                                                    }
+                                                    if (!exist) {
+                                                        newChd['##keep##'] = true;
+                                                        oldChildren.push(newChd);
+                                                    }
+                                                }
+                                                for (var i = 0; i < oldChildren.length; i++) {
+                                                    var oldChd = oldChildren[i];
+                                                    if (!oldChd['##keep##']) {
+                                                        oldChildren.splice(i, 1);
+                                                        i--;
+                                                    }
+                                                    delete oldChd['##keep##'];
+                                                }
+                                            }
                                         }
-                                        if (!exist) {
-                                          newChd['##keep##'] = true
-                                          oldChildren.push(newChd)
-                                        }
-                                      }
-                                      for (let i = 0; i < oldChildren.length; i++) {
-                                        let oldChd = oldChildren[i]
-                                        if (!oldChd['##keep##']) {
-                                          oldChildren.splice(i, 1)
-                                          i--
-                                        }
-                                        delete oldChd['##keep##']
-                                      }
-                                    }
-                                  }
-                                )
-                              },
+                                    )
+                                },
                                 delete: function (item) {
                                     let editor = IDE.editorPart.getEditor(item);
                                     if (editor) {

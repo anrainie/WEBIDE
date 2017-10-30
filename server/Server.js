@@ -42,7 +42,7 @@ class Server {
         // http responses 3xx, level = WARN
         // http responses 4xx & 5xx, level = ERROR
         // else.level = INFO
-        this.app.use(IDE.logger.connectLogger(IDE.defaultLogger,{ level: 'ERROR' }));
+        //this.app.use(IDE.logger.connectLogger(IDE.defaultLogger,{ level: 'ERROR' }));
     }
 
     use(obj){
