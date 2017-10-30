@@ -1,16 +1,16 @@
 <template>
     <div class="ide_root">
-        <menubar id="ide_menu" ref="ide_menu" :menu_data="menuData"></menubar>
+        <menubar v-if="showMenuBar" id="ide_menu" ref="ide_menu" :menu_data="menuData"></menubar>
         <toolbar class="top_toolbar" :config="toolbarConfig" :toolitems="toolItems"
                  style="border: 1px solid;float: right;width: 100%"></toolbar>
 
         <div id="ide_workbench">
-            <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
-            <workbench id="ide_workbench_center" :views="views" ref="workbench"
+            <fastbar v-if="showFastBarLeft" id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
+            <workbench v-if="showWorkbench" id="ide_workbench_center" :views="views" ref="workbench"
                        :editorconfig="editorPartConfig"></workbench>
-            <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
+            <fastbar v-if="showFastBarRight" id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
-        <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
+        <fastbar v-if="showFastBarBottom" id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
         <contextmenu ref="ide_contextMenu" style="display: none;position: absolute" id="contextMenu"
                      :items="naviContextMenuItems"
                      :config="contextMenuConfig"
@@ -116,6 +116,11 @@
                         bcpt: bcptEditor
                     }
                 },
+                showFastBarLeft: true,
+                showFastBarRight: true,
+                showFastBarBottom: true,
+                showMenuBar: true,
+                showWorkbench: true,
                 vertical: false,
                 horizontal: true,
                 pageName: "pageName",
@@ -219,6 +224,8 @@
                 });
             },
         },
+        created(){
+        },
         mounted(){
 
             let self = this;
@@ -244,6 +251,19 @@
             }
         },
         beforeCreate(){
+
+            if (this.$route.params) {
+                let serverId = this.$route.params.serverId;
+                switch (serverId) {
+                    case 'openEditor':
+                        this.showMenuBar = false;
+                        this.showFastBarLeft = false;
+                        this.showFastBarRight = false;
+                        this.showFastBarBottom = false;
+                        break;
+                }
+            }
+
             let self = this;
             window.viewRegistry = {
                 'navigator': {

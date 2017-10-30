@@ -34,7 +34,7 @@
 
 <style>
     .large {
-        width: 950px
+        width: 800px
     }
 
     .small {
