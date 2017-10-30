@@ -36,7 +36,6 @@
 
                 const _service = {};
                 return {
-                    socket: new IDESocket(),
                     services(type){
                         if (_service[type] == null) {
 //                                const s=;
@@ -108,7 +107,7 @@
                 }
             };
 
-
+            IDE.socket = new IDESocket();
         },
         mounted(){
             console.log('index mounted');

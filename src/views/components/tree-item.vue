@@ -119,20 +119,20 @@
                 this.msgHub.$emit('deleteItem', this);
             },
             setCheck:function (forward) {
-               var children =  this.getChildren();
-               for(var i = 0 ; i < children.length ; i++){
-                   var child = children[i];
-                   child.checked = this.checked;
-                   child.setCheck(false);
-               }
+                var children =  this.getChildren();
+                for(var i = 0 ; i < children.length ; i++){
+                    var child = children[i];
+                    child.checked = this.checked;
+                    child.setCheck(false);
+                }
 
-               if(forward) {
-                   var parent = this.getParent();
-                   //TODO  判断有问题，需改成判断parent是否是tree-item.vue
-                   if (parent.changeCheckState) {
-                       parent.changeCheckState(this.checked);
-                   }
-               }
+                if(forward) {
+                    var parent = this.getParent();
+                    //TODO  判断有问题，需改成判断parent是否是tree-item.vue
+                    if (parent.changeCheckState) {
+                        parent.changeCheckState(this.checked);
+                    }
+                }
             },
             changeCheckState:function (checked) {
                 var parent = this.getParent();
@@ -198,11 +198,11 @@
             }
         },
         mounted:function () {
-          if(this.config.filter){
-              if(this.config.filter(this)){
-                  this.setEnable(false);
-              }
-          }
+            if(this.config.filter){
+                if(this.config.filter(this)){
+                    this.setEnable(false);
+                }
+            }
         }
     }
 </script>

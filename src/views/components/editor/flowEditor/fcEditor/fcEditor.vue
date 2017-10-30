@@ -39,10 +39,10 @@
             <!--对话框-->
             <propDialog :showProperties.sync="showproperties"
                         @saveProps="saveProps"
-                 :model="dialogTarget"
-                 :path="file.path"
-                 :editortype="editortype"
-                 :nodetype="dialogType"></propDialog>
+                        :model="dialogTarget"
+                        :path="file.path"
+                        :editortype="editortype"
+                        :nodetype="dialogType"></propDialog>
         </div>
     </editor-Container>
 
@@ -428,6 +428,10 @@
 
             saveProps(cmd) {
                 this.$refs[this.editortype + "Editor"]["editor"].execute(cmd);
+            },
+            getPartName(){
+                let item = IDE.navigator.getItem(this.file.path).getParent().getParent();
+                return item.model.label + ' [流程配置]';
             }
         },
         components: {

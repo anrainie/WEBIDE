@@ -32,7 +32,7 @@ class IDELogger{
     }
 
     connectLogger(logger,option){
-       return log4js.connectLogger(logger,option);
+        return log4js.connectLogger(logger,option);
     }
 }
 module.exports = IDELogger;

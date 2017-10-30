@@ -10,7 +10,7 @@
                 </viewpart>
             </div>
             <div id="wb_main" class="split split-horizontal content">
-                <editorpart id="ide_editorPart" ref="ide_editorPart">
+                <editorpart id="ide_editorPart" ref="ide_editorPart" :domain="domain">
                 </editorpart>
             </div>
             <div id="wb_e" class="split split-horizontal">
@@ -47,7 +47,7 @@
     Vue.use(Vuex);
 
     export default{
-        props: ['views'],
+        props: ['views', 'domain'],
         data(){
             return {
                 cache: {},
