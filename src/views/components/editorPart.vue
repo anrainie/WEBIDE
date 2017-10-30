@@ -1,10 +1,10 @@
 <template>
     <div>
         <ul id="editors-indicate" class="editor-tab contextmenu-dropdown">
-            <div v-show="collapsedEditorNum > 0" class="editors-collapse contextmenu-dropdown"
+            <div v-show="collapsedEditors.length > 0" class="editors-collapse contextmenu-dropdown"
                  @click="openCollapseMenu($event)">
                 <div></div>
-                <span>{{collapsedEditorNum}}</span>
+                <span>{{collapsedEditors.length}}</span>
             </div>
         </ul>
         <div id="editors-content">
@@ -99,9 +99,11 @@
                 //TODO 使用栈
                 editors: [],
                 activeEditor: null,
+                //TODO 使用变量标志，需重写
+                collapsedEditors: [],
                 maxIndicateCharNum: 15,
                 defaultIndicateWidth: 30,
-                eachCharWidth: 14,
+                eachCharWidth: 16,
                 saveDialog: {
                     visible: false,
                     save: null,
@@ -109,17 +111,7 @@
                 }
             }
         },
-        computed: {
-            collapsedEditorNum(){
-                let num = 0;
-                this.editors.forEach(function (editor) {
-                    if(editor.collapse){
-                        num++;
-                    }
-                });
-                return num;
-            }
-        },
+        computed: {},
         methods: {
             /**
              * 根据item获取editor
@@ -142,6 +134,36 @@
                         this.editors.splice(i, 1);
                         break;
                     }
+                }
+            },
+            removeEditorFromCollapsedEditors: function (model) {
+                for (let i = 0; i < this.collapsedEditors.length; i++) {
+                    let editor = this.collapsedEditors[i];
+                    if (model.path === editor.file.path) {
+                        this.collapsedEditors.splice(i, 1);
+                        break;
+                    }
+                }
+            },
+            _doCloseEditor: function (model) {
+                if (this.activeEditor && (this.activeEditor.file.path === model.path)) {
+                    this.activeEditor = null;
+                }
+
+                let editorElement = this.getEditorElement(model.path);
+                editorElement.remove();
+
+                let editorIndicate = this.getEditorIndicate(model.path);
+                editorIndicate.remove();
+
+                this.removeEditorFromEditors(model);
+
+                if (this.editors.length > 0) {
+                    this.showEditor(this.editors[0].file);
+                } else if (this.collapsedEditors.length > 0) {
+                    let editor = this.collapsedEditors[0];
+                    this.collapsedEditors.splice(0, 1);
+                    this.showEditor(editor.file);
                 }
             },
             closeEditor: function (model) {
@@ -175,35 +197,21 @@
                     }
                 }
             },
-            _doCloseEditor: function (model) {
-                if (this.activeEditor && (this.activeEditor.file.path === model.path)) {
-                    this.activeEditor = null;
-                }
-                console.info("_doCloseEditor")
-
-                let editorElement = this.getEditorElement(model.path);
-                editorElement.remove();
-
-                let editorIndicate = this.getEditorIndicate(model.path);
-                editorIndicate.remove();
-
-                this.removeEditorFromEditors(model);
-
-                if (this.editors.length > 0) {
-                    let nextEditor = this.editors[0].file;
-                    this.showEditor(nextEditor);
-                }
+            resetSaveDialog(){
+                this.saveDialog.visible = false;
+                this.saveDialog.save = null;
+                this.saveDialog.donotSave = null;
             },
             showEditor: function (model) {
                 if (this.activeEditor && (this.activeEditor.file.path === model.path)) {
                     return this.activeEditor;
                 }
-                this.unActiveAllEditors();
-                let needShowedEditor = this.getEditor(model);
-                if (needShowedEditor) {
+                let oldEditor = this.getEditor(model);
+                if (oldEditor) {
                     let new_path = this.revisePath(model.path);
 
-                    this.unActiveAllEditors();
+                    this.hideAllEditor();
+                    this.unActiveAllTabIndicate();
 
                     let $li = $("[href='#" + new_path + "']").parent();
                     $li.attr("class", "editor-tab-active");
@@ -212,11 +220,11 @@
                     let editor = $('#' + new_path);
                     editor.css('display', 'block');
 
+                    this.removeEditorFromCollapsedEditors(model);
                     this.removeEditorFromEditors(model);
-                    this.editors.unshift(needShowedEditor);
+                    this.editors.unshift(oldEditor);
 
-                    this.activeEditor = needShowedEditor;
-                    this.activeEditor.collapse = false;
+                    this.activeEditor = this.getEditor(model);
                     this.activeEditor.focus();
 
                     while (this.needCollapse()) {
@@ -225,15 +233,6 @@
                     return this.activeEditor;
                 }
                 return null;
-            },
-            resetSaveDialog(){
-                this.saveDialog.visible = false;
-                this.saveDialog.save = null;
-                this.saveDialog.donotSave = null;
-            },
-            unActiveAllEditors(){
-                this.hideAllEditor();
-                this.unActiveAllTabIndicate();
             },
             getActiveEditor: function () {
                 return this.activeEditor;
@@ -254,6 +253,29 @@
                 }
                 return false;
             },
+            applyOpenEditorService(domain, model){
+                IDE.shade.open();
+                IDE.socket.emit("getFile", {
+                    type: domain,
+                    event: 'getFile',
+                    data: {
+                        path: model.path
+                    }
+                }, (result) => {
+                    IDE.shade.hide();
+                    if (result.state === 'success') {
+                        if (!model.isParent) {
+                            let editor = this.openEditor(model, result.data);
+                            if (editor && maximize) {
+                                editor.$children[0].$emit('maximize');
+                            }
+                        }
+                    } else {
+                        debug.error('resource dbclick , ' + result);
+                    }
+                });
+            },
+
             openEditor: function (item, input) {
                 let model;
                 if (item.$el) {
@@ -276,7 +298,52 @@
                     return;
                 }
 
-                this.unActiveAllEditors();
+                this.hideAllEditor();
+                this.unActiveAllTabIndicate();
+
+                let indicateWidth = this.getIndicateWidth(model.name);
+
+                //创建tab-indicator
+                let path = this.revisePath(model.path);
+                let $li = $("<li></li>");
+                $li.css('width', indicateWidth);
+                $li.attr("class", "editor-tab-active");
+                $li.click((function (model, self) {
+                    return function () {
+                        self.showEditor(model);
+                    }
+                })(model, this));
+
+                let $a = $("<span></span>");
+                $a.text(this.getIndicateName(model.name));
+                $a.attr("href", "#" + path);
+                $li.append($a);
+
+                let $close = $("<div></div>");
+                $close.attr('class', 'editor-tab-delete');
+
+                $a.append($close);
+                $close.click((function (model, vue) {
+                    return function () {
+                        vue.closeEditor(model);
+                    }
+                })(model, this));
+
+                $li.contextmenu((function (model, edtiorPart) {
+                    return function ($event) {
+                        $event.preventDefault();
+                        edtiorPart.openIndicatorMenu($event, model);
+                    }
+                })(model, this));
+
+                this.PAGE_INDICATE.append($li);
+
+
+                //创建tab-container
+                let $div = $("<div></div>");
+                $div.attr("id", path);
+                $div.append($("<div id='editor'></div>"));
+                this.PAGE_CONTENT.append($div);
 
                 let newEditor = new Vue(editorDecorator);
 
@@ -286,64 +353,22 @@
                 }
 
                 if (!$.isFunction(newEditor.isDirty) || !$.isFunction(newEditor.save)
-                    || !$.isFunction(newEditor.focus) || !$.isFunction(newEditor.dirtyStateChange)
-                    || !$.isFunction(newEditor.getPartName)) {
-                    debug.error("editor must has three methods : isDirty,save,focus,dirtyStateChange,getPartName");
+                    || !$.isFunction(newEditor.focus) || !$.isFunction(newEditor.dirtyStateChange)) {
+                    debug.error("editor must has three methods : isDirty,save,focus,dirtyStateChange");
                     return;
                 }
 
                 newEditor.$props.input = content;
                 newEditor.$props.file = model;
                 newEditor.$props.msgHub = this.msgHub;
-
-                let editorName = this.getIndicateName(newEditor.getPartName());
-                let indicateWidth = this.getIndicateWidth(editorName);
-
-                //创建tab-indicator
-                let path = this.revisePath(model.path);
-
-                let templateI = `<li style="width:${indicateWidth}px;" class="editor-tab-active">
-                                    <span href="#${path}">
-                                        ${editorName}
-                                        <div class="editor-tab-delete"></div>
-                                    </span>
-                                </li>`;
-
-                let $li = $(templateI);
-                $li.click((function (model, self) {
-                    return function () {
-                        self.showEditor(model);
-                    }
-                })(model, this));
-                $li.contextmenu((function (model, edtiorPart) {
-                    return function ($event) {
-                        $event.preventDefault();
-                        edtiorPart.openIndicatorMenu($event, model);
-                    }
-                })(model, this));
-
-                let $close = $li.find('.editor-tab-delete');
-                $close.click((function (model, vue) {
-                    return function () {
-                        vue.closeEditor(model);
-                    }
-                })(model, this));
-
-                this.PAGE_INDICATE.append($li);
-
-                //创建tab-container
-                let templateE = `<div id="${path}">
-                                    <div id="editor"></div>
-                                 </div>`
-                let $div = $(templateE);
-                this.PAGE_CONTENT.append($div);
-
                 newEditor.$mount('#' + path + " #editor");
+
                 this.activeEditor = newEditor;
 
                 while (this.needCollapse()) {
                     this.emptyOutEditorIndicate();
                 }
+
                 this.editors.unshift(newEditor);
                 return newEditor;
             },
@@ -353,7 +378,7 @@
                     let lastEditorIndicate = this.getEditorIndicate(lastEditor.file.path);
                     if (lastEditorIndicate.css('display') != 'none') {
                         lastEditorIndicate.css('display', 'none');
-                        lastEditor.collapse = true;
+                        this.collapsedEditors.push(lastEditor);
                         break;
                     }
                 }
@@ -394,21 +419,19 @@
             openCollapseMenu: function ($event) {
                 let self = this;
                 let collMenuItems = [];
-                this.editors.forEach((editor) => {
-                    if(editor.collapse) {
-                        let file = editor.file;
-                        let partName = editor.getPartName();
-                        let item = {
-                            id: file.path,
-                            name: partName,
-                            type: 'item',
-                            handler: function () {
-                                self.showEditor(editor.file);
-                            }
+                for (let key in this.collapsedEditors) {
+                    let editor = this.collapsedEditors[key];
+                    let file = editor.file;
+                    let item = {
+                        id: file.path,
+                        name: file.name,
+                        type: 'item',
+                        handler: function () {
+                            self.showEditor(editor.file);
                         }
-                        collMenuItems.push(item);
                     }
-                });
+                    collMenuItems.push(item);
+                }
                 IDE.contextmenu.setItems(collMenuItems);
                 IDE.contextmenu.show($event.x - 250, $event.y);
             },
@@ -426,7 +449,6 @@
             hideAllEditor: function () {
                 for (let i = 0; i < this.editors.length; i++) {
                     let editor = this.editors[i];
-                    editor.collapse = false;
                     if (editor.$el.parentNode.style.display != 'none') {
                         editor.$el.parentNode.style.display = 'none';
                     }
@@ -437,12 +459,9 @@
              */
             unActiveAllTabIndicate: function () {
                 let indicates = $('.editor-tab-active');
-                for (let i = 0; i < this.editors.length; i++) {
-                    let editor = this.editors[i];
-                    let indicate = this.getEditorIndicate(editor.file.path);
-                    indicate.removeClass();
-                    indicate.css('display','block');
-                    indicate.addClass('editor-tab-unactive');
+                for (let i = 0; i < indicates.length; i++) {
+                    let indicate = indicates[i];
+                    indicate.className = 'editor-tab-unactive';
                 }
             },
             /**
@@ -504,10 +523,27 @@
             }
         },
         mounted(){
+            console.log('editor part mounted');
+            if (this.$route.params) {
+                let path = this.$route.params.path;
+                let type = this.$route.params.type;
+                let ticket = this.$route.params.ticket;
+                let domain = this.$route.params.domain;
+                //TODO 需要加入验证代码
+//                if(ticket)
+//                IDE.services(domain).checkTicket(ticket);
+                if(path&&type&&domain)
+                setTimeout(() =>
+                        this.applyOpenEditorService(domain, IDE.services(domain).parseToPath(path, type)),
+                    100);
+            }
+
             this.PAGE_INDICATE = $("#editors-indicate");
             this.PAGE_CONTENT = $("#editors-content");
             this.PAGE_COLLAPSE_BUTTON = $("#editors-indicate .editors-collapse");
         },
+
+
         beforeDestory: function () {
             this.msgHub.$destroy();
         }
