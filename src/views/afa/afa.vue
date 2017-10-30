@@ -209,37 +209,42 @@
                                                 if (!oldChildren || oldChildren.length == 0) {
                                                     item.model.children = result.data
                                                 } else {
-                                                    combine(newChildren, oldChildren)
+                                                    combine(newChildren, oldChildren,level)
                                                 }
                                             } else {
                                                 debug.error('refresh resources fail , ' + result)
                                             }
 
-                                            function combine(newChildren, oldChildren) {
+                                            //合并文件，不存在的文件删除，已存在的文件保留并对比其children。
+                                            function combine(newChildren, oldChildren,level) {
+                                                newChildren = newChildren || [];
+                                                oldChildren = oldChildren || [];
                                                 for (let i = 0; i < newChildren.length; i++) {
-                                                    let newChd = newChildren[i]
-                                                    let exist = false
+                                                    let newChd = newChildren[i];
+                                                    let exist = false;
                                                     for (let j = 0; j < oldChildren.length; j++) {
-                                                        let oldChd = oldChildren[j]
+                                                        let oldChd = oldChildren[j];
                                                         if (newChd.path === oldChd.path) {
-                                                            exist = true
-                                                            oldChd['##keep##'] = true
-                                                            combine(newChd.children ? newChd.children : [], oldChd.children ? oldChd.children : [])
-                                                            break
+                                                            exist = true;
+                                                            oldChd['##keep##'] = true;
+                                                            if( (level - 1) > 0) {
+                                                                combine(newChd.children, oldChd.children,level - 1);
+                                                            }
+                                                            break;
                                                         }
                                                     }
                                                     if (!exist) {
-                                                        newChd['##keep##'] = true
-                                                        oldChildren.push(newChd)
+                                                        newChd['##keep##'] = true;
+                                                        oldChildren.push(newChd);
                                                     }
                                                 }
-                                                for (let i = 0; i < oldChildren.length; i++) {
-                                                    let oldChd = oldChildren[i]
+                                                for (var i = 0; i < oldChildren.length; i++) {
+                                                    var oldChd = oldChildren[i];
                                                     if (!oldChd['##keep##']) {
-                                                        oldChildren.splice(i, 1)
-                                                        i--
+                                                        oldChildren.splice(i, 1);
+                                                        i--;
                                                     }
-                                                    delete oldChd['##keep##']
+                                                    delete oldChd['##keep##'];
                                                 }
                                             }
                                         }

@@ -28,10 +28,10 @@
             <!--对话框-->
             <!--<component :is="dialogType" :showProperties.sync="showproperties" :model="dialogTarget" :path="file.path"></component>-->
             <propDialog :showProperties.sync="showproperties"
-                 :model="dialogTarget"
-                 :path="file.path"
-                 :editortype="editortype"
-                 :nodetype="dialogType"></propDialog>
+                        :model="dialogTarget"
+                        :path="file.path"
+                        :editortype="editortype"
+                        :nodetype="dialogType"></propDialog>
         </div>
     </editor-Container>
 
@@ -278,33 +278,33 @@
                             }
 
                             /*try {
-                                let children = [];
-                                result.data.result.forEach((item) => {
-                                    if (item.type == path && item.children) {
+                             let children = [];
+                             result.data.result.forEach((item) => {
+                             if (item.type == path && item.children) {
 
-                                    }
-                                })
-                            }*/
+                             }
+                             })
+                             }*/
 
                             /*let data = result.data[path];
 
-                            if (data == null || data["componentPackage"] == null) return;
+                             if (data == null || data["componentPackage"] == null) return;
 
-                            let children = [];
+                             let children = [];
 
-                            data["componentPackage"].forEach((item) => {
-                                children.push({
-                                    name: item.componentPackage,
-                                    url: packUrl,
-                                    items: item.bcpt.map((bcpt) => {
-                                        return {
-                                            url: comUrl,
-                                            data: Object.assign(bcpt.Component, {type: "4", size: [160, 46]}),
-                                            name: bcpt.Component.Desp,
-                                        }
-                                    })
-                                })
-                            })*/
+                             data["componentPackage"].forEach((item) => {
+                             children.push({
+                             name: item.componentPackage,
+                             url: packUrl,
+                             items: item.bcpt.map((bcpt) => {
+                             return {
+                             url: comUrl,
+                             data: Object.assign(bcpt.Component, {type: "4", size: [160, 46]}),
+                             name: bcpt.Component.Desp,
+                             }
+                             })
+                             })
+                             })*/
 
                             //config[path].children = children
 
@@ -443,12 +443,16 @@
 
             setStepFromInput(step) {
                 this.input.Root.Regulation.Step = step;
+            },
+            getPartName(){
+                let item = IDE.navigator.getItem(this.file.path).getParent().getParent();
+                return item.model.label + ' [流程配置]';
             }
         },
         /*components: Object.assign({
-            flowEditor,
-            editorContainer
-        }, stepDialogs, nodeDialogs)*/
+         flowEditor,
+         editorContainer
+         }, stepDialogs, nodeDialogs)*/
         components: {
             flowEditor,
             editorContainer,
