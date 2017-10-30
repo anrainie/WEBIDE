@@ -92,7 +92,7 @@
     import editorPartTab from '../../action/editorPartTab.contextmenu';
     export default {
         name: 'workbenchPage',
-        props: ['config'],
+        props: ['config', 'domain'],
         data(){
             return {
                 msgHub: new Vue(),
@@ -106,14 +106,15 @@
                     visible: false,
                     save: null,
                     donotSave: null
-                }
+                },
+                editorRefs: {},
             }
         },
         computed: {
             collapsedEditorNum(){
                 let num = 0;
                 this.editors.forEach(function (editor) {
-                    if(editor.collapse){
+                    if (editor.collapse) {
                         num++;
                     }
                 });
@@ -382,11 +383,16 @@
                 }
             },
             getEditorDecorator: function (resId) {
-                return this.config.editorRefs[resId];
+                if (this.editorRefs[this.domain] == null)
+//                    this.editorRefs[this.domain] = require(this.domain + '/config/editor.js');
+                    this.editorRefs[this.domain] = require('../' + this.domain + '/config/editor.js');
+                console.log(this.editorRefs[this.domain]);
+                return this.editorRefs[this.domain][resId];
             },
             revisePath: function (path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
-            },
+            }
+            ,
             getIndicateWidth: function (name) {
                 let num = 0;
                 for (let i = 0; i < name.length; i++) {
@@ -403,14 +409,16 @@
                     num = this.maxIndicateCharNum;
                 }
                 return num * this.eachCharWidth;
-            },
+            }
+            ,
             getIndicateName: function (name) {
                 if (name.length > this.maxIndicateCharNum) {
                     name = name.substring(0, this.maxIndicateCharNum);
                     name += "...";
                 }
                 return name;
-            },
+            }
+            ,
             /**
              * 打开收缩editors的右键菜单
              */
@@ -418,7 +426,7 @@
                 let self = this;
                 let collMenuItems = [];
                 this.editors.forEach((editor) => {
-                    if(editor.collapse) {
+                    if (editor.collapse) {
                         let file = editor.file;
                         let partName = editor.getPartName();
                         let item = {
@@ -434,7 +442,8 @@
                 });
                 IDE.contextmenu.setItems(collMenuItems);
                 IDE.contextmenu.show($event.x - 250, $event.y);
-            },
+            }
+            ,
             /**
              * 打开头标签的右键菜单
              */
@@ -442,7 +451,8 @@
                 this.showEditor(model);
                 IDE.contextmenu.setItems(editorPartTab);
                 IDE.contextmenu.show($event.clientX, $event.clientY, this.activeEditor);
-            },
+            }
+            ,
             /**
              * 隐藏所有editor
              */
@@ -454,7 +464,8 @@
                         editor.$el.parentNode.style.display = 'none';
                     }
                 }
-            },
+            }
+            ,
             /**
              * 把所有头标签设置为不活动状态
              */
@@ -464,17 +475,19 @@
                     let editor = this.editors[i];
                     let indicate = this.getEditorIndicate(editor.file.path);
                     indicate.removeClass();
-                    indicate.css('display','block');
+                    indicate.css('display', 'block');
                     indicate.addClass('editor-tab-unactive');
                 }
-            },
+            }
+            ,
             /**
              *获取editor头标签
              */
             getEditorIndicate: function (path) {
                 let p = this.revisePath(path);
                 return $("li span[href='#" + p + "']").parent();
-            },
+            }
+            ,
             /**
              * 获取editor的Element
              * @param path
@@ -483,8 +496,10 @@
             getEditorElement: function (path) {
                 let p = this.revisePath(path);
                 return $("#" + p);
-            },
-            saveEditor(){
+            }
+            ,
+            saveEditor()
+            {
                 let that = this;
                 if (this.activeEditor && this.activeEditor.isDirty() && this.activeEditor.save()) {
                     let dtd = $.Deferred();
@@ -514,7 +529,8 @@
                     });
                     return dtd.promise();
                 }
-            },
+            }
+            ,
             handleKeyPress: function (event) {
                 if (event.ctrlKey) {
                     switch (event.which) {
@@ -526,7 +542,8 @@
                 }
             }
         },
-        mounted(){
+        mounted()
+        {
             console.log('editor part mounted');
             if (this.$route.params) {
                 let path = this.$route.params.path;
@@ -536,16 +553,17 @@
                 //TODO 需要加入验证代码
 //                if(ticket)
 //                IDE.services(domain).checkTicket(ticket);
-                if(path&&type&&domain)
-                setTimeout(() =>
-                        this.applyOpenEditorService(domain, IDE.services(domain).parseToPath(path, type)),
-                    100);
+                if (path && type && domain)
+                    setTimeout(() =>
+                            this.applyOpenEditorService(domain, IDE.services(domain).parseToPath(path, type)),
+                        100);
             }
 
             this.PAGE_INDICATE = $("#editors-indicate");
             this.PAGE_CONTENT = $("#editors-content");
             this.PAGE_COLLAPSE_BUTTON = $("#editors-indicate .editors-collapse");
-        },
+        }
+        ,
 
 
         beforeDestory: function () {
