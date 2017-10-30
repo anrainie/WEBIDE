@@ -1,5 +1,6 @@
 /*两个函数，分别解析data和line*/
 import {stepBaseCfg, nodeBaseCfg} from './config'
+import {defaultsDeep} from 'lodash'
 
 /*用于参数忽略的时候*/
 function throwIfMissing() {
@@ -63,7 +64,7 @@ var resolveEditorLine = function(nodesConfig) {
 }
 
 /*stepEditor: input to editorConfig*/
-export let stepInput2Config = function (input = throwIfMissing()) {
+export let stepInput2Config = function (input) {
 
     if (input && input.Root) {
         let extraConfig = {};
@@ -87,7 +88,7 @@ export let stepInput2Config = function (input = throwIfMissing()) {
     return stepBaseCfg;
 }
 
-export let nodeInput2Config = function (input = throwIfMissing()) {
+export let nodeInput2Config = function (input) {
     if (input) {
         let extraConfig = {};
 
@@ -105,7 +106,7 @@ export let nodeInput2Config = function (input = throwIfMissing()) {
             });
         }
 
-        return Object.assign({}, nodeBaseCfg, extraConfig)
+        return Object.assign({}, defaultsDeep(nodeBaseCfg), extraConfig)
     }
 
     return nodeBaseCfg;

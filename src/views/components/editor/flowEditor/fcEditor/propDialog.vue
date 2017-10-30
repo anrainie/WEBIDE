@@ -244,7 +244,12 @@
             },
             /*通过refs调用子组件*/
             saveHandle(refsName) {
-                 return  this.$refs[refsName][0].savePropsToModel(this.model);
+                try {
+                    return  this.$refs[refsName][0].savePropsToModel(this.model);
+                } catch (e) {
+                    return null;
+                }
+
             },
             clickConfirm() {
                 let cmd;

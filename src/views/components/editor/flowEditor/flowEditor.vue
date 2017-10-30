@@ -120,7 +120,8 @@
                             "margin-left": "30px",
                             "margin-bottom": "10px",
                             "margin-top": "10px"
-                        }
+                        },
+                        host: this
                     }
                 },
                 methods: {
@@ -152,17 +153,20 @@
                         }
                     },
                     createTool: {
-                        bind (el, {value : {item, editor}}) {
-                            el.addEventListener('click', editor.createNodeWithPalette(item.data));
+                        bind (el, {value : {item, host}}) {
+                            //el.addEventListener('click',    editor.createNodeWithPalette(item.data));
+                            el.addEventListener('click', () => {
+                                host.editor.createNodeWithPalette(item.data)();
+                            });
                         }
                     },
                     selectTool: {
-                        bind (el, {value: editor}, vnode) {
-                            el.onmousedown = () => { editor.setActiveTool(editor.getDefaultTool())};
+                        bind (el, {value: host}, vnode) {
+                            el.onmousedown = () => { host.editor.setActiveTool(host.editor.getDefaultTool())};
                         }
                     },
                     linkTool: {
-                        bind (el, {value: editor}, vnode) {
+                        bind (el, {value: host}, vnode) {
                             var lineTool = new $AG.LineTool({
                                 id: 3,
                                 type: 0,
@@ -172,7 +176,7 @@
                             });
 
                             el.onmousedown = () => {
-                                editor.setActiveTool(editor.getActiveTool() == lineTool ? editor.getDefaultTool() : lineTool);
+                                host.editor.setActiveTool(host.editor.getActiveTool() == lineTool ? host.editor.getDefaultTool() : lineTool);
                                 return false;
                             };
                         }
@@ -181,19 +185,19 @@
                 template: `
                 <div style="position: absolute;top: 0;bottom: -30px;width: 150px;background-color: #d3d3d3;float:left; overflow: hidden">
                     <div v-if="editor" style="position: relative;height: 100%;width: 240px;background-color: #d3d3d3;float:left; overflow-y: auto">
-                        <el-button v-selectTool="editor" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
-                        <el-button v-linkTool="editor" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
+                        <el-button v-selectTool="host" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
+                        <el-button v-linkTool="host" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
 
                         <el-menu v-if="isVisibility" default-active="2" class="el-menu-vertical-demo" @open="openHandle" style="width: 150px">
                             <el-submenu :index="key" v-for="(value, key, index) in getGroup()">
                                 <template slot="title">{{value.name}}</template>
 
-                                <el-menu-item style="padding-left: 10px;min-width: 150px;" v-if="value.items" v-for="item in value.items" :index="item.name" v-createTool="{item: item, editor: editor}">
+                                <el-menu-item style="padding-left: 10px;min-width: 150px;" v-if="value.items" v-for="item in value.items" :index="item.name" v-createTool="{item: item, host: host}">
                                     <img v-loadImg="{item: item}" /> {{item.name}}
                                 </el-menu-item>
 
                                 <el-menu-item-group v-if="value.group">
-                                    <el-menu-item style="padding-left: 10px;min-width: 150px;width: auto" v-for="groupItem in value.group" :index="groupItem.name" v-createTool="{item: groupItem, editor: editor}">
+                                    <el-menu-item style="padding-left: 10px;min-width: 150px;width: auto" v-for="groupItem in value.group" :index="groupItem.name" v-createTool="{item: groupItem, host: host}">
                                         <img v-loadImg="{item: groupItem}" /> {{groupItem.name}}
                                     </el-menu-item>
 
@@ -201,7 +205,7 @@
 
                                 <el-submenu v-if="value.children" v-for="child in value.children" :index="child.name">
                                     <template slot="title"><img style="margin-left: -20px" v-loadImg="{item: child}"/>{{child.name}}</template>
-                                    <el-menu-item v-if="child.items" v-for="suChild in child.items" :index="suChild.name" style="padding-left: 20px"  v-createTool="{item: suChild, editor: editor}">
+                                    <el-menu-item v-if="child.items" v-for="suChild in child.items" :index="suChild.name" style="padding-left: 20px"  v-createTool="{item: suChild, host: host}">
                                         <img v-loadImg="{item: suChild}" /> {{suChild.name}}
                                     </el-menu-item>
                                 </el-submenu>

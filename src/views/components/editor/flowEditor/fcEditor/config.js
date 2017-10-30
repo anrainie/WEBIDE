@@ -149,7 +149,8 @@ var pinPolicy = function (idList) {
 
 
 
-    /***************************************右键菜单***************************************/
+
+/***************************************右键菜单***************************************/
 var operations = [
 
     /*全选*/
@@ -253,6 +254,16 @@ var location = function (figure) {
     })
 };
 
+/*暂时使用的ID位置*/
+var idLocation = function (figure) {
+    var text = this.text;
+
+    this.setBounds({
+        x: figure.bounds.x,
+        y: figure.bounds.y + 15 + (figure.bounds.height - 15) / 2,
+    })
+}
+
 let defaultData = {
     'UUID': undefined,
     'Quote': '0',
@@ -299,7 +310,9 @@ var stepCommonCpt = {
 
         'nodeEditor': openNodeEditor,
 
-        'pin': pinPolicy(['0', '1'])
+        'pin': pinPolicy(['0', '1']),
+
+        'idText': $AG.policy.TextPolicy('id', idLocation)
     },
 
     //特性

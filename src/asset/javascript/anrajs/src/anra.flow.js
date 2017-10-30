@@ -343,10 +343,13 @@ $AG.LineTool = anra.gef.LinkLineTool.extend({
 });
 
 $AG.policy = {
-    TextPolicy: function (key, loc) {
+    TextPolicy: function (key, loc, style) {
         return {
             activate: function () {
                 this.handle = new anra.gef.TextHandle(this.getHost());
+
+                if (style) this.handle.setStyle(style);
+
                 this.handle.disableEvent();
                 if (loc)
                     this.handle.refreshLocation = loc;
