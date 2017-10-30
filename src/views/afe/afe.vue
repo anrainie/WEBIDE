@@ -7,7 +7,7 @@
         <div id="ide_workbench">
             <fastbar id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
             <workbench id="ide_workbench_center" :views="views" ref="workbench"
-                       :editorconfig="editorPartConfig"></workbench>
+                       :domain="afe"></workbench>
             <fastbar id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
@@ -90,13 +90,6 @@
     import IDESocket from "../../core/IDESocket"
     import navContextMenus from '../../action/afe.navi.contextmenu';
     import menuData from '../../action/afe.menu';
-    import planEditor from '../afe/editor/planEditor.vue'
-    import sqldictEditor from '../afe/editor/sqldictEditor.vue'
-    import verifyFileEditor from '../afe/editor/verifyFileEditor.vue'
-    import msgConfigEditor from '../afe/editor/msgConfigEditor.vue'
-    import dictEditor from './editor/afeDictEditor.vue'
-    import mapEditor from './editor/mapEditor.vue'
-    import routerConfigEditor from '../afe/editor/routerConfigEditor.vue'
     import parameter from '../../views/afe/components/dialog/configParameter.vue'
     import connToServer from '../../views/afe/components/dialog/connToTheServer.vue'
 
@@ -110,17 +103,6 @@
         data(){
             var self = this;
             return {
-                editorPartConfig: {
-                    editorRefs: {
-                        pml: planEditor,
-                        sqldict: sqldictEditor,
-                        dict:dictEditor,
-                        rcd:msgConfigEditor,
-                        rt:routerConfigEditor,
-                        vtf: verifyFileEditor,
-                        map:mapEditor,
-                    }
-                },
                 vertical: false,
                 horizontal: true,
                 pageName: "pageName",

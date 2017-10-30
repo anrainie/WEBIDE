@@ -274,7 +274,7 @@
                                             IDE.editorPart.showEditor(item.model);
                                             return;
                                         }
-                                        IDE.editorPart.openEditor(item.model);
+                                        IDE.editorPart.applyOpenEditorService('afa',item.model);
                                     }
                                 },
                                 rightClick: function (event) {

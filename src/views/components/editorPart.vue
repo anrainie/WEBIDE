@@ -255,7 +255,7 @@
                 }
                 return false;
             },
-            applyOpenEditorService(domain, model){
+            applyOpenEditorService(domain, model, maximize = false){
                 IDE.shade.open();
                 IDE.socket.emit("getFile", {
                     type: domain,
@@ -273,7 +273,7 @@
                             }
                         }
                     } else {
-                        debug.error('resource dbclick , ' + result);
+                        debug.error('open editor, ' + result);
                     }
                 });
             },
@@ -384,9 +384,7 @@
             },
             getEditorDecorator: function (resId) {
                 if (this.editorRefs[this.domain] == null)
-//                    this.editorRefs[this.domain] = require(this.domain + '/config/editor.js');
                     this.editorRefs[this.domain] = require('../' + this.domain + '/config/editor.js');
-                console.log(this.editorRefs[this.domain]);
                 return this.editorRefs[this.domain][resId];
             },
             revisePath: function (path) {
@@ -544,7 +542,6 @@
         },
         mounted()
         {
-            console.log('editor part mounted');
             if (this.$route.params) {
                 let path = this.$route.params.path;
                 let type = this.$route.params.type;
@@ -553,10 +550,12 @@
                 //TODO 需要加入验证代码
 //                if(ticket)
 //                IDE.services(domain).checkTicket(ticket);
-                if (path && type && domain)
+                if (path && type && domain) {
+                    this.domain = domain;
                     setTimeout(() =>
-                            this.applyOpenEditorService(domain, IDE.services(domain).parseToPath(path, type)),
+                            this.applyOpenEditorService(domain, IDE.services(domain).parseToPath(path, type), true),
                         100);
+                }
             }
 
             this.PAGE_INDICATE = $("#editors-indicate");
