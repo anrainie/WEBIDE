@@ -42,12 +42,14 @@ var resolveEditorLine = function(nodesConfig) {
             if (connection) {
                 connection = connection instanceof Array ? connection : [connection];
 
-                connection.forEach((item) => {line.push({
+                connection.forEach((item) => {
+                    let targetid = item.TargetId || item.targetId;
+                    line.push({
                     //id问题
-                    id: Id +　'.' + item.SourceTerminal + '_' + item.TargetId + '.' + item.TargetTerminal,
+                    id: Id +　'.' + item.SourceTerminal + '_' + targetid + '.' + item.TargetTerminal,
                     source: Id,
                     type: 0,
-                    target: item.targetId,
+                    target: targetid,
                     exit: item.SourceTerminal,
                     entr: item.TargetTerminal
                 })})

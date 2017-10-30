@@ -28,21 +28,17 @@
         list-style: none;
         border-bottom: 1px solid #271212;
     }
-
     .editor-tab > li {
         float: left;
         margin-bottom: 1px;
         height: 30px;
         width: 100px;
     }
-
     .editor-tab-active {
         background-color: white;
     }
-
     .editor-tab-unactive {
     }
-
     .editor-tab > li > span {
         display: block;
         margin: 5px;
@@ -50,7 +46,6 @@
         text-decoration: none;
         cursor: default;
     }
-
     .editors-collapse {
         display: inline-block;
         float: right;
@@ -58,11 +53,9 @@
         width: 30px;
         text-align: center;
     }
-
     .editors-collapse:hover {
         background-color: gray;
     }
-
     .editors-collapse div {
         display: inline-block;
         position: relative;
@@ -71,13 +64,11 @@
         height: 15px;
         background: url("~assets/image/editor-collapse.png") no-repeat;
     }
-
     .editors-collapse span {
         display: inline-block;
         position: relative;
         top: 15%;
     }
-
     .editor-tab-delete {
         display: inline-block;
         width: 15px;
@@ -85,7 +76,6 @@
         float: right;
         background-image: url("~assets/image/nav-delete.png");
     }
-
 </style>
 <script type="text/javascript">
     import Vue from 'vue';
@@ -181,15 +171,11 @@
                     this.activeEditor = null;
                 }
                 console.info("_doCloseEditor")
-
                 let editorElement = this.getEditorElement(model.path);
                 editorElement.remove();
-
                 let editorIndicate = this.getEditorIndicate(model.path);
                 editorIndicate.remove();
-
                 this.removeEditorFromEditors(model);
-
                 if (this.editors.length > 0) {
                     let nextEditor = this.editors[0].file;
                     this.showEditor(nextEditor);
@@ -203,23 +189,17 @@
                 let needShowedEditor = this.getEditor(model);
                 if (needShowedEditor) {
                     let new_path = this.revisePath(model.path);
-
                     this.unActiveAllEditors();
-
                     let $li = $("[href='#" + new_path + "']").parent();
                     $li.attr("class", "editor-tab-active");
                     $li.css("display", "block");
-
                     let editor = $('#' + new_path);
                     editor.css('display', 'block');
-
                     this.removeEditorFromEditors(model);
                     this.editors.unshift(needShowedEditor);
-
                     this.activeEditor = needShowedEditor;
                     this.activeEditor.collapse = false;
                     this.activeEditor.focus();
-
                     while (this.needCollapse()) {
                         this.emptyOutEditorIndicate();
                     }
@@ -249,7 +229,6 @@
                 }
                 let indicateWidth = this.PAGE_INDICATE.width();
                 indicateWidth -= this.PAGE_COLLAPSE_BUTTON.width();
-
                 if (allLiWidth > indicateWidth) {
                     return true;
                 }
@@ -277,7 +256,6 @@
                     }
                 });
             },
-
             openEditor: function (item, input) {
                 let model;
                 if (item.$el) {
@@ -299,40 +277,31 @@
                     debug.error("can not found editorDecorator with : " + resId);
                     return;
                 }
-
                 this.unActiveAllEditors();
-
                 let newEditor = new Vue(editorDecorator);
-
                 if (!newEditor.hasOwnProperty("input") || !newEditor.hasOwnProperty("file") || !newEditor.hasOwnProperty("msgHub")) {
                     debug.error("$props must has three properties : input,file,msgHub");
                     return;
                 }
-
                 if (!$.isFunction(newEditor.isDirty) || !$.isFunction(newEditor.save)
                     || !$.isFunction(newEditor.focus) || !$.isFunction(newEditor.dirtyStateChange)
                     || !$.isFunction(newEditor.getPartName)) {
                     debug.error("editor must has three methods : isDirty,save,focus,dirtyStateChange,getPartName");
                     return;
                 }
-
                 newEditor.$props.input = content;
                 newEditor.$props.file = model;
                 newEditor.$props.msgHub = this.msgHub;
-
                 let editorName = this.getIndicateName(newEditor.getPartName());
                 let indicateWidth = this.getIndicateWidth(editorName);
-
                 //创建tab-indicator
                 let path = this.revisePath(model.path);
-
                 let templateI = `<li style="width:${indicateWidth}px;" class="editor-tab-active">
                                     <span href="#${path}">
                                         ${editorName}
                                         <div class="editor-tab-delete"></div>
                                     </span>
                                 </li>`;
-
                 let $li = $(templateI);
                 $li.click((function (model, self) {
                     return function () {
@@ -345,26 +314,21 @@
                         edtiorPart.openIndicatorMenu($event, model);
                     }
                 })(model, this));
-
                 let $close = $li.find('.editor-tab-delete');
                 $close.click((function (model, vue) {
                     return function () {
                         vue.closeEditor(model);
                     }
                 })(model, this));
-
                 this.PAGE_INDICATE.append($li);
-
                 //创建tab-container
                 let templateE = `<div id="${path}">
                                     <div id="editor"></div>
                                  </div>`
                 let $div = $(templateE);
                 this.PAGE_CONTENT.append($div);
-
                 newEditor.$mount('#' + path + " #editor");
                 this.activeEditor = newEditor;
-
                 while (this.needCollapse()) {
                     this.emptyOutEditorIndicate();
                 }
@@ -557,17 +521,13 @@
                         100);
                 }
             }
-
             this.PAGE_INDICATE = $("#editors-indicate");
             this.PAGE_CONTENT = $("#editors-content");
             this.PAGE_COLLAPSE_BUTTON = $("#editors-indicate .editors-collapse");
         }
         ,
-
-
         beforeDestory: function () {
             this.msgHub.$destroy();
         }
     }
 </script>
-

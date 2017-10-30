@@ -22,6 +22,9 @@
     </div>
 </template>
 <script>
+    import {$AG} from 'anrajs'
+
+    const saveCmd = $AG.SetPropsCommand;
     export default {
         props: {
             model: {
@@ -78,7 +81,7 @@
 
             /*提供一个默认的更新函数*/
             savePropsToModel(model) {
-                model.set('Skip', this.modification);
+                return new saveCmd('Skip', this.modification, model)
             }
         }
     }

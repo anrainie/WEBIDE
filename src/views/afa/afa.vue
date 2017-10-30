@@ -18,7 +18,6 @@
 </template>
 <style>
     @import "~bootstrap/dist/css/bootstrap.css";
-
     #left_fast_bar {
         display: inline-block;
         width: 25px;
@@ -26,20 +25,17 @@
         float: left;
         background: #DDD;
     }
-
     #ide_workbench_center {
         width: -moz-calc(100% - 50px);
         width: -webkit-calc(100% - 50px);
         width: calc(100% - 50px);
     }
-
     #bottom_fast_bar {
         bottom: 0px;
         width: 100%;
         /*height: 25px;*/
         background: #DDD;
     }
-
     #right_fast_bar {
         display: inline-block;
         width: 25px;
@@ -48,7 +44,6 @@
         background: #DDD;
         padding: 0;
     }
-
     #ide_workbench {
         display: inline-block;
         width: 100%;
@@ -56,13 +51,11 @@
         height: -webkit-calc(100% - 60px);
         height: calc(100% - 60px);
     }
-
     #ide_navigator {
         position: relative;
         border: 1px solid gray;
         height: 100%;
     }
-
     #ide_EDITOR_PART {
         height: 100%;
     }
@@ -83,9 +76,6 @@
     import toolbar from "../components/toolbar.vue"
     import navContextMenus from '../../action/afa.navi.contextmenu';
     import menuData from '../../action/afa.menu';
-
-
-
     export default{
         data(){
             let self = this;
@@ -146,7 +136,6 @@
         mounted(){
             //注册服务
             require('./config/services.js');
-
             let self = this;
             IDE.type = 'afa';
             IDE.contextmenu = self.$refs.ide_contextMenu;
@@ -214,7 +203,6 @@
                                             } else {
                                                 debug.error('refresh resources fail , ' + result)
                                             }
-
                                             //合并文件，不存在的文件删除，已存在的文件保留并对比其children。
                                             function combine(newChildren, oldChildren,level) {
                                                 newChildren = newChildren || [];
@@ -263,7 +251,6 @@
                                         debug.error('delete resource fail , ' + error);
                                     });
                                 },
-
                                 click: function (item) {
                                 },
                                 dblclick: function () {

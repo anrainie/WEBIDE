@@ -23,8 +23,8 @@
                 <el-form-item>
                     <el-button icon="more" @click="openDebugCodeDialog"></el-button>
                     <debug-code-dialog
-                        ref="debugCodeDialog"
-                        :tableData="debugCode">
+                            ref="debugCodeDialog"
+                            :tableData="debugCode">
                     </debug-code-dialog>
                 </el-form-item>
             </el-col>
@@ -61,9 +61,9 @@
     import  debugReturnDialog from '../../../views/afa/dialog/DebugReturnDialog.vue';
     export default{
         props: {
-          model: {
-            required: true
-          },
+            model: {
+                required: true
+            },
             enable: {
                 default: false
             },
@@ -73,31 +73,29 @@
             path: {
                 type: String
             }
-
-
         },
-      components:{
-          debugCodeDialog,
-          debugReturnDialog
-      },
-      data(){
-        return{
-          debugCode:[],
-          debugReturn:[],
-          modification: this.initModification(),
+        components:{
+            debugCodeDialog,
+            debugReturnDialog
+        },
+        data(){
+            return{
+                debugCode:[],
+                debugReturn:[],
+                modification: this.initModification(),
+            }
+        },
+        methods:{
+            openDebugReturnDialog(){
+                this.$refs.debugReturnDialog.openDialog();
+            },
+            openDebugCodeDialog(){
+                this.$refs.debugCodeDialog.openDialog();
+            },
+            initModification(){
+                var model = this.model;
+                console.log(model);
+            }
         }
-      },
-      methods:{
-        openDebugReturnDialog(){
-          this.$refs.debugReturnDialog.openDialog();
-        },
-        openDebugCodeDialog(){
-          this.$refs.debugCodeDialog.openDialog();
-        },
-        initModification(){
-          var model = this.model;
-          console.log(model);
-        }
-      }
     }
 </script>

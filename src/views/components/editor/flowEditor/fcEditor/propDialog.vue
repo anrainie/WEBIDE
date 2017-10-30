@@ -8,7 +8,7 @@
 
                         <el-collapse-item  :title="item.name" :name="index" v-for="(item, name, index) in tab.config">
                             <keep-alive>
-                                <component :is="name" :model="getProps" :type="item.type" :ref="name" :path="path"></component>
+                                <component :is="item.group" :model="getProps" :type="item.type" :ref="name" :path="path"></component>
                             </keep-alive>
                         </el-collapse-item>
 
@@ -34,7 +34,7 @@
 
 <style>
     .large {
-        width: 800px
+        width: 950px;
     }
 
     .small {
@@ -109,7 +109,8 @@
                             type: '3'
                         },
                         skipInfo
-                    }},
+                    }
+                },
                 {
                     name: "step出口",
                     config: {
@@ -159,7 +160,8 @@
                 inputParam,
                 outputParam
 
-            }
+            },
+            size: 'large'
         },
         //内部场景调用
         12: {
@@ -242,18 +244,20 @@
             },
             /*通过refs调用子组件*/
             saveHandle(refsName) {
-                try {
-                    this.$refs[refsName][0].savePropsToModel(this.model);
-                } catch (e) {
-                    //TODO
-                }
+                 return  this.$refs[refsName][0].savePropsToModel(this.model);
             },
             clickConfirm() {
-                if (this.group) {
-                    for (let name of Object.keys(this.group)) {
-                        this.saveHandle(name);
+                let cmd;
+                if (this.group && this.group.config) {
+                    for (let name of Object.keys(this.group.config)) {
+                        if (cmd) {
+                            cmd = cmd.chain(this.saveHandle(name));
+                        } else {
+                            cmd = this.saveHandle(name)
+                        }
                     }
                 }
+                if (cmd) this.$emit('saveProps', cmd);
                 this.updateVisible(false);
             }
         },

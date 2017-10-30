@@ -12,6 +12,24 @@ function throwIfMissing() {
 
 $AG.EditPartListener = anra.gef.EditPartListener;
 
+$AG.SetPropsCommand = anra.Command.extend({
+    constructor(key, value, model) {
+       this.model = model;
+       this.key = key;
+       this.value = value;
+    },
+    canExecute() {
+        return this.model && this.key;
+    },
+    execute() {
+        this.modification = this.model.get(this.key);
+        this.model.set(this.key, this.value);
+    },
+    undo() {
+        this.model.set(this.key, this.modification);
+    }
+});
+
 $AG.Editor.prototype.initRootEditPart = function (editPart) {
     editPart.addEditPartListener(new ReaderListener());
     editPart.config = this.config;
