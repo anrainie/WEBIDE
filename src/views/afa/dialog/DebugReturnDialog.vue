@@ -24,15 +24,18 @@
                     label="值">
             </el-table-column>
             <el-table-column
-                    prop="convert"
+                    prop="dbcs"
                     label="转码">
-                <el-select v-model="convert">
-                     <el-option v-for="item in convert"
+                <template scope="props">
+                    <el-select v-model="props.row.dbcs">
+                        <el-option v-for="item in this.dbcs"
                                  :key="item.value"
                                  :label="item.label"
                                  :value="item.value">
-                     </el-option>
-                </el-select>
+
+                        </el-option>
+                    </el-select>
+                </template>
             </el-table-column>
         </el-table>
         <div slot="footer" class="dialog-footer">
@@ -44,21 +47,22 @@
 <script>
   export default {
     name:'debugReturnDialog',
-    props:['tableData'],
+    props:['debugReturn','ougArgs'],
     components: {},
     data () {
       return {
         dialogtitle:'调试返回',
         dialogFormVisible:false,
         currentRow:null,
-        convert:[
+        tableData:this.init(),
+        dbcs:[
           {
-            value:'yes',
-            label:'是'
+            value:true,
+            label:'yes'
           },
           {
-            value:'no',
-            label:'否'
+            value:false,
+            label:'no'
           }
         ],
       }
@@ -76,6 +80,19 @@
       handleCurrentValue(row,column,cell,event){
 
       },
+      init(){
+        if(this.debugReturn){
+          var tableData = [];
+           for(var index in this.debugReturn){
+               var variableValue = this.debugReturn[index];
+               var variableName = this.outArgs[index];
+               var dbcsName = false;
+               var newItem = {variableName,variableValue,dbcsName};
+               tableData.push(newItem);
+           }
+        }
+        return tableData;
+      }
     }
   }
 </script>

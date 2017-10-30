@@ -38,20 +38,35 @@
 
   export default {
     name:'debugCodeDialog',
-    props:['tableData'],
+    props:['modification'],
     components: {},
     data () {
       return {
         dialogtitle:'调试代码',
         dialogFormVisible:false,
         currentRow:null,
+        tableData:this.init(),
       }
     },
     methods:{
+      init(){
+        var tableData = [];
+        if(this.modification){
+           for(var index in this.modification.code){
+             var code = this.modification.code[index];
+             var values = code.split("=");
+             var variableName = values[0];
+             var variableValue =  values[1];
+             var newItem = {variableName,variableValue};
+             tableData.push(newItem);
+           }
+        }
+        return tableData;
+      },
       addItem(){
-          var variableName = "default"
-          var variableValue =  "default"
-          var newItem = {variableName,variableValue}
+          var variableName = "default";
+          var variableValue =  "default";
+          var newItem = {variableName,variableValue};
           this.currentRow = newItem;
           this.tableData.push(newItem);
           this.$refs.singleTable.setCurrentRow(this.currentRow);
@@ -66,6 +81,16 @@
       },
       handleOk(){
          this.dialogFormVisible = false;
+         this.modification.code=[];
+         if(this.tableData){
+           for(var index in this.tableData){
+             var item = this.tableData[index];
+             var variableName = item.variableName;
+             var variableValue =  item.variableValue;
+             var newItem = variableName+"="+variableValue;
+             this.modification.code.push(newItem);
+           }
+         }
       },
       openDialog(){
         this.dialogFormVisible = true;
