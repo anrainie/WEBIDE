@@ -5,7 +5,7 @@ import tcptEditor from '../editor/TcptEditor.vue'
 import fcEditor from "../../components/editor/flowEditor/fcEditor/fcEditor.vue"
 import bcptEditor from  "../../components/editor/flowEditor/fcEditor/bcptEditor.vue"
 
-export default{
+module.exports = {
     dict: dictEditor,
     java: javaEditor,
     tcpt: tcptEditor,
