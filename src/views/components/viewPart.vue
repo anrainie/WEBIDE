@@ -72,8 +72,8 @@
             actions(){
                 let self = this;
                 let actions = [];
-                if(this.model) {
-                    let viewConfig = window.viewRegistry[this.model.id];
+                if(this.viewModel) {
+                    let viewConfig = window.viewRegistry[this.viewModel.id];
                     if (viewConfig && viewConfig.actions) {
                         for (let i = 0; i < viewConfig.actions.length; i++) {
                             actions[i] = viewConfig.actions[i];
@@ -83,20 +83,21 @@
                 return actions;
             },
             open(){
-                if (this.model)
-                    return this.model.open;
+                if (this.viewModel)
+                    return this.viewModel.open;
                 return false;
             },
             title(){
-                if (this.model == null)return '';
-                let viewConfig = window.viewRegistry[this.model.id];
+                if (this.viewModel == null)return '';
+                let viewConfig = window.viewRegistry[this.viewModel.id];
                 if (viewConfig)
                     return viewConfig.name;
-                else return this.model.id + 'not found';
+                else return this.viewModel.id + 'not found';
             }
         },
         data(){
             return {
+                viewModel:this.model,
                 actionConfig: {},
             }
         },
@@ -112,7 +113,7 @@
             toolbar: toolbar
         },
         mounted(){
-            if (this.model)
+            if (this.viewModel)
                 this.applyContent();
         },
         methods: {
@@ -133,12 +134,12 @@
             },
             applyContent(){
                 let con = $('#' + this.contentId);
-                let viewConfig = window.viewRegistry[this.model.id];
+                let viewConfig = window.viewRegistry[this.viewModel.id];
 
                 let _WB = window.WORKBENCH || null;
                 let content;
-                if (_WB && _WB.cache[this.model.id]) {
-                    let v = _WB.cache[this.model.id];
+                if (_WB && _WB.cache[this.viewModel.id]) {
+                    let v = _WB.cache[this.viewModel.id];
                     content = v.$el;
                     v.$parent = this;
                     con.append(content);
@@ -153,7 +154,7 @@
                     let vt = require(viewConfig.component);
                     let v = new Vue(vt);
 //                    let v=Vue.extend(viewConfig.component);
-                    v.$props.id = this.model.id;
+                    v.$props.id = this.viewModel.id;
                     v.$props.name = viewConfig.name;
 
                     let self = this;
@@ -170,14 +171,14 @@
                         v.init = viewConfig.init;
                         IDE.once('connected success', function () {
                             viewConfig.init.call(self, function (m) {
-                                v.model = m;
+                                v.$props.model = m;
                             });
                         });
                     }
 
                     v.$parent = this;
                     this.view_content = v;
-                    WORKBENCH.cache[this.model.id] = v;
+                    WORKBENCH.cache[this.viewModel.id] = v;
                     v.$on('selectionChanged', function (s) {
                         self.getToolbar().selectionChanged(s);
                         if (viewConfig.propertyPage) {

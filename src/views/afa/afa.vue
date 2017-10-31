@@ -6,7 +6,7 @@
 
         <div id="ide_workbench">
             <fastbar v-if="showFastBarLeft" id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
-            <workbench v-if="showWorkbench" id="ide_workbench_center" domain="afa" :views="views" ref="workbench"></workbench>
+            <workbench v-if="showWorkbench" id="ide_workbench_center" :domain="domain" :views="views" ref="workbench"></workbench>
             <fastbar v-if="showFastBarRight" id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar v-if="showFastBarBottom" id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
@@ -80,6 +80,7 @@
         data(){
             let self = this;
             return {
+                domain:'afa',
                 showFastBarLeft: true,
                 showFastBarRight: true,
                 showFastBarBottom: true,

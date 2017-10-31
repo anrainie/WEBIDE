@@ -85,6 +85,7 @@
         props: ['config', 'domain'],
         data(){
             return {
+                _domain:this.domain,
                 msgHub: new Vue(),
                 //TODO 使用栈
                 editors: [],
@@ -347,9 +348,9 @@
                 }
             },
             getEditorDecorator: function (resId) {
-                if (this.editorRefs[this.domain] == null)
-                    this.editorRefs[this.domain] = require('../' + this.domain + '/config/editor.js');
-                return this.editorRefs[this.domain][resId];
+                if (this.editorRefs[this._domain] == null)
+                    this.editorRefs[this._domain] = require('../' + this._domain + '/config/editor.js');
+                return this.editorRefs[this._domain][resId];
             },
             revisePath: function (path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
@@ -515,7 +516,7 @@
 //                if(ticket)
 //                IDE.services(domain).checkTicket(ticket);
                 if (path && type && domain) {
-                    this.domain = domain;
+                    this._domain = domain;
                     setTimeout(() =>
                             this.applyOpenEditorService(domain, IDE.services(domain).parseToPath(path, type), true),
                         100);
