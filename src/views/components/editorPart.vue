@@ -28,17 +28,21 @@
         list-style: none;
         border-bottom: 1px solid #271212;
     }
+
     .editor-tab > li {
         float: left;
         margin-bottom: 1px;
         height: 30px;
         width: 100px;
     }
+
     .editor-tab-active {
         background-color: white;
     }
+
     .editor-tab-unactive {
     }
+
     .editor-tab > li > span {
         display: block;
         margin: 5px;
@@ -46,6 +50,7 @@
         text-decoration: none;
         cursor: default;
     }
+
     .editors-collapse {
         display: inline-block;
         float: right;
@@ -53,9 +58,11 @@
         width: 30px;
         text-align: center;
     }
+
     .editors-collapse:hover {
         background-color: gray;
     }
+
     .editors-collapse div {
         display: inline-block;
         position: relative;
@@ -64,11 +71,13 @@
         height: 15px;
         background: url("~assets/image/editor-collapse.png") no-repeat;
     }
+
     .editors-collapse span {
         display: inline-block;
         position: relative;
         top: 15%;
     }
+
     .editor-tab-delete {
         display: inline-block;
         width: 15px;
@@ -85,7 +94,6 @@
         props: ['config', 'domain'],
         data(){
             return {
-                _domain:this.domain,
                 msgHub: new Vue(),
                 //TODO 使用栈
                 editors: [],
@@ -102,6 +110,10 @@
             }
         },
         computed: {
+
+            _domain(){
+                return this.domain
+            },
             collapsedEditorNum(){
                 let num = 0;
                 this.editors.forEach(function (editor) {

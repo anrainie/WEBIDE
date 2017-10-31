@@ -1,7 +1,6 @@
 <template>
     <div class="tree">
-        <item v-for='child in model' :model='child,config,msgHub' :key="child.path" :props="props"
-              :ref="getProp(child,'label')">
+        <item v-for='child in model' :model='child,config,msgHub' :key="child.path" :props="props" :ref="getProp(child,'label')">
         </item>
     </div>
 </template>
@@ -12,10 +11,10 @@
         name: 'tree',
         props: {
             model: {
-                type: Array
+                type:Array
             },
             config: {
-                type: Object,
+                type:Object,
                 default: function () {
                     return {};
                 }
@@ -23,9 +22,9 @@
             props: {
                 default() {
                     return {
-                        label: 'label',
+                        label:'label',
                         children: 'children',
-                        desp: 'desp'
+                        desp:'desp'
                     };
                 }
             }
@@ -35,7 +34,6 @@
         },
         data() {
             return {
-                itemModel: this.model,
                 selection: [],
                 msgHub: new Vue(),
                 ALL_LEVELS: -1
@@ -47,21 +45,21 @@
             }
         },
         methods: {
-            getProp(model, key){
-                if (this.props[key]) {
+            getProp(model,key){
+                if(this.props[key]){
                     key = this.props[key];
                 }
                 return model[key];
             },
             setInput(input){
                 var self = this;
-                this.itemModel.slice(0, this.itemModel.length);
+                this.model.slice(0, this.model.length);
                 if ($.isArray(input)) {
                     $.each(input, function (k, v) {
-                        this.self.itemModel.push(v);
+                        this.self.model.push(v);
                     })
                 } else {
-                    this.itemModel.push(input);
+                    this.model.push(input);
                 }
             },
             /**
@@ -107,7 +105,7 @@
                         var old = this.selection.pop();
                         old.selected = false;
                         needAdd = true;
-                    } else {
+                    }else{
                         item.selected = true;
                         item.selected = true;
                     }
@@ -145,9 +143,9 @@
                 var reachedNode = this;
                 for (let i = 1; i < paths.length; i++) {
                     var children = reachedNode.getChildren();
-                    for (let j = 0; j < children.length; j++) {
+                    for(let j = 0 ; j < children.length ; j++){
                         var child = children[j];
-                        if (child.itemModel.name === paths[i]) {
+                        if(child.model.name === paths[i]){
                             reachedNode = child;
                             if (i === paths.length - 1) {
                                 return reachedNode;
@@ -175,20 +173,20 @@
                 let self = this;
                 let parent = item.getParent();
                 let children;
-                if (parent === this) {
-                    children = this.itemModel;
-                } else {
-                    children = this.getProp(parent.itemModel, 'children');
+                if(parent === this){
+                    children = this.model;
+                }else{
+                    children = this.getProp(parent.model,'children');
                 }
                 for (let i = 0; i < children.length; i++) {
                     let child = children[i];
-                    if (this.getProp(child, 'label') === this.getProp(item.itemModel, 'label')) {
+                    if (this.getProp(child,'label') === this.getProp(item.model,'label')) {
                         children.splice(i, 1);
                         if (item.selected) {
                             self.removeSelection(item);
                         }
                         if (this.config.callback.delete) {
-                            this.config.callback.delete.call(this, item);
+                            this.config.callback.delete.call(this,item);
                         }
                         return true;
                     }
@@ -271,7 +269,7 @@
                 if (!path) {
                     let self = this;
                     self.init(function (m) {
-                        self.itemModel = m;
+                        self.model = m;
                     });
                     return;
                 }
@@ -286,8 +284,8 @@
             var self = this;
 
             this.config.callback = this.config.callback || {};
-            if (!this.itemModel) {
-                this.itemModel = [];
+            if (!this.model) {
+                this.model = [];
             }
             if (this.config.width) {
                 this.$el.style.width = this.config.width;
