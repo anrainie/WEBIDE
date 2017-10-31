@@ -14,7 +14,8 @@
     import Vue from "vue";
     import ElementUI from 'element-ui';
     import shade from "./components/shade.vue";
-    import IDESocket from "../core/IDESocket"
+    import IDESocket from "../core/IDESocket";
+    import km from '../utils/keyManager';
     //    import 'https://unpkg.com/element-ui/lib/index.js';
 
     Vue.use(ElementUI);
@@ -110,7 +111,6 @@
             IDE.socket = new IDESocket();
         },
         mounted(){
-            console.log('index mounted');
             //去除默认右键事件
             document.oncontextmenu = function () {
                 return false;
@@ -127,6 +127,7 @@
             });
 
             IDE.shade = this.$refs.ide_shade;
+            IDE.keyManager = new km();
         },
         methods: {},
         components: {

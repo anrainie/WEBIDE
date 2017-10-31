@@ -14,14 +14,14 @@ Base.prototype._do = function (func) {
 
 //call 调用
 var Util = {};
-Util.isValid = function() {
-    if (! this instanceof Array) {
+Util.isValid = function () {
+    if (!this instanceof Array) {
         console.log('not array')
     }
 }
 Util.indexOf = function (val) {
     Util.isValid();
-    
+
     for (var i = 0; i < this.length; i++) {
         if (this[i] == val) return i;
     }
@@ -29,7 +29,7 @@ Util.indexOf = function (val) {
 };
 Util.remove = function (val) {
     Util.isValid();
-    
+
     if (typeof val == 'number') {
         var o = this[val];
         this.splice(val, 1);
@@ -42,7 +42,7 @@ Util.remove = function (val) {
 
 Util._do = function (func) {
     Util.isValid();
-    
+
     for (var i = 0; i < this.length; i++) {
         func.call(this[i]);
     }
@@ -51,7 +51,7 @@ Util._do = function (func) {
 
 Util.insert = function (item, index) {
     Util.isValid();
-    
+
     this.splice(index, 0, item);
 };
 /**
@@ -60,7 +60,7 @@ Util.insert = function (item, index) {
  */
 Util.removeObject = function (val) {
     Util.isValid();
-    
+
     var index = Util.indexOf.call(this, val);
     if (index > -1) {
         Util.remove.call(this, index);
@@ -68,18 +68,18 @@ Util.removeObject = function (val) {
 };
 Util.isEmpty = function () {
     Util.isValid();
-    
+
     return this.length == 0;
 };
 Util.last = function () {
     Util.isValid();
-    
+
     return this[this.length - 1];
 };
 
 Util.contains = function (obj) {
     Util.isValid();
-    
+
     var i = this.length;
     while (i--) {
         if (this[i] == obj) {
@@ -179,25 +179,29 @@ anra.Platform = {
     },
     init: function () {
         //TODO 全局事件
-        var p = this;
-        window.addEventListener('keydown', function (event) {
-            var d = p.focus;
-            if (d != null && d.dispatcher != null)
-                d.dispatcher.dispatchKeyDown(event);
-        });
-
-        //拦截部分快捷键，比如ctrl+s[83]，ctrl+a[65]
-        document.onkeydown = function (event) {
-//            console.log(event.keyCode)
-            if (event.ctrlKey && (event.keyCode == 83 || event.keyCode == 65 || event.keyCode == 112 ))
-                return false;
-        }
-        window.addEventListener('keyUp', function (event) {
-            var d = p.focus;
-            if (d != null && d.dispatcher != null)
-                d.dispatcher.dispatchKeyUp(event);
-        });
+        // var p = this;
+        // window.addEventListener('keydown', function (event) {
+        //     var d = p.focus;
+        //     if (d != null && d.dispatcher != null)
+        //         d.dispatcher.dispatchKeyDown(event);
+        // });
+        //
+        // window.addEventListener('keyUp', function (event) {
+        //     var d = p.focus;
+        //     if (d != null && d.dispatcher != null)
+        //         d.dispatcher.dispatchKeyUp(event);
+        // });
         this.ready = true;
+    },
+    globalKeyDown: function (event) {
+        var d = anra.Platform.focus;
+        if (d != null && d.dispatcher != null)
+            d.dispatcher.dispatchKeyDown(event);
+    },
+    globalKeyUp: function (event) {
+        var d = anra.Platform.focus;
+        if (d != null && d.dispatcher != null)
+            d.dispatcher.dispatchKeyUp(event);
     },
     get: function (key) {
         return this.pool.get(key);

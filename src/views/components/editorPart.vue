@@ -111,8 +111,13 @@
         },
         computed: {
 
-            _domain(){
-                return this.domain
+            _domain: {
+                get(){
+                    return this.domain;
+                },
+                set(e){
+                    this.domain = e;
+                }
             },
             collapsedEditorNum(){
                 let num = 0;

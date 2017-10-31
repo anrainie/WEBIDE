@@ -83,7 +83,8 @@ var $AG = {
     IMAGE: anra.svg.Image,
     TEXT: anra.svg.TEXT,
     LINE: anra.gef.Line,
-    CURVE_LINE: anra.gef.CurveLine
+    CURVE_LINE: anra.gef.CurveLine,
+    Platform: anra.Platform
 }
 
 $AG.Marker = {
@@ -204,17 +205,17 @@ $AG.Editor = anra.gef.Editor.extend({
                 }
 
                 l.onCreateFigure = function (figure) {
-                    figure.router = (function(routerFunc) {
+                    figure.router = (function (routerFunc) {
                         if (routerFunc.length == 2) {
-                            return function(line) {
+                            return function (line) {
                                 return routerFunc(line, root.getReader());
                             }
                         } else if (routerFunc.length == 1) {
                             return routerFunc;
                         }
                     })(l.config.router);
-                    
-                    
+
+
                     figure.oncreated = function () {
                         if (l.config.startMarker) {
                             figure.setStartMarker(new l.config.startMarker.type(l.config.startMarker));
