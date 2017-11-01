@@ -3,9 +3,10 @@
     <editor-Container :editor="this">
         <div slot="editor-content">
 
-            <flow-Editor :editorid="nodeEditorID"
+            <flow-Editor v-if="nodeEditorInput"
+                         :editorid="nodeEditorID"
                          ref="editor"
-                         :input-style="{width: '50%'}"
+                         :input-style="{width: '100%'}"
                          :editor-config="nodeEditorCfg"
                          :bind-event="nodeBindEvent"
                          :save="saveHandle"
@@ -24,101 +25,11 @@
 <script type="text/javascript">
     import flowEditor from "../flowEditor.vue"
     import editorContainer from '../../../editorContainer.vue'
-    import {nodeInput2Config} from './resolve'
+    import {nodeInput2Config, commonDoSave} from './resolve'
     import * as Constants from 'Constants'
     import propDialog from './propDialog.vue'
+    import {defaultsDeep} from 'lodash'
 
-
-    /*用于参数忽略的时候*/
-    function throwIfMissing() {
-        throw new Error('Missing parameter');
-    }
-
-    /*将位置和连线信息更新至taffyDB中*/
-    let commonDoSave = function () {
-        let nodeStore = this.store.node,
-            lineStore = this.store.line;
-
-        let editor = this;
-
-        //更新节点位置
-        nodeStore().update(function () {
-            let {Constraint, bounds, id} = this;
-            Constraint.Location = [bounds[0], bounds[1]].toString();
-            this.Id = id;
-            this.UUID = editor.rootEditPart.model.children[id].hashCode();
-            this.Type = this.type;
-
-            return this;
-        });
-
-        //更新连线
-        nodeStore().update({SourceConnections: undefined});
-
-        lineStore().each(({source, target, exit, entr}) => {
-            let hasSourceConnections, connect;
-
-            hasSourceConnections = nodeStore({Id: source}).filter({SourceConnections: {isUndefined: false}}).count() === 1;
-            connect = {
-                targetId: target,
-                SourceTerminal: exit,
-                TargetTerminal: entr
-            };
-
-            if (!hasSourceConnections) {
-                nodeStore({Id: source}).update({
-                    SourceConnections: {
-                        Connection: [
-                            connect
-                        ]
-                    }
-                });
-            } else {
-                let {SourceConnections: {Connection: storeConnect}} = nodeStore({Id: source}).first();
-
-                storeConnect.push(connect);
-            }
-        });
-
-        this.cmdStack.markSaveLocation();
-    };
-
-    const stepPropsName = [
-        'Skip',
-        'Terminals',
-        'Type',
-        'UUID',
-        'Constraint',
-        'RefImpl',
-        'Remarks',
-        'Implementation',
-        'False',
-        'Desp',
-        'Security',
-        'Quote',
-        'SourceConnections',
-        'True',
-        'Id',
-        'HasSq'
-    ]
-
-    const nodePropsName = [
-        'Skip',
-        'Terminals',
-        'Type',
-        'UUID',
-        'Constraint',
-        'RefImpl',
-        'Remarks',
-        'False',
-        'Desp',
-        'Security',
-        'Quote',
-        'SourceConnections',
-        'True',
-        'Id',
-        'HasSq'
-    ]
 
     export default {
         name: 'bcpt-editor',
@@ -138,22 +49,16 @@
                 showproperties: false,
                 dialogTarget: null,
                 dialogType: null,
-                editortype: null
+                editortype: null,
+                nodeEditorInput: null
 
             }
-        },
-        mounted() {
-            /*let canvas = this.$refs["editor"].canvas.element;
-
-            $(canvas).mousedown((e) => {
-
-            })*/
         },
         computed: {
             /*根据input初始化配置*/
 
             nodeEditorCfg() {
-                return nodeInput2Config(Object.assign({}, this.input.Component.Implementation, {UUID: this.input.Component.UUID}))
+                return nodeInput2Config(Object.assign({}, this.nodeEditorInput.Component.Implementation, {UUID: this.nodeEditorInput.Component.UUID}))
             },
 
             nodePaletteOpenEvent() {
@@ -201,6 +106,9 @@
                 return "node_editor" + this.file.path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
             }
         },
+        mounted() {
+            this.nodeEditorInput = defaultsDeep({}, this.input)
+        },
         methods: {
             getPartName() {
                 return this.file.name;
@@ -211,36 +119,10 @@
                 return this.$refs["editor"].editor.isDirty();
             },
             save() {
-                /*let stepEditor = this.$refs["stepEditor"].editor, self = this;
-
-                /!*处理Node和Step的关系*!/
-                let nodeStore = stepEditor.store.node;
-
-                nodeStore({
-                    Type: ["5"]
-                }).each((record) => {
-                    if (self.nodeEditorBuffer.has(record["UUID"])) {
-                        let editor = self.nodeEditorBuffer.get(record["UUID"]);
-                        editor.doSave();
-
-                        try {
-                            record["Implementation"]["Node"] = editor.getSaveData(nodePropsName);
-                        } catch (e) {
-                            record["Implementation"] = {
-                                Node: editor.getSaveData(nodePropsName)
-                            }
-                        }
-                    }
-                });
-
-                /!*step保存*!/
-                stepEditor.doSave();
-                console.log(stepEditor.getSaveData(stepPropsName))
-                this.nodeEditorBuffer.clear();
-                if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;
-                //this.setStepFromInput(stepEditor.getSaveData(stepPropsName));
+                this.$refs["editor"].editor.doSave();
+                this.setNodeFromInput(this.$refs["editor"].editor.getSaveData());
                 this.msgHub.$emit('dirtyStateChange', this.file, false);
-                return true;*/
+                return true
             },
             focus() {
 
@@ -251,6 +133,9 @@
 
             nodeDoubleClickCanvas(style) {
                 style['width'] = style['width'] == "100%" ? "50%" : "100%";
+            },
+            setNodeFromInput(node) {
+                this.input.Component.Implementation.Node = node;
             }
         },
         components: {

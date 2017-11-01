@@ -63,7 +63,7 @@ $AG.Editor.prototype.createNodeWithPalette = function(data) {
         node.props = Object.assign({
             id: editor.createID(),
             bounds: [0, 0, data.size[0], data.size[1]]
-        }, defaultsDeep(data));
+        }, defaultsDeep({}, data));
         tool.model = node;
         
         editor.setActiveTool(tool);
@@ -75,17 +75,26 @@ $AG.Editor.prototype.getSaveData = function (attrNameArr) {
     let nodeStore = this.store.node, result, attrsItem;
 
     /*遍历DB所有record, 筛选属性数据*/
-
-    result = nodeStore().select.apply(nodeStore(), attrNameArr).map((item) => {
-        attrsItem = {};
-        for (let [index, elem] of item.entries()) {
-            if (elem) {
-                attrsItem[attrNameArr[index]] = elem;
+    if(attrNameArr) {
+        result = nodeStore().select.apply(nodeStore(), attrNameArr).map((item) => {
+            attrsItem = {};
+            for (let [index, elem] of item.entries()) {
+                if (elem) {
+                    attrsItem[attrNameArr[index]] = elem;
+                }
             }
-        }
 
-        return attrsItem;
-    });
+            return attrsItem;
+        });
+    } else {
+        result = nodeStore().map((record,recordnumber) => {
+            return Object.assign({}, record, {
+                bounds: undefined,
+                id: undefined,
+                type: undefined
+            })
+        })
+    }
 
     return result;
 }

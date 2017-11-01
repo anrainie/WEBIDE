@@ -1,33 +1,34 @@
 /*两个函数，分别解析data和line*/
 import {stepBaseCfg, nodeBaseCfg} from './config'
-import {defaultsDeep} from 'lodash'
 
 /*用于参数忽略的时候*/
 function throwIfMissing() {
     throw new Error('Missing parameter');
 }
 
-var resolveEditorData = function(nodesConfig, modelsConfig = throwIfMissing()) {
+var resolveEditorData = function(nodesConfig) {
     let data, location, size;
     let {values, assign} = Object;
 
     try {
-        data = values(nodesConfig).map((node, index) => {
+        data = values(nodesConfig).map((node) => {
             location = node.Constraint.Location.split(',');
-            size = modelsConfig[node.Type].size;
+            size = node.Constraint.Size.split(',');
 
             return assign({
                 id: node.Id,
                 type: node.Type,
-                bounds: [parseInt(location[0]), parseInt(location[1]),
-                    size[0], size[1]]
+                bounds: [
+                    parseInt(location[0]),
+                    parseInt(location[1]),
+                    parseInt(size[0]),
+                    parseInt(size[1])]
             }, node);
         });
     } catch (e) {
         //todo throw warn
         data = [];
     }
-
     return data;
 };
 
@@ -82,7 +83,7 @@ export let stepInput2Config = function (input) {
             extraConfig.line = resolveEditorLine([].concat(input.Root.Regulation.Step));
         }
 
-        return Object.assign({}, stepBaseCfg, extraConfig)
+        return Object.assign({}, stepBaseCfg, extraConfig);
     }
 
     return stepBaseCfg;
@@ -106,8 +107,57 @@ export let nodeInput2Config = function (input) {
             });
         }
 
-        return Object.assign({}, defaultsDeep(nodeBaseCfg), extraConfig)
+        return Object.assign({}, nodeBaseCfg, extraConfig);
     }
 
     return nodeBaseCfg;
 }
+
+/*将位置和连线信息更新至taffyDB中*/
+export let commonDoSave = function () {
+    let nodeStore = this.store.node,
+        lineStore = this.store.line;
+
+    let editor = this;
+
+    //更新节点位置
+    nodeStore().update(function () {
+        let {Constraint, bounds, id} = this;
+        Constraint.Location = [bounds[0], bounds[1]].toString();
+        this.Id = id;
+        this.UUID = editor.rootEditPart.model.children[id].hashCode();
+        this.Type = this.type;
+
+        return this;
+    });
+
+    //更新连线
+    nodeStore().update({SourceConnections: undefined});
+
+    lineStore().each(({source, target, exit, entr}) => {
+        let hasSourceConnections, connect;
+
+        hasSourceConnections = nodeStore({Id: source}).filter({SourceConnections: {isUndefined: false}}).count() === 1;
+        connect = {
+            TargetId: target,
+            SourceTerminal: exit,
+            TargetTerminal: entr
+        };
+
+        if (!hasSourceConnections) {
+            nodeStore({Id: source}).update({
+                SourceConnections: {
+                    Connection: [
+                        connect
+                    ]
+                }
+            });
+        } else {
+            let {SourceConnections: {Connection: storeConnect}} = nodeStore({Id: source}).first();
+
+            storeConnect.push(connect);
+        }
+    });
+
+    this.cmdStack.markSaveLocation();
+};

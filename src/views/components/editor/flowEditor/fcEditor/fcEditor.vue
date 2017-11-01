@@ -4,6 +4,7 @@
         <div slot="editor-content">
 
             <flow-Editor
+                    v-if="stepEditorInput"
                     :editorid="stepEditorID"
                     v-show="stepVisible"
                     ref="stepEditor"
@@ -12,17 +13,6 @@
                     :save="saveHandle"
                     :open-palette-event="stepPaletteOpenEvent"
                     @dblclickCanvas="stepDoubleClickCanvas"></flow-Editor>
-
-
-            <!--<bcpt-editor v-if="nodeExist"
-                          v-show="nodeVisible"
-                          ref="nodeEditor"
-                          :file="file"
-                          :input="nodeEditorInput"
-                          :msgHub="msgHub">
-
-            </bcpt-editor>-->
-
 
             <flow-Editor
                     :editorid="nodeEditorID"
@@ -50,102 +40,10 @@
 <script type="text/javascript">
     import flowEditor from "../flowEditor.vue"
     import editorContainer from '../../../editorContainer.vue'
-    import {stepInput2Config, nodeInput2Config} from './resolve'
+    import {stepInput2Config, nodeInput2Config, commonDoSave} from './resolve'
     import * as Constants from 'Constants'
     import propDialog from './propDialog.vue'
-    import bcptEditor from './bcptEditor.vue'
-
-
-    /*用于参数忽略的时候*/
-    function throwIfMissing() {
-        throw new Error('Missing parameter');
-    }
-
-    /*将位置和连线信息更新至taffyDB中*/
-    let commonDoSave = function () {
-        let nodeStore = this.store.node,
-            lineStore = this.store.line;
-
-        let editor = this;
-
-        //更新节点位置
-        nodeStore().update(function () {
-            let {Constraint, bounds, id} = this;
-            Constraint.Location = [bounds[0], bounds[1]].toString();
-            this.Id = id;
-            this.UUID = editor.rootEditPart.model.children[id].hashCode();
-            this.Type = this.type;
-
-            return this;
-        });
-
-        //更新连线
-        nodeStore().update({SourceConnections: undefined});
-
-        lineStore().each(({source, target, exit, entr}) => {
-            let hasSourceConnections, connect;
-
-            hasSourceConnections = nodeStore({Id: source}).filter({SourceConnections: {isUndefined: false}}).count() === 1;
-            connect = {
-                targetId: target,
-                SourceTerminal: exit,
-                TargetTerminal: entr
-            };
-
-            if (!hasSourceConnections) {
-                nodeStore({Id: source}).update({
-                    SourceConnections: {
-                        Connection: [
-                            connect
-                        ]
-                    }
-                });
-            } else {
-                let {SourceConnections: {Connection: storeConnect}} = nodeStore({Id: source}).first();
-
-                storeConnect.push(connect);
-            }
-        });
-
-        this.cmdStack.markSaveLocation();
-    };
-
-    const stepPropsName = [
-        'Skip',
-        'Terminals',
-        'Type',
-        'UUID',
-        'Constraint',
-        'RefImpl',
-        'Remarks',
-        'Implementation',
-        'False',
-        'Desp',
-        'Security',
-        'Quote',
-        'SourceConnections',
-        'True',
-        'Id',
-        'HasSq'
-    ]
-
-    const nodePropsName = [
-        'Skip',
-        'Terminals',
-        'Type',
-        'UUID',
-        'Constraint',
-        'RefImpl',
-        'Remarks',
-        'False',
-        'Desp',
-        'Security',
-        'Quote',
-        'SourceConnections',
-        'True',
-        'Id',
-        'HasSq'
-    ]
+    import {defaultsDeep} from 'lodash'
 
     export default {
         name: 'fcEditor',
@@ -189,7 +87,6 @@
                         if (!self.nodeEditorBuffer.has(uuid)) {
 
                             self.nodeEditorInput = Object.assign({}, model.get('Implementation'), {UUID: uuid});
-                            //self.nodeEditorInput = Object.assign({Component:model.props});
                             self.nodeVisible = self.nodeExist = true;
                             return;
                         }
@@ -228,15 +125,14 @@
                 showproperties: false,
                 dialogTarget: null,
                 dialogType: null,
-                stepNodeType: null,
-                editortype: null
-
+                editortype: null,
+                stepEditorInput: null
             }
         },
         computed: {
             /*根据input初始化配置*/
             stepEditorCfg() {
-                return stepInput2Config(this.input)
+                return stepInput2Config(this.stepEditorInput)
             },
 
             stepPaletteOpenEvent() {
@@ -346,13 +242,14 @@
                 return "node_editor" + this.file.path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
             }
         },
+        mounted() {
+            //prop传值在组件生成之后，延迟data初始化，input副本避免改变而进行多余的执行
+            this.stepEditorInput = defaultsDeep({}, this.input);
+        },
         updated() {
             this.updateNodeEditorBuffer();
         },
         methods: {
-            getPartName() {
-                return this.file.name;
-            },
             isDirty() {
                 if (this.$refs["stepEditor"] == null) return false;
 
@@ -369,17 +266,17 @@
                 let nodeStore = stepEditor.store.node;
 
                 nodeStore({
-                    Type: ["5"]
+                    Type: ["5", "7", "4"]
                 }).each((record) => {
                     if (self.nodeEditorBuffer.has(record["UUID"])) {
                         let editor = self.nodeEditorBuffer.get(record["UUID"]);
                         editor.doSave();
 
                         try {
-                            record["Implementation"]["Node"] = editor.getSaveData(nodePropsName);
+                            record["Implementation"]["Node"] = editor.getSaveData();
                         } catch (e) {
                             record["Implementation"] = {
-                                Node: editor.getSaveData(nodePropsName)
+                                Node: editor.getSaveData()
                             }
                         }
                     }
@@ -387,10 +284,10 @@
 
                 /*step保存*/
                 stepEditor.doSave();
-                console.log(stepEditor.getSaveData(stepPropsName))
+                console.log(stepEditor.getSaveData())
                 this.nodeEditorBuffer.clear();
                 if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;
-                //this.setStepFromInput(stepEditor.getSaveData(stepPropsName));
+                this.setStepFromInput(stepEditor.getSaveData());
                 this.msgHub.$emit('dirtyStateChange', this.file, false);
                 return true;
             },
@@ -438,7 +335,6 @@
             flowEditor,
             editorContainer,
             propDialog,
-            bcptEditor
         }
     }
 </script>
