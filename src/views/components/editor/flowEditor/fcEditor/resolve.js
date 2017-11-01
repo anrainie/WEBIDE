@@ -45,13 +45,12 @@ var resolveEditorLine = function(nodesConfig) {
                 connection = connection instanceof Array ? connection : [connection];
 
                 connection.forEach((item) => {
-                    let targetid = item.TargetId || item.targetId;
                     line.push({
                     //id问题
-                    id: Id +　'.' + item.SourceTerminal + '_' + targetid + '.' + item.TargetTerminal,
+                    id: Id +　'.' + item.SourceTerminal + '_' + item.targetId + '.' + item.TargetTerminal,
                     source: Id,
                     type: 0,
-                    target: targetid,
+                    target: item.targetId,
                     exit: item.SourceTerminal,
                     entr: item.TargetTerminal
                 })})
@@ -139,7 +138,7 @@ export let commonDoSave = function () {
 
         hasSourceConnections = nodeStore({Id: source}).filter({SourceConnections: {isUndefined: false}}).count() === 1;
         connect = {
-            TargetId: target,
+            targetId: target,
             SourceTerminal: exit,
             TargetTerminal: entr
         };
