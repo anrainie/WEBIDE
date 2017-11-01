@@ -48,11 +48,12 @@ var webpackConfig = merge(baseWebpackConfig, {
             filename: config.build.index,
             template: 'index.html',
             inject: true,   //注入的js文件将会被放在body标签中,当值为'head'时，将被放在head标签中
-            minify: { //压缩配置
-                removeComments: true,  //删除html中的注释代码
-                collapseWhitespace: true, //删除html中的空白符
-                removeAttributeQuotes: true  //删除html元素中属性的引号
-            },
+            // minify: { //压缩配置
+            //     removeComments: true,  //删除html中的注释代码
+            //     collapseWhitespace: true, //删除html中的空白符
+            //     removeAttributeQuotes: true,  //删除html元素中属性的引号
+            //     caseSensitive:true,
+            // },
             // necessary to consistently work with multiple chunks via CommonsChunkPlugin
             // 按dependency的顺序引入
             chunksSortMode: 'dependency'

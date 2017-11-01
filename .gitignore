@@ -3,5 +3,5 @@ node_modules/
 dist/
 npm-debug.log
 mongo.bat
-webide.db
+./webide.db
 logs

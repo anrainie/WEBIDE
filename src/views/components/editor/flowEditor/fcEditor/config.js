@@ -33,6 +33,7 @@ var manhattanRoute = {
 var openPropEditor = {
     activate(){
         this.lisn = () => {
+            debugger;
             this.emit(globalConstants.OPEN_FLOWPROP_DIALOG, this.getHost())
         };
         this.getHostFigure().on('dblclick', this.lisn);

@@ -17,7 +17,7 @@ const parseToPath = (url, type) => {
             }
             break;
         case 'fc':
-            path = '/' + param1.split('|').join('/') + '/flow/flowConfig.fc';
+            path = '/' + p.join('/') + '/flow/flowConfig.fc';
             name = 'flowConfig.fc';
             break;
         case 'java':

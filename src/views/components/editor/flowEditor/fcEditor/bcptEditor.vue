@@ -11,9 +11,9 @@
                          :bind-event="nodeBindEvent"
                          :save="saveHandle"
                          :openPaletteEvent="nodePaletteOpenEvent"
-                         @dblclickCanvas="nodeDoubleClickCanvas"></flow-Editor>
+                         @dblclickcanvas="nodeDoubleClickCanvas"></flow-Editor>
 
-            <propDialog :showProperties.sync="showproperties"
+            <propDialog :showproperties.sync="showproperties"
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"

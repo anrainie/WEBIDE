@@ -1,7 +1,7 @@
 <template>
-    <el-dialog :modal-append-to-body="false" title="组件属性" :visible="showProperties" @update:visible="updateVisible" :custom-class="size"
+    <el-dialog :modal-append-to-body="false" title="组件属性" :visible="showproperties" @update:visible="updateVisible" :custom-class="size"
                 style="right: -20px">
-        <div v-if="showProperties">
+        <div v-if="showproperties">
             <el-tabs v-if="group.config instanceof Array" type="card">
                 <el-tab-pane v-for="tab in group.config" :label="tab.name">
                     <el-collapse v-model="activeName">
@@ -25,7 +25,7 @@
             </el-collapse>
         </div>
 
-        <span slot="footer" class="dialog-footer" v-if="showProperties">
+        <span slot="footer" class="dialog-footer" v-if="showproperties">
                         <el-button @click="updateVisible(false)">取消</el-button>
                         <el-button type="primary" @click="clickConfirm">确定</el-button>
                     </span>
@@ -231,7 +231,7 @@
 
     export default {
         name: 'fcPropDialog',
-        props: ["showProperties", "model", "path", "editortype", "nodetype"],
+        props: ["showproperties", "model", "path", "editortype", "nodetype"],
         data() {
             return {
                 activeName: 0,
@@ -240,7 +240,7 @@
 
         methods: {
             updateVisible(vaule) {
-                this.$emit('update:showProperties', vaule);
+                this.$emit('update:showproperties', vaule);
             },
             /*通过refs调用子组件*/
             saveHandle(refsName) {
@@ -262,7 +262,7 @@
                         }
                     }
                 }
-                if (cmd) this.$emit('saveProps', cmd);
+                if (cmd) this.$emit('saveprops', cmd);
                 this.updateVisible(false);
             }
         },

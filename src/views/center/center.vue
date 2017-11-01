@@ -178,7 +178,7 @@
             },
             loadAllProduct(){
                 let self = this;
-                $.get('/product/list',null,function (result) {
+                $.post('/product/list',null,function (result) {
                     if(result.state === 'success'){
                         self.products = result.data;
                     }

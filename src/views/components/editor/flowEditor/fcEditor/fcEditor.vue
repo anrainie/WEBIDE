@@ -12,7 +12,7 @@
                     :bind-event="stepBindEvent"
                     :save="saveHandle"
                     :open-palette-event="stepPaletteOpenEvent"
-                    @dblclickCanvas="stepDoubleClickCanvas"></flow-Editor>
+                    @dblclickcanvas="stepDoubleClickCanvas"></flow-Editor>
 
             <flow-Editor
                     :editorid="nodeEditorID"
@@ -23,16 +23,16 @@
                     :editor-config="nodeEditorCfg"
                     :bind-event="nodeBindEvent"
                     :save="saveHandle"
-                    :openPaletteEvent="nodePaletteOpenEvent"
-                    @dblclickCanvas="nodeDoubleClickCanvas"></flow-Editor>
+                    :open-palette-event="nodePaletteOpenEvent"
+                    @dblclickcanvas="nodeDoubleClickCanvas"></flow-Editor>
 
             <!--对话框-->
-            <propDialog :showProperties.sync="showproperties"
-                        @saveProps="saveProps"
+            <prop-Dialog :showproperties.sync="showproperties"
+                        @saveprops="saveProps"
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"
-                        :nodetype="dialogType"></propDialog>
+                        :nodetype="dialogType"></prop-Dialog>
         </div>
     </editor-Container>
 
@@ -167,7 +167,10 @@
                                                     return {
                                                         name: com.desp,
                                                         url: comUrl,
-                                                        data: Object.assign({}, com.Component, {type: '4', size: [160,46]}),
+                                                        data: Object.assign({}, com.Component, {
+                                                            type: '4',
+                                                            size: [160, 46]
+                                                        }),
                                                     }
                                                 })
                                             })
@@ -327,6 +330,7 @@
                 this.$refs[this.editortype + "Editor"]["editor"].execute(cmd);
             },
             getPartName(){
+                if (IDE.navigator == null)return '';
                 let item = IDE.navigator.getItem(this.file.path).getParent().getParent();
                 return item.model.label + ' [流程配置]';
             }

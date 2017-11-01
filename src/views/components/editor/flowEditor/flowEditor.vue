@@ -1,6 +1,6 @@
 <template>
     <div :id="editorid" class="editor" v-bind:style="style">
-        <palette :editor='editor' :openPaletteEvent="openPaletteEvent"></palette>
+        <palette :editor='editor' :open-palette-event="openPaletteEvent"></palette>
     </div>
 </template>
 <style>
@@ -107,10 +107,10 @@
 
             activateChangeWidth() {
                 let self = this;
-                if (this.$vnode.componentOptions.listeners['dblclickCanvas']) {
+                if (this.$vnode.componentOptions.listeners['dblclickcanvas']) {
                     this.editor.canvas.element.addEventListener('dblclick', function (e) {
                         if (e.target.isEqualNode(this) || e.target.parentNode.isEqualNode(this)) {
-                            self.$emit('dblclickCanvas', self.style);
+                            self.$emit('dblclickcanvas', self.style);
                         }
                         return false;
                     });
