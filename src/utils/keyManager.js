@@ -48,12 +48,9 @@ const keyMananger = function (type) {
     };
 
     if (type == 'global') {
-        document.onkeydown = function (event) {
-            if (event.ctrlKey && (event.keyCode == 83 || event.keyCode == 65 || event.keyCode == 112 ))
-                return false;
-        };
-
         this.active = (el) => {
+            if (el == null)
+                a = null;
             if (el.__watchId && pages[el.__watchId - 1] == el) {
                 a = el.__keyHandle;
             }
@@ -80,7 +77,11 @@ const keyMananger = function (type) {
         };
 
 
-        $(document).keydown(this.keydown);
+        $(document).keydown((e) => {
+            if (e.ctrlKey && (e.keyCode == 83 || e.keyCode == 65 || e.keyCode == 112 ))
+                return false;
+            return this.keydown(e);
+        });
 
         $(document).keyup(this.keyup);
     }

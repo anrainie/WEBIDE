@@ -174,7 +174,7 @@
                     if (viewConfig && viewConfig.actions) {
                         for (let i = 0; i < viewConfig.actions.length; i++) {
                             if (viewConfig.actions[i].key && viewConfig.actions[i].run) {
-                                km.bind(viewConfig.actions[i].key, () => viewConfig.actions[i].run(v));
+                                km.bind(viewConfig.actions[i].key, {keydown: () => viewConfig.actions[i].run(v)});
                             }
                         }
                     }
