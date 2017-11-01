@@ -50,6 +50,7 @@
 </style>
 <script>
     import toolbar from './toolbar.vue';
+    import KeyManager from '../../utils/keyManager';
     import Vue from "vue";
     import Vuex from 'vuex';
 
@@ -72,7 +73,7 @@
             actions(){
                 let self = this;
                 let actions = [];
-                if(this.model) {
+                if (this.model) {
                     let viewConfig = window.viewRegistry[this.model.id];
                     if (viewConfig && viewConfig.actions) {
                         for (let i = 0; i < viewConfig.actions.length; i++) {
@@ -114,6 +115,10 @@
         mounted(){
             if (this.model)
                 this.applyContent();
+
+        },
+        beforeDestroy(){
+            IDE.keyManager.unwatchPage(this.$el);
         },
         methods: {
             active(){
@@ -164,6 +169,17 @@
                     }
                     con.append(content);
                     v.$mount(content);
+
+                    let km = new KeyManager();
+                    if (viewConfig && viewConfig.actions) {
+                        for (let i = 0; i < viewConfig.actions.length; i++) {
+                            if (viewConfig.actions[i].key && viewConfig.actions[i].run) {
+                                km.bind(viewConfig.actions[i].key, {keydown: () => viewConfig.actions[i].run(v)});
+                            }
+                        }
+                    }
+
+                    IDE.keyManager.watchPage(v.$el, km);
 
                     //初始化需要链接成功，所以由IDE负责通知
                     if (viewConfig.init) {

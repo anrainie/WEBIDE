@@ -75,13 +75,32 @@
                 this.bindEventToEditor();
                 this.activateChangeWidth();
 
+//                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
+//                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
+                let ed = this.editor;
+                IDE.keyManager.watchPage(this.$el, {
+                    keydown (e) {
+                        let handle = ed.actionRegistry.keyHandle(e);
+                        if (handle) {
+                            $AG.Platform.globalKeyDown(e);
+                            return false;
+                        }
+                    },
+                    keyup (e) {
+                        let handle = ed.actionRegistry.keyHandle(e);
+                        if (handle) {
+                            $AG.Platform.globalKeyUp(e);
+                            return false;
+                        }
+                    }
+                });
                 //保存
                 if (this.save) this.editor.doSave = this.save;
 
             },
 
             bindEventToEditor() {
-                if(this.bindEvent) {
+                if (this.bindEvent) {
                     for (let [key, func] of Object.entries(this.bindEvent)) this.editor.rootEditPart.$on(key, func);
                 }
             },
@@ -116,7 +135,7 @@
                 props: ['editor', 'openPaletteEvent'],
                 data () {
                     return {
-                        buttonClass : {
+                        buttonClass: {
                             "margin-left": "30px",
                             "margin-bottom": "10px",
                             "margin-top": "10px"
@@ -162,7 +181,9 @@
                     },
                     selectTool: {
                         bind (el, {value: host}, vnode) {
-                            el.onmousedown = () => { host.editor.setActiveTool(host.editor.getDefaultTool())};
+                            el.onmousedown = () => {
+                                host.editor.setActiveTool(host.editor.getDefaultTool())
+                            };
                         }
                     },
                     linkTool: {

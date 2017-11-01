@@ -6,7 +6,8 @@
 
         <div id="ide_workbench">
             <fastbar v-if="showFastBarLeft" id="left_fast_bar" :items="views.left" :direction='vertical'></fastbar>
-            <workbench v-if="showWorkbench" id="ide_workbench_center" domain="afa" :views="views" ref="workbench"></workbench>
+            <workbench v-if="showWorkbench" id="ide_workbench_center" :domain="domain" :views="views"
+                       ref="workbench"></workbench>
             <fastbar v-if="showFastBarRight" id="right_fast_bar" :items="views.right" :direction='vertical'></fastbar>
         </div>
         <fastbar v-if="showFastBarBottom" id="bottom_fast_bar" :items="views.bottom" :direction='horizontal'></fastbar>
@@ -18,6 +19,7 @@
 </template>
 <style>
     @import "~bootstrap/dist/css/bootstrap.css";
+
     #left_fast_bar {
         display: inline-block;
         width: 25px;
@@ -25,17 +27,20 @@
         float: left;
         background: #DDD;
     }
+
     #ide_workbench_center {
         width: -moz-calc(100% - 50px);
         width: -webkit-calc(100% - 50px);
         width: calc(100% - 50px);
     }
+
     #bottom_fast_bar {
         bottom: 0px;
         width: 100%;
         /*height: 25px;*/
         background: #DDD;
     }
+
     #right_fast_bar {
         display: inline-block;
         width: 25px;
@@ -44,6 +49,7 @@
         background: #DDD;
         padding: 0;
     }
+
     #ide_workbench {
         display: inline-block;
         width: 100%;
@@ -51,11 +57,13 @@
         height: -webkit-calc(100% - 60px);
         height: calc(100% - 60px);
     }
+
     #ide_navigator {
         position: relative;
         border: 1px solid gray;
         height: 100%;
     }
+
     #ide_EDITOR_PART {
         height: 100%;
     }
@@ -80,6 +88,7 @@
         data(){
             let self = this;
             return {
+                domain: 'afa',
                 showFastBarLeft: true,
                 showFastBarRight: true,
                 showFastBarBottom: true,
@@ -129,8 +138,7 @@
                 menuData: menuData
             }
         },
-        methods: {
-        },
+        methods: {},
         created(){
         },
         mounted(){
@@ -150,7 +158,6 @@
                     name: '导航器',
                     component: './tree.vue',
                     init(callback){
-                        console.log('init navigator');
                         IDE.shade.open();
                         IDE.socket.emit('getNaviItems', {
                             type: IDE.type,
@@ -198,13 +205,13 @@
                                                 if (!oldChildren || oldChildren.length == 0) {
                                                     item.model.children = result.data
                                                 } else {
-                                                    combine(newChildren, oldChildren,level)
+                                                    combine(newChildren, oldChildren, level)
                                                 }
                                             } else {
                                                 debug.error('refresh resources fail , ' + result)
                                             }
                                             //合并文件，不存在的文件删除，已存在的文件保留并对比其children。
-                                            function combine(newChildren, oldChildren,level) {
+                                            function combine(newChildren, oldChildren, level) {
                                                 newChildren = newChildren || [];
                                                 oldChildren = oldChildren || [];
                                                 for (let i = 0; i < newChildren.length; i++) {
@@ -215,8 +222,8 @@
                                                         if (newChd.path === oldChd.path) {
                                                             exist = true;
                                                             oldChd['##keep##'] = true;
-                                                            if( (level - 1) > 0) {
-                                                                combine(newChd.children, oldChd.children,level - 1);
+                                                            if ((level - 1) > 0) {
+                                                                combine(newChd.children, oldChd.children, level - 1);
                                                             }
                                                             break;
                                                         }
@@ -261,7 +268,7 @@
                                             IDE.editorPart.showEditor(item.model);
                                             return;
                                         }
-                                        IDE.editorPart.applyOpenEditorService('afa',item.model);
+                                        IDE.editorPart.applyOpenEditorService('afa', item.model);
                                     }
                                 },
                                 rightClick: function (event) {
@@ -302,17 +309,20 @@
                             id: 'linkWithEditorAction',
                             name: "linkWithEditor",
                             type: 'item',
+                            key: 'ctrl+l',
                             img: '/assets/image/nav-link.png',
                             tooltip: "LinkWithEditor",
                             validate(){
                                 return true;
                             },
-                            onclick(selection){
+                            run(selection){
+                                console.log(selection);
                                 let editor = IDE.editorPart.getActiveEditor();
                                 if (editor) {
                                     var item = IDE.navigator.getItem(editor.file.path);
                                     IDE.navigator.setSelection(item);
                                 }
+                                return false;
                             }
                         }
                     ]

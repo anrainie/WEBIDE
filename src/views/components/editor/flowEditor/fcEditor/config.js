@@ -217,7 +217,7 @@ var operations = [
         id: 'save',
         name: '保存',
         type: constants.ACTION_STACK,
-        /*    key: 'ctrl+s',*/
+        key: 'ctrl+s',
         check: function () {
             return this.host.isDirty();
         },
@@ -246,7 +246,7 @@ var location = function (figure) {
 
     this.setBounds({
         x: figure.bounds.x + (figure.bounds.width - 7.5 * length) / 2,
-        y: figure.bounds.y + (figure.bounds.height + 15)/2,
+        y: figure.bounds.y + (figure.bounds.height + 15) / 2,
     })
 };
 
@@ -341,7 +341,7 @@ var serviceInvokdEntered = {
     selectable: true,
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'nodeEditor': closeNodeEditor,
@@ -370,7 +370,7 @@ var stepMultiOutletCpt = {
     selectable: true,
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'nodeEditor': openNodeEditor,
@@ -383,7 +383,7 @@ var stepMultiOutletCpt = {
 var bcpt = {
     url: '/assets/image/editor/event_component_stepBussiness.gif',
     type: $AG.IMAGE,
-    size: [160,46],
+    size: [160, 46],
     canDrag: true,
     linkable: true,
     selectable: true,
@@ -430,7 +430,7 @@ var nodeStart = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['1']),
         'idText': $AG.policy.TextPolicy('id', idLocation)
@@ -455,7 +455,7 @@ var nodeEnd = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['1']),
         'idText': $AG.policy.TextPolicy('id', idLocation)
@@ -480,7 +480,7 @@ var nodeAbnormalEnd = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['1']),
@@ -504,7 +504,7 @@ var nodeCustomEnd = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['1']),
@@ -531,7 +531,7 @@ var nodeErrorDelegate = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['0', '1']),
         'idText': $AG.policy.TextPolicy('id', idLocation)
@@ -557,7 +557,7 @@ var componentInvoke = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['0', '1']),
@@ -584,7 +584,7 @@ var tradeInvoke = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['0', '1']),
@@ -610,7 +610,7 @@ var transfer = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['1']),
@@ -635,7 +635,7 @@ var tradeSync = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['0', '1']),
@@ -659,7 +659,7 @@ var Async = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['0', '1']),
@@ -680,7 +680,7 @@ var parallel = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'pin': pinPolicy(['0']),
@@ -702,7 +702,7 @@ var tcpt = {
     ],
     refresh,
 
-    policies : {
+    policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'idText': $AG.policy.TextPolicy('id', idLocation)

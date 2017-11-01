@@ -28,17 +28,21 @@
         list-style: none;
         border-bottom: 1px solid #271212;
     }
+
     .editor-tab > li {
         float: left;
         margin-bottom: 1px;
         height: 30px;
         width: 100px;
     }
+
     .editor-tab-active {
         background-color: white;
     }
+
     .editor-tab-unactive {
     }
+
     .editor-tab > li > span {
         display: block;
         margin: 5px;
@@ -46,6 +50,7 @@
         text-decoration: none;
         cursor: default;
     }
+
     .editors-collapse {
         display: inline-block;
         float: right;
@@ -53,9 +58,11 @@
         width: 30px;
         text-align: center;
     }
+
     .editors-collapse:hover {
         background-color: gray;
     }
+
     .editors-collapse div {
         display: inline-block;
         position: relative;
@@ -64,11 +71,13 @@
         height: 15px;
         background: url("~assets/image/editor-collapse.png") no-repeat;
     }
+
     .editors-collapse span {
         display: inline-block;
         position: relative;
         top: 15%;
     }
+
     .editor-tab-delete {
         display: inline-block;
         width: 15px;
@@ -101,6 +110,15 @@
             }
         },
         computed: {
+
+            _domain: {
+                get(){
+                    return this.domain;
+                },
+                set(e){
+                    this.domain = e;
+                }
+            },
             collapsedEditorNum(){
                 let num = 0;
                 this.editors.forEach(function (editor) {
@@ -347,9 +365,9 @@
                 }
             },
             getEditorDecorator: function (resId) {
-                if (this.editorRefs[this.domain] == null)
-                    this.editorRefs[this.domain] = require('../' + this.domain + '/config/editor.js');
-                return this.editorRefs[this.domain][resId];
+                if (this.editorRefs[this._domain] == null)
+                    this.editorRefs[this._domain] = require('../' + this._domain + '/config/editor.js');
+                return this.editorRefs[this._domain][resId];
             },
             revisePath: function (path) {
                 return path.replace(/(\/)/g, "_").replace(/(\.)/, "-");
@@ -515,7 +533,7 @@
 //                if(ticket)
 //                IDE.services(domain).checkTicket(ticket);
                 if (path && type && domain) {
-                    this.domain = domain;
+                    this._domain = domain;
                     setTimeout(() =>
                             this.applyOpenEditorService(domain, IDE.services(domain).parseToPath(path, type), true),
                         100);
