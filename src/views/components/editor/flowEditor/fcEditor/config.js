@@ -265,7 +265,7 @@ let defaultData = {
     'UUID': undefined,
     'Quote': '0',
     'Type': undefined,
-    'Desp': undefined,
+    'Desp': 'DefaultName',
     'RefImpl': 'DefaultName',
     'Skip': {
         'Enabled': '0',
@@ -858,7 +858,7 @@ export const nodeBaseCfg = {
             name: '银行',
             children: []
         },
-        'app': {
+        'application': {
             name: '应用',
             children: []
         }
