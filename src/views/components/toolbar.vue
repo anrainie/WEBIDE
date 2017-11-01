@@ -81,11 +81,11 @@
                 }
             },
             execute: function (item, $event) {
-                if (item.type === 'item' && item.onclick) {
-                    if (item.onclick) {
-                        item.onclick.call(this, selection);
+                if (item.type === 'item' && item.run) {
+                    if (item.run) {
+                        item.run.call(this, selection);
                     } else {
-                        console.info('action [${item.name}] has no onclick function');
+                        console.info('action [${item.name}] has no run function');
                     }
                 } else if (item.type === 'group') {
                     IDE.contextmenu.setItems(item.children);

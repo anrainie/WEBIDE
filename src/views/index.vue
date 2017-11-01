@@ -127,7 +127,7 @@
             });
 
             IDE.shade = this.$refs.ide_shade;
-            IDE.keyManager = new km();
+            IDE.keyManager = new km('global');
         },
         methods: {},
         components: {

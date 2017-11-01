@@ -78,7 +78,7 @@
 //                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
 //                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
                 let ed = this.editor;
-                IDE.keyManager.active({
+                IDE.keyManager.watchPage(this.$el, {
                     keydown (e) {
                         let handle = ed.actionRegistry.keyHandle(e);
                         if (handle) {

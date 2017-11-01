@@ -50,6 +50,7 @@
 </style>
 <script>
     import toolbar from './toolbar.vue';
+    import KeyManager from '../../utils/keyManager';
     import Vue from "vue";
     import Vuex from 'vuex';
 
@@ -72,8 +73,8 @@
             actions(){
                 let self = this;
                 let actions = [];
-                if(this.viewModel) {
-                    let viewConfig = window.viewRegistry[this.viewModel.id];
+                if (this.model) {
+                    let viewConfig = window.viewRegistry[this.model.id];
                     if (viewConfig && viewConfig.actions) {
                         for (let i = 0; i < viewConfig.actions.length; i++) {
                             actions[i] = viewConfig.actions[i];
@@ -83,21 +84,20 @@
                 return actions;
             },
             open(){
-                if (this.viewModel)
-                    return this.viewModel.open;
+                if (this.model)
+                    return this.model.open;
                 return false;
             },
             title(){
-                if (this.viewModel == null)return '';
-                let viewConfig = window.viewRegistry[this.viewModel.id];
+                if (this.model == null)return '';
+                let viewConfig = window.viewRegistry[this.model.id];
                 if (viewConfig)
                     return viewConfig.name;
-                else return this.viewModel.id + 'not found';
+                else return this.model.id + 'not found';
             }
         },
         data(){
             return {
-                viewModel:this.model,
                 actionConfig: {},
             }
         },
@@ -113,8 +113,12 @@
             toolbar: toolbar
         },
         mounted(){
-            if (this.viewModel)
+            if (this.model)
                 this.applyContent();
+
+        },
+        beforeDestroy(){
+            IDE.keyManager.unwatchPage(this.$el);
         },
         methods: {
             active(){
@@ -134,12 +138,12 @@
             },
             applyContent(){
                 let con = $('#' + this.contentId);
-                let viewConfig = window.viewRegistry[this.viewModel.id];
+                let viewConfig = window.viewRegistry[this.model.id];
 
                 let _WB = window.WORKBENCH || null;
                 let content;
-                if (_WB && _WB.cache[this.viewModel.id]) {
-                    let v = _WB.cache[this.viewModel.id];
+                if (_WB && _WB.cache[this.model.id]) {
+                    let v = _WB.cache[this.model.id];
                     content = v.$el;
                     v.$parent = this;
                     con.append(content);
@@ -154,7 +158,7 @@
                     let vt = require(viewConfig.component);
                     let v = new Vue(vt);
 //                    let v=Vue.extend(viewConfig.component);
-                    v.$props.id = this.viewModel.id;
+                    v.$props.id = this.model.id;
                     v.$props.name = viewConfig.name;
 
                     let self = this;
@@ -166,19 +170,30 @@
                     con.append(content);
                     v.$mount(content);
 
+                    let km = new KeyManager();
+                    if (viewConfig && viewConfig.actions) {
+                        for (let i = 0; i < viewConfig.actions.length; i++) {
+                            if (viewConfig.actions[i].key && viewConfig.actions[i].run) {
+                                km.bind(viewConfig.actions[i].key, () => viewConfig.actions[i].run(v));
+                            }
+                        }
+                    }
+
+                    IDE.keyManager.watchPage(v.$el, km);
+
                     //初始化需要链接成功，所以由IDE负责通知
                     if (viewConfig.init) {
                         v.init = viewConfig.init;
                         IDE.once('connected success', function () {
                             viewConfig.init.call(self, function (m) {
-                                v.$props.model = m;
+                                v.model = m;
                             });
                         });
                     }
 
                     v.$parent = this;
                     this.view_content = v;
-                    WORKBENCH.cache[this.viewModel.id] = v;
+                    WORKBENCH.cache[this.model.id] = v;
                     v.$on('selectionChanged', function (s) {
                         self.getToolbar().selectionChanged(s);
                         if (viewConfig.propertyPage) {
