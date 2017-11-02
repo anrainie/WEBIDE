@@ -1,6 +1,6 @@
 <template>
     <div :id="editorid" class="editor" v-bind:style="style">
-        <palette :editor='editor' :open-palette-event="openPaletteEvent"></palette>
+        <palette :editor='editor' ref='palette' :open-palette-event="openPaletteEvent"></palette>
     </div>
 </template>
 <style>
@@ -30,20 +30,6 @@
         exit: 6
     });
 
-    let swtichToolBtn = null;
-    const switchTool = (editor) => {
-        let t = swtichToolBtn.getElementsByTagName('i')[0];
-
-        if (t.classList.contains(selectIcon)) {
-            t.classList.remove(selectIcon);
-            t.classList.add(lineIcon);
-            editor.setActiveTool(editor.getActiveTool() == lineTool ? editor.getDefaultTool() : lineTool);
-        } else {
-            t.classList.remove(lineIcon);
-            t.classList.add(selectIcon);
-            editor.setActiveTool(editor.getDefaultTool())
-        }
-    };
     export default {
         name: 'flowEditor',
         props: {
@@ -96,6 +82,19 @@
         },
         methods: {
 
+            switchTool (editor){
+                let t = this.$refs.palette.$el.getElementsByClassName('swtichToolBtn')[0];
+
+                if (t.classList.contains(selectIcon)) {
+                    t.classList.remove(selectIcon);
+                    t.classList.add(lineIcon);
+                    editor.setActiveTool(editor.getActiveTool() == lineTool ? editor.getDefaultTool() : lineTool);
+                } else {
+                    t.classList.remove(lineIcon);
+                    t.classList.add(selectIcon);
+                    editor.setActiveTool(editor.getDefaultTool())
+                }
+            },
             initEditor(config) {
                 this.editor = new $AG.Editor(defaultsDeep({id: this.editorid}, config));
                 this.bindEventToEditor();
@@ -108,13 +107,15 @@
 
                 let ed = this.editor;
 
+                let self = this;
                 //注册所有编辑器
                 this.editor.actionRegistry.regist({
                     id: 'swtich tool',
                     type: 2,
                     key: 'escape',
                     run(){
-                        switchTool(ed);
+                        console.log(self)
+                        self.switchTool(ed);
                     }
                 });
 
@@ -171,7 +172,7 @@
             },
 
             deactivateKeyManager() {
-                IDE.keyManager.unwatch(this.$el);
+                IDE.keyManager.unwatchPage(this.$el);
             }
         },
 
@@ -197,6 +198,7 @@
                     }
                 },
                 methods: {
+
                     getGroup() {
                         var e = this.editor;
                         if (e && e.hasOwnProperty('config')) {
@@ -234,9 +236,9 @@
                     },
                     changeTool: {
                         bind (el, {value: host}, vnode) {
-                            swtichToolBtn = el;
                             el.onmousedown = () => {
-                                switchTool(host.editor);
+                                let p = vnode.componentInstance.$parent.$parent;
+                                p.switchTool.call(p, host.editor);
                             };
                         }
                     },
@@ -245,7 +247,7 @@
                 <div style="position: absolute;top: 0;bottom: -30px;width: 150px;background-color: #d3d3d3;float:left; overflow: hidden">
                     <div v-if="editor" style="position: relative;height: 100%;width: 240px;background-color: #d3d3d3;float:left; overflow-y: auto">
                         <el-button v-changeTool="host" type="primary" size="mini" v-bind:style="buttonClass">
-                           <i class="el-icon-date"></i>
+                           <i  class="swtichToolBtn el-icon-date"></i>
                         </el-button>
 
                         <el-menu v-if="isVisibility" default-active="2" class="el-menu-vertical-demo" @open="openHandle" style="width: 150px">
