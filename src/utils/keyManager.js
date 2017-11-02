@@ -78,9 +78,10 @@ const keyMananger = function (type) {
 
 
         $(document).keydown((e) => {
+            if (this.keydown(e) === false)
+                return false;
             if (e.ctrlKey && (e.keyCode == 83 || e.keyCode == 65 || e.keyCode == 112 ))
                 return false;
-            return this.keydown(e);
         });
 
         $(document).keyup(this.keyup);
