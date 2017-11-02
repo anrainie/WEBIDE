@@ -18,6 +18,7 @@
 <script type="text/javascript">
     import {$AG} from 'anrajs'
     import {defaultsDeep} from 'lodash'
+    import keyMananger from "../../../../utils/keyManager";
 
 
     const selectIcon = 'el-icon-date';
@@ -153,7 +154,9 @@
             activateKeyManager() {
                 //注册快捷键
                 let ed = this.editor;
-                IDE.keyManager.watchPage(this.$el, {
+                this.keyManager = new keyMananger('global');
+
+                this.keyManager.watchPage(this.$el, {
                     keydown (e) {
                         let handle = ed.actionRegistry.keyHandle(e);
                         if (handle) {
@@ -168,11 +171,30 @@
                             return false;
                         }
                     }
-                });
+                })
+
+                /*IDE.keyManager.watchPage(this.$el, {
+                    keydown (e) {
+                        let handle = ed.actionRegistry.keyHandle(e);
+                        if (handle) {
+                            $AG.Platform.globalKeyDown(e);
+                            return false;
+                        }
+                    },
+                    keyup (e) {
+                        let handle = ed.actionRegistry.keyHandle(e);
+                        if (handle) {
+                            $AG.Platform.globalKeyUp(e);
+                            return false;
+                        }
+                    }
+                });*/
+
             },
 
             deactivateKeyManager() {
-                IDE.keyManager.unwatchPage(this.$el);
+                //IDE.keyManager.unwatchPage(this.$el);
+                this.keyManager.unwatchPage(this.$el);
             }
         },
 
