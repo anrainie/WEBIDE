@@ -250,7 +250,7 @@
                         }
                     })
                 } else {
-                    IDE.keyManager.unwatch(this.$el)
+                    IDE.keyManager.unwatchPage(this.$el)
                 }
             }
         },
