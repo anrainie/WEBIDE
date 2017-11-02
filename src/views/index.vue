@@ -116,16 +116,6 @@
                 return false;
             }
 
-            $(window).on('keypress', function (e) {
-                var key = e.which || window.event.keyCode;
-
-                //TODO 委托给活动状态的viewer
-                if (IDE.editorPart) {
-                    IDE.editorPart.handleKeyPress(e);
-                }
-
-            });
-
             IDE.shade = this.$refs.ide_shade;
             IDE.keyManager = new km('global');
         },
