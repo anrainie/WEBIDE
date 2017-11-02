@@ -6,7 +6,7 @@ module.exports = {
     type: 'afa',
     services: [
         {
-            id: 'afaCompile',
+            id: 'compile',
             type: 'IOService',
             handler: ioService
         }, {

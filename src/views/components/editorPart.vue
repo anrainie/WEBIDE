@@ -484,7 +484,7 @@
                 if (this.activeEditor && this.activeEditor.isDirty() && this.activeEditor.save()) {
                     let dtd = $.Deferred();
                     IDE.socket.emit("saveFile", {
-                        type: IDE.type,
+                        type: that._domain,
                         path: this.activeEditor.file.path,
                         content: this.activeEditor.input,
                         event: 'saveFile',

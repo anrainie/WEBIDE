@@ -160,7 +160,7 @@
                     init(callback){
                         IDE.shade.open();
                         IDE.socket.emit('getNaviItems', {
-                            type: IDE.type,
+                            type: self.domain,
                             event: 'getNaviItems',
                             data: {
                                 path: '\\',
@@ -192,7 +192,7 @@
                                         level = 1
                                     }
                                     IDE.socket.emit('getNaviItems', {
-                                            type: IDE.type,
+                                            type: self.domain,
                                             event: 'getNaviItems',
                                             data: {
                                                 path: item.model.path,
@@ -274,7 +274,7 @@
                                 rightClick: function (event) {
                                     let item = this;
                                     IDE.socket.emit('getNaviMenu', {
-                                        type: IDE.type,
+                                        type: self.domain,
                                         event: 'getNaviMenu',
                                         data: {path: item.model.path}
                                     }, function (result) {

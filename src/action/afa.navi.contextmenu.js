@@ -635,10 +635,10 @@ function compileService(selection) {
             resources[i] = selection[i].model.path;
         }
         IDE.shade.open("正在编译");
-        IDE.socket.emit("afaCompile", {
+        IDE.socket.emit("compile", {
             type: IDE.type,
             path: resources,
-            event: 'afaCompile',
+            event: 'compile',
             resourceType: 'service'
         }, function (result) {
             IDE.shade.hide();
@@ -667,10 +667,10 @@ function compileBcpt(selection) {
             resources[i] = selection[i].model.path;
         }
         IDE.shade.open("正在编译");
-        IDE.socket.emit("afaCompile", {
-            type: IDE.type,
+        IDE.socket.emit("compile", {
+            type: 'afa',
             path: resources,
-            event: 'afaCompile',
+            event: 'compile',
             resourceType: 'bcpt'
         }, function (result) {
             IDE.shade.hide();
