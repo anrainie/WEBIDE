@@ -2073,7 +2073,7 @@ anra.gef.Policy = Base.extend({
         this.getFeedbackLayer().addChild(figure);
     },
     on: function (k, f) {
-        this.getHost().getRoot().$on(k,f);
+        this.getHost().getRoot().$on(k, f);
     },
     emit: function (k, p, callback) {
         this.getHost().getRoot().$emit(k, p, callback);
@@ -2159,7 +2159,7 @@ anra.gef.Editor = Base.extend({
     },
     _initCanvasListeners: function (cav) {
         var editor = this;
-        this.canvas.addKeyListener(function (e) {
+        this.canvas.on(anra.EVENT.KeyDown, function (e) {
             var action = editor.actionRegistry.keyHandle(e);
 
             if (action != null) {

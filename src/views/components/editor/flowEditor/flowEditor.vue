@@ -19,6 +19,31 @@
     import {$AG} from 'anrajs'
     import {defaultsDeep} from 'lodash'
 
+
+    const selectIcon = 'el-icon-date';
+    const lineIcon = 'el-icon-share';
+    const lineTool = new $AG.LineTool({
+        id: 3,
+        type: 0,
+        target: 5,
+        entr: 7,
+        exit: 6
+    });
+
+    let swtichToolBtn = null;
+    const switchTool = (editor) => {
+        let t = swtichToolBtn.getElementsByTagName('i')[0];
+
+        if (t.classList.contains(selectIcon)) {
+            t.classList.remove(selectIcon);
+            t.classList.add(lineIcon);
+            editor.setActiveTool(editor.getActiveTool() == lineTool ? editor.getDefaultTool() : lineTool);
+        } else {
+            t.classList.remove(lineIcon);
+            t.classList.add(selectIcon);
+            editor.setActiveTool(editor.getDefaultTool())
+        }
+    };
     export default {
         name: 'flowEditor',
         props: {
@@ -70,13 +95,29 @@
             }
         },
         methods: {
+
             initEditor(config) {
                 this.editor = new $AG.Editor(defaultsDeep({id: this.editorid}, config));
                 this.bindEventToEditor();
                 this.activateChangeWidth();
+
                 this.activateKeyManager();
 //                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
 //                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
+
+
+                let ed = this.editor;
+
+                //注册所有编辑器
+                this.editor.actionRegistry.regist({
+                    id: 'swtich tool',
+                    type: 2,
+                    key: 'escape',
+                    run(){
+                        switchTool(ed);
+                    }
+                });
+
                 //保存
                 if (this.save) this.editor.doSave = this.save;
 
@@ -152,7 +193,7 @@
                             "margin-bottom": "10px",
                             "margin-top": "10px"
                         },
-                        host: this
+                        host: this,
                     }
                 },
                 methods: {
@@ -191,35 +232,21 @@
                             });
                         }
                     },
-                    selectTool: {
+                    changeTool: {
                         bind (el, {value: host}, vnode) {
+                            swtichToolBtn = el;
                             el.onmousedown = () => {
-                                host.editor.setActiveTool(host.editor.getDefaultTool())
+                                switchTool(host.editor);
                             };
                         }
                     },
-                    linkTool: {
-                        bind (el, {value: host}, vnode) {
-                            var lineTool = new $AG.LineTool({
-                                id: 3,
-                                type: 0,
-                                target: 5,
-                                entr: 7,
-                                exit: 6
-                            });
-
-                            el.onmousedown = () => {
-                                host.editor.setActiveTool(host.editor.getActiveTool() == lineTool ? host.editor.getDefaultTool() : lineTool);
-                                return false;
-                            };
-                        }
-                    }
                 },
                 template: `
                 <div style="position: absolute;top: 0;bottom: -30px;width: 150px;background-color: #d3d3d3;float:left; overflow: hidden">
                     <div v-if="editor" style="position: relative;height: 100%;width: 240px;background-color: #d3d3d3;float:left; overflow-y: auto">
-                        <el-button v-selectTool="host" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
-                        <el-button v-linkTool="host" type="primary" icon="edit" size="mini" v-bind:style="buttonClass"></el-button>
+                        <el-button v-changeTool="host" type="primary" size="mini" v-bind:style="buttonClass">
+                           <i class="el-icon-date"></i>
+                        </el-button>
 
                         <el-menu v-if="isVisibility" default-active="2" class="el-menu-vertical-demo" @open="openHandle" style="width: 150px">
                             <el-submenu :index="key" v-for="(value, key, index) in getGroup()">
