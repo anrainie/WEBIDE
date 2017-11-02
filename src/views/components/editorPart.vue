@@ -88,6 +88,7 @@
 </style>
 <script type="text/javascript">
     import Vue from 'vue';
+    import KeyManager from '../../utils/keyManager';
     import editorPartTab from '../../action/editorPartTab.contextmenu';
     export default {
         name: 'workbenchPage',
@@ -510,17 +511,6 @@
                     return dtd.promise();
                 }
             }
-            ,
-            handleKeyPress: function (event) {
-                if (event.ctrlKey) {
-                    switch (event.which) {
-                        case 19: {
-                            this.saveEditor(this.activeEditor);
-                            break;
-                        }
-                    }
-                }
-            }
         },
         mounted()
         {
@@ -542,10 +532,19 @@
             this.PAGE_INDICATE = $("#editors-indicate");
             this.PAGE_CONTENT = $("#editors-content");
             this.PAGE_COLLAPSE_BUTTON = $("#editors-indicate .editors-collapse");
+
+            let km = new KeyManager();
+            km.bind('ctrl+s',{
+                keydown:() => {
+                    this.saveEditor(this.activeEditor);
+                }
+            });
+            IDE.keyManager.watchPage(this.$el,km);
         }
         ,
         beforeDestory: function () {
             this.msgHub.$destroy();
+            IDE.keyManager.unwatchPage(this.$el);
         }
     }
 </script>
