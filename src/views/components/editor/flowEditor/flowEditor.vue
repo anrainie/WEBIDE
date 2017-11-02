@@ -74,26 +74,9 @@
                 this.editor = new $AG.Editor(defaultsDeep({id: this.editorid}, config));
                 this.bindEventToEditor();
                 this.activateChangeWidth();
-
+                this.activateKeyManager();
 //                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
 //                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
-                let ed = this.editor;
-                IDE.keyManager.watchPage(this.$el, {
-                    keydown (e) {
-                        let handle = ed.actionRegistry.keyHandle(e);
-                        if (handle) {
-                            $AG.Platform.globalKeyDown(e);
-                            return false;
-                        }
-                    },
-                    keyup (e) {
-                        let handle = ed.actionRegistry.keyHandle(e);
-                        if (handle) {
-                            $AG.Platform.globalKeyUp(e);
-                            return false;
-                        }
-                    }
-                });
                 //保存
                 if (this.save) this.editor.doSave = this.save;
 
@@ -123,11 +106,40 @@
                     $(this.editor.canvas.element).detach();
                     this.editor = null;
                 }
+            },
+
+            activateKeyManager() {
+                //注册快捷键
+                let ed = this.editor;
+                IDE.keyManager.watchPage(this.$el, {
+                    keydown (e) {
+                        let handle = ed.actionRegistry.keyHandle(e);
+                        if (handle) {
+                            $AG.Platform.globalKeyDown(e);
+                            return false;
+                        }
+                    },
+                    keyup (e) {
+                        let handle = ed.actionRegistry.keyHandle(e);
+                        if (handle) {
+                            $AG.Platform.globalKeyUp(e);
+                            return false;
+                        }
+                    }
+                });
+            },
+
+            deactivateKeyManager() {
+                IDE.keyManager.unwatch(this.$el);
             }
         },
 
         mounted() {
             this.initEditor(this.editorConfig);
+        },
+
+        beforeDestroy() {
+            this.deactivateKeyManager();
         },
 
         components: {

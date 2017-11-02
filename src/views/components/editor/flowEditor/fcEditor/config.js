@@ -194,6 +194,7 @@ var operations = [
         type: constants.ACTION_STACK,
         key: 'ctrl+z',
         check: function () {
+            console.log('ctrl+z')
             return this.host.cmdStack.canUndo();
         },
         run: function () {
@@ -220,6 +221,7 @@ var operations = [
         type: constants.ACTION_STACK,
         key: 'ctrl+s',
         check: function () {
+            console.log('ctrl+s')
             return this.host.isDirty();
         },
         run: function () {

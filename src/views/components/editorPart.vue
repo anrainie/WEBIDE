@@ -478,15 +478,15 @@
                 return $("#" + p);
             }
             ,
-            saveEditor()
+            saveEditor(editor)
             {
                 let that = this;
-                if (this.activeEditor && this.activeEditor.isDirty() && this.activeEditor.save()) {
+                if (editor && editor.isDirty() && editor.save()) {
                     let dtd = $.Deferred();
                     IDE.socket.emit("saveFile", {
                         type: that._domain,
-                        path: this.activeEditor.file.path,
-                        content: this.activeEditor.input,
+                        path: editor.file.path,
+                        content: editor.input,
                         event: 'saveFile',
                     }, function (result) {
                         if (result) {
@@ -515,7 +515,7 @@
                 if (event.ctrlKey) {
                     switch (event.which) {
                         case 19: {
-                            this.saveEditor();
+                            this.saveEditor(this.activeEditor);
                             break;
                         }
                     }

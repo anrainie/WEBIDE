@@ -1719,7 +1719,7 @@ anra.gef.RelocalCommand = anra.Command.extend({
     },
     undo: function () {
         var b = this.model.get('bounds');
-        this.model.set('bounds', [this.ep.x, this.ep.y, b[2], b[3]]);
+        this.model.set('bounds', [this.sp.x, this.sp.y, b[2], b[3]]);
         this.editPart.refresh();
     }
 

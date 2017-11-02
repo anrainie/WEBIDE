@@ -121,7 +121,6 @@
                 },
                 nodeEditorInput: null,
                 nodeEditorBuffer: new Map(),
-                saveHandle: commonDoSave,
                 showproperties: false,
                 dialogTarget: null,
                 dialogType: null,
@@ -130,6 +129,11 @@
             }
         },
         computed: {
+            saveHandle() {
+                return () => {
+                    IDE.editorPart.saveEditor(this)
+                }
+            },
             /*根据input初始化配置*/
             stepEditorCfg() {
                 return stepInput2Config(this.stepEditorInput)
@@ -293,7 +297,7 @@
                 }).each((record) => {
                     if (self.nodeEditorBuffer.has(record["UUID"])) {
                         let editor = self.nodeEditorBuffer.get(record["UUID"]);
-                        editor.doSave();
+                        commonDoSave(editor)
 
                         try {
                             record["Implementation"]["Node"] = editor.getSaveData();
@@ -306,7 +310,7 @@
                 });
 
                 /*step保存*/
-                stepEditor.doSave();
+                commonDoSave(stepEditor);
                 console.log(stepEditor.getSaveData())
                 this.nodeEditorBuffer.clear();
                 if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;

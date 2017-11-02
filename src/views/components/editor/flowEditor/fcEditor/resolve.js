@@ -113,11 +113,9 @@ export let nodeInput2Config = function (input) {
 }
 
 /*将位置和连线信息更新至taffyDB中*/
-export let commonDoSave = function () {
-    let nodeStore = this.store.node,
-        lineStore = this.store.line;
-
-    let editor = this;
+export let commonDoSave = function (editor = throwIfMissing()) {
+    let nodeStore = editor.store.node,
+        lineStore = editor.store.line;
 
     //更新节点位置
     nodeStore().update(function () {
@@ -158,5 +156,5 @@ export let commonDoSave = function () {
         }
     });
 
-    this.cmdStack.markSaveLocation();
+    editor.cmdStack.markSaveLocation();
 };

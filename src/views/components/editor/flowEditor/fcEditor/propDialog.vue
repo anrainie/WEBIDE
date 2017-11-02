@@ -47,6 +47,7 @@
     import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
     import paramsGrop from '../../../flowPropDialog/paramsGroup.vue';
     import debugGroup from '../../../flowPropDialog/debugGroup.vue';
+    import KeyManager from '../../../../../utils/keyManager';
 
     const inputParam = {
         name: '入口参数',
@@ -237,7 +238,22 @@
                 activeName: 0,
             }
         },
-
+        watch: {
+            showproperties(value) {
+                if (value) {
+                    IDE.keyManager.watchPage(this.$el, {
+                        keydown (e) {
+                            return true;
+                        },
+                        keyup (e) {
+                            return true;
+                        }
+                    })
+                } else {
+                    IDE.keyManager.unwatch(this.$el)
+                }
+            }
+        },
         methods: {
             updateVisible(vaule) {
                 this.$emit('update:showproperties', vaule);
@@ -264,7 +280,8 @@
                 }
                 if (cmd) this.$emit('saveprops', cmd);
                 this.updateVisible(false);
-            }
+            },
+
         },
         computed: {
             getProps() {
