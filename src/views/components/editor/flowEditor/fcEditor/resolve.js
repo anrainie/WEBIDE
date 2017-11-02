@@ -128,9 +128,10 @@ export let commonDoSave = function (editor = throwIfMissing()) {
         return this;
     });
 
-    //更新连线
+    //更新连线 删除原来的数据
     nodeStore().update({SourceConnections: undefined});
 
+    //根据数据库更新SourceConnections属性
     lineStore().each(({source, target, exit, entr}) => {
         let hasSourceConnections, connect;
 
@@ -155,6 +156,9 @@ export let commonDoSave = function (editor = throwIfMissing()) {
             storeConnect.push(connect);
         }
     });
+
+    //没有连线则改为空字符串
+    nodeStore({SourceConnections: {isUndefined: true}}).update({SourceConnections: ""});
 
     editor.cmdStack.markSaveLocation();
 };

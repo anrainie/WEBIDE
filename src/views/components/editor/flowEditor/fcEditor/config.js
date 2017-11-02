@@ -194,7 +194,6 @@ var operations = [
         type: constants.ACTION_STACK,
         key: 'ctrl+z',
         check: function () {
-            console.log('ctrl+z')
             return this.host.cmdStack.canUndo();
         },
         run: function () {
@@ -221,7 +220,6 @@ var operations = [
         type: constants.ACTION_STACK,
         key: 'ctrl+s',
         check: function () {
-            console.log('ctrl+s')
             return this.host.isDirty();
         },
         run: function () {
@@ -267,8 +265,8 @@ let defaultData = {
     'UUID': undefined,
     'Quote': '0',
     'Type': undefined,
-    'Desp': 'DefaultName',
-    'RefImpl': 'DefaultName',
+    'Desp': null,
+    'RefImpl': null,
     'Skip': {
         'Enabled': '0',
         'Branch': '1'
@@ -283,7 +281,19 @@ let defaultData = {
         'Desp': '失败'
     },
     'True': '0',
-    'False': '0'
+    'False': '0',
+    'Terminals' : {
+        'Terminal': [
+            {
+                'name': '0',
+                'Desp': '失败'
+            },
+            {
+                'name': '1',
+                'Desp': '成功'
+            }
+        ]
+    }
 };
 
 /****** step ******/

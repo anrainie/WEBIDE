@@ -91,7 +91,10 @@ $AG.Editor.prototype.getSaveData = function (attrNameArr) {
             return Object.assign({}, record, {
                 bounds: undefined,
                 id: undefined,
-                type: undefined
+                type: undefined,
+                size: undefined,
+                "___id": undefined,
+                "___s": undefined
             })
         })
     }
