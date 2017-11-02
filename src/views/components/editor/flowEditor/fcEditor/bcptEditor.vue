@@ -13,11 +13,11 @@
                          :openPaletteEvent="nodePaletteOpenEvent"
                          @dblclickcanvas="nodeDoubleClickCanvas"></flow-Editor>
 
-            <propDialog :showproperties.sync="showproperties"
+            <prop-dialog :showproperties.sync="showproperties"
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"
-                        :nodetype="dialogType"></propDialog>
+                        :nodetype="dialogType"></prop-dialog>
         </div>
     </editor-Container>
 

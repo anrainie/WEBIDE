@@ -756,7 +756,7 @@ export const stepBaseCfg = {
             name: '银行',
             children: []
         },
-        "app": {
+        "application": {
             name: '应用',
             children: []
         }

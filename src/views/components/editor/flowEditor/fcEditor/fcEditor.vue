@@ -177,6 +177,26 @@
                                         })
 
                                         break;
+                                    } else if (type == "project" && path == "application") {
+
+                                        for (let {children: apps, type} of group) {
+                                            if (type == path) {
+                                                apps.forEach((packageCom) => {
+                                                    children.push({
+                                                        name: packageCom.desp,
+                                                        url: packUrl,
+                                                        items: packageCom.children.map((com) => {
+                                                            return {
+                                                                name: com.desp,
+                                                                url: comUrl,
+                                                                data: Object.assign({}, com.Component, {type: '4', size: [160,46]}),
+                                                            }
+                                                        })
+                                                    });
+                                                })
+                                            }
+                                        }
+
                                     }
 
                                 }
