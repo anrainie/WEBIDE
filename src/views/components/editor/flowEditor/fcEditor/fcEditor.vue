@@ -32,7 +32,8 @@
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"
-                        :nodetype="dialogType"></prop-Dialog>
+                        :nodetype="dialogType"
+                        :domain="domain"></prop-Dialog>
         </div>
     </editor-Container>
 
@@ -47,7 +48,7 @@
 
     export default {
         name: 'fcEditor',
-        props: ['file', 'msgHub', 'input'],
+        props: ['file', 'msgHub', 'input','domain'],
         data() {
             let self = this;
             return {
