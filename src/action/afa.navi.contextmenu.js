@@ -18,6 +18,7 @@ function getNewWizard() {
     newWizard.namelabel.label = newItem.namelabel;
     newWizard.desclabel.label = newItem.desclabel;
     newWizard.reference = newItem.reference;
+    newWizard.domain = this.domain;
     if (newWizard.reference == true)
         newWizard.refLabel = newItem.refLabel;
     var oDiv = document.createElement('div');
@@ -596,7 +597,7 @@ var items = {
     }
 }
 
-function match(originalItems, newItems) {
+function match(originalItems, newItems,domain) {
     for (let x in originalItems) {
         let oItem = originalItems[x];
         let item, newItem, arrStr;
@@ -615,12 +616,13 @@ function match(originalItems, newItems) {
                 newItem = $.extend(true, {}, item);
                 newItem.id = oItem.id;
                 newItem.path = oItem.path;
+                newItem.domain = domain;
             }
             if (newItem) {
                 newItems.push(newItem);
                 if (oItem.children) {
                     newItem.children = [];
-                    match(oItem.children, newItem.children);
+                    match(oItem.children, newItem.children,domain);
                 }
             }
         }
@@ -628,15 +630,16 @@ function match(originalItems, newItems) {
 }
 
 function compileService(selection) {
-    var self = this;
     var resources = [];
+    var self = this;
+    var domain = self.items[0].domain;
     if (selection.length > 0) {
         for (let i = 0; i < selection.length; i++) {
             resources[i] = selection[i].model.path;
         }
         IDE.shade.open("正在编译");
         IDE.socket.emit("compile", {
-            type: IDE.type,
+            type: domain,
             path: resources,
             event: 'compile',
             resourceType: 'service'
@@ -662,13 +665,14 @@ function compileService(selection) {
 function compileBcpt(selection) {
     var that = this;
     var resources = [];
+    var domain = that.items[0].domain;
     if (selection.length > 0) {
         for (let i = 0; i < selection.length; i++) {
             resources[i] = selection[i].model.path;
         }
         IDE.shade.open("正在编译");
         IDE.socket.emit("compile", {
-            type: 'afa',
+            type: domain,
             path: resources,
             event: 'compile',
             resourceType: 'bcpt'
@@ -701,9 +705,9 @@ function showCompileError(errorMsgs) {
 }
 
 module.exports = {
-    match: function (originalItems) {
+    match: function (originalItems,domain) {
         var newItems = [];
-        match(originalItems, newItems);
+        match(originalItems, newItems,domain);
         return newItems;
     },
     getItem: function (id) {
