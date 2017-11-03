@@ -50,19 +50,15 @@ $AG.Editor.prototype.createID = function() {
     return arr.length + 1;
 };
 
-$AG.Editor.prototype.createNodeWithPalette = function(data) {
+$AG.Editor.prototype.createNodeWithPalette = function(data = throwIfMissing()) {
     let editor = this, tool = new anra.gef.CreationTool();
-    
-    if (data == null || data["type"] == null) {
-        return null;
-    }
-    
+
     return function () {
         let node = new $AG.Node();
 
         node.props = Object.assign({
             id: editor.createID(),
-            bounds: [0, 0, data.size[0], data.size[1]]
+            bounds: [0, 0, data.size[0], data.size[1]],
         }, defaultsDeep({}, data));
         tool.model = node;
         

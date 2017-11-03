@@ -2,8 +2,8 @@ import dictEditor from '../editor/dictEditor.vue';
 import javaEditor from '../editor/javaEditor.vue';
 import tcptEditor from '../editor/TcptEditor.vue'
 
-import fcEditor from "../../components/editor/flowEditor/fcEditor/fcEditor.vue"
-import bcptEditor from  "../../components/editor/flowEditor/fcEditor/bcptEditor.vue"
+import fcEditor from "../editor/fcEditor.vue"
+import bcptEditor from  "../editor/bcptEditor.vue"
 
 module.exports = {
     dict: dictEditor,

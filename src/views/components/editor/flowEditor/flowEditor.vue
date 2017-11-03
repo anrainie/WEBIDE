@@ -105,19 +105,12 @@
 //                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
 //                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
 
-
-                let ed = this.editor;
-
-                let self = this;
                 //注册所有编辑器
                 this.editor.actionRegistry.regist({
                     id: 'swtich tool',
                     type: 2,
                     key: 'escape',
-                    run(){
-                        console.log(self)
-                        self.switchTool(ed);
-                    }
+                    run: () => this.switchTool(this.editor)
                 });
 
                 //保存
