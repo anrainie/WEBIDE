@@ -27,7 +27,7 @@
     import  Split from "split.js";
 
     export default{
-        props: ['file', 'msgHub', 'input', 'toolbarConfig', 'searchConfig'],
+        props: ['file', 'msgHub', 'input', 'toolbarConfig', 'searchConfig','domain'],
         data(){
             return {
                 selection: null,
