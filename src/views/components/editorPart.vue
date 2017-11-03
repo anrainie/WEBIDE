@@ -189,7 +189,6 @@
                 if (this.activeEditor && (this.activeEditor.file.path === model.path)) {
                     this.activeEditor = null;
                 }
-                console.info("_doCloseEditor")
                 let editorElement = this.getEditorElement(model.path);
                 editorElement.remove();
                 let editorIndicate = this.getEditorIndicate(model.path);

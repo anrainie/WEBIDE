@@ -81,8 +81,8 @@ Product.prototype.connect = function () {
 
 Product.prototype.runServiceHandler = function (reqData, callback) {
     let handler = this.services[reqData.event];
-    if(!this.socket.connected) {
-        callback({state: "error", errorMsg:"ide socket is off line"});
+    if(!this.online) {
+        callback({state: "error", errorMsg:"Product is disconnected"});
     }else{
         if (!handler) {
             callback({state: "error", returnMsg: "service is unregisted"});
@@ -116,7 +116,7 @@ Product.prototype.registerService = function (service) {
             this.services[service.id] = service.handler;
         }
     }else{
-        IDE.ideLogger.error(`Product ${this.ip}:${this.port}-${this.port} is offline`);
+        IDE.ideLogger.error(`Product ${this.ip}:${this.port}-${this.port} is diconnected`);
     }
 }
 

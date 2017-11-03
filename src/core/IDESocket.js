@@ -27,7 +27,7 @@ function IDESocket() {
         socket.on('connect_error', (err) => {
             let r = {
                 title: '提示',
-                message: 'ide socket连接失败' + type,
+                message: 'node socket连接失败' + type,
                 duration: 0
             };
             ElementUI.Notification.error(r.message);
@@ -37,7 +37,7 @@ function IDESocket() {
         socket.on('connect_timeout', function (err) {
             ElementUI.Notification.error({
                 title: '提示',
-                message: 'ide socket连接超时',
+                message: 'node socket连接超时',
                 duration: 0
             });
         });
@@ -46,7 +46,7 @@ function IDESocket() {
             if (!socket.isReady) {
                 ElementUI.Notification.success({
                     title: '提示',
-                    message: 'ide socket连接成功',
+                    message: 'node socket连接成功',
                     duration: 2000
                 });
                 def.resolve(socket);
@@ -58,7 +58,7 @@ function IDESocket() {
         socket.on('reconnect_error', function (data) {
             ElementUI.Notification.error({
                 title: '提示',
-                message: 'ide socket重连失败',
+                message: 'node socket重连失败',
                 duration: 0
             });
         });
@@ -87,7 +87,7 @@ IDESocket.prototype.emit = function (eventId, data, callback) {
         } else {
             ElementUI.Notification.error({
                 title: '提示',
-                message: 'ide socket is offline'
+                message: 'node socket is disconnect'
             });
         }
     });
@@ -95,23 +95,23 @@ IDESocket.prototype.emit = function (eventId, data, callback) {
 
 IDESocket.prototype.emitAndGetDeferred = function (eventId, data) {
     debug.info("IDESocket emit,event:" + data.event);
+    let socketDef = this.getSocket(data.type);
     let def = $.Deferred();
-    let socket = this.getSocket(data.type);
-    if (socket.connected) {
-        if (!data) {
-            data = {};
-        }
-        data.event = data.event || eventId;
-        socket.emit(socket + "_" + eventId, data, function (result) {
-            if (result.state === 'success') {
-                def.resolve(result);
-            } else if (result.state === 'error') {
-                def.reject(result);
+    socketDef.done((socket) => {
+        if (socket.connected) {
+            if (!data) {
+                data = {};
             }
-        });
-    } else {
-        def.reject({state: 'error', errorMsg: "ide socket is offline"});
-    }
+            data.event = data.event || eventId;
+            socket.emit(socket.type + "_" + eventId, data, function (result) {
+                if (result.state === 'success') {
+                    def.resolve(result);
+                } else if (result.state === 'error') {
+                    def.reject(result);
+                }
+            });
+        }
+    });
     return def.promise();
 }
 

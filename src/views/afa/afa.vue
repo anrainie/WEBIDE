@@ -251,11 +251,12 @@
                                         IDE.editorPart.closeEditor(item);
                                     }
                                     let def = IDE.socket.emitAndGetDeferred('deleteFile', {
+                                        type: self.domain,
                                         path: item.model.path
                                     }).done(function (result) {
                                         item.getParent().refresh();
                                     }).fail(function (error) {
-                                        debug.error('delete resource fail , ' + error);
+                                        debug.error('delete resource fail , ' + error.errorMsg);
                                     });
                                 },
                                 click: function (item) {

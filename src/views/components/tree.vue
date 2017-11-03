@@ -1,6 +1,6 @@
 <template>
     <div class="tree">
-        <item v-for='child in model' :model='child,config,msgHub' :key="child.path" :props="props" :ref="getProp(child,'label')">
+        <item v-for='child in children' :model='child,config,msgHub' :key="child.path" :props="props" :ref="getProp(child,'label')">
         </item>
     </div>
 </template>
@@ -37,6 +37,13 @@
                 selection: [],
                 msgHub: new Vue(),
                 ALL_LEVELS: -1
+            }
+        },
+        computed:{
+            children(){
+                return (this.model || []).sort((a,b)=>{
+                    return this.config.sorter(a,b);
+                });
             }
         },
         watch: {
@@ -278,12 +285,36 @@
                     item.refresh(level);
                 }
             },
-
+            hashCode:function (str) {
+                var h = 0;
+                var len = str.length;
+                var t = 2147483648;
+                for (var i = 0; i < len; i++) {
+                    h = 31 * h + str.charCodeAt(i);
+                    if(h > 2147483647)
+                        h %= t;
+                }
+                return h;
+            },
+            isString : function (str) {
+               return Object.prototype.toString.call(str) === "[object String]";
+            }
         },
         mounted: function () {
             var self = this;
 
             this.config.callback = this.config.callback || {};
+            this.config.sorter = this.config.sorter || function (a,b) {
+                    let al = self.getProp(a,'name');
+                    let ac = self.getProp(a,'category');
+                    ac = $.isNumeric(ac) ? ac : (self.isString(al) ? self.hashCode(al) : Number.MAX_VALUE);
+
+                    let bl = self.getProp(b,'name');
+                    let bc = self.getProp(b,'category');
+                    bc = $.isNumeric(bc) ? bc : (self.isString(bl) ? self.hashCode(bl) : Number.MAX_VALUE);
+
+                    return ac - bc;
+                }
             if (!this.model) {
                 this.model = [];
             }
