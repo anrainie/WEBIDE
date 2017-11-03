@@ -69,9 +69,9 @@
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-
+                    var self = this;
                     IDE.socket.emit('loadTcpt', {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'loadTcpt',
                         data: {
                             path: filePath

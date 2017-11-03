@@ -1,6 +1,6 @@
 <template>
 
-    <editor-Container :editor="this">
+    <editor-Container :editor="this" :domain="domain">
         <div slot="editor-content">
 
             <flow-Editor
@@ -147,9 +147,9 @@
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-
+                    var self = this;
                     IDE.socket.emit('loadBcpt', {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'loadBcpt',
                         data: {
                             path: filePath
@@ -228,9 +228,9 @@
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-
+                    var self = this;
                     IDE.socket.emit('loadTcpt', {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'loadTcpt',
                         data: {
                             path: filePath
