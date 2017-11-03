@@ -45,6 +45,7 @@
     import * as Constants from 'Constants'
     import propDialog from './propDialog.vue'
     import {defaultsDeep} from 'lodash'
+    import constants from 'anrajs'
 
     export default {
         name: 'fcEditor',
@@ -137,7 +138,40 @@
             },
             /*根据input初始化配置*/
             stepEditorCfg() {
-                return stepInput2Config(this.stepEditorInput)
+                var self = this;
+                var config = stepInput2Config(this.stepEditorInput);
+                config.operations.push({
+                  id:'compile',
+                  name:'编译服务',
+                  type: 0,
+                  check: function(){
+                    return true ;
+                  },
+                  run: function(){
+                    //执行编译
+                    var path =self.file.path;
+                    IDE.shade.open("正在编译");
+                    IDE.socket.emit("compile", {
+                      type: self.domain,
+                      path: [path],
+                      event: 'compile',
+                      resourceType: 'service'
+                    }, function (result) {
+                      IDE.shade.hide();
+                      if (result.state === 'success') {
+                        IDE.navigator.getItem(path).refresh(3);
+                        self.$notify({
+                          title: '编译',
+                          message: '编译成功',
+                          type: 'success'
+                        });
+                      } else {
+                        showCompileError(result.errorMsg);
+                      }
+                    });
+                  }
+                });
+                return config;
             },
 
             stepPaletteOpenEvent() {
