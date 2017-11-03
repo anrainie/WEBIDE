@@ -14,7 +14,7 @@
             <span class="item-desp">{{getProp('desp')}}</span>
         </div>
         <div class="item-children" v-show="open" v-if='isFolder' >
-            <item v-for="child in getProp('children')" :model='child,config,msgHub' :props="props" :key="child.path" :ref="getProp('label',child)">
+            <item v-for="child in children" :model='child,config,msgHub' :props="props" :key="child.path" :ref="getProp('label',child)">
             </item>
         </div>
     </div>
@@ -37,12 +37,17 @@
                 selected:false,
                 loaded:false,
                 checked: this.model.checked ? this.model.checked :false ,
-                itemImageSrc: (this.model.icon ? ("/assets/image/" + this.model.icon) : "/assets/image/")
+                itemImageSrc: (this.model.icon ? ("/assets/image/" + this.model.icon) : "/assets/image/nav-folder.png")
             }
         },
         computed: {
             isFolder: function () {
                 return this.model.isParent;
+            },
+            children:function () {
+                return (this.model.children || []).sort((a,b)=>{
+                    return this.config.sorter(a,b);
+                });
             }
         },
         methods: {
