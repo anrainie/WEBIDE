@@ -37,7 +37,7 @@
             editorid: {
                 required: true,
                 type: String
-            },
+                },
 
             /*初始化编辑器配置*/
             editorConfig: {
@@ -115,7 +115,6 @@
                     type: 2,
                     key: 'escape',
                     run(){
-                        console.log(self)
                         self.switchTool(ed);
                     }
                 });
