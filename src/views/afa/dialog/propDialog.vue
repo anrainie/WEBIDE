@@ -8,7 +8,7 @@
 
                         <el-collapse-item  :title="item.name" :name="index" v-for="(item, name, index) in tab.config">
                             <keep-alive>
-                                <component :is="item.group" :model="getProps" :type="item.type" :ref="name" :path="path"></component>
+                                <component :is="item.group" :model="getProps" :type="item.type" :ref="name" :path="path" :domain="domain"></component>
                             </keep-alive>
                         </el-collapse-item>
 
@@ -19,7 +19,7 @@
             <el-collapse v-else v-model="activeName" >
 
                 <el-collapse-item  :title="item.name" :name="index" v-for="(item, name, index) in group.config">
-                        <component :is="item.group" :model="getProps" :type="item.type" :ref="name" :path="path"></component>
+                        <component :is="item.group" :model="getProps" :type="item.type" :ref="name" :path="path" :domain="domain"></component>
                 </el-collapse-item>
 
             </el-collapse>
@@ -232,7 +232,7 @@
 
     export default {
         name: 'fcPropDialog',
-        props: ["showproperties", "model", "path", "editortype", "nodetype"],
+        props: ["showproperties", "model", "path", "editortype", "nodetype","domain"],
         data() {
             return {
                 activeName: 0,

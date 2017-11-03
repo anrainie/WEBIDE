@@ -37,7 +37,7 @@
             editorid: {
                 required: true,
                 type: String
-            },
+                },
 
             /*初始化编辑器配置*/
             editorConfig: {

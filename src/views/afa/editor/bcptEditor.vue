@@ -17,7 +17,8 @@
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"
-                        :nodetype="dialogType"></prop-dialog>
+                        :nodetype="dialogType"
+                         :domain="domain"></prop-dialog>
         </div>
     </editor-Container>
 
@@ -33,7 +34,7 @@
 
     export default {
         name: 'bcpt-editor',
-        props: ['file', 'msgHub', 'input'],
+        props: ['file', 'msgHub', 'input','domain'],
         data() {
             let self = this;
             return {
@@ -68,9 +69,9 @@
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-
+                    var self = this;
                     IDE.socket.emit('loadTcpt', {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'loadTcpt',
                         data: {
                             path: filePath

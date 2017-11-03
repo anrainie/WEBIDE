@@ -175,6 +175,10 @@
                                     }
                                     callback(naviItems);
                                 } else {
+                                    self.$notify.error({
+                                        title: '错误',
+                                        message: result.errorMsg
+                                    });
                                     debug.error('emit getNaviItems fail , ' + result.errorMsg);
                                 }
                             }
@@ -251,11 +255,16 @@
                                         IDE.editorPart.closeEditor(item);
                                     }
                                     let def = IDE.socket.emitAndGetDeferred('deleteFile', {
+                                        type: self.domain,
                                         path: item.model.path
                                     }).done(function (result) {
                                         item.getParent().refresh();
                                     }).fail(function (error) {
-                                        debug.error('delete resource fail , ' + error);
+                                        self.$notify.error({
+                                            title: '错误',
+                                            message: 'delete resource fail , ' + error.errorMsg
+                                        });
+                                        debug.error('delete resource fail , ' + error.errorMsg);
                                     });
                                 },
                                 click: function (item) {
@@ -280,7 +289,7 @@
                                     }, function (result) {
                                         if (result) {
                                             if (result.state === 'success') {
-                                                let newItems = navContextMenus.match(result.data);
+                                                let newItems = navContextMenus.match(result.data,self.domain);
                                                 IDE.contextmenu.setItems(newItems);
                                                 if (IDE.contextmenu.isActive()) {
                                                     IDE.contextmenu.hide();

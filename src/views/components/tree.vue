@@ -1,12 +1,15 @@
 <template>
     <div class="tree">
-        <item v-for='child in model' :model='child,config,msgHub' :key="child.path" :props="props" :ref="getProp(child,'label')">
+        <item v-for='child in children' :model='child,config,msgHub' :key="child.path" :props="props" :ref="getProp(child,'label')">
         </item>
     </div>
 </template>
 <script type="text/javascript">
+
     import item from "../components/tree-item.vue";
     import Vue from 'vue'
+    import tools from '../../utils/tools'
+
     export default {
         name: 'tree',
         props: {
@@ -37,6 +40,13 @@
                 selection: [],
                 msgHub: new Vue(),
                 ALL_LEVELS: -1
+            }
+        },
+        computed:{
+            children(){
+                return (this.model || []).sort((a,b)=>{
+                    return this.config.sorter(a,b);
+                });
             }
         },
         watch: {
@@ -284,6 +294,17 @@
             var self = this;
 
             this.config.callback = this.config.callback || {};
+            this.config.sorter = this.config.sorter || function (a,b) {
+                    let al = self.getProp(a,'name');
+                    let ac = self.getProp(a,'category');
+                    ac = $.isNumeric(ac) ? ac : (tools.isString(al) ? tools.hashCode(al) : Number.MAX_VALUE);
+
+                    let bl = self.getProp(b,'name');
+                    let bc = self.getProp(b,'category');
+                    bc = $.isNumeric(bc) ? bc : (tools.isString(bl) ? tools.hashCode(bl) : Number.MAX_VALUE);
+
+                    return ac - bc;
+                }
             if (!this.model) {
                 this.model = [];
             }

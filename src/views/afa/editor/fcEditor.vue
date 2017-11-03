@@ -1,6 +1,6 @@
 <template>
 
-    <editor-Container :editor="this">
+    <editor-Container :editor="this" :domain="domain">
         <div slot="editor-content">
 
             <flow-Editor
@@ -32,7 +32,8 @@
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"
-                        :nodetype="dialogType"></prop-Dialog>
+                        :nodetype="dialogType"
+                        :domain="domain"></prop-Dialog>
         </div>
     </editor-Container>
 
@@ -44,10 +45,11 @@
     import * as Constants from 'Constants'
     import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
+    import constants from 'anrajs'
 
     export default {
         name: 'fcEditor',
-        props: ['file', 'msgHub', 'input'],
+        props: ['file', 'msgHub', 'input','domain'],
         data() {
             let self = this;
             return {
@@ -136,7 +138,40 @@
             },
             /*根据input初始化配置*/
             stepEditorCfg() {
-                return stepInput2Config(this.stepEditorInput);
+                var self = this;
+                var config = stepInput2Config(this.stepEditorInput);
+                config.operations.push({
+                  id:'compile',
+                  name:'编译服务',
+                  type: 0,
+                  check: function(){
+                    return true ;
+                  },
+                  run: function(){
+                    //执行编译
+                    var path =self.file.path;
+                    IDE.shade.open("正在编译");
+                    IDE.socket.emit("compile", {
+                      type: self.domain,
+                      path: [path],
+                      event: 'compile',
+                      resourceType: 'service'
+                    }, function (result) {
+                      IDE.shade.hide();
+                      if (result.state === 'success') {
+                        IDE.navigator.getItem(path).refresh(3);
+                        self.$notify({
+                          title: '编译',
+                          message: '编译成功',
+                          type: 'success'
+                        });
+                      } else {
+                        showCompileError(result.errorMsg);
+                      }
+                    });
+                  }
+                });
+                return config;
             },
 
             stepPaletteOpenEvent() {
@@ -146,9 +181,9 @@
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-
+                    var self = this;
                     IDE.socket.emit('loadBcpt', {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'loadBcpt',
                         data: {
                             path: filePath
@@ -227,9 +262,9 @@
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-
+                    var self = this;
                     IDE.socket.emit('loadTcpt', {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'loadTcpt',
                         data: {
                             path: filePath

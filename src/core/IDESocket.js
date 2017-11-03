@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 import ElementUI from 'element-ui';
 function IDESocket() {
     this.sockets = {};
-
+    this.timeout = 10000;
     this.getSocket = (type) => {
         type = type || IDE.type;
         let s = this.sockets[type];
@@ -27,7 +27,7 @@ function IDESocket() {
         socket.on('connect_error', (err) => {
             let r = {
                 title: '提示',
-                message: 'ide socket连接失败' + type,
+                message: 'node socket连接失败' + type,
                 duration: 0
             };
             ElementUI.Notification.error(r.message);
@@ -37,7 +37,7 @@ function IDESocket() {
         socket.on('connect_timeout', function (err) {
             ElementUI.Notification.error({
                 title: '提示',
-                message: 'ide socket连接超时',
+                message: 'node socket连接超时',
                 duration: 0
             });
         });
@@ -46,7 +46,7 @@ function IDESocket() {
             if (!socket.isReady) {
                 ElementUI.Notification.success({
                     title: '提示',
-                    message: 'ide socket连接成功',
+                    message: 'node socket连接成功',
                     duration: 2000
                 });
                 def.resolve(socket);
@@ -58,7 +58,7 @@ function IDESocket() {
         socket.on('reconnect_error', function (data) {
             ElementUI.Notification.error({
                 title: '提示',
-                message: 'ide socket重连失败',
+                message: 'node socket重连失败',
                 duration: 0
             });
         });
@@ -74,44 +74,75 @@ function IDESocket() {
 }
 
 
-IDESocket.prototype.emit = function (eventId, data, callback) {
+IDESocket.prototype.emit = function (eventId, data, callback,timeout) {
+    if(timeout && !$.isNumeric(timeout)){
+        throw new Error("socket timeout must be a number" + timeout);
+    }else{
+        timeout = this.timeout;
+    }
+
+    data = data || {};
+    data.event = data.event || eventId;
+
     debug.info("IDESocket emit,event:" + data.event);
+
     let socketDef = this.getSocket(data.type);
     socketDef.done((socket) => {
         if (socket.connected) {
-            if (!data) {
-                data = {};
-            }
-            data.event = data.event || eventId;
-            socket.emit(socket.type + "_" + eventId, data, callback);
+            let success = false;
+            socket.emit(socket.type + "_" + eventId, data, (result) => {
+                success = true;
+                callback(result);
+            });
+            setTimeout(()=>{
+                if(!success){
+                    callback({state:'error',errorMsg:'emit callback timeout :' + eventId});
+                }
+            },timeout);
         } else {
             ElementUI.Notification.error({
                 title: '提示',
-                message: 'ide socket is offline'
+                message: 'node socket is disconnect'
             });
         }
     });
 }
 
-IDESocket.prototype.emitAndGetDeferred = function (eventId, data) {
-    debug.info("IDESocket emit,event:" + data.event);
-    let def = $.Deferred();
-    let socket = this.getSocket(data.type);
-    if (socket.connected) {
-        if (!data) {
-            data = {};
-        }
-        data.event = data.event || eventId;
-        socket.emit(socket + "_" + eventId, data, function (result) {
-            if (result.state === 'success') {
-                def.resolve(result);
-            } else if (result.state === 'error') {
-                def.reject(result);
-            }
-        });
-    } else {
-        def.reject({state: 'error', errorMsg: "ide socket is offline"});
+IDESocket.prototype.emitAndGetDeferred = function (eventId, data,timeout) {
+    if(timeout && !$.isNumeric(timeout)){
+        throw new Error("socket timeout must be a number" + timeout);
+    }else{
+        timeout = this.timeout;
     }
+
+    data = data || {};
+    data.event = data.event || eventId;
+
+    debug.info("IDESocket emit,event:" + data.event);
+
+    let socketDef = this.getSocket(data.type);
+    let def = $.Deferred();
+    socketDef.done((socket) => {
+        if (socket.connected) {
+            if (!data) {
+                data = {};
+            }
+            let success = false;
+            socket.emit(socket.type + "_" + eventId, data, function (result) {
+                success = true;
+                if (result.state === 'success') {
+                    def.resolve(result);
+                } else if (result.state === 'error') {
+                    def.reject(result);
+                }
+            });
+            setTimeout(()=>{
+                if(!success){
+                    def.reject({state:'error',errorMsg:'emit callback timeout :' + eventId});
+                }
+            },timeout);
+        }
+    });
     return def.promise();
 }
 

@@ -15,6 +15,7 @@
         position: absolute;
         width: 30%;
         padding: 0px 8px;
+        height: 25px;
         margin: 0;
         text-align: right;
     }
