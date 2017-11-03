@@ -311,6 +311,7 @@
                 newEditor.$props.input = content;
                 newEditor.$props.file = model;
                 newEditor.$props.msgHub = this.msgHub;
+                newEditor.$props.domain = this.domain;
                 let editorName = this.getIndicateName(newEditor.getPartName());
                 let indicateWidth = this.getIndicateWidth(editorName);
                 //创建tab-indicator
