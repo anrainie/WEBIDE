@@ -1,0 +1,15 @@
+{
+  "apps" : [{
+    "name" : "Web-IDE",
+    "script": "./bin/www",
+    "watch":[
+      "bin",
+      "build",
+      "config",
+      "server",
+      "dist"
+    ],
+    "error_file":"./logs/app-err.log",
+    "log_date_format":"YYYY-MM-DD HH:mm Z"
+  }]
+}

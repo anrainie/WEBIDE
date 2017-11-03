@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "node ./build/server.dev.js",
     "build": "node ./build/build.js",
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "pm2": "pm2 start process.json"
   },
   "dependencies": {
     "@types/socket.io-client": "^1.4.31",
