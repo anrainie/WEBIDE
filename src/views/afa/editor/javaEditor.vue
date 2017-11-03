@@ -21,7 +21,7 @@
 
     // use in component
     export default {
-        props: ['input', 'file', 'msgHub'],
+        props: ['input', 'file', 'msgHub','domain'],
         data() {
             return {
                 options: {

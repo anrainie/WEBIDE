@@ -281,7 +281,7 @@
                                     }, function (result) {
                                         if (result) {
                                             if (result.state === 'success') {
-                                                let newItems = navContextMenus.match(result.data);
+                                                let newItems = navContextMenus.match(result.data,self.domain);
                                                 IDE.contextmenu.setItems(newItems);
                                                 if (IDE.contextmenu.isActive()) {
                                                     IDE.contextmenu.hide();

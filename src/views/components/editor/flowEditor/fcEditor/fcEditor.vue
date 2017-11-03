@@ -1,6 +1,6 @@
 <template>
 
-    <editor-Container :editor="this">
+    <editor-Container :editor="this" :domain="domain">
         <div slot="editor-content">
 
             <flow-Editor
@@ -32,7 +32,8 @@
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"
-                        :nodetype="dialogType"></prop-Dialog>
+                        :nodetype="dialogType"
+                        :domain="domain"></prop-Dialog>
         </div>
     </editor-Container>
 
@@ -47,7 +48,7 @@
 
     export default {
         name: 'fcEditor',
-        props: ['file', 'msgHub', 'input'],
+        props: ['file', 'msgHub', 'input','domain'],
         data() {
             let self = this;
             return {
@@ -146,9 +147,9 @@
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-
+                    var self = this;
                     IDE.socket.emit('loadBcpt', {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'loadBcpt',
                         data: {
                             path: filePath
@@ -227,9 +228,9 @@
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-
+                    var self = this;
                     IDE.socket.emit('loadTcpt', {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'loadTcpt',
                         data: {
                             path: filePath

@@ -23,6 +23,7 @@
         name: 'editorContainer',
         props: {
             editor: null,
+            domain:null,
             editorActions: {
                 type: Array,
                 default: function () {
@@ -99,7 +100,7 @@
                 var self = this;
                 IDE.socket.emit('lockFile',
                     {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'lockFile',
                         data: {
                             path: this.editor.file.path
@@ -123,7 +124,7 @@
                 var self = this;
                 IDE.socket.emit('releaseFilelock',
                     {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'releaseFilelock',
                         data: {
                             path: this.editor.file.path
@@ -147,7 +148,7 @@
                 var self = this;
                 IDE.socket.emit('peekFileLock',
                     {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'peekFileLock',
                         data: {
                             path: this.editor.file.path

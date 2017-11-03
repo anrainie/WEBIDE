@@ -32,6 +32,7 @@
     export default {
         data() {
             return {
+                domain:null,
                 dialogFormVisible: true,
                 template: false,
                 labelWidth: '140px',
@@ -75,13 +76,13 @@
 
             },
             handleOk(){
-
+                var self = this;
                 if (!this.name || !this.desc) {
                     alert("名字和描述不能为空");
                 } else {
                     this.dialogFormVisible = false;
                     IDE.socket.emit("createNewResource", {
-                        type: IDE.type,
+                        type: self.domain,
                         event: 'createNewResource',
                         data: {
                             path: this.path,
@@ -115,8 +116,9 @@
             },
             handleBroswer(){
                 //获取相关引用
+              var self = this;
                 IDE.socket.emit("getWizardReference", {
-                    type: IDE.type,
+                    type: self.domain,
                     event: 'getWizardReference',
                     data: {path: this.path, resourceId: this.resourceId}
                 }, function (data) {
