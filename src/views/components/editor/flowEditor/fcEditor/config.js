@@ -218,7 +218,6 @@ var operations = [
         id: 'save',
         name: '保存',
         type: constants.ACTION_STACK,
-        key: 'ctrl+s',
         check: function () {
             return this.host.isDirty();
         },
