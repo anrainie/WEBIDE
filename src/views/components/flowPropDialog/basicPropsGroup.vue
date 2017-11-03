@@ -492,6 +492,11 @@
             },
             path: {
                 type: String
+            },
+            domain:{
+              default(){
+                return ''
+              }
             }
         },
         components:{
@@ -560,7 +565,7 @@
             openChooseSceneDialog () {
                 var self = this;
                 IDE.socket.emit('loadScene', {
-                    type: IDE.type,
+                    type: self.domain,
                     event: 'loadScene',
                     data: {path: this.path}
                 }, function (result) {
@@ -577,7 +582,7 @@
             openChooseBcptDialog () {
                 var self = this;
                 IDE.socket.emit('loadBcpt', {
-                    type: IDE.type,
+                    type: self.domain,
                     event: 'loadBcpt',
                     data: {path: this.path}
                 }, function (result) {
