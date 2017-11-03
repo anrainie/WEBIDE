@@ -17,7 +17,8 @@
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"
-                        :nodetype="dialogType"></prop-dialog>
+                        :nodetype="dialogType"
+                         :domain="domain"></prop-dialog>
         </div>
     </editor-Container>
 
@@ -33,7 +34,7 @@
 
     export default {
         name: 'bcpt-editor',
-        props: ['file', 'msgHub', 'input'],
+        props: ['file', 'msgHub', 'input','domain'],
         data() {
             let self = this;
             return {
