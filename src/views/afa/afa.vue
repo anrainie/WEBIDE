@@ -175,6 +175,10 @@
                                     }
                                     callback(naviItems);
                                 } else {
+                                    self.$notify.error({
+                                        title: '错误',
+                                        message: result.errorMsg
+                                    });
                                     debug.error('emit getNaviItems fail , ' + result.errorMsg);
                                 }
                             }
@@ -256,6 +260,10 @@
                                     }).done(function (result) {
                                         item.getParent().refresh();
                                     }).fail(function (error) {
+                                        self.$notify.error({
+                                            title: '错误',
+                                            message: 'delete resource fail , ' + error.errorMsg
+                                        });
                                         debug.error('delete resource fail , ' + error.errorMsg);
                                     });
                                 },

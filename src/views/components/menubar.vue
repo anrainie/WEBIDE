@@ -8,19 +8,19 @@
 </template>
 <style>
     #menuBar {
-
         background-color: #021A1A;
         padding: 0px 10px;
         font-family: Arial;
         width: 70%;
         margin: 0;
         text-align: left;
+        height: 25px;
         display: inline-block;
-
     }
+
     .menu_item{
         color: #ffffff;
-        display: inline;
+        display: inline-block;
         position: relative;
         list-style: none;
     }
