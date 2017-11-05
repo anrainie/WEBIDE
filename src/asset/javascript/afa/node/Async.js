@@ -1,55 +1,59 @@
 /*场景异步调用*/
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, openPropEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
 import * as props from "../propsName";
 
-const defaultPropData = Object.assign({}, props.commonNodeProp, {
-    [props.Name]: '场景异步调用',
-    [props.Desp]: '场景异步调用',
-    [props.Level]: '0',
-    [props.Group]: '场景调用组件',
-    [props.Sql]: null,
-    [props.Type]: '111',
-    [props.Target]: 'ccn.com.agree.afa.jcomponent.SdkBroker.asyncInvoke',
-    [props.Style]: '3',
-    [props.Tooltip]: '异步使用消费者调用提供者提供的场景',
-    [props.Visible]: '1',
-    [props.Skip]: {
-        [props.Enabled]: '0',
-        [props.Branch]: '1',
-    },
-    [props.Debug]: {
-        [props.Codes]: [
-            {
-                [props.Total]: '0'
-            }
-        ],
-        [props.Result]: '1',
-        [props.Return]: null,
-        [props.ReturnList]: null,
-    },
-    [props.Constraint]: {
-        [props.Location]: null,
-        [props.Size]: '160,46',
-    },
-    [props.Terminals]: {
-        [props.Terminal]: [
-            {
-                [props.Name]: '0',
-                [props.Desp]: '失败',
-            },
-            {
-                [props.Name]: '1',
-                [props.Desp]: '成功',
-            },
-        ]
-    },
-    [props.Logic]: {
-        [props.Total]: '1',
-        [props.RET1]: '3',
-    }
-});
+const defaultPropData = Object.assign({},
+    props.commonNodeProp,
+    props.inArg,
+    props.asyncOutArg,
+    {
+        [props.Name]: '场景异步调用',
+        [props.Desp]: '场景异步调用',
+        [props.Level]: '0',
+        [props.Group]: '场景调用组件',
+        [props.Sql]: null,
+        [props.Type]: '111',
+        [props.Target]: 'ccn.com.agree.afa.jcomponent.SdkBroker.asyncInvoke',
+        [props.Style]: '3',
+        [props.Tooltip]: '异步使用消费者调用提供者提供的场景',
+        [props.Visible]: '1',
+        [props.Skip]: {
+            [props.Enabled]: '0',
+            [props.Branch]: '1',
+        },
+        [props.Debug]: {
+            [props.Codes]: [
+                {
+                    [props.Total]: '0'
+                }
+            ],
+            [props.Result]: '1',
+            [props.Return]: null,
+            [props.ReturnList]: null,
+        },
+        [props.Constraint]: {
+            [props.Location]: null,
+            [props.Size]: '160,46',
+        },
+        [props.Terminals]: {
+            [props.Terminal]: [
+                {
+                    [props.Name]: '0',
+                    [props.Desp]: '失败',
+                },
+                {
+                    [props.Name]: '1',
+                    [props.Desp]: '成功',
+                },
+            ]
+        },
+        [props.Logic]: {
+            [props.Total]: '1',
+            [props.RET1]: '3',
+        }
+    });
 
 const defaultEditorData = {
     size: [160,46],
@@ -76,7 +80,7 @@ const Async = {
     policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0', '1']),
+        'pin': terminalPolicy(),
         'idText': $AG.policy.TextPolicy('id', idLocation),
     },
 

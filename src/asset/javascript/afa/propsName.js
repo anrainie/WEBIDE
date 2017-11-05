@@ -49,6 +49,8 @@ export const Return = 'Return';
 export const ReturnList = 'ReturnList';
 export const RET = 'RET';
 export const IsWaitForResult = 'IsWaitForResult';
+export const Arg = 'Arg';
+export const Key = 'Key';
 
 export const commonStepProp = {
     [ID]: null,
@@ -104,4 +106,96 @@ export const commonNodeProp = {
     [InArgs]: null,
     [OutArgs]: null,
     [Logic]: null,
-}
+};
+
+export const inArg = {
+    [InArgs]: {
+        [Arg]: [
+            {
+                [Name]: '接出标识',
+                [Key]: 'identifier',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'Java.lang.String',
+            },
+            {
+                [Name]: '服务码',
+                [Key]: 'serviceCode',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'Java.lang.String',
+            },
+            {
+                [Name]: '服务版本',
+                [Key]: 'serviceVersion',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'Java.lang.String',
+            },
+            {
+                [Name]: '场景码',
+                [Key]: 'scenarioCode',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'Java.lang.String',
+            },
+            {
+                [Name]: '场景版本',
+                [Key]: 'cenarioVersion',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'Java.lang.String',
+            },
+            {
+                [Name]: '入参',
+                [Key]: 'params',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'cn.com.agree.afa.svc.javaengine.context.JavaList',
+            },
+            {
+                [Name]: '超时时间，单位毫秒',
+                [Key]: 'timeoutInMill',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'long',
+            },
+            {
+                [Name]: '扩展参数',
+                [Key]: 'attachment',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'cn.com.agree.afa.svc.javaengine.context.JavaDict',
+            },
+        ]
+
+    }
+};
+
+export const syncOutArg = {
+    [OutArgs]: {
+        [Arg]: [
+            {
+                [Name]: '返回结果',
+                [Key]: 'result',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'Object',
+            }
+        ]
+    }
+};
+
+export const asyncOutArg = {
+    [OutArgs]: {
+        [Arg]: [
+            {
+                [Name]: '返回结果',
+                [Key]: 'result',
+                [Arg]: null,
+                [Level]: '4',
+                [Type]: 'cn.com.agree.afa.util.future.IFuture',
+            }
+        ]
+    }
+};

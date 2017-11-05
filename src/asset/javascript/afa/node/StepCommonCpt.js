@@ -1,7 +1,7 @@
 /*通用组件*/
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, openNodeEditor, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, openPropEditor, openNodeEditor, idLocation, location, terminalPolicy} from "../editor/commonOptions";
 import * as props from "../propsName"
 
 let defaultPropData = Object.assign({}, props.commonStepProp, {
@@ -37,9 +37,9 @@ const StepCommonCpt = {
 
         'nodeEditor': openNodeEditor,
 
-        'pin': pinPolicy(['0', '1']),
+        'pin': terminalPolicy(),
 
-        'idText': $AG.policy.TextPolicy('id', idLocation)
+        'idText': $AG.policy.TextPolicy('id', idLocation),
     },
 
     //特性

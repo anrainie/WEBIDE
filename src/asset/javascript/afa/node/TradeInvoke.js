@@ -1,7 +1,7 @@
 //内部场景调用
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, openPropEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
 import * as props from "../propsName";
 
 const defaultPropData = Object.assign({}, props.commonNodeProp, {
@@ -64,7 +64,7 @@ const TradeInvoke = {
     policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0', '1']),
+        'pin': terminalPolicy(),
         'idText': $AG.policy.TextPolicy('id', idLocation),
     },
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),

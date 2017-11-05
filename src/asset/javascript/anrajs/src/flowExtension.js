@@ -83,14 +83,14 @@ $AG.Editor.prototype.getSaveData = function (attrNameArr) {
             return attrsItem;
         });
     } else {
-        result = nodeStore().map((record,recordnumber) => {
+        result = nodeStore().map((record) => {
             return Object.assign({}, record, {
                 bounds: undefined,
                 id: undefined,
                 type: undefined,
                 size: undefined,
-                "___id": undefined,
-                "___s": undefined
+                '___id': undefined,
+                '___s': undefined,
             })
         })
     }

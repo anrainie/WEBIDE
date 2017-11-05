@@ -1,7 +1,7 @@
 /*平行组件*/
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, openPropEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
 import * as props from "../propsName";
 
 const defaultPropData = Object.assign({}, props.commonNodeProp, {
@@ -39,6 +39,17 @@ const defaultPropData = Object.assign({}, props.commonNodeProp, {
             },
         ]
     },
+    [props.OutArgs]: {
+        [props.Arg]: [
+            {
+                [props.Name]: '结果集',
+                [props.Key]: 'resultSet',
+                [props.Arg]: null,
+                [props.Level]: '4',
+                [props.Type]: 'cn.com.agree.afa.svc.javaengine.context.JavaDict',
+            }
+        ]
+    },
     [props.IsWaitForResult]: 'true',
     [props.Logic]: {
         [props.Total]: '1',
@@ -54,7 +65,6 @@ const defaultEditorData = {
 const Parallel = {
     url: '/assets/image/editor/Parallel_leave.gif',
     type: $AG.IMAGE,
-    size: [40, 160],
     canDrag: true,
     linkable: true,
     selectable: true,
@@ -68,8 +78,8 @@ const Parallel = {
     policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0']),
         'idText': $AG.policy.TextPolicy('id', idLocation),
+        'pin': terminalPolicy({isListen: true}),
     },
 
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),

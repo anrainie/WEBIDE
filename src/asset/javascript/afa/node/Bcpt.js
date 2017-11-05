@@ -1,7 +1,7 @@
 //业务组件
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, openNodeEditor, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, openPropEditor, openNodeEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
 
 const Bcpt = {
     url: '/assets/image/editor/event_component_stepBussiness.gif',
@@ -25,7 +25,7 @@ const Bcpt = {
 
         'nodeEditor': openNodeEditor,
 
-        'pin': pinPolicy(['0', '1']),
+        'pin': terminalPolicy(),
         'idText': $AG.policy.TextPolicy('id', idLocation),
     }
 }

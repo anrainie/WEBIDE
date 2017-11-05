@@ -1,5 +1,5 @@
 import {$AG} from "anrajs";
-import {refresh, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, terminalPolicy, idLocation, location} from "../editor/commonOptions";
 import * as props from "../propsName";
 
 const defaultPropData = Object.assign({}, props.commonNodeProp, {
@@ -59,7 +59,7 @@ const NodeErrorDelegate = {
 
     policies: {
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['0', '1']),
+        'pin': terminalPolicy(),
         'idText': $AG.policy.TextPolicy('id', idLocation)
     },
 

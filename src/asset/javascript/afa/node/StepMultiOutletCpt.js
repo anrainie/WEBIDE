@@ -1,7 +1,7 @@
 //多出口组件
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, openNodeEditor, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, openPropEditor, openNodeEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
 import * as props from "../propsName"
 
 const defaultPropData = Object.assign({}, props.commonStepProp, {
@@ -41,7 +41,7 @@ const StepMultiOutletCpt = {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'nodeEditor': openNodeEditor,
-        'pin': pinPolicy(['0', '1']),
+        'pin': terminalPolicy({isListen: true}),
         'idText': $AG.policy.TextPolicy('id', idLocation)
     },
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),

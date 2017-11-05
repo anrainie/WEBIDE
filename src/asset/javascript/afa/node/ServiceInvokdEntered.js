@@ -1,7 +1,7 @@
 /*内部场景调用*/
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, closeNodeEditor, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, openPropEditor, closeNodeEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
 import * as props from "../propsName"
 
 const defaultPropData = Object.assign({}, props.commonStepProp, {
@@ -47,7 +47,7 @@ const ServiceInvokdEntered = {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
         'nodeEditor': closeNodeEditor,
-        'pin': pinPolicy(['0', '1']),
+        'pin': terminalPolicy(),
         'idText': $AG.policy.TextPolicy('id', idLocation)
     },
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),

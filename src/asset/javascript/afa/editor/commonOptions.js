@@ -1,5 +1,6 @@
 import {$AG, constants, smoothRouter} from 'anrajs'
 import * as globalConstants from 'Constants'
+import {Terminals, Terminal, Name} from '../propsName'
 
 export const refresh = function () {
     if (this.model && this.figure) {
@@ -110,6 +111,7 @@ export const pinHandle = $AG.Handle.extend($AG.CIRCLE).extend({
         }
     },
     colorMap: {
+        "-1": "black",
         "0": "red",
         "1": "green",
         "2": "yellow"
@@ -145,6 +147,81 @@ export const pinPolicy = function (idList) {
         }
     }
 };
+
+export const terminalPolicy = function ({isListen = false} = {}) {
+    return {
+        getTerminals() {
+            let terminls = this.getHost().model.get(Terminals);
+
+            //可能xml转json，数组和对象的差异
+            return terminls && terminls[Terminal] ? [].concat(terminls[Terminal]) : [];
+        },
+        createPinHandle({Name}) {
+            if (Name == null) return null;
+
+            if (this.getHost().getSourceAnchorByTerminal(Name) == null) return null;
+
+            return new pinHandle(this.getHost(), Name);
+        },
+        activate() {
+            if (isListen) {
+                //注：与model数据同步
+                this.handles = new Map();
+                this.getTerminals().forEach(item => {
+                   let pin = this.createPinHandle(item);
+
+                    if (pin) {
+                        this.handles.set(item.Name, pin);
+                        this.getHandleLayer().addChild(pin);
+                    }
+                });
+
+                this.listener = () => {
+                    let terminals = new Map(this.getTerminals()),
+                        adds = [...terminals.keys()].filter(name => !this.handles.has(name)),
+                        removes = [...this.handles].filter(([name, handle]) => !terminals.has(name));
+
+                    //新增的
+                    [...terminals.keys()].filter(name => !this.handles.has(name)).forEach(item => {
+                        let  pin = this.createPinHandle(item);
+                        if (pin) {
+                            this.handles.set(item, pin);
+                            this.getHandleLayer().addChild(pin);
+                        }
+                    });
+
+                    //移除的
+                    [...this.handles].filter(([name, handle]) => !terminals.has(name)).forEach(([name, handle]) => {
+                        this.getHandleLayer().removeChild(handle);
+                        this.handles.delete(name);
+                    })
+                }
+
+                this.getHost().model.addPropertyListener(this.listener, Terminals);
+            } else {
+                let terminals = this.getTerminals();
+
+                this.handles = Array.of();
+                terminals.forEach(item => {
+                    let pin = this.createPinHandle(item);
+
+                    if (pin){
+                        this.getHandleLayer().addChild(pin);
+                        this.handles.push(pin);
+                    }
+                });
+            }
+        },
+        deactivate() {
+            if (isListen) {
+                this.getHost().model.removePropertyListener(this.listener, Terminals);
+            }
+
+            [...this.handles.entries()].forEach(([index, handle]) => this.getHandleLayer().removeChild(handle));
+            this.handles = null;
+        }
+    };
+}
 
 /***************************************右键菜单***************************************/
 export const operations = [

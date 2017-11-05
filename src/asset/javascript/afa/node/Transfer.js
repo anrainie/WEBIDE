@@ -1,7 +1,7 @@
 //中转节点
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, openPropEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
 import * as props from "../propsName";
 
 const defaultPropData = Object.assign({}, props.commonNodeProp, {
@@ -56,7 +56,7 @@ const Transfer = {
     policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['1']),
+        'pin': terminalPolicy(),
         'idText': $AG.policy.TextPolicy('id', idLocation),
     },
 

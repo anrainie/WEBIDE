@@ -1,7 +1,7 @@
 /*异常结束*/
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, pinPolicy, idLocation, location} from "../editor/commonOptions";
+import {refresh, openPropEditor, idLocation, location} from "../editor/commonOptions";
 import * as props from "../propsName";
 
 const defaultPropData = Object.assign({}, props.commonNodeProp, {
@@ -46,7 +46,6 @@ const NodeAbnormalEnd = {
     policies: {
         'doubleclick': openPropEditor,
         'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': pinPolicy(['1']),
         'idText': $AG.policy.TextPolicy('id', idLocation)
     },
 
