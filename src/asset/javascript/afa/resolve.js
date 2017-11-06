@@ -1,5 +1,6 @@
 /*两个函数，分别解析data和line*/
-import {stepBaseCfg, nodeBaseCfg} from './config'
+import StepBaseCfg from "./editor/fcEditor"
+import NodeBaseCfg from "./editor/bcptEditor"
 
 /*用于参数忽略的时候*/
 function throwIfMissing() {
@@ -64,7 +65,7 @@ var resolveEditorLine = function(nodesConfig) {
 }
 
 /*stepEditor: input to editorConfig*/
-export let stepInput2Config = function (input) {
+export const stepInput2Config = function (input) {
 
     if (input && input.Root) {
         let extraConfig = {};
@@ -78,24 +79,24 @@ export let stepInput2Config = function (input) {
         }
 
         if (input.Root.Regulation && input.Root.Regulation.Step) {
-            extraConfig.data = resolveEditorData([].concat(input.Root.Regulation.Step), stepBaseCfg.children);
+            extraConfig.data = resolveEditorData([].concat(input.Root.Regulation.Step), StepBaseCfg.children);
             extraConfig.line = resolveEditorLine([].concat(input.Root.Regulation.Step));
         }
 
-        return Object.assign({}, stepBaseCfg, extraConfig);
+        return Object.assign({}, StepBaseCfg, extraConfig);
     }
 
-    return stepBaseCfg;
+    return StepBaseCfg;
 }
 
-export let nodeInput2Config = function (input) {
+export const nodeInput2Config = function (input) {
     if (input) {
         let extraConfig = {};
 
         extraConfig.uuid = input.UUID;
 
         if (input.Node) {
-            extraConfig.data = resolveEditorData([].concat(input.Node), nodeBaseCfg.children);
+            extraConfig.data = resolveEditorData([].concat(input.Node), NodeBaseCfg.children);
             extraConfig.line = resolveEditorLine([].concat(input.Node));
 
             /*???*/
@@ -106,14 +107,14 @@ export let nodeInput2Config = function (input) {
             });
         }
 
-        return Object.assign({}, nodeBaseCfg, extraConfig);
+        return Object.assign({}, NodeBaseCfg, extraConfig);
     }
 
-    return nodeBaseCfg;
+    return NodeBaseCfg;
 }
 
 /*将位置和连线信息更新至taffyDB中*/
-export let commonDoSave = function (editor = throwIfMissing()) {
+export const commonDoSave = function (editor = throwIfMissing()) {
     let nodeStore = editor.store.node,
         lineStore = editor.store.line;
 

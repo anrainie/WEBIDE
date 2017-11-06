@@ -39,11 +39,11 @@
 
 </template>
 <script type="text/javascript">
-    import flowEditor from "../flowEditor.vue"
-    import editorContainer from '../../../editorContainer.vue'
-    import {stepInput2Config, nodeInput2Config, commonDoSave} from './resolve'
+    import flowEditor from "../../components/editor/flowEditor/flowEditor.vue"
+    import editorContainer from '../../components/editorContainer.vue'
+    import {stepInput2Config, nodeInput2Config, commonDoSave} from '../../../asset/javascript/afa/resolve';
     import * as Constants from 'Constants'
-    import propDialog from './propDialog.vue'
+    import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
     import constants from 'anrajs'
 
@@ -382,7 +382,7 @@
             },
 
             setStepFromInput(step) {
-                this.input.Root.Regulation.Step = step;
+                Object.assign(this.input.Root, {Regulation: {Step: step}});
             },
 
             saveProps(cmd) {

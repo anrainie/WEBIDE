@@ -24,11 +24,11 @@
 
 </template>
 <script type="text/javascript">
-    import flowEditor from "../flowEditor.vue"
-    import editorContainer from '../../../editorContainer.vue'
-    import {nodeInput2Config, commonDoSave} from './resolve'
+    import flowEditor from "../../components/editor/flowEditor/flowEditor.vue"
+    import editorContainer from '../../components/editorContainer.vue'
+    import {nodeInput2Config, commonDoSave} from '../../../asset/javascript/afa/resolve';
     import * as Constants from 'Constants'
-    import propDialog from './propDialog.vue'
+    import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
 
 

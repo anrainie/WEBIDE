@@ -43,11 +43,11 @@
 </style>
 
 <script type="text/javascript">
-    import skipGroup from '../../../flowPropDialog/skipGroup.vue';
-    import basicInfo from '../../../flowPropDialog/basicPropsGroup.vue';
-    import paramsGrop from '../../../flowPropDialog/paramsGroup.vue';
-    import debugGroup from '../../../flowPropDialog/debugGroup.vue';
-    import KeyManager from '../../../../../utils/keyManager';
+    import skipGroup from '../../components/flowPropDialog/skipGroup.vue';
+    import basicInfo from '../../components/flowPropDialog/basicPropsGroup.vue';
+    import paramsGrop from '../../components/flowPropDialog/paramsGroup.vue';
+    import debugGroup from '../../components/flowPropDialog/debugGroup.vue';
+    import KeyManager from '../../../utils/keyManager';
 
     const inputParam = {
         name: '入口参数',
