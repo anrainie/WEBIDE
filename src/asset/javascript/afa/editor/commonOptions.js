@@ -1,6 +1,6 @@
 import {$AG, constants, smoothRouter} from 'anrajs'
 import * as globalConstants from 'Constants'
-import {Terminals, Terminal, Name} from '../propsName'
+import {Terminals, Terminal, Name, Desp} from '../propsName'
 
 export const refresh = function () {
     if (this.model && this.figure) {
@@ -156,30 +156,28 @@ export const terminalPolicy = function ({isListen = false} = {}) {
             //可能xml转json，数组和对象的差异
             return terminls && terminls[Terminal] ? [].concat(terminls[Terminal]) : [];
         },
-        createPinHandle({Name}) {
-            if (Name == null) return null;
+        createPinHandle(anchorId) {
+            if (anchorId == null) return null;
 
-            if (this.getHost().getSourceAnchorByTerminal(Name) == null) return null;
+            if (this.getHost().getSourceAnchorByTerminal(anchorId) == null) return null;
 
-            return new pinHandle(this.getHost(), Name);
+            return new pinHandle(this.getHost(), anchorId);
         },
         activate() {
             if (isListen) {
                 //注：与model数据同步
                 this.handles = new Map();
                 this.getTerminals().forEach(item => {
-                   let pin = this.createPinHandle(item);
+                   let pin = this.createPinHandle(item[Name]);
 
                     if (pin) {
-                        this.handles.set(item.Name, pin);
+                        this.handles.set(item[Name], pin);
                         this.getHandleLayer().addChild(pin);
                     }
                 });
 
                 this.listener = () => {
-                    let terminals = new Map(this.getTerminals()),
-                        adds = [...terminals.keys()].filter(name => !this.handles.has(name)),
-                        removes = [...this.handles].filter(([name, handle]) => !terminals.has(name));
+                    let terminals = new Map(this.getTerminals().map((item) => [item[Name], item[Desp]]));
 
                     //新增的
                     [...terminals.keys()].filter(name => !this.handles.has(name)).forEach(item => {
@@ -203,7 +201,7 @@ export const terminalPolicy = function ({isListen = false} = {}) {
 
                 this.handles = Array.of();
                 terminals.forEach(item => {
-                    let pin = this.createPinHandle(item);
+                    let pin = this.createPinHandle(item[Name]);
 
                     if (pin){
                         this.getHandleLayer().addChild(pin);

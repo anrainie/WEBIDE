@@ -41,7 +41,7 @@ $AG.Editor.prototype.initRootEditPart = function (editPart) {
 $AG.Editor.prototype.createID = function() {
     let arr =Object.keys(this.rootModel.children)
         .map((item) => parseInt(item))
-        .sort();
+        .sort((pre, next) => pre - next);
     for (let [index, id] of arr.entries()) {
         if (id == index + 1) continue;
         return index + 1;
@@ -55,11 +55,10 @@ $AG.Editor.prototype.createNodeWithPalette = function(data = throwIfMissing()) {
 
     return function () {
         let node = new $AG.Node();
-
-        node.props = Object.assign({
+        node.props = defaultsDeep({}, {
             id: editor.createID(),
             bounds: [0, 0, data.size[0], data.size[1]],
-        }, defaultsDeep({}, data));
+        }, data);
         tool.model = node;
         
         editor.setActiveTool(tool);
@@ -67,35 +66,21 @@ $AG.Editor.prototype.createNodeWithPalette = function(data = throwIfMissing()) {
     }
 };
 
-$AG.Editor.prototype.getSaveData = function (attrNameArr) {
-    let nodeStore = this.store.node, result, attrsItem;
+$AG.Editor.prototype.getSaveData = function (...attrNameArr) {
+    let nodeStore = this.store.node;
 
     /*遍历DB所有record, 筛选属性数据*/
-    if(attrNameArr) {
-        result = nodeStore().select.apply(nodeStore(), attrNameArr).map((item) => {
-            attrsItem = {};
-            for (let [index, elem] of item.entries()) {
-                if (elem) {
-                    attrsItem[attrNameArr[index]] = elem;
-                }
-            }
-
-            return attrsItem;
-        });
-    } else {
-        result = nodeStore().map((record) => {
-            return Object.assign({}, record, {
-                bounds: undefined,
-                id: undefined,
-                type: undefined,
-                size: undefined,
-                '___id': undefined,
-                '___s': undefined,
-            })
-        })
-    }
-
-    return result;
+    return attrNameArr.length > 0 ? nodeStore().select(...attrNameArr).map((item) =>
+        item.reduce((pre, next, index) => Object.assign(pre, {[attrNameArr[index]]: next}), {})
+    ) : nodeStore().map((record) => ({
+        ...record,
+        bounds: undefined,
+        id: undefined,
+        type: undefined,
+        size: undefined,
+        '___id': undefined,
+        '___s': undefined,
+    }))
 }
 
 //test layoutPolicy

@@ -124,7 +124,7 @@ export const commonDoSave = function (editor = throwIfMissing()) {
         Constraint.Location = [bounds[0], bounds[1]].toString();
         this.Id = id;
         this.UUID = editor.rootEditPart.model.children[id].hashCode();
-        this.Type = this.type;
+        this.Type = this.type == '111' ? '11' : this.type;
 
         return this;
     });

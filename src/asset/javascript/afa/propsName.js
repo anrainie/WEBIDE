@@ -60,7 +60,7 @@ export const commonStepProp = {
     [Desp]: '',
     [RefImpl]: '0',
     [ToolTip]: '',
-    [Remarks]: '',
+    [Remarks]: '0',
     [Skip]: {
         [Enabled]: '0',
         [Branch]: '1',
@@ -199,3 +199,25 @@ export const asyncOutArg = {
         ]
     }
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
