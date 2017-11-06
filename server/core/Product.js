@@ -1,9 +1,9 @@
 /**
  * Created by zcn on 2017/6/15.
  */
-var Client = require('socket.io-client');
-var dbConstants = require('../constants/DBConstants');
-var productDao = require('../dao/ProductDao');
+const dbConstants = require('../constants/DBConstants');
+const productDao = require('../dao/ProductDao');
+const timeout = 10 * 1000;
 
 class Product{
     
@@ -14,27 +14,39 @@ class Product{
         this.socket = socket;
         this.clients = {};
     }
-   
 
-    runServiceHandler  (reqData, callback) {
-        if(!this.socket.connected) {
-            callback({state: "error", errorMsg:"Product is disconnected"});
-        }else{
-            IDE.consoleLogger.debug(`product emit ${reqData.event}`);
-            let id = IDE.genUUID();
-            data.reqId = id;
-            this.emit(reqData.event,JSON.stringify(data));
-            this.socket.once(id,(respData) => {
-                IDE.consoleLogger.debug(`product emit callback successful: ${id}`);
-                callback(respData);
-            });
-        }
+    runHandler(handler,reqData,callback) {
+        handler.call(this,reqData,callback);
     }
 
-    emit  (eventId,reqData,callback) {
-        this.socket.emit(eventId, reqData, function (respData) {
-            callback(respData);
-        });
+    emit(eventId,reqData,callback) {
+        if(!this.socket.connected && callback) {
+            callback({state: "error", errorMsg:"Product is disconnected"});
+        }else {
+            let callbackId = IDE.genUUID();
+            let callbackSuccess = false;
+            reqData.reqId = callbackId;
+
+            IDE.consoleLogger.debug(`product emit ${reqData.event}`);
+            this.socket.emit(eventId, reqData);
+
+            if (callback) {
+                this.socket.once(callbackId, (respData) => {
+                    callbackSuccess = true;
+                    callback(respData);
+
+                    IDE.consoleLogger.debug(`product emit ${eventId} ,callback successful ${callbackId}`);
+                });
+                setTimeout(() => {
+                    if (!callbackSuccess) {
+                        this.socket.off(callbackId);
+                        callback({state: "error", errorMsg: "callback timeout"});
+
+                        IDE.consoleLogger.error(`product emit ${eventId} ,callback timeout ${callbackId}`);
+                    }
+                }, timeout);
+            }
+        }
     }
 
     /**
@@ -42,7 +54,7 @@ class Product{
      * @param reqData {uid:'',path:''}
      * @param callback
      */
-    lockFile  (reqData,callback) {
+    lockFile (reqData,callback) {
         let self = this;
         let data = reqData.data;
         let cb = callback;
@@ -56,7 +68,7 @@ class Product{
      * @param reqData {uid:'',path:''}
      * @param callback
      */
-    releaseFile  (reqData,callback) {
+    releaseFile (reqData,callback) {
         let self = this;
         let cb = callback;
         let data = reqData.data;
@@ -70,38 +82,38 @@ class Product{
      * @param reqData {path:''}
      * @param callback
      */
-    peekFileLock  (reqData,callback) {
+    peekFileLock (reqData,callback) {
         let cb = callback;
         this.emit('peekFileLock', JSON.stringify(reqData), function (result) {
             cb(result);
         });
     }
 
-    getClientNum  () {
+    getClientNum () {
         return Object.getOwnPropertyNames(this.clients).length;
     }
 
-    addClient  (id,client) {
+    addClient (id,client) {
         this.clients[id] = client;
     }
 
-    removeClient  (id) {
+    removeClient (id) {
         delete this.clients[id];
     }
 
-    getClient  (uid) {
+    getClient (uid) {
         return this.clients[uid];
     }
 
-    disconnect  () {
-        this.socket.close();
+    disconnect() {
+        this.socket.disconnect(true)
     }
 
-    unregister  (p) {
+    unregister(p) {
         productDao.delProduct({'id':this.id});
         let p_u = IDE.DB.getCollection(dbConstants.PRODUCT_USER);
         p_u.findAndRemove({id:this.id});
-        IDE.ideLogger.info(`unregister product ${this.ip} -${this.type}`)
+        IDE.ideLogger.info(`unregister product ${this.ip} - ${this.type}`)
     }
 
 }

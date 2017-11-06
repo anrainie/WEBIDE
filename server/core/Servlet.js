@@ -34,9 +34,10 @@ class Servlet{
         }));
 
         server.use(function (socket, next) {
-            var user = socket.handshake.session.user;
+            let user = socket.handshake.session.user;
+            let idetype = socket.handshake.query.type;
             let isServer = socket.handshake.query.server;
-            if (isServer || user) {
+            if ( (isServer && idetype && idetype.length > 0 ) || user) {
                 next();
             } else {
                 next(new Error('nosession'));
@@ -48,10 +49,14 @@ class Servlet{
             let idetype = socket.handshake.query.type;
             let isServer = socket.handshake.query.server;
             if(isServer) {
-                let id = socket.handshake.query.id;
-                let ip = socket.handshake.address;
-                let product = new Product(socket,id,idetype,ip);
-                self.addProduct(product);
+                if(idetype && idetype.length > 0) {
+                    let id = socket.handshake.query.id;
+                    let ip = socket.handshake.address;
+                    let product = new Product(socket, id, idetype, ip);
+                    self.addProduct(product);
+                }else{
+                    IDE.ideLogger.error(`Product type can not be null`);
+                }
             }else{
                 self.addClient(idetype, user, socket);
             }
@@ -111,7 +116,7 @@ class Servlet{
                             reqData.uid = uid;
                             let p = this.user2product.get(uid);
                             if (p) {
-                                p.runServiceHandler(reqData, callback);
+                                p.runHandler(service.handler,reqData, callback);
                             } else {
                                 callback({state: 'error', errorMsg: 'can not find product :' + reqData.type, reqData});
                             }
