@@ -12,7 +12,28 @@ class Product{
         this.type = type;
         this.ip = ip;
         this.socket = socket;
-        this.clients = {};
+        this.clients = new Map();
+        this.config();
+    }
+
+    config(){
+        this.socket.on('lockTimeout',(timeoutlocks) => {
+            if(timeoutlocks.length > 0) {
+                let filelock = WebIDEDB.getCollection(dbConstants.filelock);
+                for (let i = 0; i < timeoutlocks.length; i++) {
+                    let lock = timeoutlocks[i];
+                    let query = {pid: self.id, file: lock.path};
+                    let localLock = filelock.findOne(query);
+                    if(localLock) {
+                        filelock.findAndRemove(query);
+                        let client = this.clients.get(localLock.uid);
+                        if(client){
+                            client.emit('lockTimeout',lock.path);
+                        }
+                    }
+                }
+            }
+        });
     }
 
     runHandler(handler,reqData,callback) {
@@ -25,7 +46,7 @@ class Product{
         }else {
             let callbackId = IDE.genUUID();
             let callbackSuccess = false;
-            reqData.reqId = callbackId;
+            reqData.callbackId = callbackId;
 
             IDE.consoleLogger.debug(`product emit ${reqData.event}`);
             this.socket.emit(eventId, reqData);
@@ -90,30 +111,29 @@ class Product{
     }
 
     getClientNum () {
-        return Object.getOwnPropertyNames(this.clients).length;
+        return this.clients.size;
     }
 
     addClient (id,client) {
-        this.clients[id] = client;
+        this.clients.set(id,client);
     }
 
     removeClient (id) {
-        delete this.clients[id];
+        delete this.clients.delete(id);
     }
 
-    getClient (uid) {
-        return this.clients[uid];
+    getClient (id) {
+        return this.clients.get(id);
     }
 
     disconnect() {
         this.socket.disconnect(true)
     }
 
-    unregister(p) {
-        productDao.delProduct({'id':this.id});
+    clear() {
         let p_u = IDE.DB.getCollection(dbConstants.PRODUCT_USER);
         p_u.findAndRemove({id:this.id});
-        IDE.ideLogger.info(`unregister product ${this.ip} - ${this.type}`)
+        IDE.ideLogger.info(`clear product ${this.ip} - ${this.type}`)
     }
 
 }

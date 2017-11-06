@@ -1,5 +1,5 @@
 const loki = require("lokijs");
-var Q = require('Q');
+const Q = require('Q');
 
 function WebIDEDB(config) {
     this.config = config;

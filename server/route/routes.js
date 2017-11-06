@@ -96,22 +96,34 @@ module.exports = function (app) {
     });
 
     app.post('/product/list', function (req, res) {
-        let ps = productDao.getAllProducts();
+        let ps = IDE.Servlet.getAllProducts();
+        let result = [];
+        ps.forEach(function (p) {
+            result.push({
+                name:p.name,
+                type:p.type,
+                ip:p.ip
+            })
+        });
         res.json({
             state: 'success',
-            data: ps
+            data: result
         });
     });
 
-    app.post('/product/del', function (req, res) {
+    app.post('/product/clear', function (req, res) {
         let id = req.body.id;
         let product = IDE.Servlet.getProduct(id);
         if (product != null) {
-            productDao.delProduct({'id': this.id});
-            IDE.Servlet.unregisterProduct(product);
+            IDE.Servlet.clearProduct(product);
             res.json({
                 state: 'success',
                 data: '删除成功'
+            });
+        }else{
+            res.json({
+                state: 'error',
+                errorMsg: '无法找到该服务'
             });
         }
     });

@@ -17,13 +17,10 @@
                 <el-table-column property="name" label="名称" width="150"></el-table-column>
                 <el-table-column property="type" label="类型" width="150"></el-table-column>
                 <el-table-column property="ip" label="IP地址" width="200"></el-table-column>
-                <el-table-column property="port" label="端口" width="100"></el-table-column>
                 <el-table-column fixed="right" label="操作" width="100">
                     <template scope="scope">
-                        <!-- <el-button @click="modifyProduct(scope.$index, scope.row)" type="text" size="small">修改
-                         </el-button> -->
-                         <el-button @click="delProduct(scope.$index, scope.row)" type="text" size="small">删除
-                         </el-button>
+                        <!-- <el-button @click="modifyProduct(scope.$index, scope.row)" type="text" size="small">修改 </el-button> -->
+                         <el-button @click="clearProduct(scope.$index, scope.row)" type="text" size="small">清理</el-button>
                      </template>
                  </el-table-column>
              </el-table>
@@ -190,16 +187,18 @@
                  this.productForm = product;
                  this.productForm.modify = true;
              },
-             delProduct(index,product){
+             clearProduct(index,product){
                  let self = this;
-                 this.$confirm('删除操作会删除服务所有相关信息！', '警告', {
+                 this.$confirm('清理操作会删除服务所有相关信息！', '警告', {
                      confirmButtonText: '确定',
                      cancelButtonText: '取消',
                      type: 'warning'
                  }).then(function () {
-                     $.post('/product/del',product,function (result) {
+                     $.post('/product/clear',product,function (result) {
                          if(result.state === 'success'){
-                             self.loadAllProduct();
+                             this.$message('清理成功');
+                         }else if(result.state === 'error'){
+                             this.$alert(result.errorMsg, '错误', {confirmButtonText: '确定'});
                          }
                      });
                  });

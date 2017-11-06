@@ -49,13 +49,13 @@ class Servlet{
             let idetype = socket.handshake.query.type;
             let isServer = socket.handshake.query.server;
             if(isServer) {
+                let ip = socket.handshake.address;
+                let id = socket.handshake.query.id;
                 if(idetype && idetype.length > 0) {
-                    let id = socket.handshake.query.id;
-                    let ip = socket.handshake.address;
                     let product = new Product(socket, id, idetype, ip);
                     self.addProduct(product);
                 }else{
-                    IDE.ideLogger.error(`Product type can not be null`);
+                    IDE.ideLogger.error(`Product type can not be null,address ${ip}`);
                 }
             }else{
                 self.addClient(idetype, user, socket);
@@ -66,7 +66,7 @@ class Servlet{
     addProduct(product) {
         this.products.push(product);
 
-        IDE.ideLogger.info(`Product ${product.ip} - ${product.type} is connected`);
+        IDE.defaultLogger.info(`Product ${product.ip} - ${product.type} is connected`);
 
         product.socket.on('disconnect',() => {
             this.products.every((value,index) => {
@@ -196,9 +196,8 @@ class Servlet{
         }
     }
 
-    unregisterProduct (p) {
-        p.disconnect();
-        p.unregister();
+    clearProduct (p) {
+        p.clear();
     }
 }
 

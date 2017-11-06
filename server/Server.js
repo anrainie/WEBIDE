@@ -36,7 +36,9 @@ class Server {
 
         //初始化IDE
         global.IDE = new _IDE(this.config,this.http,this.session);
-        IDE.init();
+        IDE.init(()=>{
+            IDE.defaultLogger.info("WebIDE start successful!");
+        });
 
         // ### AUTO LEVEL DETECTION
         // http responses 3xx, level = WARN
