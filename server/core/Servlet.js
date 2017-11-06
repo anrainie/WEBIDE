@@ -103,27 +103,29 @@ class Servlet{
         });
 
         let services = this.getService(idetype);
-        services.forEach((service,index) => {
-            if (service.id && service.type) {
-                if (service.type === 'IOService') {
-                    socket.on(idetype + "_" + service.id, (reqData, callback) => {
-                        reqData.uid = uid;
-                        let p = this.user2product.get(uid);
-                        if (p) {
-                            p.runServiceHandler(reqData, callback);
-                        } else {
-                            callback({state:'error',errorMsg:'can not find product :' + reqData.type, reqData});
-                        }
-                    });
-                } else if (service.type === 'localService') {
-                    socket.on(idetype + "_" + service.id, (reqData, callback) => {
-                        reqData.uid = uid;
-                        let p = this.user2product.get(uid);
-                        service.handler.call(this, reqData, callback, p, service);
-                    });
+        if(services) {
+            services.services.forEach((service, index) => {
+                if (service.id && service.type) {
+                    if (service.type === 'IOService') {
+                        socket.on(idetype + "_" + service.id, (reqData, callback) => {
+                            reqData.uid = uid;
+                            let p = this.user2product.get(uid);
+                            if (p) {
+                                p.runServiceHandler(reqData, callback);
+                            } else {
+                                callback({state: 'error', errorMsg: 'can not find product :' + reqData.type, reqData});
+                            }
+                        });
+                    } else if (service.type === 'localService') {
+                        socket.on(idetype + "_" + service.id, (reqData, callback) => {
+                            reqData.uid = uid;
+                            let p = this.user2product.get(uid);
+                            service.handler.call(this, reqData, callback, p, service);
+                        });
+                    }
                 }
-            }
-        });
+            });
+        }
     }
 
     assignProduct (idetype,user) {
@@ -166,7 +168,6 @@ class Servlet{
                 return this.products[i];
             }
         }
-        return null;
     }
 
     getService (type) {
@@ -175,7 +176,6 @@ class Servlet{
                 return this.serviceConfigs[j];
             }
         }
-        return [];
     }
 
     getAllProducts () {
