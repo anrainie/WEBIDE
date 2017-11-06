@@ -4,6 +4,7 @@ const IDELogger = require('../core/IDELogger');
 const Servlet = require('./Servlet');
 const afaServices = require('../service/afa.service');
 const afeServices = require('../service/afe.service');
+const Q = require('Q');
 
 function IDE(config, http, session) {
     this.config = config;
@@ -11,39 +12,47 @@ function IDE(config, http, session) {
     this.session = session;
 }
 
-IDE.prototype.init = function () {
-    this.initLogger();
-    this.initDBAndServlet();
+IDE.prototype.init = function (callback) {
+
+    Q.all([this.initLogger(),this.initDBAndServlet()]).then(function(){
+        callback();
+    });
 }
 
 IDE.prototype.initLogger = function () {
+    let def = Q.defer();
     this.logger = new IDELogger(this.config.logLevel);
     this.defaultLogger = this.logger.getDefault();
     this.consoleLogger = this.logger.getConsole();
     this.ideLogger = this.logger.getIDE();
+    def.resolve();
+    return def.promise;
 }
 
 
 IDE.prototype.initDBAndServlet = function () {
-    var self = this;
+    let def = Q.defer();
+
     this.DB = new WebIDEDB({dbpath: 'webide.db'});
     let dfd = this.DB.start();
-    dfd.done(function () {
-        self.defaultLogger.info("Database init successfully");
+    dfd.done(() => {
+        this.defaultLogger.info("Database init successfully");
 
         //init collections
-        self.DB.getOrCreateCollection(dbConstants.USER);
-        self.DB.getOrCreateCollection(dbConstants.PRODUCT_USER);
-        self.DB.getOrCreateCollection(dbConstants.PRODUCT);
+        this.DB.getOrCreateCollection(dbConstants.USER);
+        this.DB.getOrCreateCollection(dbConstants.PRODUCT_USER);
+        this.DB.getOrCreateCollection(dbConstants.PRODUCT);
 
-        self.Servlet = new Servlet([afaServices, afeServices], self.session, self.http);
-        self.Servlet.start();
+        this.Servlet = new Servlet([afaServices, afeServices], this.session, this.http);
+        this.Servlet.start();
 
-        self.defaultLogger.info("Servlet init successfully");
+        this.defaultLogger.info("Servlet init successfully");
 
-    }, function (err) {
+        def.resolve();
+    }, (err) => {
         throw new Error("load loki database error");
     });
+    return def.promise;
 }
 
 

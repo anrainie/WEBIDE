@@ -1,193 +1,141 @@
 /**
  * Created by zcn on 2017/6/15.
  */
-var Client = require('socket.io-client');
-var dbConstants = require('../constants/DBConstants');
-var productDao = require('../dao/ProductDao');
+const dbConstants = require('../constants/DBConstants');
+const productDao = require('../dao/ProductDao');
+const timeout = 10 * 1000;
 
-function Product(id,type,ip,port,serviceConfig) {
-    this.id = id;
-    this.type = type;
-    this.ip = ip;
-    this.port = port;
-    this.serviceConfig = serviceConfig;
-    this.services = {};
-    this.socket = null;
-    this.clients = {};
-    this.online = false;
-}
+class Product{
+    
+    constructor(socket,id,type,ip){
+        this.id = id;
+        this.type = type;
+        this.ip = ip;
+        this.socket = socket;
+        this.clients = new Map();
+        this.config();
+    }
 
-Product.prototype.connect = function () {
-    var self = this;
-    var url = "http://" + this.ip + ":" + this.port +"?" + "type=" + this.type;
-    this.socket = Client(url,{
-        reconnectionAttempts:20
-    });
-
-    this.socket.on('connect',function () {
-        self.online = true;
-
-        IDE.defaultLogger.info(`${self.ip}:${self.port}-${self.type} connect successfully`);
-
-        if(!self.initialized) {
-            self.initialized = true;
-
-            if (self.serviceConfig.services) {
-                for (let key in self.serviceConfig.services) {
-                    self.registerService(self.serviceConfig.services[key]);
+    config(){
+        this.socket.on('lockTimeout',(timeoutlocks) => {
+            if(timeoutlocks.length > 0) {
+                let filelock = WebIDEDB.getCollection(dbConstants.filelock);
+                for (let i = 0; i < timeoutlocks.length; i++) {
+                    let lock = timeoutlocks[i];
+                    let query = {pid: self.id, file: lock.path};
+                    let localLock = filelock.findOne(query);
+                    if(localLock) {
+                        filelock.findAndRemove(query);
+                        let client = this.clients.get(localLock.uid);
+                        if(client){
+                            client.emit('lockTimeout',lock.path);
+                        }
+                    }
                 }
             }
+        });
+    }
 
-            self.socket.emit("ready",null,function (data) {
-                IDE.defaultLogger.info(`socket ${self.ip}:${self.port}-${self.type} connect successfully`);
-            });
+    runHandler(handler,reqData,callback) {
+        handler.call(this,reqData,callback);
+    }
 
-        }
+    emit(eventId,reqData,callback) {
+        if(!this.socket.connected && callback) {
+            callback({state: "error", errorMsg:"Product is disconnected"});
+        }else {
+            let callbackId = IDE.genUUID();
+            let callbackSuccess = false;
+            reqData.callbackId = callbackId;
 
-    });
+            IDE.consoleLogger.debug(`product emit ${reqData.event}`);
+            this.socket.emit(eventId, reqData);
 
-    this.socket.on('connect_failed',function () {
-        self.online = false;
-        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} connect failed`);
-    });
+            if (callback) {
+                this.socket.once(callbackId, (respData) => {
+                    callbackSuccess = true;
+                    callback(respData);
 
-    this.socket.on('connect_timeout',function () {
-        self.online = false;
-        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} connect timeout`);
-    });
+                    IDE.consoleLogger.debug(`product emit ${eventId} ,callback successful ${callbackId}`);
+                });
+                setTimeout(() => {
+                    if (!callbackSuccess) {
+                        this.socket.off(callbackId);
+                        callback({state: "error", errorMsg: "callback timeout"});
 
-    this.socket.on('disconnect',function () {
-        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} disconnect`);
-    })
-
-    this.socket.on('reconnect',function (data) {
-        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} reconnect`);
-        IDE.defaultLogger.info(`product ${self.ip}:${self.port}-${self.type} reconnect`);
-    });
-
-    this.socket.on('lockTimeout',function (timeoutlock) {
-        if(timeoutlock.length > 0) {
-            for (let i = 0; i < timeoutlock.length; i++) {
-                let lock = timeoutlock[i];
-                let client = self.getClient(lock.uid);
-                if(client){
-                    client.emit('lockTimeout',lock.path);
-                }
+                        IDE.consoleLogger.error(`product emit ${eventId} ,callback timeout ${callbackId}`);
+                    }
+                }, timeout);
             }
         }
-    });
-
-}
-
-Product.prototype.runServiceHandler = function (reqData, callback) {
-    let handler = this.services[reqData.event];
-    if(!this.online) {
-        callback({state: "error", errorMsg:"Product is disconnected"});
-    }else{
-        if (!handler) {
-            callback({state: "error", returnMsg: "service is unregisted"});
-        } else {
-            handler.call(this,reqData,function (rspData) {
-                callback(rspData);
-            });
-        }
     }
-}
 
-Product.prototype.emit = function (eventId,reqData,callback) {
-    this.socket.emit(eventId, reqData, function (respData) {
-        callback(respData);
-    });
-}
-
-Product.prototype.registerService = function (service) {
-    if(this.online){
-        let id = service.id;
-        let handler = service.handler;
-        if(!service.id){
-            IDE.ideLogger.error('service id can not be null');
-            return;
-        }
-        if(!service.handler){
-            IDE.ideLogger.error('service handler can not be null');
-            return;
-        }
-        if(service.type === 'IOService') {
-            this.services[service.id] = service.handler;
-        }
-    }else{
-        IDE.ideLogger.error(`Product ${this.ip}:${this.port}-${this.port} is diconnected`);
+    /**
+     *
+     * @param reqData {uid:'',path:''}
+     * @param callback
+     */
+    lockFile (reqData,callback) {
+        let self = this;
+        let data = reqData.data;
+        let cb = callback;
+        this.emit("lockFile", JSON.stringify(reqData), function (respData) {
+            cb(respData);
+        });
     }
+
+    /**
+     *
+     * @param reqData {uid:'',path:''}
+     * @param callback
+     */
+    releaseFile (reqData,callback) {
+        let self = this;
+        let cb = callback;
+        let data = reqData.data;
+        this.emit('releaseFilelock', JSON.stringify(reqData), function (result) {
+            cb(result);
+        });
+    }
+
+    /**
+     *
+     * @param reqData {path:''}
+     * @param callback
+     */
+    peekFileLock (reqData,callback) {
+        let cb = callback;
+        this.emit('peekFileLock', JSON.stringify(reqData), function (result) {
+            cb(result);
+        });
+    }
+
+    getClientNum () {
+        return this.clients.size;
+    }
+
+    addClient (id,client) {
+        this.clients.set(id,client);
+    }
+
+    removeClient (id) {
+        delete this.clients.delete(id);
+    }
+
+    getClient (id) {
+        return this.clients.get(id);
+    }
+
+    disconnect() {
+        this.socket.disconnect(true)
+    }
+
+    clear() {
+        let p_u = IDE.DB.getCollection(dbConstants.PRODUCT_USER);
+        p_u.findAndRemove({id:this.id});
+        IDE.ideLogger.info(`clear product ${this.ip} - ${this.type}`)
+    }
+
 }
-
-/**
- *
- * @param reqData {uid:'',path:''}
- * @param callback
- */
-Product.prototype.lockFile = function (reqData,callback) {
-    let self = this;
-    let data = reqData.data;
-    let cb = callback;
-    this.emit("lockFile", JSON.stringify(reqData), function (respData) {
-        cb(respData);
-    });
-}
-
-/**
- *
- * @param reqData {uid:'',path:''}
- * @param callback
- */
-Product.prototype.releaseFile = function (reqData,callback) {
-    let self = this;
-    let cb = callback;
-    let data = reqData.data;
-    this.emit('releaseFilelock', JSON.stringify(reqData), function (result) {
-        cb(result);
-    });
-}
-
-/**
- *
- * @param reqData {path:''}
- * @param callback
- */
-Product.prototype.peekFileLock = function (reqData,callback) {
-    let cb = callback;
-    this.emit('peekFileLock', JSON.stringify(reqData), function (result) {
-        cb(result);
-    });
-}
-
-Product.prototype.shutdown = function () {
-    this.online = false;
-    this.socket.close();
-}
-
-Product.prototype.getClientNum = function () {
-    return Object.getOwnPropertyNames(this.clients).length;
-}
-
-Product.prototype.addClient = function (id,client) {
-    this.clients[id] = client;
-}
-
-Product.prototype.removeClient = function (id) {
-    delete this.clients[id];
-}
-
-Product.prototype.getClient = function (uid) {
-    return this.clients[uid];
-}
-
-Product.prototype.unregister = function (p) {
-    productDao.delProduct({'id':this.id});
-    let p_u = IDE.DB.getCollection(dbConstants.PRODUCT_USER);
-    p_u.findAndRemove({id:this.id});
-
-    IDE.ideLogger.info(`unregister product ${this.ip}:${this.port}-${this.type}`)
-}
-
 module.exports =  Product;
 

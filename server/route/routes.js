@@ -94,43 +94,59 @@ module.exports = function (app) {
             }
         }
     });
+
+    app.post('/product/list', function (req, res) {
+        let ps = IDE.Servlet.getAllProducts();
+        let result = [];
+        ps.forEach(function (p) {
+            result.push({
+                name:p.name,
+                type:p.type,
+                ip:p.ip
+            })
+        });
+        res.json({
+            state: 'success',
+            data: result
+        });
+    });
+
+    app.post('/product/clear', function (req, res) {
+        let id = req.body.id;
+        let product = IDE.Servlet.getProduct(id);
+        if (product != null) {
+            IDE.Servlet.clearProduct(product);
+            res.json({
+                state: 'success',
+                data: '删除成功'
+            });
+        }else{
+            res.json({
+                state: 'error',
+                errorMsg: '无法找到该服务'
+            });
+        }
+    });
+
+    /*
     app.post('/product/add', function (req, res) {
         var newProduct = req.body;
         newProduct.id = IDE.genUUID();
         newProduct.createTime = newProduct.updateTime = new Date();
         productDao.save(newProduct);
-        IDE.Servlet.registerProduct(newProduct);
+        IDE.Servlet.addProduct(newProduct);
         res.json({
             state: 'success',
             data: '成功添加后台服务'
         })
 
     });
-    app.post('/product/list', function (req, res) {
-        let ps = productDao.getAllProducts();
-        res.json({
-            state: 'success',
-            data: ps
-        });
-    });
-    app.post('/product/del', function (req, res) {
-        let id = req.body.id;
-        let product = IDE.Servlet.getProduct(id);
-        if (product != null) {
-            productDao.delProduct({'id': this.id});
-            IDE.Servlet.unregisterProduct(product);
-            res.json({
-                state: 'success',
-                data: '删除成功'
-            });
-        }
-    });
 
     app.post('/product/update', function (req, res) {
         let product = req.body;
         productDao.updateProduct(product, function (err) {
             if (!err) {
-                IDE.Servlet.updateProduct(product);
+                //IDE.Servlet.updateProduct(product);
                 res.json({
                     state: 'success',
                     data: '更新成功'
@@ -143,6 +159,6 @@ module.exports = function (app) {
             }
         });
 
-    })
+    }) */
 
 }
