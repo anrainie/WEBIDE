@@ -95,7 +95,7 @@ class Servlet{
             this.user2product.set(uid,product);
         }
 
-        socket.on('disconnect', function () {
+        socket.on('disconnect', ()=> {
             if(product) {
                 product.removeClient(uid);
                 this.user2product.delete(uid);
