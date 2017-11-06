@@ -21,8 +21,11 @@ class Product{
             callback({state: "error", errorMsg:"Product is disconnected"});
         }else{
             IDE.consoleLogger.debug(`product emit ${reqData.event}`);
-            this.emit(reqData.event,JSON.stringify(data),(respData) => {
-                IDE.consoleLogger.debug(`product emit callback successful: ${reqData.event}`);
+            let id = IDE.genUUID();
+            data.reqId = id;
+            this.emit(reqData.event,JSON.stringify(data));
+            this.socket.once(id,(respData) => {
+                IDE.consoleLogger.debug(`product emit callback successful: ${id}`);
                 callback(respData);
             });
         }
