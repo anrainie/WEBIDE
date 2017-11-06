@@ -5,11 +5,10 @@ var Client = require('socket.io-client');
 var dbConstants = require('../constants/DBConstants');
 var productDao = require('../dao/ProductDao');
 
-function Product(socket,id,type,ip,port) {
+function Product(socket,id,type,ip) {
     this.id = id;
     this.type = type;
     this.ip = ip;
-    this.port = port;
     this.socket = socket;
     this.clients = {};
 }
@@ -96,7 +95,7 @@ Product.prototype.unregister = function (p) {
     productDao.delProduct({'id':this.id});
     let p_u = IDE.DB.getCollection(dbConstants.PRODUCT_USER);
     p_u.findAndRemove({id:this.id});
-    IDE.ideLogger.info(`unregister product ${this.ip}:${this.port}-${this.type}`)
+    IDE.ideLogger.info(`unregister product ${this.ip} -${this.type}`)
 }
 
 module.exports =  Product;

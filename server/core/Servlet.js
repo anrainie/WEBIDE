@@ -46,20 +46,21 @@ Servlet.prototype.start = function () {
         let idetype = socket.handshake.query.type;
         let isServer = socket.handshake.query.server;
         if(isServer) {
-            let product = null;
-            self.addProduct(product,socket);
+            let id = socket.handshake.query.id;
+            let ip = socket.handshake.address;
+            let product = new Product(socket,id,idetype,ip);
+            self.addProduct(product);
         }else{
             self.addClient(idetype, user, socket);
         }
     });
 }
 
-Servlet.prototype.addProduct = function (p,socket) {
-    let product = new Product(socket,p.id,p.type,p.ip,p.port);
+Servlet.prototype.addProduct = function (product) {
     this.products.push(product);
-    IDE.ideLogger.info(`product is connected : ${p.ip}:${p.port}-${p.type}`);
+    IDE.ideLogger.info(`product is connected : ${product.ip} - ${product.type}`);
 
-    socket.on('disconnect',() => {
+    product.socket.on('disconnect',() => {
         this.products.every((value,index) => {
             if(value === product){
                 this.products.splice(index,1);
