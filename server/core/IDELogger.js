@@ -15,7 +15,9 @@ class IDELogger{
                 ide: { appenders: ['ideLogs'], level: this.level },
                 console: { appenders: ['console'], level: this.level },
                 default: { appenders: ['console', 'ideLogs'], level: this.level }
-            }
+            },
+            pm2: true,
+            replaceConsole: true
         });
     }
 

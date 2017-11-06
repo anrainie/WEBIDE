@@ -16,6 +16,7 @@ function Servlet(serviceConfigs, session, http) {
     this.session = session;
     this.http = http;
     this.products = [];
+    this.user2product = new Map();
 }
 
 Servlet.prototype.start = function () {
@@ -32,47 +33,50 @@ Servlet.prototype.start = function () {
 
     server.use(function (socket, next) {
         var user = socket.handshake.session.user;
-        if (user) {
-            // 用户已登录则允许连接socket
+        let isServer = socket.handshake.query.server;
+        if (isServer || user) {
             next();
         } else {
             next(new Error('nosession'));
         }
     });
 
-    let products =  productDao.getAllProducts();
-    for(var i = 0; i < products.length;i ++){
-        let p = products[i];
-        this.registerProduct(p);
-    }
-
     server.on('connection', function (socket) {
         let user = socket.handshake.session.user;
         let idetype = socket.handshake.query.type;
-        self.addClient(idetype,user,socket);
+        let isServer = socket.handshake.query.server;
+        if(isServer) {
+            let product = null;
+            self.addProduct(product,socket);
+        }else{
+            self.addClient(idetype, user, socket);
+        }
     });
 }
 
-Servlet.prototype.registerProduct = function (p) {
-    let service = this.getService(p.type);
-    let product = new Product(p.id,p.type,p.ip,p.port,service);
-    product.connect();
+Servlet.prototype.addProduct = function (p,socket) {
+    let product = new Product(socket,p.id,p.type,p.ip,p.port);
     this.products.push(product);
-    IDE.ideLogger.info(`register product ${p.ip}:${p.port}-${p.type}`);
-}
+    IDE.ideLogger.info(`product is connected : ${p.ip}:${p.port}-${p.type}`);
 
-Servlet.prototype.updateProduct = function (newProduct) {
-    let product = this.getProduct(newProduct.id);
-    product.type = newProduct.type;
-    product.ip = newProduct.ip;
-    product.port = newProduct.port;
-    product.shutdown();
-    product.connect();
-}
+    socket.on('disconnect',() => {
+        this.products.every((value,index) => {
+            if(value === product){
+                this.products.splice(index,1);
+                return false;
+            }
+            return true;
+        });
 
-Servlet.prototype.unregisterProduct = function (p) {
-    p.shutdown();
-    p.unregister();
+        let clients = product.clients;
+        var uids = Object.getOwnPropertyNames(clients);
+        uids.forEach( (v,k) => {
+            this.user2product.delete(k);
+        });
+
+        product.disconnect();
+    });
+
 }
 
 Servlet.prototype.addClient  = function (idetype,user,socket) {
@@ -82,41 +86,38 @@ Servlet.prototype.addClient  = function (idetype,user,socket) {
     let product = this.assignProduct(idetype,user);
     if(product){
         product.addClient(uid,socket);
+        this.user2product.push(uid,product);
     }
 
     socket.on('disconnect', function () {
         if(product) {
             product.removeClient(uid);
+            this.user2product.delete(uid);
         }
     });
 
-    for (let index in this.serviceConfigs) {
-        let productServices = this.serviceConfigs[index];
-        if (productServices.services) {
-            for (let sIndex in productServices.services) {
-                let service = productServices.services[sIndex];
-                if (!service.id || !service.type) {
-                    continue
-                }
-                if (service.type === 'IOService') {
-                    socket.on(productServices.type + "_" + service.id, function (reqData, callback) {
-                        reqData.uid = uid;
-                        if (product) {
-                            product.runServiceHandler(reqData, callback);
-                        } else {
-                            callback({state:'error',errorMsg:'can not find consumer :' + reqData.type, reqData});
-                        }
-                    });
-                } else if (service.type === 'localService') {
-                    socket.on(productServices.type + "_" + service.id, function (reqData, callback) {
-                        reqData.uid = uid;
-                        service.handler.call(this,reqData,callback,product,service);
-                    });
-                }
+    let services = this.getService(idetype);
+    services.forEach((service,index) => {
+        if (service.id && service.type) {
+            if (service.type === 'IOService') {
+                socket.on(idetype + "_" + service.id, (reqData, callback) => {
+                    reqData.uid = uid;
+                    let p = this.user2product.get(uid);
+                    if (p) {
+                        p.runServiceHandler(reqData, callback);
+                    } else {
+                        callback({state:'error',errorMsg:'can not find product :' + reqData.type, reqData});
+                    }
+                });
+            } else if (service.type === 'localService') {
+                socket.on(idetype + "_" + service.id, (reqData, callback) => {
+                    reqData.uid = uid;
+                    let p = this.user2product.get(uid);
+                    service.handler.call(this, reqData, callback, p, service);
+                });
             }
         }
-    }
-
+    });
 }
 
 Servlet.prototype.assignProduct = function (idetype,user) {
@@ -182,6 +183,11 @@ Servlet.prototype.removeProduct = function (id) {
             break;
         }
     }
+}
+
+Servlet.prototype.unregisterProduct = function (p) {
+    p.disconnect();
+    p.unregister();
 }
 
 module.exports = Servlet

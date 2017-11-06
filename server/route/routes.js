@@ -94,18 +94,7 @@ module.exports = function (app) {
             }
         }
     });
-    app.post('/product/add', function (req, res) {
-        var newProduct = req.body;
-        newProduct.id = IDE.genUUID();
-        newProduct.createTime = newProduct.updateTime = new Date();
-        productDao.save(newProduct);
-        IDE.Servlet.registerProduct(newProduct);
-        res.json({
-            state: 'success',
-            data: '成功添加后台服务'
-        })
 
-    });
     app.post('/product/list', function (req, res) {
         let ps = productDao.getAllProducts();
         res.json({
@@ -113,6 +102,7 @@ module.exports = function (app) {
             data: ps
         });
     });
+
     app.post('/product/del', function (req, res) {
         let id = req.body.id;
         let product = IDE.Servlet.getProduct(id);
@@ -126,11 +116,25 @@ module.exports = function (app) {
         }
     });
 
+    /*
+    app.post('/product/add', function (req, res) {
+        var newProduct = req.body;
+        newProduct.id = IDE.genUUID();
+        newProduct.createTime = newProduct.updateTime = new Date();
+        productDao.save(newProduct);
+        IDE.Servlet.addProduct(newProduct);
+        res.json({
+            state: 'success',
+            data: '成功添加后台服务'
+        })
+
+    });
+
     app.post('/product/update', function (req, res) {
         let product = req.body;
         productDao.updateProduct(product, function (err) {
             if (!err) {
-                IDE.Servlet.updateProduct(product);
+                //IDE.Servlet.updateProduct(product);
                 res.json({
                     state: 'success',
                     data: '更新成功'
@@ -143,6 +147,6 @@ module.exports = function (app) {
             }
         });
 
-    })
+    }) */
 
 }
