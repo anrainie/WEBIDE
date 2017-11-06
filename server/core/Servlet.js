@@ -92,7 +92,7 @@ class Servlet{
         let product = this.assignProduct(idetype,user);
         if(product){
             product.addClient(uid,socket);
-            this.user2product.push(uid,product);
+            this.user2product.set(uid,product);
         }
 
         socket.on('disconnect', function () {
