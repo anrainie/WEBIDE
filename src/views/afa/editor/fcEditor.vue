@@ -57,7 +57,6 @@
     import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
     import constants from 'anrajs'
-    import {x} from './test'
 
     const packUrl = "/assets/image/editor/folder_catelog.gif";
     const comUrl = "/assets/image/editor/palette_component_businessComponent.gif";

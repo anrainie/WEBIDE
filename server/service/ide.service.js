@@ -32,9 +32,9 @@ module.exports = {
             handler: ioService
         },
         {
-            id:'deleteFile',
-            type:'IOService',
-            handler:ioService
+            id: 'deleteFile',
+            type: 'IOService',
+            handler: ioService
         },
         {
             id: 'createNewResource',
@@ -49,13 +49,27 @@ module.exports = {
         {
             id: 'lockFile',
             type: 'localService',
-            handler: function (reqData, callback,product, service) {
+            handler: function (reqData, callback, product, service) {
                 let cb = callback;
                 if (product) {
                     product.lockFile(reqData, function (respData) {
                         if (respData.state === 'success') {
                             cb(respData);
                         } else if (respData.state === 'error') {
+                            switch (respData.code) {
+                                case 1:
+                                    if (reqData.uid == respData.lock.uid) {
+                                        //相同用户重复加锁
+                                        respData.state = 'success';
+                                        break;
+                                    }
+                                    if (respData.lock.uid) {
+                                        let user = userDao.findUser({'id': respData.lock.uid});
+                                        if (user) {
+                                            respData.errorMsg = '文件正在被用户[' + user.username + ']编辑';
+                                        }
+                                    }
+                            }
                             cb(respData);
                         }
                     });
@@ -65,7 +79,7 @@ module.exports = {
         {
             id: 'releaseFilelock',
             type: 'localService',
-            handler: function (reqData, callback,product, service) {
+            handler: function (reqData, callback, product, service) {
                 let cb = callback;
                 if (product) {
                     product.releaseFile(reqData, function (respData) {
@@ -81,12 +95,12 @@ module.exports = {
         {
             id: 'peekFileLock',
             type: 'localService',
-            handler: function (reqData, callback, product,service) {
+            handler: function (reqData, callback, product, service) {
                 let cb = callback;
                 if (product) {
                     product.peekFileLock(reqData, function (respData) {
                         if (respData.state === 'success') {
-                            if(respData.data && respData.data.uid) {
+                            if (respData.data && respData.data.uid) {
                                 let user = userDao.findUser({'id': respData.data.uid});
                                 if (user) {
                                     respData.data.username = user.username;

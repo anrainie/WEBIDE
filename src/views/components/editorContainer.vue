@@ -23,7 +23,7 @@
         name: 'editorContainer',
         props: {
             editor: null,
-            domain:null,
+            domain: null,
             editorActions: {
                 type: Array,
                 default: function () {
@@ -109,12 +109,12 @@
                         if (respData.state === 'success') {
                             self.$notify({
                                 title: '提示',
-                                message: '上锁成功',
+                                message: '您独占了这个文件，可以编辑',
                             });
                         } else if (respData.state === 'error') {
                             self.$notify({
                                 title: '提示',
-                                message: '上锁失败,' + respData.errorMsg,
+                                message: '文件只读,' + respData.errorMsg,
                             });
                         }
                     }
@@ -133,7 +133,7 @@
                         if (respData.state === 'success') {
                             self.$notify({
                                 title: '提示',
-                                message: '解锁成功',
+                                message: '您已解除对文件的独占',
                             });
                         } else if (respData.state === 'error') {
                             self.$notify({
@@ -170,6 +170,9 @@
                 );
             }
         },
+        beforeDestroy(){
+            this.release();
+        },
         mounted(){
             this.$editorHeader = $(this.$el).find(".editor-header");
             this.$headerIndicator = $(this.$el).find(".editor-header-indicator");
@@ -180,15 +183,20 @@
                 }
             }
 
-            this.$on('maximize', () => {
-                this.maximize();
-            });
+            this.$on('maximize', ()=> {
+                    this.maximize();
+                }
+            )
+            ;
 
-            this.$on('normalize', () => {
-                this.normalize();
-            });
+            this.$on('normalize', ()=> {
+                    this.normalize();
+                }
+            )
+            ;
 
             this.changeHeader(true);
+            this.lock();
         }
     }
 </script>
