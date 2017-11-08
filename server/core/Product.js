@@ -19,17 +19,11 @@ class Product{
     config(){
         this.socket.on('lockTimeout',(timeoutlocks) => {
             if(timeoutlocks.length > 0) {
-                let filelock = WebIDEDB.getCollection(dbConstants.filelock);
                 for (let i = 0; i < timeoutlocks.length; i++) {
                     let lock = timeoutlocks[i];
-                    let query = {pid: self.id, file: lock.path};
-                    let localLock = filelock.findOne(query);
-                    if(localLock) {
-                        filelock.findAndRemove(query);
-                        let client = this.clients.get(localLock.uid);
-                        if(client){
-                            client.emit('lockTimeout',lock.path);
-                        }
+                    let client = this.getClient(lock.uid);
+                    if(client){
+                        client.emit('lockTimeout',lock.path);
                     }
                 }
             }
@@ -52,18 +46,19 @@ class Product{
             this.socket.emit(eventId, reqData);
 
             if (callback) {
-                this.socket.once(callbackId, (respData) => {
+                let cb = (respData) => {
                     callbackSuccess = true;
                     callback(respData);
 
                     IDE.consoleLogger.debug(`product emit ${eventId} ,callback successful ${callbackId}`);
-                });
+                }
+                this.socket.once(callbackId, cb);
                 setTimeout(() => {
                     if (!callbackSuccess) {
-                        this.socket.off(callbackId);
-                        callback({state: "error", errorMsg: "callback timeout"});
+                        this.socket.removeListener(callbackId,cb);
+                        callback({state: "error", errorMsg: "Product callback timeout"});
 
-                        IDE.consoleLogger.error(`product emit ${eventId} ,callback timeout ${callbackId}`);
+                        IDE.consoleLogger.error(`product emit ${eventId} ,but callback timeout ${callbackId}`);
                     }
                 }, timeout);
             }
@@ -79,7 +74,7 @@ class Product{
         let self = this;
         let data = reqData.data;
         let cb = callback;
-        this.emit("lockFile", JSON.stringify(reqData), function (respData) {
+        this.emit("lockFile", reqData, function (respData) {
             cb(respData);
         });
     }
@@ -93,7 +88,7 @@ class Product{
         let self = this;
         let cb = callback;
         let data = reqData.data;
-        this.emit('releaseFilelock', JSON.stringify(reqData), function (result) {
+        this.emit('releaseFilelock', reqData, function (result) {
             cb(result);
         });
     }
@@ -105,7 +100,7 @@ class Product{
      */
     peekFileLock (reqData,callback) {
         let cb = callback;
-        this.emit('peekFileLock', JSON.stringify(reqData), function (result) {
+        this.emit('peekFileLock', reqData, function (result) {
             cb(result);
         });
     }

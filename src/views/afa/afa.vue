@@ -156,7 +156,7 @@
             window.viewRegistry = {
                 'navigator': {
                     name: '导航器',
-                    component: './tree.vue',
+                    component: './navigator.vue',
                     init(callback){
                         IDE.shade.open();
                         IDE.socket.emit('getNaviItems', {

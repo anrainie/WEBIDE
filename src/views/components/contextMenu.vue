@@ -317,6 +317,9 @@
             },
             click (item) {
                 if (item.type === 'item' && item.disabled != true) {
+                    if(!$.isFunction(item.handler)){
+                        throw new Error('Item handler should be a function : ' + item.id);
+                    }
                     item.handler.call(this, this.selection, item);
                     this.msgHub.$emit("hide");
 

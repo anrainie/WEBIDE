@@ -25,6 +25,10 @@ module.exports = {
             id: 'loadScene',
             type: 'IOService',
             handler: ioService
+        },{
+            id:'createJavaPackage',
+            type:'IOService',
+            handler:ioService
         }
     ]
 }

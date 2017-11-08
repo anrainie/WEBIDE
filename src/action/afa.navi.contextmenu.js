@@ -1,32 +1,9 @@
 import  wizardtext from './afa.wizardtext'
 import  wizardVue from '../views/components/wizards/AfaNewCreateWizard.vue'
+import  CrateJavaPackageDialog from '../views/components/CreateJavaPackageDialog.vue'
 import  showCompileErrorMsgDialog from '../views/components/dialog/ShowCompileErrorMsg.vue'
+import CreateJavaComponentDialog from '../views/components/CreateJavaComponentDialog.vue'
 import Vue from 'vue';
-
-function getNewWizard() {
-    var split = this.id.split('/');
-    var id = split[split.length - 1];
-    var newItem = wizardtext.match1(id)[0];
-
-    var newWizard = new Vue(wizardVue);
-    newWizard.path = this.path;
-    newWizard.resourceId = newItem.resourceId;
-    newWizard.type = newItem.type;
-    newWizard.wizardtitle = newItem.wizardtitle;
-    newWizard.pagedesc = newItem.pagedesc;
-    newWizard.pagetitle = newItem.pagetitle;
-    newWizard.namelabel.label = newItem.namelabel;
-    newWizard.desclabel.label = newItem.desclabel;
-    newWizard.reference = newItem.reference;
-    newWizard.domain = this.domain;
-    if (newWizard.reference == true)
-        newWizard.refLabel = newItem.refLabel;
-    var oDiv = document.createElement('div');
-    oDiv.id = "wizard";
-    document.body.appendChild(oDiv);
-    newWizard.$mount('#wizard');
-    return newWizard;
-}
 
 var items = {
     'new': {
@@ -103,7 +80,6 @@ var items = {
     },
 
     // 数据接口
-
     'cn.com.agree.ide.afa.flow.action.PackInterfaceParamAction': {
         id: 'cn.com.agree.ide.afa.flow.action.PackInterfaceParamAction',
         name: '打包接口参数',
@@ -119,8 +95,8 @@ var items = {
             return getNewWizard.call(item);
         }
     },
-    // 数据实体
 
+    // 数据实体
     'dataEntityAction': {
         id: 'dataEntityAction',
         resourceId: ['dataEntity', 'srcFolder', 'dataEntities'],
@@ -163,7 +139,8 @@ var items = {
     'cn.com.agree.ide.afa.tc.java.action.PackageNewWizardAction': {
         id: 'cn.com.agree.ide.afa.tc.java.action.PackageNewWizardAction',
         name: 'package',
-        type: 'item'
+        type: 'item',
+        handler:createJavaPackage
     },
 
     // 数据表
@@ -210,11 +187,11 @@ var items = {
         name: '批量导入数据表设计',
         type: 'item'
     },
+
     /**
      * 功能模型
      */
     // 技术组件
-
     'org.eclipse.ui.actions.CreateFileAction': {
         id: 'org.eclipse.ui.actions.CreateFileAction',
         name: '新建文件',
@@ -223,7 +200,8 @@ var items = {
     'cn.com.agree.ide.afa.tc.java.action.JavaNewWizardAction': {
         id: 'cn.com.agree.ide.afa.tc.java.action.JavaNewWizardAction',
         name: 'java技术组件',
-        type: 'item'
+        type: 'item',
+        handler:createJavaComponent
     },
     'cn.com.agree.ide.afa.tc.java.action.NewClassCreationAction': {
         id: 'cn.com.agree.ide.afa.tc.java.action.NewClassCreationAction',
@@ -308,8 +286,8 @@ var items = {
             return getNewWizard.call(item);
         }
     },
-    // 流程模型
 
+    // 流程模型
     'btAction': {
         id: 'btAction',
         resourceId: 'bt',
@@ -352,6 +330,7 @@ var items = {
         name: '版本部署',
         type: 'group'
     },
+
     /**
      * 公共工作流
      */
@@ -375,6 +354,7 @@ var items = {
             return getNewWizard.call(item);
         }
     },
+
     /**
      * 公共服务
      */
@@ -585,10 +565,7 @@ var items = {
     'org.eclipse.ui.CopyAction': {
         id: 'org.eclipse.ui.CopyAction',
         name: '复制',
-        type: 'item',
-        handler: function () {
-
-        }
+        type: 'item'
     },
     'org.eclipse.ui.PasteAction': {
         id: 'org.eclipse.ui.PasteAction',
@@ -596,6 +573,33 @@ var items = {
         type: 'item'
     }
 }
+
+function getNewWizard() {
+    var split = this.id.split('/');
+    var id = split[split.length - 1];
+    var newItem = wizardtext.match(id);
+
+    var newWizard = new Vue(wizardVue);
+    newWizard.path = this.path;
+    newWizard.resourceId = newItem.resourceId;
+    newWizard.type = newItem.type;
+    newWizard.wizardtitle = newItem.wizardtitle;
+    newWizard.pagedesc = newItem.pagedesc;
+    newWizard.pagetitle = newItem.pagetitle;
+    newWizard.namelabel.label = newItem.namelabel;
+    newWizard.desclabel.label = newItem.desclabel;
+    newWizard.reference = newItem.reference;
+    newWizard.domain = this.domain;
+
+    if (newWizard.reference == true)
+        newWizard.refLabel = newItem.refLabel;
+    var oDiv = document.createElement('div');
+    oDiv.id = "wizard";
+    document.body.appendChild(oDiv);
+    newWizard.$mount('#wizard');
+    return newWizard;
+}
+
 
 function match(originalItems, newItems,domain) {
     for (let x in originalItems) {
@@ -661,6 +665,14 @@ function compileService(selection) {
     }
 }
 
+function showCompileError(errorMsgs) {
+    var newWizard = new Vue(showCompileErrorMsgDialog);
+    newWizard.$props.errorMsgs = errorMsgs;
+    var container = document.createElement('div');
+    container.id = "compileErrorMsg"
+    document.body.appendChild(container);
+    newWizard.$mount('#compileErrorMsg');
+}
 
 function compileBcpt(selection) {
     var that = this;
@@ -684,24 +696,38 @@ function compileBcpt(selection) {
                     message: '编译成功',
                     type: 'success'
                 });
-              for (let i = 0; i < selection.length; i++) {
-                selection[i].refresh(3);
-              }
+                for (let i = 0; i < selection.length; i++) {
+                    selection[i].refresh(3);
+                }
             } else {
                 showCompileError(result.errorMsg);
             }
         });
     }
-
 }
 
-function showCompileError(errorMsgs) {
-    var newWizard = new Vue(showCompileErrorMsgDialog);
-    newWizard.$props.errorMsgs = errorMsgs;
-    var container = document.createElement('div');
-    container.id = "compileErrorMsg"
-    document.body.appendChild(container);
-    newWizard.$mount('#compileErrorMsg');
+function createJavaComponent(selection){
+    let dialog = new Vue(CreateJavaComponentDialog);
+    dialog.$props.parentResource = selection[0];
+
+    let oDiv = document.createElement('div');
+    oDiv.id = "wizard";
+    document.body.appendChild(oDiv);
+
+    dialog.$mount('#wizard');
+    dialog.open();
+}
+
+function createJavaPackage(selection) {
+    let dialog = new Vue(CrateJavaPackageDialog);
+    dialog.$props.parentResource = selection[0];
+
+    let oDiv = document.createElement('div');
+    oDiv.id = "wizard";
+    document.body.appendChild(oDiv);
+
+    dialog.$mount('#wizard');
+    dialog.open();
 }
 
 module.exports = {

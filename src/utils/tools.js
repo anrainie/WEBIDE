@@ -1,6 +1,20 @@
 /**
  * Created by zcn on 2017/8/31.
  */
+
+/**
+ * Java关键字列表
+ */
+const JAVA_KEYWORD_LIST = [ "abstract", "assert",
+    "boolean", "break", "byte", "case", "catch", "char", "class",
+    "const", "continue", "default", "do", "double", "else", "enum",
+    "extends", "final", "finally", "float", "for", "if", "implements",
+    "import", "instanceof", "int", "interface", "long", "native",
+    "new", "package", "private", "protected", "public", "return",
+    "short", "static", "strictfp", "super", "switch", "synchronized",
+    "this", "throw", "throws", "transient", "try", "void", "volatile",
+    "while", "goto" ];
+
 module.exports  = {
     deepParseJson:function(str){
         return JSON.parse(str,function (k,v) {
@@ -23,5 +37,18 @@ module.exports  = {
     },
     isString : function (str) {
         return Object.prototype.toString.call(str) === "[object String]";
+    },
+    isJavaKeyWord:function (str) {
+        for(let i = 0 ; i < JAVA_KEYWORD_LIST.length ; i++){
+            let k = JAVA_KEYWORD_LIST[i];
+            if(k === str){
+                return true;
+            }
+        }
+        return false;
+    },
+    accordJavaStandard:function (str) {
+        let r = /^[A-Za-z_]+[A-Za-z_$\\d]+/;
+        return r.test(str);
     }
 }
