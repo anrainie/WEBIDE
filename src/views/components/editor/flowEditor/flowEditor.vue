@@ -100,8 +100,8 @@
                 this.editor = new $AG.Editor(defaultsDeep({id: this.editorid}, config));
                 this.bindEventToEditor();
                 this.activateChangeWidth();
-
                 this.activateKeyManager();
+                this.activateResizeEvent();
 //                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
 //                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
 
@@ -165,29 +165,23 @@
                         }
                     }
                 })
-
-                /*IDE.keyManager.watchPage(this.$el, {
-                    keydown (e) {
-                        let handle = ed.actionRegistry.keyHandle(e);
-                        if (handle) {
-                            $AG.Platform.globalKeyDown(e);
-                            return false;
-                        }
-                    },
-                    keyup (e) {
-                        let handle = ed.actionRegistry.keyHandle(e);
-                        if (handle) {
-                            $AG.Platform.globalKeyUp(e);
-                            return false;
-                        }
-                    }
-                });*/
-
             },
 
             deactivateKeyManager() {
-                //IDE.keyManager.unwatchPage(this.$el);
                 this.keyManager.unwatchPage(this.$el);
+            },
+
+            activateResizeEvent() {
+                $(this.$el).mousedown((e) => {
+                    let right = this.$el.offsetParent.offsetLeft + this.$el.offsetParent.clientWidth;
+
+                    if (right - e.pageX < 15 )  {
+                        $(this.$el).on('mousemove',(e) => {
+                            console.log(e)
+                        });
+                    }
+                });
+
             }
         },
 

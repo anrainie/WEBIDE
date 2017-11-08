@@ -1,24 +1,22 @@
 <template>
 
-    <editor-Container :editor="this">
+    <editor-Container :editor="this" :domain="domain">
         <div slot="editor-content">
 
             <flow-Editor v-if="nodeEditorInput"
                          :editorid="nodeEditorID"
                          ref="editor"
-                         :input-style="{width: '100%'}"
                          :editor-config="nodeEditorCfg"
                          :bind-event="nodeBindEvent"
                          :save="saveHandle"
-                         :openPaletteEvent="nodePaletteOpenEvent"
-                         @dblclickcanvas="nodeDoubleClickCanvas"></flow-Editor>
+                         :openPaletteEvent="nodePaletteOpenEvent"></flow-Editor>
 
             <prop-dialog :showproperties.sync="showproperties"
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"
                         :nodetype="dialogType"
-                         :domain="domain"></prop-dialog>
+                        :domain="domain"></prop-dialog>
         </div>
     </editor-Container>
 
@@ -30,6 +28,9 @@
     import * as Constants from 'Constants'
     import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
+
+    const packUrl = "/assets/image/editor/folder_catelog.gif";
+    const comUrl = "/assets/image/editor/palette_component_businessComponent.gif";
 
 
     export default {
@@ -63,15 +64,12 @@
             },
 
             nodePaletteOpenEvent() {
-                let filePath = this.file.path, cache = {},
-                    packUrl = "assets/image/editor/folder_public_technologyComponentGroup.gif",
-                    comUrl = "assets/image/editor/palette_component_technologyComponent.gif";
+                const {file: {path: filePath}, domain} = this;
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-                    var self = this;
                     IDE.socket.emit('loadTcpt', {
-                        type: self.domain,
+                        type: domain,
                         event: 'loadTcpt',
                         data: {
                             path: filePath
@@ -130,10 +128,6 @@
             },
             dirtyStateChange() {
 
-            },
-
-            nodeDoubleClickCanvas(style) {
-                style['width'] = style['width'] == "100%" ? "50%" : "100%";
             },
             setNodeFromInput(node) {
                 this.input.Component.Implementation.Node = node;

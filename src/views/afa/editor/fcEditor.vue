@@ -14,12 +14,14 @@
                     :open-palette-event="stepPaletteOpenEvent"
                     @dblclickcanvas="stepDoubleClickCanvas"></flow-Editor>
 
+            <!--<div class="split-editor" ref="split"></div>-->
+
             <flow-Editor
                     :editorid="nodeEditorID"
                     v-if="nodeExist"
                     v-show="nodeVisible"
                     ref="nodeEditor"
-                    :input-style="{width: '50%'}"
+                    :input-style="{width: 'calc(50% - 4px)'}"
                     :editor-config="nodeEditorCfg"
                     :bind-event="nodeBindEvent"
                     :save="saveHandle"
@@ -38,6 +40,15 @@
     </editor-Container>
 
 </template>
+<style>
+    .split-editor {
+        width: 4px;
+        height: 100%;
+        float: left;
+        cursor: ew-resize;
+        background: black;
+    }
+</style>
 <script type="text/javascript">
     import flowEditor from "../../components/editor/flowEditor/flowEditor.vue"
     import editorContainer from '../../components/editorContainer.vue'
@@ -56,9 +67,18 @@
         data() {
             let self = this;
             return {
+                width: 50,
                 nodeVisible: false,
                 nodeExist: false,
                 stepVisible: true,
+                nodeEditorInput: null,
+                nodeEditorBuffer: new Map(),
+                showproperties: false,
+                dialogTarget: null,
+                dialogType: null,
+                editortype: null,
+                stepEditorInput: null,
+                resizeable: false,
                 stepBindEvent: {
                     [Constants.OPEN_FLOWPROP_DIALOG](editPart) {
                         self.dialogTarget = editPart.model;
@@ -124,16 +144,15 @@
                         self.showproperties = true;
                     }
                 },
-                nodeEditorInput: null,
-                nodeEditorBuffer: new Map(),
-                showproperties: false,
-                dialogTarget: null,
-                dialogType: null,
-                editortype: null,
-                stepEditorInput: null
             }
         },
         computed: {
+            stepWidth() {
+
+            },
+            nodeWidth() {
+
+            },
             saveHandle() {
                 return () => {
                     IDE.editorPart.saveEditor(this)
@@ -273,6 +292,7 @@
         mounted() {
             //prop传值在组件生成之后，延迟data初始化，input副本避免改变而进行多余的执行
             this.stepEditorInput = defaultsDeep({}, this.input);
+            //this.activateResize();
         },
         updated() {
             this.updateNodeEditorBuffer();
@@ -312,8 +332,6 @@
 
                 /*step保存*/
                 commonDoSave(stepEditor);
-                console.log(stepEditor.getSaveData(...['Id', 'Type']))
-                console.log(stepEditor.getSaveData('Id', 'Type'))
                 this.nodeEditorBuffer.clear();
                 if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;
                 this.setStepFromInput(stepEditor.getSaveData());
@@ -390,6 +408,24 @@
                         });
                     }
                 }
+            },
+            activateResize() {
+                let split = this.$refs['split'], isMove = false, _x;
+
+                $(split).mousedown((e) => {
+                    isMove = true;
+                    _x= e.pageX - split.offsetLeft;
+                });
+
+                $(document).mousemove(function(e){
+                    if(isMove){
+                        var x= e.pageX - _x;
+                        console.log(x)
+                        $(split).css("left", x);
+                    }
+                }).mouseup(function(){
+                    isMove = false;
+                });
             }
         },
         components: {
