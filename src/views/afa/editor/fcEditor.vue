@@ -47,6 +47,9 @@
     import {defaultsDeep} from 'lodash'
     import constants from 'anrajs'
 
+    const packUrl = "/assets/image/editor/folder_catelog.gif";
+    const comUrl = "/assets/image/editor/palette_component_businessComponent.gif";
+
     export default {
         name: 'fcEditor',
         props: ['file', 'msgHub', 'input','domain'],
@@ -138,52 +141,18 @@
             },
             /*根据input初始化配置*/
             stepEditorCfg() {
-                var self = this;
-                var config = stepInput2Config(this.stepEditorInput);
-                config.operations.push({
-                  id:'compile',
-                  name:'编译服务',
-                  type: 0,
-                  check: function(){
-                    return true ;
-                  },
-                  run: function(){
-                    //执行编译
-                    var path =self.file.path;
-                    IDE.shade.open("正在编译");
-                    IDE.socket.emit("compile", {
-                      type: self.domain,
-                      path: [path],
-                      event: 'compile',
-                      resourceType: 'service'
-                    }, function (result) {
-                      IDE.shade.hide();
-                      if (result.state === 'success') {
-                        IDE.navigator.getItem(path).refresh(3);
-                        self.$notify({
-                          title: '编译',
-                          message: '编译成功',
-                          type: 'success'
-                        });
-                      } else {
-                        showCompileError(result.errorMsg);
-                      }
-                    });
-                  }
-                });
-                return config;
+                return (
+                    (config) => ({...config, ...{operations: [...config.operations, this.getCompileOperation()]}})
+                )(stepInput2Config(this.stepEditorInput));
             },
 
             stepPaletteOpenEvent() {
-                let filePath = this.file.path, cache = {},
-                    packUrl = "/assets/image/editor/folder_catelog.gif",
-                    comUrl = "/assets/image/editor/palette_component_businessComponent.gif";
+                const {file: {path: filePath}, domain} = this;
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-                    var self = this;
                     IDE.socket.emit('loadBcpt', {
-                        type: self.domain,
+                        type: domain,
                         event: 'loadBcpt',
                         data: {
                             path: filePath
@@ -252,19 +221,16 @@
             },
 
             nodeEditorCfg() {
-                return nodeInput2Config(this.nodeEditorInput)
+                return nodeInput2Config(this.nodeEditorInput);
             },
 
             nodePaletteOpenEvent() {
-                let filePath = this.file.path, cache = {},
-                    packUrl = "assets/image/editor/folder_public_technologyComponentGroup.gif",
-                    comUrl = "assets/image/editor/palette_component_technologyComponent.gif";
+                const {file: {path: filePath}, domain} = this;
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-                    var self = this;
                     IDE.socket.emit('loadTcpt', {
-                        type: self.domain,
+                        type: domain,
                         event: 'loadTcpt',
                         data: {
                             path: filePath
@@ -346,7 +312,8 @@
 
                 /*step保存*/
                 commonDoSave(stepEditor);
-                console.log(stepEditor.getSaveData())
+                console.log(stepEditor.getSaveData(...['Id', 'Type']))
+                console.log(stepEditor.getSaveData('Id', 'Type'))
                 this.nodeEditorBuffer.clear();
                 if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;
                 this.setStepFromInput(stepEditor.getSaveData());
@@ -392,6 +359,37 @@
                 if (IDE.navigator == null)return '';
                 let item = IDE.navigator.getItem(this.file.path).getParent().getParent();
                 return item.model.label + ' [流程配置]';
+            },
+            getCompileOperation() {
+                const {file: {path}, domain, $notify} = this;
+                return {
+                    id:'compile',
+                    name:'编译服务',
+                    type: 0,
+                    check: () => true,
+                    run: function() {
+                        //执行编译
+                        IDE.shade.open("正在编译");
+                        IDE.socket.emit("compile", {
+                            type: domain,
+                            path: [path],
+                            event: 'compile',
+                            resourceType: 'service'
+                        }, function (result) {
+                            IDE.shade.hide();
+                            if (result.state === 'success') {
+                                IDE.navigator.getItem(path).refresh(3);
+                                $notify({
+                                    title: '编译',
+                                    message: '编译成功',
+                                    type: 'success'
+                                });
+                            } else {
+                                showCompileError(result.errorMsg);
+                            }
+                        });
+                    }
+                }
             }
         },
         components: {
