@@ -47,7 +47,6 @@
                         self.showproperties = true;
                     }
                 },
-                saveHandle: commonDoSave,
                 showproperties: false,
                 dialogTarget: null,
                 dialogType: null,
@@ -58,6 +57,11 @@
         },
         computed: {
             /*根据input初始化配置*/
+            saveHandle() {
+                return () => {
+                    IDE.editorPart.saveEditor(this);
+                }
+            },
 
             nodeEditorCfg() {
                 return nodeInput2Config(Object.assign({}, this.nodeEditorInput.Component.Implementation, {UUID: this.nodeEditorInput.Component.UUID}))
@@ -118,10 +122,11 @@
                 return this.$refs["editor"].editor.isDirty();
             },
             save() {
-                this.$refs["editor"].editor.doSave();
+                commonDoSave(this.$refs["editor"].editor);
+                console.log(this.$refs["editor"].editor.getSaveData())
                 this.setNodeFromInput(this.$refs["editor"].editor.getSaveData());
                 this.msgHub.$emit('dirtyStateChange', this.file, false);
-                return true
+                return true;
             },
             focus() {
 

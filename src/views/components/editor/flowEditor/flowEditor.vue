@@ -101,7 +101,6 @@
                 this.bindEventToEditor();
                 this.activateChangeWidth();
                 this.activateKeyManager();
-                this.activateResizeEvent();
 //                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
 //                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
 
@@ -126,7 +125,7 @@
 
             activateChangeWidth() {
                 let self = this;
-                if (this.$vnode.componentOptions.listeners['dblclickcanvas']) {
+                if (this.$vnode.componentOptions.listeners && this.$vnode.componentOptions.listeners['dblclickcanvas']) {
                     this.editor.canvas.element.addEventListener('dblclick', function (e) {
                         if (e.target.isEqualNode(this) || e.target.parentNode.isEqualNode(this)) {
                             self.$emit('dblclickcanvas', self.style);
@@ -169,19 +168,6 @@
 
             deactivateKeyManager() {
                 this.keyManager.unwatchPage(this.$el);
-            },
-
-            activateResizeEvent() {
-                $(this.$el).mousedown((e) => {
-                    let right = this.$el.offsetParent.offsetLeft + this.$el.offsetParent.clientWidth;
-
-                    if (right - e.pageX < 15 )  {
-                        $(this.$el).on('mousemove',(e) => {
-                            console.log(e)
-                        });
-                    }
-                });
-
             }
         },
 

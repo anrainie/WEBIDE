@@ -57,6 +57,7 @@
     import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
     import constants from 'anrajs'
+    import {x} from './test'
 
     const packUrl = "/assets/image/editor/folder_catelog.gif";
     const comUrl = "/assets/image/editor/palette_component_businessComponent.gif";
@@ -292,6 +293,7 @@
         mounted() {
             //prop传值在组件生成之后，延迟data初始化，input副本避免改变而进行多余的执行
             this.stepEditorInput = defaultsDeep({}, this.input);
+            console.log(x)
             //this.activateResize();
         },
         updated() {
