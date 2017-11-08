@@ -26,7 +26,7 @@ const routes = [
     {
         path: '/afa', meta: {requireAuth: true}, component: resolve => {
         require(['../views/afa/afa.vue'], resolve)
-    }, name: 'afa', children: [{path: '/afa/:serverId/:p1/:p2'}]
+    }, name: 'afa',
     },
     {
         path: '/afe', meta: {requireAuth: true}, component: resolve => {

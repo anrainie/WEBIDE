@@ -1,10 +1,10 @@
 <template>
     <el-row>
-        <el-col :span='12' :id="masterId"  >
+        <el-col :span='12' :id="masterId">
             <dtable :tableConfig="tableConfig" :toolbarConfig="toolbarConfig" :searchConfig="searchConfig"
                     :model="tableModel"></dtable>
         </el-col>
-        <el-col :span='12' :id="detailId" >
+        <el-col :span='12' :id="detailId">
             <el-form ref="form" :model="selection" label-width="80px" v-if="selection">
                 <el-col :span="11">
                     <el-form-item label="英文名称">
@@ -27,7 +27,7 @@
     import  Split from "split.js";
 
     export default{
-        props: ['file', 'msgHub', 'input', 'toolbarConfig', 'searchConfig','domain'],
+        props: ['file', 'msgHub', 'input', 'toolbarConfig', 'searchConfig', 'domain'],
         data(){
             return {
                 selection: null,
@@ -104,6 +104,10 @@
             save(){
                 debug.info("dictEditor save");
                 return true;
+            },
+            dirtyStateChange(){
+            },
+            getPartName(){
             }
         },
         mounted(){
