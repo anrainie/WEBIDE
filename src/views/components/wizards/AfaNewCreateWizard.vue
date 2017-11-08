@@ -1,8 +1,7 @@
 <template>
     <el-dialog
             :title="wizardtitle"
-            :visible.sync="dialogFormVisible"
-            :before-close="handleClose">
+            :visible.sync="dialogFormVisible" @close="close">
         <!--<div>{{pagetitle}}</div>-->
         <!--<div>{{pagedesc}}</div>-->
         <el-form>
@@ -66,15 +65,6 @@
         },
         component: {},
         methods: {
-            handleClose(done){
-                this.$confirm('确认关闭？')
-                    .then(_ => {
-                        done();
-                    })
-                    .catch(_ => {
-                    });
-
-            },
             handleOk(){
                 var self = this;
                 if (!this.name || !this.desc) {
@@ -127,7 +117,12 @@
                     }
                 });
 
+            },
+            close(){
+                this.$el.parentNode.removeChild(this.$el);
             }
+        },
+        mounted(){
         }
     }
 </script>

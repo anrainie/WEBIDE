@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 import ElementUI from 'element-ui';
 function IDESocket() {
     this.sockets = {};
-    this.timeout = 10000;
+    this.timeout = 15 * 1000;
     this.getSocket = (type) => {
         type = type || IDE.type;
         let s = this.sockets[type];

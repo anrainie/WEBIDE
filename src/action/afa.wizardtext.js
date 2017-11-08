@@ -339,7 +339,6 @@ var items = {
     reference: false,
     type:'file'
   },
-  // 服务对外发布
 
   /**
    * 公共原型
@@ -379,7 +378,7 @@ var items = {
   },
 }
 
-function match1 (id,newItems) {
+function match (id,newItems) {
   let item = items[id];
   if (item) {
     let newItem = $.extend(true, {}, item);
@@ -390,15 +389,16 @@ function match1 (id,newItems) {
 }
 
 module.exports = {
-  match1: function (id) {
-    var newItems = [];
-    match1(id, newItems);
-    return newItems;
-  },
-  getItem: function (id) {
-    var item = items[id];
-    if (item) {
-      return $.extend(true, {}, item);
+    match: function (id) {
+        let item = items[id];
+        if (item) {
+            return $.extend(true, {}, item);
+        }
+    },
+    getItem: function (id) {
+        var item = items[id];
+        if (item) {
+            return $.extend(true, {}, item);
+        }
     }
-  }
 }

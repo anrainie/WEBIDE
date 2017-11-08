@@ -37,7 +37,7 @@ class Servlet{
             let user = socket.handshake.session.user;
             let idetype = socket.handshake.query.type;
             let isServer = socket.handshake.query.server;
-            if ( (isServer && idetype && idetype.length > 0 ) || user) {
+            if ( (isServer === 'true' && idetype && idetype.length > 0 ) || user) {
                 next();
             } else {
                 next(new Error('nosession'));
@@ -134,7 +134,7 @@ class Servlet{
     }
 
     assignProduct (idetype,user) {
-        let uid = user['_id'];
+        let uid = user['id'];
         let p_u = IDE.DB.getCollection("product_user");
         let db_pu = p_u.find({uid});
         if(db_pu && db_pu.length > 0){
