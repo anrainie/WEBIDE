@@ -100,7 +100,6 @@
                 this.editor = new $AG.Editor(defaultsDeep({id: this.editorid}, config));
                 this.bindEventToEditor();
                 this.activateChangeWidth();
-
                 this.activateKeyManager();
 //                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
 //                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
@@ -126,7 +125,7 @@
 
             activateChangeWidth() {
                 let self = this;
-                if (this.$vnode.componentOptions.listeners['dblclickcanvas']) {
+                if (this.$vnode.componentOptions.listeners && this.$vnode.componentOptions.listeners['dblclickcanvas']) {
                     this.editor.canvas.element.addEventListener('dblclick', function (e) {
                         if (e.target.isEqualNode(this) || e.target.parentNode.isEqualNode(this)) {
                             self.$emit('dblclickcanvas', self.style);
@@ -165,28 +164,9 @@
                         }
                     }
                 })
-
-                /*IDE.keyManager.watchPage(this.$el, {
-                    keydown (e) {
-                        let handle = ed.actionRegistry.keyHandle(e);
-                        if (handle) {
-                            $AG.Platform.globalKeyDown(e);
-                            return false;
-                        }
-                    },
-                    keyup (e) {
-                        let handle = ed.actionRegistry.keyHandle(e);
-                        if (handle) {
-                            $AG.Platform.globalKeyUp(e);
-                            return false;
-                        }
-                    }
-                });*/
-
             },
 
             deactivateKeyManager() {
-                //IDE.keyManager.unwatchPage(this.$el);
                 this.keyManager.unwatchPage(this.$el);
             }
         },
