@@ -3,6 +3,7 @@ import  wizardVue from '../views/components/wizards/AfaNewCreateWizard.vue'
 import  CrateJavaPackageDialog from '../views/components/CreateJavaPackageDialog.vue'
 import  showCompileErrorMsgDialog from '../views/components/dialog/ShowCompileErrorMsg.vue'
 import CreateJavaComponentDialog from '../views/components/CreateJavaComponentDialog.vue'
+import showRegisterTcptErrorMsgDialog from '../views/components/dialog/ShowRegisterTcptErrorMsg.vue'
 import Vue from 'vue';
 
 var items = {
@@ -537,6 +538,18 @@ var items = {
         name: '打包对外发布',
         type: 'item'
     },
+    'cn.com.agree.ide.afa.tc.java.action.PackTechCptAction':{
+        id:'cn.com.agree.ide.afa.tc.java.action.PackTechCptAction',
+        name:'打包组件包',
+        type:'item',
+        handler:packTechCptAction
+    },
+    'cn.com.agree.ide.afa.tc.java.action.RegistAllJavaTCAction':{
+        id:'cn.com.agree.ide.afa.tc.java.action.RegistAllJavaTCAction',
+        name:'注册组件包',
+        type:'item',
+        handler:registAllJavaTCAction
+    },
     'P&roperties': {
         name: 'Properties',
         type: 'item'
@@ -600,6 +613,55 @@ function getNewWizard() {
     return newWizard;
 }
 
+//注册组件包
+function registAllJavaTCAction(selection){
+    var self = this;
+  var domain = self.items[0].domain;
+  IDE.shade.open("正在注册");
+  IDE.socket.emit('registJavaTCAction',
+    {
+      type: domain,
+      event: 'registJavaTCAction',
+      data: {
+        path: selection[0].model.path
+      }
+    }, function (respData) {
+      IDE.shade.hide();
+      if (respData.state === 'success') {
+        self.$notify({
+          title: '提示',
+          message: '注册成功',
+        });
+        selection[0].refresh(3);
+      } else if (respData.state === 'error') {
+          showRegisterTcptError(respData.errorMsg);
+      }
+    }
+  );
+}
+function showRegisterTcptError(errorMsgs){
+    var newWizard = new Vue(showRegisterTcptErrorMsgDialog);
+
+  var tableData = [];
+  for(var index in errorMsgs){
+    var errorModel = errorMsgs[index];
+    var lineNumber  = errorModel.lineNumber;
+    var fileName = errorModel.fileName;
+    var functionName = errorModel.functionName;
+    var errorMsg = errorModel.errorMsg;
+    var newItem = {lineNumber,fileName,functionName,errorMsg};
+    tableData.push(newItem);
+  }
+    newWizard.$props.tableData = tableData;
+    var container = document.createElement('div');
+    container.id = "registerTcptErrorMsg"
+    document.body.appendChild(container);
+    newWizard.$mount('#registerTcptErrorMsg');
+}
+//打包组件包
+function packTechCptAction(selection){
+
+}
 
 function match(originalItems, newItems,domain) {
     for (let x in originalItems) {
