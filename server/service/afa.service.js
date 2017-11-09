@@ -30,10 +30,9 @@ module.exports = {
             type:'IOService',
             handler:ioService
         },{
-           //注册技术组件
-           id:'registJavaTCAction',
-           type:'IOService',
-           handler:ioService
-      }
+            id:'createJavaCptFile',
+            type:'IOService',
+            handler:ioService
+        }
     ]
 }

@@ -1,24 +1,22 @@
 <template>
 
-    <editor-Container :editor="this">
+    <editor-Container :editor="this" :domain="domain">
         <div slot="editor-content">
 
             <flow-Editor v-if="nodeEditorInput"
                          :editorid="nodeEditorID"
                          ref="editor"
-                         :input-style="{width: '100%'}"
                          :editor-config="nodeEditorCfg"
                          :bind-event="nodeBindEvent"
                          :save="saveHandle"
-                         :openPaletteEvent="nodePaletteOpenEvent"
-                         @dblclickcanvas="nodeDoubleClickCanvas"></flow-Editor>
+                         :openPaletteEvent="nodePaletteOpenEvent"></flow-Editor>
 
             <prop-dialog :showproperties.sync="showproperties"
                         :model="dialogTarget"
                         :path="file.path"
                         :editortype="editortype"
                         :nodetype="dialogType"
-                         :domain="domain"></prop-dialog>
+                        :domain="domain"></prop-dialog>
         </div>
     </editor-Container>
 
@@ -30,6 +28,9 @@
     import * as Constants from 'Constants'
     import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
+
+    const packUrl = "/assets/image/editor/folder_catelog.gif";
+    const comUrl = "/assets/image/editor/palette_component_businessComponent.gif";
 
 
     export default {
@@ -46,7 +47,6 @@
                         self.showproperties = true;
                     }
                 },
-                saveHandle: commonDoSave,
                 showproperties: false,
                 dialogTarget: null,
                 dialogType: null,
@@ -57,21 +57,23 @@
         },
         computed: {
             /*根据input初始化配置*/
+            saveHandle() {
+                return () => {
+                    IDE.editorPart.saveEditor(this);
+                }
+            },
 
             nodeEditorCfg() {
                 return nodeInput2Config(Object.assign({}, this.nodeEditorInput.Component.Implementation, {UUID: this.nodeEditorInput.Component.UUID}))
             },
 
             nodePaletteOpenEvent() {
-                let filePath = this.file.path, cache = {},
-                    packUrl = "assets/image/editor/folder_public_technologyComponentGroup.gif",
-                    comUrl = "assets/image/editor/palette_component_technologyComponent.gif";
+                const {file: {path: filePath}, domain} = this;
                 return function (index, indexPath, config) {
                     let path = indexPath[0];
                     if (path == "default") return;
-                    var self = this;
                     IDE.socket.emit('loadTcpt', {
-                        type: self.domain,
+                        type: domain,
                         event: 'loadTcpt',
                         data: {
                             path: filePath
@@ -120,20 +122,17 @@
                 return this.$refs["editor"].editor.isDirty();
             },
             save() {
-                this.$refs["editor"].editor.doSave();
+                commonDoSave(this.$refs["editor"].editor);
+                console.log(this.$refs["editor"].editor.getSaveData())
                 this.setNodeFromInput(this.$refs["editor"].editor.getSaveData());
                 this.msgHub.$emit('dirtyStateChange', this.file, false);
-                return true
+                return true;
             },
             focus() {
 
             },
             dirtyStateChange() {
 
-            },
-
-            nodeDoubleClickCanvas(style) {
-                style['width'] = style['width'] == "100%" ? "50%" : "100%";
             },
             setNodeFromInput(node) {
                 this.input.Component.Implementation.Node = node;

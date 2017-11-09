@@ -180,6 +180,12 @@
                 return checkedItems;
             },
             deleteItem: function (item) {
+               let canDelete =  !this.config.callback.beforeDelete ? true : this.config.callback.beforeDelete.call(this, item)
+                if(canDelete === true) {
+                    this._doDeleteItem(item);
+                }
+            },
+            _doDeleteItem:function (item) {
                 let self = this;
                 let parent = item.getParent();
                 let children;
@@ -190,18 +196,17 @@
                 }
                 for (let i = 0; i < children.length; i++) {
                     let child = children[i];
-                    if (this.getProp(child,'label') === this.getProp(item.model,'label')) {
-                        children.splice(i, 1);
+                    if (child === item.model) {
                         if (item.selected) {
                             self.removeSelection(item);
                         }
-                        if (this.config.callback.delete) {
-                            this.config.callback.delete.call(this,item);
+                        children.splice(i, 1);
+                        if (this.config.callback.afterDelete) {
+                            this.config.callback.afterDelete.call(this, item);
                         }
-                        return true;
+                        break;
                     }
                 }
-                return false;
             },
             getChildren: function () {
                 return this.$children;

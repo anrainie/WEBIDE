@@ -139,10 +139,14 @@
                         }
                     });
 
-                    let def =  IDE.socket.emitAndGetDeferred("createJavaPackage",{parent:this.parentResource.model.path,
-                        name:this.prefix + this.form.pkgName.value,
-                        desp:this.form.pkgDesp.value
-                    });
+                    let def =  IDE.socket.emitAndGetDeferred("createJavaPackage",
+                        {
+                            tyep:IDE.type,
+                            parent:this.parentResource.model.path,
+                            name:this.prefix + this.form.pkgName.value,
+                            desp:this.form.pkgDesp.value
+                        }
+                    );
                     def.done((result)=>{
                         this.dialogVisible = false;
                         IDE.navigator.refresh(this.parentResource.model.path,8);

@@ -3,7 +3,7 @@
  */
 const dbConstants = require('../constants/DBConstants');
 const productDao = require('../dao/ProductDao');
-const timeout = 10 * 1000;
+const timeout = 14 * 1000;
 
 class Product{
     
