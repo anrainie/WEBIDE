@@ -298,6 +298,7 @@
                                         IDE.editorPart.closeEditor(item);
                                     }
                                     let def = IDE.socket.emitAndGetDeferred('deleteFile', {
+                                        type:IDE.type,
                                         path: item.model.path
                                     }).done(function (result) {
                                         item.getParent().refresh();

@@ -249,23 +249,7 @@
                                         }
                                     )
                                 },
-                                delete: function (item) {
-                                    let editor = IDE.editorPart.getEditor(item);
-                                    if (editor) {
-                                        IDE.editorPart.closeEditor(item);
-                                    }
-                                    let def = IDE.socket.emitAndGetDeferred('deleteFile', {
-                                        type: self.domain,
-                                        path: item.model.path
-                                    }).done(function (result) {
-                                        item.getParent().refresh();
-                                    }).fail(function (error) {
-                                        self.$notify.error({
-                                            title: '错误',
-                                            message: 'delete resource fail , ' + error.errorMsg
-                                        });
-                                        debug.error('delete resource fail , ' + error.errorMsg);
-                                    });
+                                afterDelete: function (item) {
                                 },
                                 click: function (item) {
                                 },

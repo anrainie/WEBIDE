@@ -29,6 +29,10 @@ module.exports = {
             id:'createJavaPackage',
             type:'IOService',
             handler:ioService
+        },{
+            id:'createJavaCptFile',
+            type:'IOService',
+            handler:ioService
         }
     ]
 }
