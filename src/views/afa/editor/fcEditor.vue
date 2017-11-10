@@ -8,11 +8,13 @@
                     :editorid="stepEditorID"
                     v-show="stepVisible"
                     ref="stepEditor"
+                    :input-style="{width: '50%'}"
                     :editor-config="stepEditorCfg"
                     :bind-event="stepBindEvent"
                     :save="saveHandle"
                     :open-palette-event="stepPaletteOpenEvent"
-                    @dblclickcanvas="stepDoubleClickCanvas"></flow-Editor>
+                    @dblclickcanvas="stepDoubleClickCanvas"
+                    :inithandle="initHandle"></flow-Editor>
 
             <!--<div class="split-editor" ref="split"></div>-->
 
@@ -56,8 +58,7 @@
     import * as Constants from 'Constants'
     import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
-    import constants from 'anrajs'
-    import {x} from './test'
+    import {$AG} from 'anrajs'
 
     const packUrl = "/assets/image/editor/folder_catelog.gif";
     const comUrl = "/assets/image/editor/palette_component_businessComponent.gif";
@@ -145,6 +146,27 @@
                         self.showproperties = true;
                     }
                 },
+                /*initHandle(editor) {
+                    let listener = new $AG.EditPartListener();
+                    editor.rootEditPart.addEditPartListener(Object.assign(listener, {
+                        removingChild(child) {
+                            if (!self.nodeVisible)  return;
+
+                            let type = child.model.get('type');
+
+                            if (type != '5' && type != '7' && type != '4') return;
+
+                            if (self.$refs['nodeEditor'].editor.storeId == child.model.get('uuid')) {
+                                self.$refs["nodeEditor"].removeContent();
+                            }
+
+                            if (self.nodeEditorBuffer.has(child.model.get('uuid'))) {
+                                self.nodeEditorBuffer.delete(child.model.get('uuid'));
+                            }
+
+                        }
+                    }));
+                },*/
             }
         },
         computed: {
@@ -179,6 +201,7 @@
                         }
                     }, (result) => {
                         if (result.state == "success") {
+                            console.log(result)
 
                             try {
                                 let children = [];
@@ -217,7 +240,7 @@
                                                             return {
                                                                 name: com.desp,
                                                                 url: comUrl,
-                                                                data: Object.assign({}, com.Component, {type: '4', size: [160,46]}),
+                                                                data: Object.assign({}, Object.assign(com.Component, {RefImp: com.target}), {type: '4', size: [160,46]}),
                                                             }
                                                         })
                                                     });
@@ -293,7 +316,6 @@
         mounted() {
             //prop传值在组件生成之后，延迟data初始化，input副本避免改变而进行多余的执行
             this.stepEditorInput = defaultsDeep({}, this.input);
-            console.log(x)
             //this.activateResize();
         },
         updated() {

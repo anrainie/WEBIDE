@@ -120,11 +120,11 @@ export const commonDoSave = function (editor = throwIfMissing()) {
 
     //更新节点位置
     nodeStore().update(function () {
-        let {Constraint, bounds, id} = this;
-        Constraint.Location = [bounds[0], bounds[1]].toString();
-        this.Id = id;
-        this.UUID = editor.rootEditPart.model.children[id].hashCode();
-        this.Type = this.type == '111' ? '11' : this.type;
+        let {bounds, id} = this;
+        Object.assign(this, {Constraint: {Location: [bounds[0], bounds[1]].toString(), Size: [bounds[2], bounds[3]].toString()}});
+        Object.assign(this, {Id: id});
+        Object.assign(this, {UUID: editor.rootEditPart.model.children[id].hashCode()});
+        Object.assign(this, {Type: this.type == '111' ? '11' : this.type});
 
         return this;
     });

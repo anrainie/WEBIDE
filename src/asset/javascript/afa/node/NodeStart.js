@@ -42,10 +42,7 @@ const NodeStart = {
     linkable: true,
     selectable: true,
     anchor: [
-        {id: 'N', dir: 'n', offset: 0},
-        {id: '1', dir: 's', offset: 0},
-        {id: 'E', dir: 'e', offset: 0},
-        {id: 'W', dir: 'w', offset: 0},
+        {id: '1', dir: 's', offset: 0, type: 'in', max: 1},
     ],
     refresh,
 

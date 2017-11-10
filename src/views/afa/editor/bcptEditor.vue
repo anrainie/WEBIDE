@@ -1,7 +1,7 @@
 <template>
 
     <editor-Container :editor="this" :domain="domain">
-        <div slot="editor-content">
+            <div slot="editor-content">
 
             <flow-Editor v-if="nodeEditorInput"
                          :editorid="nodeEditorID"
@@ -135,7 +135,7 @@
 
             },
             setNodeFromInput(node) {
-                this.input.Component.Implementation.Node = node;
+                Object.assign(this.input.Component, {Implementation: {Node: node}});
             }
         },
         components: {

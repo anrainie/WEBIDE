@@ -18,17 +18,21 @@ let defaultPropData = Object.assign({}, props.commonStepProp, {
 const defaultEditorData = {
     size: [160, 60],
     type: '5',
+};
+
+const validator = function () {
+    
 }
 
 const StepCommonCpt = {
     url: '/assets/image/editor/event_component_stepCommonCpt.gif',
     type: $AG.IMAGE,
     anchor: [
-        {id: 'N', dir: 'n', offset: 0},
-        {id: '0', dir: 's', offset: -25},
-        {id: '1', dir: 's', offset: 25},
-        {id: 'E', dir: 'e', offset: 0},
-        {id: 'W', dir: 'w', offset: 0},
+        {id: 'N', dir: 'n', offset: 0, type: 'in', max: 1, linkmyself: false},
+        {id: '0', dir: 's', offset: -25, type: 'out', max: 1, linkmyself: false,},
+        {id: '1', dir: 's', offset: 25, type: 'out', max: 1, linkmyself: false,},
+        {id: 'E', dir: 'e', offset: 0, type: 'in', max: 1, linkmyself: false,},
+        {id: 'W', dir: 'w', offset: 0, type: 'in', max: 1, linkmyself: false,},
     ],
     policies: {
         'doubleclick': openPropEditor,

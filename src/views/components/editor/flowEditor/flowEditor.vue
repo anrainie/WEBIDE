@@ -64,6 +64,13 @@
 
             openPaletteEvent: {
                 type: Function
+            },
+
+            inithandle: {
+                type: Function,
+                default() {
+                    return null;
+                }
             }
         },
 
@@ -101,6 +108,8 @@
                 this.bindEventToEditor();
                 this.activateChangeWidth();
                 this.activateKeyManager();
+
+                this.inithandle && this.inithandle(this.editor);
 //                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
 //                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
 

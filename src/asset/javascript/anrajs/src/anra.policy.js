@@ -5,7 +5,6 @@
  * Time: 上午9:45
  */
 import {anra} from './anra.gef'
-import Base from '../lib/Base'
 import {Map, Util} from './anra.common'
 import * as constants from './anra.constants'
 
@@ -172,7 +171,7 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
     getDeleteDependantCommand: function (request) {
         return null;
     },
-    getMoveCommand: function (request) {        
+    getMoveCommand: function (request) {
         var target = this.editParts;
         if (target instanceof anra.gef.NodeEditPart && target.dragTracker){
             var feedback = this.getFeedback(target);
@@ -211,17 +210,17 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
         var model = request.event.prop.drag.model,
             type = model.get('type'),
             b = model.get('bounds'), parent = request.editPart;
-        
-         while (parent && (parent.config.children == null || parent.config.children[type] == null)) {
+
+        while (parent && (parent.config.children == null || parent.config.children[type] == null)) {
             parent = parent.parent;
         }
-        
+
         if (parent == null) {
             return null;
         }
-        
+
         var pb = parent instanceof anra.gef.RootEditPart ? [0, 0] : parent.model.get('bounds');
-        
+
         model.set('bounds', [request.event.x - pb[0], request.event.y - pb[1], b[2], b[3]]);
         return new anra.gef.CreateNodeCommand(this.getHost().getRoot(), model);
     },
@@ -417,18 +416,20 @@ anra.gef.ConnectionPolicy = anra.gef.AbstractEditPolicy.extend({
             this.sourceAnchor = this.createSourceAnchorFeedback();
             this.getFeedbackLayer().addChild(this.sourceAnchor);
         }
-        
-        if (anchor) {        
-            this.sourceAnchor.setBounds({x: anchor.x, y: anchor.y, width: 10, height: 10});
+
+        if (anchor) {
+            this.sourceAnchor.setBounds({x: anchor.x, y: anchor.y, width: 15, height: 15});
         }
     },
     createSourceAnchorFeedback: function () {
         var Circle = anra.svg.Control.extend(anra.svg.Circle);
         Circle = new Circle();
         Circle.setAttribute({
-            fill: 'red'
+            'fill-opacity': 0,
+            'stroke-opacity': 0.8,
+            'stroke': 'green',
+            'stroke-width': 5,
         });
-        Circle.setOpacity(0.5);
         return Circle;
     },
     createTargetAnchorFeedback: function () {
@@ -580,7 +581,7 @@ anra.gef.SelectionPolicy = anra.gef.AbstractEditPolicy.extend({
 
 anra.gef.LineSelectionPolicy = anra.gef.SelectionPolicy.extend({
     /*保证selected与unselected成对出现*/
-    _selected: false, 
+    _selected: false,
     selected: function(editPart) {
         if (this._selected) {
             return;
@@ -591,7 +592,7 @@ anra.gef.LineSelectionPolicy = anra.gef.SelectionPolicy.extend({
         this.sw = this.getHostFigure().getStyle('stroke-width');
         this.getHostFigure().setStyle('stroke', 'red');
         this.getHostFigure().paint();
-        
+
         this._selected = true;
     },
     unselected: function(editPart) {
@@ -603,7 +604,7 @@ anra.gef.LineSelectionPolicy = anra.gef.SelectionPolicy.extend({
             'stroke-width': this.sw
         });
         this.getHostFigure().paint();
-        
+
         this._selected = false;
     },
     createSelectionHandles: function(selection) {
