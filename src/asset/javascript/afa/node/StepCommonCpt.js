@@ -1,8 +1,8 @@
 /*通用组件*/
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, openNodeEditor, idLocation, location, terminalPolicy} from "../editor/commonOptions";
-import * as props from "../propsName"
+import * as props from "../propsName";
+import * as options from "../editor/commonOptions";
 
 let defaultPropData = Object.assign({}, props.commonStepProp, {
     [props.Type]: '5',
@@ -20,37 +20,33 @@ const defaultEditorData = {
     type: '5',
 };
 
-const validator = function () {
-    
-}
-
 const StepCommonCpt = {
     url: '/assets/image/editor/event_component_stepCommonCpt.gif',
     type: $AG.IMAGE,
     anchor: [
-        {id: 'N', dir: 'n', offset: 0, type: 'in', max: 1, linkmyself: false},
-        {id: '0', dir: 's', offset: -25, type: 'out', max: 1, linkmyself: false,},
-        {id: '1', dir: 's', offset: 25, type: 'out', max: 1, linkmyself: false,},
-        {id: 'E', dir: 'e', offset: 0, type: 'in', max: 1, linkmyself: false,},
-        {id: 'W', dir: 'w', offset: 0, type: 'in', max: 1, linkmyself: false,},
+        {id: 'N', dir: 'n', offset: 0, ...options.getAnchorOptions('in')},
+        {id: '0', dir: 's', offset: -25, ...options.getAnchorOptions('out')},
+        {id: '1', dir: 's', offset: 25, ...options.getAnchorOptions('out')},
+        {id: 'E', dir: 'e', offset: 0, ...options.getAnchorOptions('in')},
+        {id: 'W', dir: 'w', offset: 0, ...options.getAnchorOptions('in')},
     ],
     policies: {
-        'doubleclick': openPropEditor,
+        'doubleclick': options.openPropEditor,
 
-        'despText': $AG.policy.TextPolicy('Desp', location),
+        'despText': $AG.policy.TextPolicy('Desp', options.location),
 
-        'nodeEditor': openNodeEditor,
+        'nodeEditor': options.openNodeEditor,
 
-        'pin': terminalPolicy(),
+        'pin': options.terminalPolicy(),
 
-        'idText': $AG.policy.TextPolicy('id', idLocation),
+        'idText': $AG.policy.TextPolicy('id', options.idLocation),
     },
 
     //特性
     canDrag: true,
     linkable: true,
     selectable: true,
-    refresh,
+    refresh: options.refresh,
     defaultData: Object.assign({}, defaultEditorData, defaultPropData),
 };
 

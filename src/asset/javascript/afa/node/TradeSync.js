@@ -1,7 +1,7 @@
 //场景同步调用
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
+import * as options from "../editor/commonOptions";
 import * as props from "../propsName";
 
 const defaultPropData = Object.assign({},
@@ -72,20 +72,20 @@ const TradeSync = {
     linkable: true,
     selectable: true,
     anchor: [
-        {id: 'N', dir: 'n', offset: 0},
-        {id: '0', dir: 's', offset: -25},
-        {id: '1', dir: 's', offset: 25},
-        {id: '2', dir: 's', offset: 0},
-        {id: 'E', dir: 'e', offset: 0},
-        {id: 'W', dir: 'w', offset: 0},
+        {id: 'N', dir: 'n', offset: 0, ...options.getAnchorOptions('in')},
+        {id: '0', dir: 's', offset: -25, ...options.getAnchorOptions('out')},
+        {id: '1', dir: 's', offset: 25, ...options.getAnchorOptions('out')},
+        {id: '2', dir: 's', offset: 0, ...options.getAnchorOptions('out')},
+        {id: 'E', dir: 'e', offset: 0, ...options.getAnchorOptions('in')},
+        {id: 'W', dir: 'w', offset: 0, ...options.getAnchorOptions('in')},
     ],
-    refresh,
+    refresh: options.refresh,
 
     policies: {
-        'doubleclick': openPropEditor,
-        'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': terminalPolicy(),
-        'idText': $AG.policy.TextPolicy('id', idLocation)
+        'doubleclick': options.openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', options.location),
+        'pin': options.terminalPolicy(),
+        'idText': $AG.policy.TextPolicy('id', options.idLocation)
     },
 
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),

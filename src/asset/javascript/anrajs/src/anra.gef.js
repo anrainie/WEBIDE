@@ -2520,19 +2520,14 @@ anra.gef.NodeModel = anra.gef.BaseModel.extend({
         line.sourceNode = this;
         if (!this.sourceLines.has(nId)) {
             this.sourceLines.put(nId, line);
-            /*            if (this.storeId) {
-             if (line.store) {
-             line.store.update(line.props);
-             } else {
-             line.store = anra.Store.get(this.storeId).line.insert(line.props);
-             }
-             }*/
-
             if (this.storeId) {
-                if (line.store == null) {
+                if (line.store) {
+                    line.store.update(line.props);
+                } else {
                     line.store = anra.Store.get(this.storeId).line.insert(line.props);
                 }
             }
+
             return true;
         }
         console.log('duplicate line id: ' + line.props.id);

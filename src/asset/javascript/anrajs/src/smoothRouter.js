@@ -4,6 +4,22 @@ function throwIfMissing() {
   throw new Error('Missing parameter');
 }
 
+function getSourceBounds(line) {
+    try {
+        return line.model.sourceNode.get('bounds');
+    } catch (e) {
+        return [0, 0, 0, 0];
+    }
+}
+
+function getTargetBounds(line) {
+    try {
+        return line.model.targetNode.get('bounds');
+    } catch (e) {
+        return [0, 0, 0, 0];
+    }
+}
+
 /**
  * 路由主体
  */
@@ -172,8 +188,9 @@ class doubleAS {
         this.pool = new Map();
 
         if (line) {
-            let startNormal = getDirection(line.model.sourceNode.get('bounds'), line.getStartPoint()),
-                endNormal = getDirection(line.model.targetNode.get('bounds'), line.getEndPoint());
+            //
+            let startNormal = getDirection(getSourceBounds(line), line.getStartPoint()),
+                endNormal = getDirection(getTargetBounds(line), line.getEndPoint());
 
             //反向映射字典
             start.dir = Math.abs(2 * startNormal.x + startNormal.y + 1);
@@ -349,8 +366,8 @@ let smoothStrategy = {
             return [source, target];
         }
 
-        let boundsOfSource = line.model.sourceNode.get('bounds'),
-            boundsOfTarget = line.model.targetNode.get('bounds');
+        let boundsOfSource = getSourceBounds(line),
+            boundsOfTarget = getTargetBounds(line);
 
         let sourceNormal = getDirection(boundsOfSource, source), targetNormal = getDirection(boundsOfTarget, target),
             vector = getVector(boundsOfTarget, boundsOfSource);
@@ -378,8 +395,8 @@ let smoothStrategy = {
         }
 
         //方向参考
-        let startNormal = getDirection(line.model.sourceNode.get('bounds'), s),
-            endNormal = getDirection(line.model.targetNode.get('bounds'), e),
+        let startNormal = getDirection(getSourceBounds(line), s),
+            endNormal = getDirection(getTargetBounds(line), e),
             abs_dir = getVector(e, s),
             rel_dir = {
                 x: path[1].x - path[0].x,
@@ -486,8 +503,8 @@ let smoothStrategy = {
             startNode = reader.absoluteToRelative(s),
             endNode = reader.absoluteToRelative(e),
             
-            startNormal = getDirection(line.model.sourceNode.get('bounds'), s), 
-            endNormal = getDirection(line.model.targetNode.get('bounds'), e), 
+            startNormal = getDirection(getSourceBounds(line), s),
+            endNormal = getDirection(getTargetBounds(line), e),
             
             start, end = e;
         
@@ -567,11 +584,11 @@ const RIGHT = {x: 1, y: 0};
 const UP = {x: 0, y: -1};
 const DOWN = {x:0, y: 1};
 
-let getDirection = function(bounds, point) {
-    let i, x = bounds[0], y = bounds[1], right = bounds[0] + bounds[2], bottom = bounds[1] + bounds[3],
-        direction = {x:LEFT.x, y:LEFT.y}, abs = Math.abs, distance = abs(x - point.x);
+let getDirection = function([bx, by, width, height], {x: px, y: py}) {
+    let i, right = bx + width, bottom = by + height,
+        direction = {x:LEFT.x, y:LEFT.y}, abs = Math.abs, distance = abs(bx - px);
     
-    i = abs(y - point.y);
+    i = abs(by - py);
     if (i <= distance) {
         distance = i;
         direction = {
@@ -580,7 +597,7 @@ let getDirection = function(bounds, point) {
         };
     }
     
-    i = abs(bottom - point.y);
+    i = abs(bottom - py);
     if (i <= distance) {
         distance = i;
         direction = {
@@ -589,7 +606,7 @@ let getDirection = function(bounds, point) {
         };
     }
     
-    i = abs(right - point.x);
+    i = abs(right - px);
     if (i < distance) {
         direction = {
             x: RIGHT.x,

@@ -8,7 +8,7 @@
                     :editorid="stepEditorID"
                     v-show="stepVisible"
                     ref="stepEditor"
-                    :input-style="{width: '50%'}"
+                    :input-style="{width: 'calc(50% - 2px)'}"
                     :editor-config="stepEditorCfg"
                     :bind-event="stepBindEvent"
                     :save="saveHandle"
@@ -16,14 +16,14 @@
                     @dblclickcanvas="stepDoubleClickCanvas"
                     :inithandle="initHandle"></flow-Editor>
 
-            <!--<div class="split-editor" ref="split"></div>-->
+            <div class="split-editor" ref="split"></div>
 
             <flow-Editor
                     :editorid="nodeEditorID"
                     v-if="nodeExist"
                     v-show="nodeVisible"
                     ref="nodeEditor"
-                    :input-style="{width: 'calc(50% - 4px)'}"
+                    :input-style="{width: 'calc(50% - 2px)'}"
                     :editor-config="nodeEditorCfg"
                     :bind-event="nodeBindEvent"
                     :save="saveHandle"
@@ -97,7 +97,7 @@
                         /*全频左编辑器*/
                         if (onlyStepEditor) return;
 
-                        let uuid = model.get("UUID");
+                        let uuid = model.get("UUID") || model.hashCode();
 
                         if (self.nodeExist) {
                             let sameEditor = uuid == self.$refs["nodeEditor"]["editor"]["storeId"];
@@ -146,7 +146,7 @@
                         self.showproperties = true;
                     }
                 },
-                /*initHandle(editor) {
+                initHandle(editor) {
                     let listener = new $AG.EditPartListener();
                     editor.rootEditPart.addEditPartListener(Object.assign(listener, {
                         removingChild(child) {
@@ -156,17 +156,16 @@
 
                             if (type != '5' && type != '7' && type != '4') return;
 
-                            if (self.$refs['nodeEditor'].editor.storeId == child.model.get('uuid')) {
+                            let uuid = child.model.get('UUID') || child.model.hashCode();
+
+                            if (self.$refs['nodeEditor'].editor.storeId == uuid) {
                                 self.$refs["nodeEditor"].removeContent();
+                                self.nodeEditorBuffer.delete(uuid);
+                                self.nodeVisible = false;
                             }
-
-                            if (self.nodeEditorBuffer.has(child.model.get('uuid'))) {
-                                self.nodeEditorBuffer.delete(child.model.get('uuid'));
-                            }
-
                         }
                     }));
-                },*/
+                },
             }
         },
         computed: {
@@ -201,8 +200,6 @@
                         }
                     }, (result) => {
                         if (result.state == "success") {
-                            console.log(result)
-
                             try {
                                 let children = [];
 
@@ -211,19 +208,18 @@
                                     if (type == path) {
 
                                         group.forEach((packageCom) => {
+
                                             children.push({
                                                 name: packageCom.desp,
                                                 url: packUrl,
-                                                items: packageCom.children.map((com) => {
-                                                    return {
-                                                        name: com.desp,
-                                                        url: comUrl,
-                                                        data: Object.assign({}, com.Component, {
-                                                            type: '4',
-                                                            size: [160, 46]
-                                                        }),
-                                                    }
-                                                })
+                                                items: packageCom.children.map((com) => ({
+                                                    name: com.desp,
+                                                    url: comUrl,
+                                                    data: Object.assign({}, com.Component, {
+                                                        type: '4',
+                                                        size: [160, 46]
+                                                    }),
+                                                }))
                                             })
                                         })
 
@@ -370,11 +366,11 @@
             },
 
             stepDoubleClickCanvas(style) {
-                style['width'] = style['width'] == "100%" ? "50%" : "100%";
+                style['width'] = style['width'] == "100%" ? "calc(50% - 2px)" : "100%";
             },
             nodeDoubleClickCanvas(style) {
                 if (style['width'] == "100%") {
-                    style['width'] = "50%";
+                    style['width'] = "calc(50% - 2px)%";
                     this.stepVisible = true;
                 } else {
                     style['width'] = "100%";

@@ -126,28 +126,6 @@ export const pinHandle = $AG.Handle.extend($AG.CIRCLE).extend({
     }
 });
 
-export const pinPolicy = function (idList) {
-    return {
-        activate() {
-            if (idList) {
-                this.handles = idList.map((id) => (new pinHandle(this.getHost(), id)));
-                this.handles.forEach((item) => {
-                    this.getHandleLayer().addChild(item);
-                    item.disableEvent();
-                });
-            }
-        },
-
-        deactivate() {
-            if (this.handles) {
-                this.handles.forEach((item) => {
-                    this.getHandleLayer().removeChild(item);
-                });
-            }
-        }
-    }
-};
-
 export const terminalPolicy = function ({isListen = false} = {}) {
     return {
         getTerminals() {
@@ -330,4 +308,16 @@ export const idLocation = function (figure) {
         x: figure.bounds.x + 20,
         y: figure.bounds.y + 15 + (figure.bounds.height - 15) / 2,
     })
+}
+
+/*连线端点的通用项*/
+export const getAnchorOptions = function (type) {
+    let options = {
+        type,
+        linkmyself: false,
+    };
+
+    if (type == 'out') Object.assign(options, {max: 1});
+
+    return options;
 }
