@@ -16,7 +16,7 @@
                     @dblclickcanvas="stepDoubleClickCanvas"
                     :inithandle="initHandle"></flow-Editor>
 
-            <div class="split-editor" ref="split"></div>
+            <div class="split-editor" v-if="stepVisible" ref="split"></div>
 
             <flow-Editor
                     :editorid="nodeEditorID"
@@ -162,6 +162,7 @@
                                 self.$refs["nodeEditor"].removeContent();
                                 self.nodeEditorBuffer.delete(uuid);
                                 self.nodeVisible = false;
+                                self.nodeExist = self.nodeEditorBuffer.size > 0;
                             }
                         }
                     }));
