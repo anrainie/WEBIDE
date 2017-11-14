@@ -1,6 +1,20 @@
 <template>
     <div class="tree">
-        <item v-for='child in children' :model='child,config,msgHub' :key="child.path" :props="props" :ref="getProp(child,'label')">
+        <item v-for='child in children'
+              :async="async"
+              :check="check"
+              :rightClick="rightClick"
+              :filter="filter"
+              :dblclick="dblclick"
+              :click="click"
+              :asyncLoadItem="asyncLoadItem"
+              :afterDelete="afterDelete"
+              :sorter="sorter"
+              :model='child'
+              :msgHub="msgHub"
+              :key="child.path"
+              :props="props"
+              :ref="getProp(child,'label')">
         </item>
     </div>
 </template>
@@ -16,10 +30,22 @@
             model: {
                 type:Array
             },
-            config: {
-                type:Object,
-                default: function () {
-                    return {};
+            width:{
+                type:String,
+                default:function () {
+                    return '100%'
+                }
+            },
+            check:{
+                type:Boolean,
+                default:function(){
+                    return false
+                }
+            },
+            async:{
+                type:Boolean,
+                default:function () {
+                    return false
                 }
             },
             props: {
@@ -30,6 +56,30 @@
                         desp:'desp'
                     };
                 }
+            },
+            asyncLoadItem:{
+                type:Function
+            },
+            afterDelete:{
+                type:Function
+            },
+            click:{
+                type:Function
+            },
+            dblclick:{
+                type:Function
+            },
+            rightClick:{
+                type:Function
+            },
+            filter:{
+                type:Function
+            },
+            beforeDelete:{
+                type:Function
+            },
+            sorter:{
+                type:Function
             }
         },
         components: {
@@ -45,7 +95,7 @@
         computed:{
             children(){
                 return (this.model || []).sort((a,b)=>{
-                    return this.config.sorter(a,b);
+                    return this.sorter(a,b);
                 });
             }
         },
@@ -167,7 +217,7 @@
             },
             getCheckedItems: function () {
                 var checkedItems = [];
-                if (this.config.check) {
+                if (this.check) {
                     var children = this.$children;
                     for (var i = 0; i < children.length; i++) {
                         var child = children[i];
@@ -180,7 +230,7 @@
                 return checkedItems;
             },
             deleteItem: function (item) {
-               let canDelete =  !this.config.callback.beforeDelete ? true : this.config.callback.beforeDelete.call(this, item)
+               let canDelete =  !this.beforeDelete ? true : this.beforeDelete.call(this, item)
                 if(canDelete === true) {
                     this._doDeleteItem(item);
                 }
@@ -201,8 +251,8 @@
                             self.removeSelection(item);
                         }
                         children.splice(i, 1);
-                        if (this.config.callback.afterDelete) {
-                            this.config.callback.afterDelete.call(this, item);
+                        if (this.afterDelete) {
+                            this.afterDelete.call(this, item);
                         }
                         break;
                     }
@@ -281,7 +331,7 @@
              * @param level
              */
             refresh: function (path, level) {
-                if (!path) {
+                if (!path || path === '/') {
                     let self = this;
                     self.init(function (m) {
                         self.model = m;
@@ -292,14 +342,26 @@
                 if (item) {
                     item.refresh(level);
                 }
-            },
-
+            }
         },
         mounted: function () {
             var self = this;
 
-            this.config.callback = this.config.callback || {};
-            this.config.sorter = this.config.sorter || function (a,b) {
+            if (!this.model) {
+                this.model = [];
+            }
+
+            this.$el.style.width = this.width;
+
+            this.msgHub.$on("deleteItem", function (item) {
+                self.deleteItem(item);
+            });
+            this.msgHub.$on("setSelected", function (item, event) {
+                self._setSelection(item, event);
+            });
+
+            if(!this.sorter){
+                this.sorter = function (a,b) {
                     let al = self.getProp(a,'name');
                     let ac = self.getProp(a,'category');
                     ac = $.isNumeric(ac) ? ac : (tools.isString(al) ? tools.hashCode(al) : Number.MAX_VALUE);
@@ -310,19 +372,7 @@
 
                     return ac - bc;
                 }
-            if (!this.model) {
-                this.model = [];
             }
-            if (this.config.width) {
-                this.$el.style.width = this.config.width;
-            }
-            this.msgHub.$on("deleteItem", function (item) {
-                self.deleteItem(item);
-            });
-            this.msgHub.$on("setSelected", function (item, event) {
-                self._setSelection(item, event);
-            });
-
         },
         created: function () {
         },

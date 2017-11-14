@@ -298,13 +298,13 @@
                 this.unActiveAllEditors();
                 let newEditor = new Vue(editorDecorator);
                 if (!newEditor.hasOwnProperty("input") || !newEditor.hasOwnProperty("file") || !newEditor.hasOwnProperty("msgHub")) {
-                    debug.error("$props must has three properties : input,file,msgHub");
+                    debug.error("$props must has this properties : input,file,msgHub");
                     return;
                 }
                 if (!$.isFunction(newEditor.isDirty) || !$.isFunction(newEditor.save)
                     || !$.isFunction(newEditor.focus) || !$.isFunction(newEditor.dirtyStateChange)
                     || !$.isFunction(newEditor.getPartName)) {
-                    debug.error("editor must has three methods : isDirty,save,focus,dirtyStateChange,getPartName");
+                    debug.error("editor must has this methods : isDirty,save,focus,dirtyStateChange,getPartName");
                     return;
                 }
                 newEditor.$props.input = content;
