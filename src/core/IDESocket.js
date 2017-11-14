@@ -64,9 +64,11 @@ function IDESocket() {
         });
 
         socket.on('lockTimeout', function (data) {
+            let paths = data.split("/");
+            let name = paths[paths.length - 1];
             ElementUI.Notification.error({
                 title: '提示',
-                message: '文件锁超时被释放,' + data
+                message: '文件锁超时被释放,' + name
             });
         });
         return def.promise();

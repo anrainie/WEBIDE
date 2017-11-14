@@ -1,5 +1,5 @@
 <template>
-    <editor-Container :editor="this" :editor-actions="actions">
+    <editor-Container :editor="this" :editoractions="actions">
         <monacoeditor slot="editor-content"
                 :width="width"
                 :height="width"

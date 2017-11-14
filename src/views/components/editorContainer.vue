@@ -24,7 +24,7 @@
         props: {
             editor: null,
             domain:null,
-            editorActions: {
+            editoractions: {
                 type: Array,
                 default: function () {
                     return [];
@@ -174,9 +174,9 @@
             this.$editorHeader = $(this.$el).find(".editor-header");
             this.$headerIndicator = $(this.$el).find(".editor-header-indicator");
 
-            if (this.editorActions) {
-                for (let i = 0; i < this.editorActions.length; i++) {
-                    this.toolItems.push(this.editorActions[i]);
+            if (this.editoractions) {
+                for (let i = 0; i < this.editoractions.length; i++) {
+                    this.toolItems.push(this.editoractions[i]);
                 }
             }
 
