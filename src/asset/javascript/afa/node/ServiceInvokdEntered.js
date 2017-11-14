@@ -11,10 +11,11 @@ const defaultPropData = Object.assign({}, props.commonStepProp, {
         [props.Size]: '160,60',
     },
     [props.Desp]: '内部场景调用',
-    [props.RefImpl]: '内部场景调用',
+    [props.RefImpl]: undefined,
+    [props.ToolTip]: '场景同步调用',
     [props.Implementation]: {
         [props.Usage]: '0',
-        [props.Node]: null,
+        [props.Node]: undefined,
     }
 });
 

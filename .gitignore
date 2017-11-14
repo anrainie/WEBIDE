@@ -5,3 +5,4 @@ npm-debug.log
 mongo.bat
 logs
 webide.db
+package-lock.json

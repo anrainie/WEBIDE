@@ -54,7 +54,7 @@
 <script type="text/javascript">
     import flowEditor from "../../components/editor/flowEditor/flowEditor.vue"
     import editorContainer from '../../components/editorContainer.vue'
-    import {stepInput2Config, nodeInput2Config, commonDoSave} from '../../../asset/javascript/afa/resolve';
+    import {stepInput2Config, nodeInput2Config, saveStep, validateStep} from '../../../asset/javascript/afa/resolve';
     import * as Constants from 'Constants'
     import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
@@ -318,6 +318,9 @@
         updated() {
             this.updateNodeEditorBuffer();
         },
+        beforeDestroy() {
+            this.nodeEditorBuffer.clear();
+        },
         methods: {
             isDirty() {
                 if (this.$refs["stepEditor"] == null) return false;
@@ -329,35 +332,25 @@
                 return [...this.nodeEditorBuffer.values()].reduce((pre, next) => pre | next.isDirty(), dirty)
             },
             save() {
-                let stepEditor = this.$refs["stepEditor"].editor, self = this;
+                if (this.saveVerification()) {
+                    this.setStepFromInput(saveStep(this.$refs["stepEditor"].editor, this.nodeEditorBuffer));
+                    this.msgHub.$emit('dirtyStateChange', this.file, false);
+                    return true;
+                }
 
-                /*处理Node和Step的关系*/
-                let nodeStore = stepEditor.store.node;
+                return false;
+            },
+            saveVerification() {
+                let result = validateStep(this.$refs["stepEditor"].editor, this.nodeEditorBuffer.values());
 
-                nodeStore({
-                    Type: ["5", "7", "4"]
-                }).each((record) => {
-                    if (self.nodeEditorBuffer.has(record["UUID"])) {
-                        let editor = self.nodeEditorBuffer.get(record["UUID"]);
-                        commonDoSave(editor)
+                if (!result.isTrue) {
+                    this.$alert(result.message, result.tooltip, {
+                        confirmButtonText: 'OK',
+                        type: 'error',
+                    });
+                }
 
-                        try {
-                            record["Implementation"]["Node"] = editor.getSaveData();
-                        } catch (e) {
-                            record["Implementation"] = {
-                                Node: editor.getSaveData()
-                            }
-                        }
-                    }
-                });
-
-                /*step保存*/
-                commonDoSave(stepEditor);
-                this.nodeEditorBuffer.clear();
-                if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;
-                this.setStepFromInput(stepEditor.getSaveData());
-                this.msgHub.$emit('dirtyStateChange', this.file, false);
-                return true;
+                return result.isTrue;
             },
             focus() {
 

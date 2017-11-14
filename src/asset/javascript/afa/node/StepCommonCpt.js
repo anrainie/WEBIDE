@@ -12,6 +12,10 @@ let defaultPropData = Object.assign({}, props.commonStepProp, {
     },
     [props.Desp]: 'DefaultName',
     [props.RefImpl]: 'DefaultName',
+    [props.Security]: {
+        [props.Readonly]: 0,
+        [props.TokenLevel]: 0,
+    }
 });
 
 
