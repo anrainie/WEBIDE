@@ -1,6 +1,8 @@
 import {$AG, constants, smoothRouter} from 'anrajs'
 import * as globalConstants from 'Constants'
 import {Terminals, Terminal, Name, Desp} from '../propsName'
+import * as props from "../propsName";
+import Cncryption from "../../../../utils/encryption"
 
 export const refresh = function () {
     if (this.model && this.figure) {
@@ -196,6 +198,44 @@ export const terminalPolicy = function ({isListen = false} = {}) {
             this.handles = null;
         }
     };
+}
+
+const commonDataHandle = [
+    [props.UUID, (model) => model.hashCode()]
+];
+export const SecurityDataHandle = [
+    props.Security,
+    (model) => ({...model.get(props.Security), [props.Readonly]: Cncryption.encrypt('0', model.get(props.UUID))})
+];
+
+export const initDataPolicy = function (handles = commonDataHandle) {
+    let dataHandles = new Map(handles);
+
+    let policy = {
+        activate() {
+            if (this.getHost().model.get('UUID')) return;
+
+            dataHandles.forEach(function(value, key) {
+                this.model.set(key, value(this.model, this, this.getRoot()));
+            }, this.getHost());
+        },
+        deactivate() {
+            dataHandles.clear();
+        },
+        set(...res) {
+            if (res.length == 2 && typeof res[0] == 'string' && res[1] instanceof Function) {
+                dataHandles.set(res[0], res[1]);
+            } else {
+                res.forEach(item => {
+                    if (item instanceof Array && typeof item[0] == 'string' && item[1] instanceof Function)
+                    dataHandles.set(item[0], item[1]);
+                });
+            }
+            return policy;
+        }
+    }
+
+    return policy;
 }
 
 /***************************************右键菜单***************************************/

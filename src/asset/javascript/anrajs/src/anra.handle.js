@@ -91,6 +91,7 @@ anra.gef.LineHandle = anra.Handle.extend(anra.svg.Circle).extend({
         } else if (this.type == constants.REQ_RECONNECT_TARGET) {
             anchor = this.editPart.getTargetAnchor();
         } else {
+            //TODO
             console.error('chuan ru type cuo wu')
         }
         

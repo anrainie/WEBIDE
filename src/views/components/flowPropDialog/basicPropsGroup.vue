@@ -216,7 +216,16 @@
 
 
                 <el-form-item label="只读" :required="true">
-                    <el-checkbox v-model="Readonly" style="margin-top: 8px"></el-checkbox>
+                    <el-switch
+                        style="margin-top: 8px"
+                        v-model="Readonly"
+                        on-color="#13ce66"
+                        off-color="#ff4949"
+                        on-value="1"
+                        off-value="0"
+                        on-text="只读"
+                        off-text="读写">
+                    </el-switch>
                 </el-form-item>
             </el-row>
 
@@ -503,10 +512,10 @@
             //TODO Security 和 UUID可能为空
             Readonly: {
                 get() {
-                    return parseInt(encryption.decrypt(this.modification.Security.Readonly, this.model.UUID)) ? true : false;
+                    return encryption.decrypt(this.modification.Security.Readonly, this.model.UUID);
                 },
                 set(value) {
-                    this.modification.Security.Readonly = encryption.encrypt(value ? '1' : '0', this.model.UUID);
+                    this.modification.Security.Readonly = encryption.encrypt(value, this.model.UUID);
                 }
             }
         },

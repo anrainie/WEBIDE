@@ -1483,6 +1483,8 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                     item.disableEvent();
                 });
             }
+            this.mouseMove(e, p);
+            return true;
         }
 
         //确保p一定是mouseOntarget
@@ -2063,6 +2065,9 @@ anra.gef.Policy = Base.extend({
             this.config.deactivate.call(this);
     },
     validatePolicy: function () {
+    },
+    getLineLayer() {
+        return this.getHost().getRoot().getLayer(anra.gef.RootEditPart.LineLayer);
     },
     getHandleLayer: function () {
         return this.getHost().getRoot().getLayer(anra.gef.RootEditPart.HandleLayer);
@@ -2652,9 +2657,56 @@ anra.FigureUtil = {
                 model: editPart.model
             });
         };
+
+        if (editPart instanceof anra.gef.LineEditPart) {
+            ghost.setSourceAnchor(editPart.figure.sourceAnchor);
+            ghost.setTargetAnchor(editPart.figure.targetAnchor);
+        }
+
         ghost.setOpacity(0.5);
         ghost.disableEvent();
         return ghost;
+    },
+    createGhostFigureWithLine(editPart) {
+        const isNode = editPart instanceof anra.gef.NodeEditPart;
+
+        if (!isNode) return null;
+
+        let nodeGhost = anra.FigureUtil.createGhostFigure(editPart);
+
+        //No Lines
+        if (editPart.getModelSourceLines().length +　editPart.getModelTargetLines().length == 0) {
+            return {
+                node: nodeGhost,
+                line: [],
+            };
+        }
+
+        let sourceLineGhost = editPart.sConns.map(linePart => [anra.FigureUtil.createGhostFigure(linePart), linePart.model.get('exit')]),
+            targetLineGhost = editPart.tConns.map(linePart => [anra.FigureUtil.createGhostFigure(linePart), linePart.model.get('entr')]);
+        //通过setBounds刷新线的位置
+
+        nodeGhost.setBounds = function(b) {
+            anra.svg.Control.prototype.setBounds.call(nodeGhost, b);
+
+            sourceLineGhost.forEach(([line, anchor]) => {
+                line.setSourceAnchor(nodeGhost.getSourceAnchorByTerminal(anchor));
+                line.paint();
+            });
+
+            targetLineGhost.forEach(([line, anchor]) => {
+                line.setTargetAnchor(nodeGhost.getSourceAnchorByTerminal(anchor));
+                line.paint();
+            });
+
+        }
+
+        return {
+            node: nodeGhost,
+            line: sourceLineGhost.map(([line, anchor]) => line).concat(
+                targetLineGhost.map(([line, anchor]) => line)
+            ),
+        };
     }
 };
 

@@ -8,7 +8,7 @@ let defaultPropData = Object.assign({}, props.commonStepProp, {
     [props.Type]: '5',
     [props.Constraint]: {
         [props.Location]: null,
-        [props.Size]: '160,60',
+        [props.Size]: '160,46',
     },
     [props.Desp]: 'DefaultName',
     [props.RefImpl]: 'DefaultName',
@@ -20,7 +20,7 @@ let defaultPropData = Object.assign({}, props.commonStepProp, {
 
 
 const defaultEditorData = {
-    size: [160, 60],
+    size: [160, 46],
     type: '5',
 };
 
@@ -44,6 +44,9 @@ const StepCommonCpt = {
         'pin': options.terminalPolicy(),
 
         'idText': $AG.policy.TextPolicy('id', options.idLocation),
+
+        'initData': options.initDataPolicy().set(options.SecurityDataHandle),
+
     },
 
     //特性

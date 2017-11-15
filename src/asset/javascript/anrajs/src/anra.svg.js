@@ -1025,13 +1025,6 @@ anra.svg.EventDispatcher = Base.extend({
         }
         if (this.dragTarget != null && (this.mouseState == anra.EVENT.MouseDrag)) {
             e = new anra.event.Event(anra.EVENT.MouseDrag, location);
-            /*e.canvasX = e.x = location[0];
-            e.canvasY = e.y = location[1];
-            
-            if (this.mouseOnTarget != this.display) {
-                e.x -= this.mouseOnTarget.getAttr('x', parseFloat);
-                e.y -= this.mouseOnTarget.getAttr('y', parseFloat); 
-            }*/
             
             e.prop = {drag: this.dragTarget, target: this.mouseOnTarget};
             this.dragTarget.notifyListeners && this.dragTarget.notifyListeners(anra.EVENT.MouseDrag, e);
@@ -1047,16 +1040,7 @@ anra.svg.EventDispatcher = Base.extend({
             var e = new anra.event.Event(anra.EVENT.DragEnd, location);
             e.prop = {drag: this.dragTarget, target: widget};
             e.button = event.button;
-            
-            /*//fix
-            e.canvasX = e.x = location[0];
-            e.canvasY = e.y = location[1];
-            
-            if (this.mouseOnTarget != this.display) {
-                e.x -= this.mouseOnTarget.getAttr('x', parseFloat);
-                e.y -= this.mouseOnTarget.getAttr('y', parseFloat);
-            }*/
-            
+
             if (this.dragTarget instanceof anra.svg.Control) {
                 this.dragTarget.notifyListeners(anra.EVENT.Dropped, e);
                 this.dragTarget.enableEvent();
@@ -1087,14 +1071,7 @@ anra.svg.EventDispatcher = Base.extend({
     dispatchMouseIn: function (event) {
         var location = this.getRelativeLocation(event);
         var e = new anra.event.Event(anra.EVENT.MouseIn, location);
-        
-        /*e.x = e.canvasX = location[0];
-        e.y = e.canvasY = location[1];
-        if (this.display != event.figure) {
-            e.x -= event.figure.getAttr('x', parseFloat);
-            e.y -= event.figure.getAttr('y', parseFloat);
-        }*/
-        
+
         e.button = event.button;
         if (this.dragTarget != event.figure){
             this.mouseOnTarget = event.figure;
@@ -1135,6 +1112,7 @@ anra.svg.EventDispatcher = Base.extend({
                         b.ry = parseFloat(relatedTarget.getAttribute('ry'))
                     case 'circle':
                         if (b == null) {
+                            b = {rx: null, ry: null, cx: null, cy: null};
                             b.rx = b.ry = relatedTarget['r'].value;
                         }
                         
@@ -1162,8 +1140,6 @@ anra.svg.EventDispatcher = Base.extend({
         }
 
         var e = new anra.event.Event(anra.EVENT.MouseOut, loc);
-        /*e.canvasX = loc[0];
-        e.canvasY = loc[1];*/
         event.figure.notifyListeners(anra.EVENT.MouseOut, e);
     },
     dispatchMouseOutScreen: function (event) {

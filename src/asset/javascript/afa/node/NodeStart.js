@@ -49,7 +49,7 @@ const NodeStart = {
     policies: {
         'despText': $AG.policy.TextPolicy('Desp', options.location),
         'pin': options.terminalPolicy(),
-        'idText': $AG.policy.TextPolicy('id', options.idLocation)
+        'idText': $AG.policy.TextPolicy('id', options.idLocation),
     },
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),
 };

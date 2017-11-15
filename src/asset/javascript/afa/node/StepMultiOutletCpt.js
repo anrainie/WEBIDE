@@ -43,6 +43,7 @@ const StepMultiOutletCpt = {
         'nodeEditor': options.openNodeEditor,
         'pin': options.terminalPolicy({isListen: true}),
         'idText': $AG.policy.TextPolicy('id', options.idLocation),
+        'initData': options.initDataPolicy().set(options.SecurityDataHandle),
     },
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),
 };

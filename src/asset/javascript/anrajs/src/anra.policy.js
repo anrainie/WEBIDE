@@ -86,6 +86,12 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
         for (var i = 0, len = values.length; i < len; i++) {
             this.removeFeedback(values[i]);
         }
+
+        if (this.feedbackLines) {
+            this.feedbackLines.forEach(line => this.getLineLayer().removeChild(line));
+            this.feedbackLines = null;
+        }
+
         this.feedbackMap.clear();
     },
     getAddCommand: function (request) {
@@ -142,25 +148,31 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
     getFeedback: function (ep) {
         var ghost = this.feedbackMap.get(ep.model);
         if (ghost == null) {
-            ghost = this.createFeedback(ep);
+            let ghostAndLine = this.createFeedback(ep);
+            ghost = ghostAndLine.node;
 
             this.addFeedback(ghost);
+            ghostAndLine.line.forEach(line => this.getLineLayer().addChild(line));
+            this.feedbackLines = this.feedbackLines ? this.feedbackLines.concat(ghostAndLine.line) : [].concat(ghostAndLine.line);
             this.feedbackMap.put(ep.model, ghost);
 
-            if (this.mouseUpListener == null) {
+
+            /*if (this.mouseUpListener == null) {
                 var p = this;
                 p.mouseUpListener = function (e) {
                     p.eraseLayoutTargetFeedback();
+                    ghostAndLine.line.forEach(line => p.getLineLayer().removeChild(line));
                     anra.Platform.getDisplay().off(anra.EVENT.MouseUp, p.mouseUpListener);
                     p.mouseUpListener = null;
                 };
                 anra.Platform.getDisplay().on(anra.EVENT.MouseUp, p.mouseUpListener);
-            }
+            }*/
         }
         return ghost;
     },
     createFeedback: function (ep) {
-        return anra.FigureUtil.createGhostFigure(ep);
+        //return anra.FigureUtil.createGhostFigure(ep);
+        return anra.FigureUtil.createGhostFigureWithLine(ep);
     },
     getMoveChildrenCommand: function (request) {
         //TODO

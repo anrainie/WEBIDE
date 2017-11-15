@@ -59,7 +59,7 @@ $AG.Editor.prototype.createNodeWithPalette = function(data = throwIfMissing()) {
         node.props = defaultsDeep({}, {
             id: editor.createID(),
             bounds: [0, 0, data.size[0], data.size[1]],
-        }, data, {UUID: node.hashCode()});
+        }, data);
         tool.model = node;
 
         editor.setActiveTool(tool);
