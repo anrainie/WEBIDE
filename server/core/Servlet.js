@@ -161,6 +161,7 @@ class Servlet{
             p_u.insert({
                 'uid': uid,
                 'pid': selected.id,
+                'ideType':selected.type,
                 'createTime': new Date()
             });
         }

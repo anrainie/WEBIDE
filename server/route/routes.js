@@ -3,6 +3,7 @@
  */
 const fs = require('fs');
 const path = require('path');
+const dbKeys = require('../constants/DBConstants');
 const userDao = require('../dao/UserDao');
 const productDao = require('../dao/ProductDao');
 
@@ -100,6 +101,7 @@ module.exports = function (app) {
         let result = [];
         ps.forEach(function (p) {
             result.push({
+                id:p.id,
                 name:p.name,
                 type:p.type,
                 ip:p.ip
@@ -128,37 +130,21 @@ module.exports = function (app) {
         }
     });
 
-    /*
-    app.post('/product/add', function (req, res) {
-        var newProduct = req.body;
-        newProduct.id = IDE.genUUID();
-        newProduct.createTime = newProduct.updateTime = new Date();
-        productDao.save(newProduct);
-        IDE.Servlet.addProduct(newProduct);
-        res.json({
-            state: 'success',
-            data: '成功添加后台服务'
-        })
-
-    });
-
-    app.post('/product/update', function (req, res) {
-        let product = req.body;
-        productDao.updateProduct(product, function (err) {
-            if (!err) {
-                //IDE.Servlet.updateProduct(product);
-                res.json({
-                    state: 'success',
-                    data: '更新成功'
-                });
-            } else {
-                res.json({
-                    state: 'error',
-                    errorMsg: '删除失败'
-                });
-            }
-        });
-
-    }) */
+    app.post('/user/changeProduct',function (req,res) {
+        if(req.session.user) {
+            let uid = req.session.user.id,
+                pid = req.body.pid,
+                ideType = req.body.ideType;
+            let p_u = IDE.DB.getCollection(dbKeys.PRODUCT_USER);
+            p_u.findAndRemove({uid,ideType});
+            p_u.insert({
+                'uid': uid,
+                'pid': pid,
+                'ideType':ideType,
+                'createTime': new Date()
+            });
+            res.json({state:'success',data:'选择成功'});
+        }
+    })
 
 }

@@ -76,11 +76,9 @@ function IDESocket() {
 }
 
 
-IDESocket.prototype.emit = function (eventId, data, callback,timeout) {
+IDESocket.prototype.emit = function (eventId,data,callback,timeout = this.timeout) {
     if(timeout && !$.isNumeric(timeout)){
         throw new Error("socket timeout must be a number" + timeout);
-    }else{
-        timeout = this.timeout;
     }
 
     data = data || {};
@@ -104,17 +102,15 @@ IDESocket.prototype.emit = function (eventId, data, callback,timeout) {
         } else {
             ElementUI.Notification.error({
                 title: '提示',
-                message: 'node socket is disconnect'
+                message: 'node socket disconnect'
             });
         }
     });
 }
 
-IDESocket.prototype.emitAndGetDeferred = function (eventId, data,timeout) {
+IDESocket.prototype.emitAndGetDeferred = function (eventId,data,timeout = this.timeout) {
     if(timeout && !$.isNumeric(timeout)){
         throw new Error("socket timeout must be a number" + timeout);
-    }else{
-        timeout = this.timeout;
     }
 
     data = data || {};
