@@ -155,18 +155,6 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
             ghostAndLine.line.forEach(line => this.getLineLayer().addChild(line));
             this.feedbackLines = this.feedbackLines ? this.feedbackLines.concat(ghostAndLine.line) : [].concat(ghostAndLine.line);
             this.feedbackMap.put(ep.model, ghost);
-
-
-            /*if (this.mouseUpListener == null) {
-                var p = this;
-                p.mouseUpListener = function (e) {
-                    p.eraseLayoutTargetFeedback();
-                    ghostAndLine.line.forEach(line => p.getLineLayer().removeChild(line));
-                    anra.Platform.getDisplay().off(anra.EVENT.MouseUp, p.mouseUpListener);
-                    p.mouseUpListener = null;
-                };
-                anra.Platform.getDisplay().on(anra.EVENT.MouseUp, p.mouseUpListener);
-            }*/
         }
         return ghost;
     },
