@@ -25,10 +25,7 @@
             },
             upSearchItem(item,resourceId){
                 var parent = item.getParent();
-                while(true){
-                    if(!parent || parent === this){
-                        break;
-                    }
+                while(parent && parent != this){
                     if(parent.model.resId === resourceId){
                         return parent;
                     }
@@ -36,7 +33,21 @@
                 }
             },
             downSearchItem(item,resourceId){
-
+                var children = item.getChildren();
+                while (children && children.length > 0){
+                    let newChildren = [];
+                    for(let i = 0 ,length = children.length ; i < length ; i++){
+                        let chd = children[i];
+                        if(chd.model.resId === resourceId){
+                            return chd;
+                        }
+                        let c = chd.getChildren();
+                        if(!c && children.length > 0){
+                            newChildren = newChildren.concat(c);
+                        }
+                    }
+                    children = newChildren;
+                }
             }
         },
         mounted(){
