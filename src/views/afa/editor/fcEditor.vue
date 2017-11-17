@@ -8,7 +8,7 @@
                     :editorid="stepEditorID"
                     v-show="stepVisible"
                     ref="stepEditor"
-                    :input-style="{width: 'calc(50% - 2px)'}"
+                    :input-style="stepWidth"
                     :editor-config="stepEditorCfg"
                     :bind-event="stepBindEvent"
                     :save="saveHandle"
@@ -16,14 +16,14 @@
                     @dblclickcanvas="stepDoubleClickCanvas"
                     :inithandle="initHandle"></flow-Editor>
 
-            <div class="split-editor" v-if="stepVisible" ref="split"></div>
+            <div class="split-editor" v-bind:style="{width: splitWidth + 'px'}" v-show = "stepVisible" ref="split"></div>
 
             <flow-Editor
                     :editorid="nodeEditorID"
                     v-if="nodeExist"
                     v-show="nodeVisible"
                     ref="nodeEditor"
-                    :input-style="{width: 'calc(50% - 2px)'}"
+                    :input-style="nodeWidth"
                     :editor-config="nodeEditorCfg"
                     :bind-event="nodeBindEvent"
                     :save="saveHandle"
@@ -48,7 +48,7 @@
         height: 100%;
         float: left;
         cursor: ew-resize;
-        background: black;
+        background: white;
     }
 </style>
 <script type="text/javascript">
@@ -69,8 +69,9 @@
         data() {
             let self = this;
             return {
-                width: 50,
-                nodeVisible: false,
+                splitWidth: 4,
+                offset: 0,
+                nodeVisible: true,
                 nodeExist: false,
                 stepVisible: true,
                 nodeEditorInput: null,
@@ -92,7 +93,7 @@
                     [Constants.OPEN_NODE_EDITOR](model) {
                         if (self.$refs["stepEditor"] === null) return;
 
-                        let onlyStepEditor = self.$refs["stepEditor"]["style"]["width"] == "100%"
+                        let onlyStepEditor = self.stepVisible & !self.nodeVisible;
 
                         /*全频左编辑器*/
                         if (onlyStepEditor) return;
@@ -171,10 +172,14 @@
         },
         computed: {
             stepWidth() {
-
+                return {
+                    width: this.nodeVisible ? `calc(50% - ${this.splitWidth/2 + this.offset}px)` : '100%'
+                }
             },
             nodeWidth() {
-
+                return {
+                    width: this.stepVisible ? `calc(50% - ${this.splitWidth/2 - this.offset}px)` : '100%'
+                }
             },
             saveHandle() {
                 return () => {
@@ -313,7 +318,7 @@
         mounted() {
             //prop传值在组件生成之后，延迟data初始化，input副本避免改变而进行多余的执行
             this.stepEditorInput = defaultsDeep({}, this.input);
-            //this.activateResize();
+            this.activateResize();
         },
         updated() {
             this.updateNodeEditorBuffer();
@@ -359,17 +364,11 @@
 
             },
 
-            stepDoubleClickCanvas(style) {
-                style['width'] = style['width'] == "100%" ? "calc(50% - 2px)" : "100%";
+            stepDoubleClickCanvas() {
+                this.nodeVisible = !this.nodeVisible;
             },
-            nodeDoubleClickCanvas(style) {
-                if (style['width'] == "100%") {
-                    style['width'] = "calc(50% - 2px)%";
-                    this.stepVisible = true;
-                } else {
-                    style['width'] = "100%";
-                    this.stepVisible = false;
-                }
+            nodeDoubleClickCanvas() {
+                if (this.nodeExist) this.stepVisible = !this.stepVisible;
             },
 
             updateNodeEditorBuffer() {
@@ -424,18 +423,19 @@
                 }
             },
             activateResize() {
-                let split = this.$refs['split'], isMove = false, _x;
+                let split = this.$refs['split'], isMove = false, _x, currenOffset, limitWdith;
 
                 $(split).mousedown((e) => {
                     isMove = true;
-                    _x= e.pageX - split.offsetLeft;
+                    _x = e.pageX;
+                    currenOffset = this.offset;
+                    limitWdith = ~~((this.$el.clientWidth - this.splitWidth) / 2);
                 });
 
-                $(document).mousemove(function(e){
+                $(document).mousemove((e) => {
                     if(isMove){
-                        var x= e.pageX - _x;
-                        console.log(x)
-                        $(split).css("left", x);
+                        let tempOff = currenOffset + _x - e.pageX;
+                        this.offset = tempOff < -limitWdith ? -limitWdith : tempOff > limitWdith ? limitWdith : tempOff;
                     }
                 }).mouseup(function(){
                     isMove = false;

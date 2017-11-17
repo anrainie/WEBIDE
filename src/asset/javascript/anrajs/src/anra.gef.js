@@ -1267,13 +1267,17 @@ anra.gef.CreationTool = anra.gef.Tool.extend({
         return true;
     },
     getLayoutPolicy: function (e, p) {
-        var policy = p.getLayoutPolicy();
-        var parent = p;
-        while (policy == null && parent != null) {
-            policy = parent.getLayoutPolicy();
-            parent = parent.parent;
+        if (p.getLayoutPolicy) {
+            var policy = p.getLayoutPolicy();
+            var parent = p;
+            while (policy == null && parent != null) {
+                policy = parent.getLayoutPolicy();
+                parent = parent.parent;
+            }
+            return policy;
         }
-        return policy;
+
+        return null;
     },
     dragEnd: function (me, editPart) {
         if (editPart == null)return false;
@@ -1463,6 +1467,7 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                 this.type = constants.REQ_CONNECTION_END;
                 this.sourceEditPart = p;
                 this.sourceAnchor = p.getSourceAnchor({event: {x: e.x, y: e.y, source: p}});
+                this.mouseMove(e, p);
             } else {
                 policy.eraseSourceFeedback(req);
             }
@@ -2691,11 +2696,13 @@ anra.FigureUtil = {
 
             sourceLineGhost.forEach(([line, anchor]) => {
                 line.setSourceAnchor(nodeGhost.getSourceAnchorByTerminal(anchor));
+
                 line.paint();
             });
 
             targetLineGhost.forEach(([line, anchor]) => {
                 line.setTargetAnchor(nodeGhost.getSourceAnchorByTerminal(anchor));
+
                 line.paint();
             });
 

@@ -209,8 +209,10 @@ let validatorConnectionExtend = {
     },
     eraseTargetFeedback(req) {
         if (this.targetAnchorFeedback) {
+            this.getHost().getFigure().selectionChanged(constants.SELECTED_NONE);
             this.removeFeedback(this.targetAnchorFeedback);
             this.targetAnchorFeedback = null;
+
         }
     },
     validatorAnchor(anchor, req) {
@@ -279,7 +281,7 @@ let validatorConnectionExtend = {
         if (constants.REQ_CONNECTION_MOD == req.type) {
             this.eraseAnchors(req);
         }
-        if (this.sourceAnchor != null) {
+        if (this.sourceAnchor) {
             this.getHost().getFigure().selectionChanged(constants.SELECTED_NONE);
             this.getFeedbackLayer().removeChild(this.sourceAnchor);
             this.sourceAnchor = null;
@@ -320,63 +322,65 @@ let validatorConnectionExtend = {
 $AG.ConnectionPolicy = $AG.ConnectionPolicy.extend(validatorConnectionExtend);
 
 /***************关于SelectionTool****************/
-anra.gef.SelectionTool.prototype.mouseDown = function (e, p) {
-    if (p.getRoot == null)return;
-    p.getRoot().setSelection(p);
+const selectionToolExtend = {
+    mouseDown(e, p) {
+        if (p.getRoot == null)return;
+        p.getRoot().setSelection(p);
 
-    this.state = true;
-    setTimeout((tool) => tool.sd = true, 2000, this);
-}
-anra.gef.SelectionTool.prototype.dragStart = function(e, p) {
-    if (this.state & this.sd) {
-        if (p instanceof anra.gef.RootEditPart) {
-            if (this.marqueeTool == null)
-                this.marqueeTool = new anra.gef.MultiSelectionTool();
-            this.editor.setActiveTool(this.marqueeTool);
-        }
-    } else
-    if (p instanceof anra.gef.RootEditPart && p.figure === e.prop.drag) {
-        this.flag = true;
-        p.figure.setStyle('cursor', 'move');
-        this.lastLocation = [e.x, e.y];
-        this.limit = [p.figure.element.scrollWidth - p.figure.element.clientWidth,
-                      p.figure.element.scrollHeight - p.figure.element.clientHeight];
-    }
-
-    this.state = this.sd = false;
-}
-anra.gef.SelectionTool.prototype.mouseDrag = function (e, p) {
-    if (p instanceof anra.gef.RootEditPart && p.figure === e.prop.drag && this.flag) {
-        let canvas = p.figure.element,
-            offx = e.x - this.lastLocation[0],
-            offy = e.y - this.lastLocation[1];
-
-        if ((canvas.scrollLeft > 0 && offx > 0) ||
-            (canvas.scrollLeft < this.limit[0] && offx < 0)) {
-            if (offx > 0) canvas.scrollLeft -= Math.min(offx, canvas.scrollLeft);
-            else canvas.scrollLeft = Math.min(this.limit[0], canvas.scrollLeft - offx);
+        this.state = true;
+        setTimeout((tool) => tool.sd = true, 2000, this);
+    },
+    dragStart(e, p) {
+        if (this.state & this.sd) {
+            if (p instanceof anra.gef.RootEditPart) {
+                if (this.marqueeTool == null)
+                    this.marqueeTool = new anra.gef.MultiSelectionTool();
+                this.editor.setActiveTool(this.marqueeTool);
+            }
+        } else
+        if (p instanceof anra.gef.RootEditPart && p.figure === e.prop.drag) {
+            this.flag = true;
+            p.figure.setStyle('cursor', 'move');
+            this.lastLocation = [e.x, e.y];
+            this.limit = [p.figure.element.scrollWidth - p.figure.element.clientWidth,
+                p.figure.element.scrollHeight - p.figure.element.clientHeight];
         }
 
-        if ((canvas.scrollTop > 0 && offy > 0) ||
-            (canvas.scrollTop < this.limit[1] && offy < 0)) {
-            if (offy > 0) canvas.scrollTop -= Math.min(offy, canvas.scrollTop);
-            else canvas.scrollTop = Math.min(this.limit[1], canvas.scrollTop - offy);
+        this.state = this.sd = false;
+    },
+    mouseDrag(e, p) {
+        if (p instanceof anra.gef.RootEditPart && p.figure === e.prop.drag && this.flag) {
+            let canvas = p.figure.element,
+                offx = e.x - this.lastLocation[0],
+                offy = e.y - this.lastLocation[1];
+
+            if ((canvas.scrollLeft > 0 && offx > 0) ||
+                (canvas.scrollLeft < this.limit[0] && offx < 0)) {
+                if (offx > 0) canvas.scrollLeft -= Math.min(offx, canvas.scrollLeft);
+                else canvas.scrollLeft = Math.min(this.limit[0], canvas.scrollLeft - offx);
+            }
+
+            if ((canvas.scrollTop > 0 && offy > 0) ||
+                (canvas.scrollTop < this.limit[1] && offy < 0)) {
+                if (offy > 0) canvas.scrollTop -= Math.min(offy, canvas.scrollTop);
+                else canvas.scrollTop = Math.min(this.limit[1], canvas.scrollTop - offy);
+            }
         }
+    },
+    mouseUp(e, p) {
+        if (p instanceof anra.gef.RootEditPart && this.flag) {
+            this.flag = ~this.flag;
+            p.figure.setStyle('cursor', 'default');
+        }
+        this.sd = this.state = false;
+    },
+    dragEnd(e, p) {
+        this.mouseUp(e, p);
     }
-}
+};
 
-anra.gef.SelectionTool.prototype.mouseUp = function (e, p) {
-    if (p instanceof anra.gef.RootEditPart && this.flag) {
-        this.flag = ~this.flag;
-        p.figure.setStyle('cursor', 'default');
-    }
-    this.sd = this.state = false;
-}
-
-anra.gef.SelectionTool.prototype.dragEnd = function (e, p) {
-    this.mouseUp(e, p);
-}
-
+//TODO 需要进一步调试
+//Object.assign(anra.gef.SelectionTool.prototype, selectionToolExtend);
 
 /***************关于布局****************/
 var Layout = Base.extend({
