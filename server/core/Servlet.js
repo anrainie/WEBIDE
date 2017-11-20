@@ -10,7 +10,6 @@ const productDao = require('./../dao/ProductDao');
 const Product = require('./Product');
 const ideServices = require('./../service/ide.service.js');
 
-
 class Servlet{
 
     constructor(serviceConfigs, session, http){
@@ -44,7 +43,7 @@ class Servlet{
             }
         });
 
-        server.on('connection', function (socket) {
+        server.on('connection', (socket) => {
             let user = socket.handshake.session.user;
             let idetype = socket.handshake.query.type;
             let isServer = socket.handshake.query.server;
@@ -52,10 +51,10 @@ class Servlet{
                 let ip = socket.handshake.address;
                 let id = socket.handshake.query.id;
                 if(idetype && idetype.length > 0) {
-                    let product = new Product(socket, id, idetype, ip);
-                    self.addProduct(product);
+                        let product = new Product(socket, id, idetype, ip);
+                        self.addProduct(product);
                 }else{
-                    IDE.ideLogger.error(`Product type can not be null,address ${ip}`);
+                    IDE.fileLogger.error(`Product type can not be null,address ${ip}`);
                 }
             }else{
                 self.addClient(idetype, user, socket);
@@ -64,35 +63,31 @@ class Servlet{
     }
 
     addProduct(product) {
+        if(this.getProduct(product.id)) {
+            IDE.fileLogger.error(`Already has same product : ${product.id}`);
+            return;
+        }
         this.products.push(product);
 
-        IDE.defaultLogger.info(`Product ${product.ip} - ${product.type} is connected`);
+        IDE.cfLogger.info(`Product ${product.ip} - ${product.type} is connected`);
 
         product.socket.on('disconnect',() => {
-            this.products.every((value,index) => {
-                if(value === product){
-                    this.products.splice(index,1);
-                    return false;
-                }
-                return true;
-            });
-
+            this.removeProduct(product.id);
             let clients = product.clients;
             var uids = Object.getOwnPropertyNames(clients);
             uids.forEach( (v,k) => {
                 this.user2product.delete(k);
             });
-
             product.disconnect();
 
-            IDE.ideLogger.info(`Product ${product.ip} - ${product.type} is disconnected`);
+            IDE.fileLogger.info(`Product ${product.ip} - ${product.type} is disconnected`);
         });
 
     }
 
     addClient (idetype,user,socket) {
         let uid = user["id"];
-        IDE.defaultLogger.info(uid + ' connect socket successful');
+        IDE.cfLogger.info(uid + ' connect socket successful');
 
         let product = this.assignProduct(idetype,user);
         if(product){

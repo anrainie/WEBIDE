@@ -83,6 +83,8 @@ IDESocket.prototype.emit = function (eventId,data,callback,timeout = this.timeou
 
     data = data || {};
     data.event = data.event || eventId;
+    data.timeout = this.timeout;
+    data.emitTime = new Date().getTime();
 
     debug.info("IDESocket emit,event:" + data.event);
 
@@ -109,12 +111,14 @@ IDESocket.prototype.emit = function (eventId,data,callback,timeout = this.timeou
 }
 
 IDESocket.prototype.emitAndGetDeferred = function (eventId,data,timeout = this.timeout) {
-    if(timeout && !$.isNumeric(timeout)){
-        throw new Error("socket timeout must be a number" + timeout);
+    if(!$.isNumeric(timeout)){
+        throw new TypeError("socket timeout must be a number" + timeout);
     }
 
     data = data || {};
     data.event = data.event || eventId;
+    data.timeout = this.timeout;
+    data.emitTime = new Date().getTime();
 
     debug.info("IDESocket emit,event:" + data.event);
 

@@ -14,7 +14,7 @@
                 </span>
             </router-link>
             <div class="productArea">
-                <el-table :data="alternativeProducts" style="width:600px;height:200px;left:50%;margin-left:-300px;">
+                <el-table height="200" :data="alternativeProducts" style="width:600px;height:200px;left:50%;margin-left:-300px;">
                     <el-table-column property="name" label="名称" width="150"></el-table-column>
                     <el-table-column property="type" label="类型" width="150"></el-table-column>
                     <el-table-column property="ip" label="IP地址" width="200"></el-table-column>

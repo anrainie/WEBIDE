@@ -22,13 +22,12 @@ IDE.prototype.init = function (callback) {
 IDE.prototype.initLogger = function () {
     let def = Q.defer();
     this.logger = new IDELogger(this.config.logLevel);
-    this.defaultLogger = this.logger.getDefault();
+    this.cfLogger = this.logger.getDefault();
     this.consoleLogger = this.logger.getConsole();
-    this.ideLogger = this.logger.getIDE();
+    this.fileLogger = this.logger.getIDE();
     def.resolve();
     return def.promise;
 }
-
 
 IDE.prototype.initDBAndServlet = function () {
     let def = Q.defer();
@@ -36,7 +35,7 @@ IDE.prototype.initDBAndServlet = function () {
     this.DB = new WebIDEDB({dbpath: 'webide.db'});
     let dfd = this.DB.start();
     dfd.done(() => {
-        this.defaultLogger.info("Database init successfully");
+        this.cfLogger.info("Database init successfully");
 
         //init collections
         this.DB.getOrCreateCollection(dbConstants.USER);
@@ -46,7 +45,7 @@ IDE.prototype.initDBAndServlet = function () {
         this.Servlet = new Servlet([afaServices, afeServices], this.session, this.http);
         this.Servlet.start();
 
-        this.defaultLogger.info("Servlet init successfully");
+        this.cfLogger.info("Servlet init successfully");
 
         def.resolve();
     }, (err) => {
