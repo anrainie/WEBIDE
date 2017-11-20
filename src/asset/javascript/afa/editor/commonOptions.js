@@ -1,8 +1,8 @@
 import {$AG, constants, smoothRouter} from 'anrajs'
 import * as globalConstants from 'Constants'
-import {Terminals, Terminal, Name, Desp} from '../propsName'
-import * as props from "../propsName";
-import Cncryption from "../../../../utils/encryption"
+import {Terminals, Terminal, Name, Desp} from '../propsName';
+import * as props from '../propsName';
+import Cncryption from '../../../../utils/encryption';
 
 export const refresh = function () {
     if (this.model && this.figure) {
@@ -21,7 +21,7 @@ export const refresh = function () {
 export const manhattanRoute = {
     style: {
         'stroke': 'green',
-        'stroke-width': 3
+        'stroke-width': 3,
     },
     type: $AG.CURVE_LINE,
     router: smoothRouter(),
@@ -29,7 +29,59 @@ export const manhattanRoute = {
         type: $AG.Marker.TRIANGLE,
         size: 3
     },
-    selectable: true
+    selectable: true,
+    policies: {
+        'hover': {
+            activate() {
+                this.mouseInListener = () => {
+                    this.line = new $AG.LINE();
+                    this.line.setAttribute('d', this.getHost().getFigure().getAttr('d'));
+                    this.line.setStyle({
+                        'stroke': this.getHost().getSelected() == constants.SELECTED_NONE ? 'green' : 'red',
+                        'stroke-width': 10,
+                        'stroke-linecap': 'butt',
+                        'stroke-opacity': 0.2,
+                    });
+                    this.getLineLayer().addChild(this.line);
+                    this.getLineLayer().domContainer().removeChild(this.line.owner);
+                    this.getLineLayer().domContainer().insertBefore(this.line.owner, this.getHost().getFigure().owner);
+                };
+                this.mouseOutListener = () => {
+                    this.getLineLayer().removeChild(this.line);
+                };
+                this.addSelectionListener();
+                this.getHost().getFigure().on('mousein', this.mouseInListener);
+                this.getHost().getFigure().on('mouseout', this.mouseOutListener);
+            },
+            deactivate() {
+                this.line = null;
+                this.getHost().getFigure().off('mousein', this.mouseInListener);
+                this.getHost().getFigure().off('mouseout', this.mouseOutListener);
+                this.getHost().removeEditPartListener(this.selectionListener);
+            },
+            addSelectionListener() {
+                var policy = this;
+                var SelectionEditPartListener = $AG.EditPartListener.extend({
+                    selectedStateChanged: function (editPart) {
+                        if (policy.line) {
+                            switch (editPart.getSelected()) {
+                                case constants.SELECTED_NONE:
+                                    policy.line.setStyle('stroke', 'green');
+                                    break;
+                                case constants.SELECTED:
+                                case constants.SELECTED_PRIMARY:
+                                    policy.line.setStyle('stroke', 'red');
+                                    break;
+                                default :
+                            }
+                        }
+                    }
+                });
+                this.selectionListener = new SelectionEditPartListener();
+                this.getHost().addEditPartListener(this.selectionListener);
+            }
+        }
+    }
 };
 
 //策略
@@ -210,7 +262,6 @@ export const SecurityDataHandle = [
 
 export const initDataPolicy = function (handles = commonDataHandle) {
     let dataHandles = new Map(handles);
-
     let policy = {
         activate() {
             if (this.getHost().model.get('UUID')) return;
@@ -220,7 +271,7 @@ export const initDataPolicy = function (handles = commonDataHandle) {
             }, this.getHost());
         },
         deactivate() {
-            dataHandles.clear();
+            //dataHandles.clear();
         },
         set(...res) {
             if (res.length == 2 && typeof res[0] == 'string' && res[1] instanceof Function) {
@@ -228,7 +279,7 @@ export const initDataPolicy = function (handles = commonDataHandle) {
             } else {
                 res.forEach(item => {
                     if (item instanceof Array && typeof item[0] == 'string' && item[1] instanceof Function)
-                    dataHandles.set(item[0], item[1]);
+                        dataHandles.set(item[0], item[1]);
                 });
             }
             return policy;
