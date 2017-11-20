@@ -3,6 +3,7 @@
  */
 const dbConstants = require('../constants/DBConstants');
 const productDao = require('../dao/ProductDao');
+const tools = require('../utils/tools');
 
 class Product{
     
@@ -37,7 +38,7 @@ class Product{
         if(!this.socket.connected && callback) {
             callback({state: "error", errorMsg:"Product is disconnected"});
         }else {
-            let callbackId = reqData.callbackId = IDE.genUUID(),
+            let callbackId = reqData.callbackId = tools.genUUID(),
                 callbackSuccess = false,
                 timeout = reqData.timeout,
                 frontEmitTime = reqData.emitTime,

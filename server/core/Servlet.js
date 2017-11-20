@@ -9,6 +9,7 @@ const dbConstants = require('./../constants/DBConstants');
 const productDao = require('./../dao/ProductDao');
 const Product = require('./Product');
 const ideServices = require('./../service/ide.service.js');
+const tools = require('../utils/tools')
 
 class Servlet{
 
@@ -25,7 +26,7 @@ class Servlet{
         var server = socket_io(this.http);
 
         for(let i = 0 ; i < this.serviceConfigs.length; i++){
-            IDE.mergeService(ideServices,this.serviceConfigs[i]);
+            tools.mergeService(ideServices,this.serviceConfigs[i]);
         }
 
         server.use(shareSession(this.session, {

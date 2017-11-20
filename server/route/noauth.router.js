@@ -7,6 +7,7 @@ const dbKeys = require('../constants/DBConstants');
 const userDao = require('../dao/UserDao');
 const productDao = require('../dao/ProductDao');
 const express = require('express');
+const tools = require('../utils/tools');
 
 module.exports = function () {
 
@@ -31,7 +32,7 @@ module.exports = function () {
             });
         } else {
             newUser.createTime = newUser.updateTime = new Date();
-            newUser.id = IDE.genUUID();
+            newUser.id = tools.genUUID();
             userDao.save(newUser, function (err) {
                 if (!err) {
                     res.json({

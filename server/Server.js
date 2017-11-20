@@ -38,7 +38,10 @@ class Server {
 
         //初始化IDE
         global.IDE = new _IDE(this.config,this.http,this.session);
-        IDE.init(()=>{
+        IDE.init((err)=>{
+            if(err) {
+                throw err
+            }
             IDE.cfLogger.info("WebIDE start successful!");
         });
 
