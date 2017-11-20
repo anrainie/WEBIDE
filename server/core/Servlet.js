@@ -40,7 +40,7 @@ class Servlet{
             if ( (isServer === 'true' && idetype && idetype.length > 0 ) || user) {
                 next();
             } else {
-                next(new Error('nosession'));
+                return next(new Error('can not connect socket because nosession'));
             }
         });
 
