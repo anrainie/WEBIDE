@@ -34,6 +34,7 @@
         beforeMount(){
             window.IDE = new _IDE();
             IDE.socket = new IDESocket();
+            IDE.keyManager = new km('global');
         },
         mounted(){
             //去除默认右键事件
@@ -42,7 +43,6 @@
             }
 
             IDE.shade = this.$refs.ide_shade;
-            IDE.keyManager = new km('global');
         },
         methods: {},
         components: {
