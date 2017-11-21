@@ -26,7 +26,7 @@
                 </el-row>
             </el-dialog>
             <tree ref="tree" class="left-side split split-horizontal" :model="messages" :props="treeProps"
-                  :config="treeConfig"></tree>
+                  :click="click" :rightClick="rightClick"></tree>
             <div class="right-side split split-horizontal">
                 <div v-if="select" class="rcdEditor-head">
                     <span>{{title}}</span>
@@ -334,15 +334,11 @@
                 editorArchitecture: null,
                 treeArchitecture: [],
                 inputObject: null,
-                treeConfig: {
-                    callback: {
-                        click: function (item) {
-                            self.treeClick(item);
-                        },
-                        rightClick: function (event, item) {
-                            self.treeRightClick(event, item);
-                        }
-                    }
+                click: function (item) {
+                    self.treeClick(item);
+                },
+                rightClick: function (event, item) {
+                    self.treeRightClick(event, item);
                 },
                 treeProps: {
                     label(model){

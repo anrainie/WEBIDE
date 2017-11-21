@@ -2,7 +2,7 @@
     <editor-Container :editor="this">
         <div slot="editor-content" class="planEditor">
             <tree ref="tree" class="left-side split split-horizontal" :model="treeArchitecture" :props="treeProps"
-                  :config="treeConfig"></tree>
+                  :click="click" :rightClick="rightClick"></tree>
             <contextMenu ref="menu" :items="menuItems" :config="menuConfig"></contextMenu>
             <el-dialog :title="dialogModel.title" :visible.sync="dialogModel.visible" size="tiny">
                 <el-input v-model="dialogModel.name">
@@ -199,15 +199,11 @@
                 editorArchitecture: null,
                 treeArchitecture: [],
                 inputObject: null,
-                treeConfig: {
-                    callback: {
-                        click: function (item) {
-                            self.handleTreeItemClick(item);
-                        },
-                        rightClick: function (event, item) {
-                            self.handleTreeItemRightClick(event, item);
-                        }
-                    }
+                click: function (item) {
+                    self.handleTreeItemClick(item);
+                },
+                rightClick: function (event, item) {
+                    self.handleTreeItemRightClick(event, item);
                 },
                 treeProps: {
                     label: this.labelProvider,

@@ -195,7 +195,129 @@
                         open: false,
                     }]
                 },
-                menuData: menuData
+                menuData: menuData,
+                asyncLoadItem: function (item, level) {
+                    if (!level) {
+                        level = 1
+                    }
+                    IDE.socket.emit('getNaviItems', {
+                            type: IDE.type,
+                            event: 'getNaviItems',
+                            data: {
+                                path: item.model.path,
+                                level: level
+                            }
+                        }, function (result) {
+                            if (result.state === 'success') {
+                                let oldChildren = item.model.children
+                                let newChildren = result.data
+                                if (!oldChildren || oldChildren.length == 0) {
+                                    item.model.children = result.data;
+                                } else {
+                                    for (let i = 0; i < newChildren.length; i++) {
+                                        let newChd = newChildren[i];
+                                        let exist = false;
+                                        for (let j = 0; j < oldChildren.length; j++) {
+                                            let oldChd = oldChildren[j];
+                                            if (newChd.path === oldChd.path) {
+                                                exist = true;
+                                                oldChd['##keep##'] = true;
+                                                break;
+                                            }
+
+                                        }
+                                        if (!exist) {
+                                            newChd['##keep##'] = true;
+                                            oldChildren.push(newChd);
+                                        }
+                                    }
+                                    for (let i = 0; i < oldChildren.length; i++) {
+                                        let oldChd = oldChildren[i];
+                                        if (!oldChd['##keep##']) {
+                                            oldChildren.splice(i, 1);
+                                            i--;
+                                        }
+                                        delete oldChd['##keep##'];
+                                    }
+                                }
+                            } else {
+                                debug.error('refresh resources fail , ' + result);
+                            }
+                        }
+                    );
+                },
+                afterDelete: function (item) {
+                    var editor = IDE.editorPart.getEditor(item);
+                    if (editor) {
+                        IDE.editorPart.closeEditor(item);
+                    }
+                    let def = IDE.socket.emitAndGetDeferred('deleteFile', {
+                        type:IDE.type,
+                        path: item.model.path
+                    }).done(function (result) {
+                        item.getParent().refresh();
+                    }).fail(function (error) {
+                        debug.error('delete resource fail , ' + error);
+                    });
+                },
+                click: function (item) {
+                },
+                dblclick: function () {
+                    var item = this;
+                    if (!item.model.isParent) {
+                        let editor = IDE.editorPart.getEditor(item);
+                        if (editor) {
+                            IDE.editorPart.showEditor(item);
+                            return;
+                        }
+                        IDE.shade.open();
+                        IDE.socket.emit("getFile", {
+                            type: IDE.type,
+                            event: 'getFile',
+                            data: {
+                                path: item.model.path
+                            }
+                        }, function (result) {
+                            IDE.shade.hide();
+                            if (result.state === 'success') {
+                                if (!item.model.isParent) {
+                                    IDE.editorPart.openEditor(item, result.data);
+                                }
+                            } else {
+                                debug.error('resource dbclick , ' + result);
+                            }
+                        });
+                    }
+                },
+                rightClick: function (event) {
+                    var item = this;
+                    IDE.socket.emit('getNaviMenu', {
+                        type: IDE.type,
+                        event: 'getNaviMenu',
+                        data: {path: item.model.path}
+                    }, function (result) {
+                        if (result) {
+                            if (result.state === 'success') {
+                                let newItems = navContextMenus.match(result.data);
+                                IDE.contextmenu.setItems(newItems);
+                                if (IDE.contextmenu.isActive()) {
+                                    IDE.contextmenu.hide();
+                                }
+                                IDE.contextmenu.show(event.x, event.y, IDE.navigator.selection);
+                            } else {
+                                debug.error('getNaviMenu , ' + result);
+                            }
+                        }
+                    });
+                },
+                filter: function (item) {
+                    if (item.model.name) {
+                        if (item.model.name.startsWith(".")) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
             }
         },
         methods: {},
@@ -241,153 +363,16 @@
                             width: '100%',
                             check: false,
                             async: true,
-                            callback: {
-                                asyncLoadItem: function (item, level) {
-                                    if (!level) {
-                                        level = 1
-                                    }
-                                    IDE.socket.emit('getNaviItems', {
-                                            type: IDE.type,
-                                            event: 'getNaviItems',
-                                            data: {
-                                                path: item.model.path,
-                                                level: level
-                                            }
-                                        }, function (result) {
-                                            if (result.state === 'success') {
-                                                let oldChildren = item.model.children
-                                                let newChildren = result.data
-                                                if (!oldChildren || oldChildren.length == 0) {
-                                                    item.model.children = result.data;
-                                                } else {
-                                                    for (let i = 0; i < newChildren.length; i++) {
-                                                        let newChd = newChildren[i];
-                                                        let exist = false;
-                                                        for (let j = 0; j < oldChildren.length; j++) {
-                                                            let oldChd = oldChildren[j];
-                                                            if (newChd.path === oldChd.path) {
-                                                                exist = true;
-                                                                oldChd['##keep##'] = true;
-                                                                break;
-                                                            }
-
-                                                        }
-                                                        if (!exist) {
-                                                            newChd['##keep##'] = true;
-                                                            oldChildren.push(newChd);
-                                                        }
-                                                    }
-                                                    for (let i = 0; i < oldChildren.length; i++) {
-                                                        let oldChd = oldChildren[i];
-                                                        if (!oldChd['##keep##']) {
-                                                            oldChildren.splice(i, 1);
-                                                            i--;
-                                                        }
-                                                        delete oldChd['##keep##'];
-                                                    }
-                                                }
-                                            } else {
-                                                debug.error('refresh resources fail , ' + result);
-                                            }
-                                        }
-                                    );
-                                },
-                                delete: function (item) {
-                                    var editor = IDE.editorPart.getEditor(item);
-                                    if (editor) {
-                                        IDE.editorPart.closeEditor(item);
-                                    }
-                                    let def = IDE.socket.emitAndGetDeferred('deleteFile', {
-                                        type:IDE.type,
-                                        path: item.model.path
-                                    }).done(function (result) {
-                                        item.getParent().refresh();
-                                    }).fail(function (error) {
-                                        debug.error('delete resource fail , ' + error);
-                                    });
-                                },
-
-                                click: function (item) {
-                                },
-                                dblclick: function () {
-                                    var item = this;
-                                    if (!item.model.isParent) {
-                                        let editor = IDE.editorPart.getEditor(item);
-                                        if (editor) {
-                                            IDE.editorPart.showEditor(item);
-                                            return;
-                                        }
-                                        IDE.shade.open();
-                                        IDE.socket.emit("getFile", {
-                                            type: IDE.type,
-                                            event: 'getFile',
-                                            data: {
-                                                path: item.model.path
-                                            }
-                                        }, function (result) {
-                                            IDE.shade.hide();
-                                            if (result.state === 'success') {
-                                                if (!item.model.isParent) {
-                                                    IDE.editorPart.openEditor(item, result.data);
-                                                }
-                                            } else {
-                                                debug.error('resource dbclick , ' + result);
-                                            }
-                                        });
-                                    }
-                                },
-                                rightClick: function (event) {
-                                    var item = this;
-                                    IDE.socket.emit('getNaviMenu', {
-                                        type: IDE.type,
-                                        event: 'getNaviMenu',
-                                        data: {path: item.model.path}
-                                    }, function (result) {
-                                        if (result) {
-                                            if (result.state === 'success') {
-                                                let newItems = navContextMenus.match(result.data);
-                                                IDE.contextmenu.setItems(newItems);
-                                                if (IDE.contextmenu.isActive()) {
-                                                    IDE.contextmenu.hide();
-                                                }
-                                                IDE.contextmenu.show(event.x, event.y, IDE.navigator.selection);
-                                            } else {
-                                                debug.error('getNaviMenu , ' + result);
-                                            }
-                                        }
-                                    });
-                                }
-                            },
-                            filter: function (item) {
-                                if (item.model.name) {
-                                    if (item.model.name.startsWith(".")) {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            }
+                            asyncLoadItem:this.asyncLoadItem,
+                            afterDelete:this.afterDelete,
+                            click:this.click,
+                            dblclick:this.dblclick,
+                            rightClick:this.rightClick,
+                            filter:this.filter
                         },
                     },
                     image: "/assets/image/nav-folder.png",
                     actions: [
-                        {
-                            id: 'refreshAction',
-                            name: 'refresh',
-                            type: 'item',
-                            img: "/assets/image/file_awb.gif",
-                            tooltip: 'refresh',
-                            validate(){
-                                return true;
-                            },
-                            onclick(selection){
-                                if (selection instanceof Array) {
-                                    for (let index in selection) {
-                                        selection[index].refresh();
-                                    }
-                                }
-
-                            }
-                        },
                         {
                             id: 'linkWithEditorAction',
                             name: "linkWithEditor",
