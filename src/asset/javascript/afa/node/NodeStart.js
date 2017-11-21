@@ -1,5 +1,5 @@
 import {$AG} from "anrajs";
-import {refresh, terminalPolicy, idLocation, location} from "../editor/commonOptions";
+import * as options from "../editor/commonOptions";
 import * as props from "../propsName";
 
 const defaultPropData = Object.assign({}, props.commonNodeProp, {
@@ -42,17 +42,14 @@ const NodeStart = {
     linkable: true,
     selectable: true,
     anchor: [
-        {id: 'N', dir: 'n', offset: 0},
-        {id: '1', dir: 's', offset: 0},
-        {id: 'E', dir: 'e', offset: 0},
-        {id: 'W', dir: 'w', offset: 0},
+        {id: '1', dir: 's', offset: 0, ...options.getAnchorOptions('out')},
     ],
-    refresh,
+    refresh: options.refresh,
 
     policies: {
-        'despText': $AG.policy.TextPolicy('Desp', location),
-        'pin': terminalPolicy(),
-        'idText': $AG.policy.TextPolicy('id', idLocation)
+        'despText': $AG.policy.TextPolicy('Desp', options.location),
+        'pin': options.terminalPolicy(),
+        'idText': $AG.policy.TextPolicy('id', options.idLocation),
     },
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),
 };

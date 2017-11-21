@@ -1,6 +1,8 @@
 import {$AG, constants, smoothRouter} from 'anrajs'
 import * as globalConstants from 'Constants'
-import {Terminals, Terminal, Name, Desp} from '../propsName'
+import {Terminals, Terminal, Name, Desp} from '../propsName';
+import * as props from '../propsName';
+import Cncryption from '../../../../utils/encryption';
 
 export const refresh = function () {
     if (this.model && this.figure) {
@@ -19,7 +21,7 @@ export const refresh = function () {
 export const manhattanRoute = {
     style: {
         'stroke': 'green',
-        'stroke-width': 3
+        'stroke-width': 3,
     },
     type: $AG.CURVE_LINE,
     router: smoothRouter(),
@@ -27,14 +29,65 @@ export const manhattanRoute = {
         type: $AG.Marker.TRIANGLE,
         size: 3
     },
-    selectable: true
+    selectable: true,
+    policies: {
+        'hover': {
+            activate() {
+                this.mouseInListener = () => {
+                    this.line = new $AG.LINE();
+                    this.line.setAttribute('d', this.getHost().getFigure().getAttr('d'));
+                    this.line.setStyle({
+                        'stroke': this.getHost().getSelected() == constants.SELECTED_NONE ? 'green' : 'red',
+                        'stroke-width': 10,
+                        'stroke-linecap': 'butt',
+                        'stroke-opacity': 0.2,
+                    });
+                    this.getLineLayer().addChild(this.line);
+                    this.getLineLayer().domContainer().removeChild(this.line.owner);
+                    this.getLineLayer().domContainer().insertBefore(this.line.owner, this.getHost().getFigure().owner);
+                };
+                this.mouseOutListener = () => {
+                    this.getLineLayer().removeChild(this.line);
+                };
+                this.addSelectionListener();
+                this.getHost().getFigure().on('mousein', this.mouseInListener);
+                this.getHost().getFigure().on('mouseout', this.mouseOutListener);
+            },
+            deactivate() {
+                this.line = null;
+                this.getHost().getFigure().off('mousein', this.mouseInListener);
+                this.getHost().getFigure().off('mouseout', this.mouseOutListener);
+                this.getHost().removeEditPartListener(this.selectionListener);
+            },
+            addSelectionListener() {
+                var policy = this;
+                var SelectionEditPartListener = $AG.EditPartListener.extend({
+                    selectedStateChanged: function (editPart) {
+                        if (policy.line) {
+                            switch (editPart.getSelected()) {
+                                case constants.SELECTED_NONE:
+                                    policy.line.setStyle('stroke', 'green');
+                                    break;
+                                case constants.SELECTED:
+                                case constants.SELECTED_PRIMARY:
+                                    policy.line.setStyle('stroke', 'red');
+                                    break;
+                                default :
+                            }
+                        }
+                    }
+                });
+                this.selectionListener = new SelectionEditPartListener();
+                this.getHost().addEditPartListener(this.selectionListener);
+            }
+        }
+    }
 };
 
 //策略
 export const openPropEditor = {
     activate(){
         this.lisn = () => {
-            debugger;
             this.emit(globalConstants.OPEN_FLOWPROP_DIALOG, this.getHost())
         };
         this.getHostFigure().on('dblclick', this.lisn);
@@ -126,28 +179,6 @@ export const pinHandle = $AG.Handle.extend($AG.CIRCLE).extend({
     }
 });
 
-export const pinPolicy = function (idList) {
-    return {
-        activate() {
-            if (idList) {
-                this.handles = idList.map((id) => (new pinHandle(this.getHost(), id)));
-                this.handles.forEach((item) => {
-                    this.getHandleLayer().addChild(item);
-                    item.disableEvent();
-                });
-            }
-        },
-
-        deactivate() {
-            if (this.handles) {
-                this.handles.forEach((item) => {
-                    this.getHandleLayer().removeChild(item);
-                });
-            }
-        }
-    }
-};
-
 export const terminalPolicy = function ({isListen = false} = {}) {
     return {
         getTerminals() {
@@ -219,6 +250,43 @@ export const terminalPolicy = function ({isListen = false} = {}) {
             this.handles = null;
         }
     };
+}
+
+const commonDataHandle = [
+    [props.UUID, (model) => model.hashCode()]
+];
+export const SecurityDataHandle = [
+    props.Security,
+    (model) => ({...model.get(props.Security), [props.Readonly]: Cncryption.encrypt('0', model.get(props.UUID))})
+];
+
+export const initDataPolicy = function (handles = commonDataHandle) {
+    let dataHandles = new Map(handles);
+    let policy = {
+        activate() {
+            if (this.getHost().model.get('UUID')) return;
+
+            dataHandles.forEach(function(value, key) {
+                this.model.set(key, value(this.model, this, this.getRoot()));
+            }, this.getHost());
+        },
+        deactivate() {
+            //dataHandles.clear();
+        },
+        set(...res) {
+            if (res.length == 2 && typeof res[0] == 'string' && res[1] instanceof Function) {
+                dataHandles.set(res[0], res[1]);
+            } else {
+                res.forEach(item => {
+                    if (item instanceof Array && typeof item[0] == 'string' && item[1] instanceof Function)
+                        dataHandles.set(item[0], item[1]);
+                });
+            }
+            return policy;
+        }
+    }
+
+    return policy;
 }
 
 /***************************************右键菜单***************************************/
@@ -330,4 +398,16 @@ export const idLocation = function (figure) {
         x: figure.bounds.x + 20,
         y: figure.bounds.y + 15 + (figure.bounds.height - 15) / 2,
     })
+}
+
+/*连线端点的通用项*/
+export const getAnchorOptions = function (type) {
+    let options = {
+        type,
+        linkmyself: false,
+    };
+
+    if (type == 'out') Object.assign(options, {max: 1});
+
+    return options;
 }

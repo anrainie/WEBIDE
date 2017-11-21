@@ -2,6 +2,7 @@
     import Vue from "vue";
     import chooseTargetSceneDialog from '../../../views/afa/dialog/ChooseTargetSceneDialog.vue';
     import chooseTargetBcptDialog from '../../../views/afa/dialog/ChooseTargetBcptDialog.vue';
+    import encryption from '../../../utils/encryption';
     import {$AG} from 'anrajs'
 
     const saveCmd = $AG.SetPropsCommand;
@@ -27,7 +28,7 @@
                 </el-switch>
 
                 <el-switch
-                        v-model="modification.Readonly"
+                        v-model="Readonly"
                         on-color="#13ce66"
                         off-color="#ff4949"
                         :on-value="true"
@@ -215,7 +216,16 @@
 
 
                 <el-form-item label="只读" :required="true">
-                    <el-checkbox v-model="modification.Readonly" style="margin-top: 8px"></el-checkbox>
+                    <el-switch
+                        style="margin-top: 8px"
+                        v-model="Readonly"
+                        on-color="#13ce66"
+                        off-color="#ff4949"
+                        on-value="1"
+                        off-value="0"
+                        on-text="只读"
+                        off-text="读写">
+                    </el-switch>
                 </el-form-item>
             </el-row>
 
@@ -448,13 +458,13 @@
 
     /*key: type, value: props name array*/
     const propsKey = {
-        '0' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
+        '0' : ["RefImpl", "Desp", "Remarks", "Security", "ToolTip"],
         //step:内部场景调用、
         '1' : ["RefImpl", "Async", "Target", "Name", "Desp", "ToolTip"],
         //node:内部场景调用
         '2' : ["RefImpl", "Async", "Target", "Name", "Desp", "Tooltip"],
         //通用组件、多出口组件
-        '3' : ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip"],
+        '3' : ["RefImpl", "Desp", "Remarks", "Security", "ToolTip"],
         //自定义结束
         '4' : ["Target", "Name", "Desp", "Level", "Tooltip", "Value"],
         //组件调用
@@ -467,7 +477,6 @@
 
     /*默认属性*/
     const DEFAULTS = {
-        Readonly: false,
         Remarks: 0,
         RefImpl: 0,
         Async: 0,
@@ -497,6 +506,17 @@
               default(){
                 return ''
               }
+            }
+        },
+        computed: {
+            //TODO Security 和 UUID可能为空
+            Readonly: {
+                get() {
+                    return encryption.decrypt(this.modification.Security.Readonly, this.model.UUID);
+                },
+                set(value) {
+                    this.modification.Security.Readonly = encryption.encrypt(value, this.model.UUID);
+                }
             }
         },
         components:{
@@ -530,7 +550,7 @@
         },
         methods: {
             /*暂时通过函数输入获取所需属性*/
-            initModification(keys = ["RefImpl", "Desp", "Remarks", "Readonly", "ToolTip", "Name", "Target", "Value", "Tooltip", "Group", "Level"]) {
+            initModification(keys = ["RefImpl", "Desp", "Remarks", "Security", "ToolTip", "Name", "Target", "Value", "Tooltip", "Group", "Level"]) {
                 var options = {};
 
                 keys.forEach((item) => {

@@ -1,13 +1,46 @@
 import {anra} from './anra.gef'
 
+/*需要的常量*/
+const inOpen = 1 << 1;
+const inClosed = 1 << 2;
+const notFound = 1 << 3;
+const forward = 1 << 4;
+const backward = 1 << 5;
+const RE = 10;
+const BE = 14;
+const coefficient = 2.5;
+const dir = [[0, -1], [-1, 0], [0, 1], [1, 0]];
+const LEFT = {x: -1, y: 0};
+const RIGHT = {x: 1, y: 0};
+const UP = {x: 0, y: -1};
+const DOWN = {x:0, y: 1};
+
+
+
 function throwIfMissing() {
   throw new Error('Missing parameter');
+}
+
+function getSourceBounds(line) {
+    try {
+        return line.model.sourceNode.get('bounds');
+    } catch (e) {
+        return [0, 0, 0, 0];
+    }
+}
+
+function getTargetBounds(line) {
+    try {
+        return line.model.targetNode.get('bounds');
+    } catch (e) {
+        return [0, 0, 0, 0];
+    }
 }
 
 /**
  * 路由主体
  */
-let route = function(line, reader = throwIfMissing()) {
+const route = function(line, reader = throwIfMissing()) {
     
     if (line.points === null || line.points.length < 2) {
         return null;
@@ -34,7 +67,7 @@ let route = function(line, reader = throwIfMissing()) {
 };
 
 /*搜索大致路径的部分*/
-let search = function(start, end, reader, line) {
+const search = function(start, end, reader, line) {
     //无法到达的情况下，仅仅处理相邻，暂时不包括斜角相邻
     let pos = Math.abs(start.x - end.x) + Math.abs(start.y - end.y);
     
@@ -44,37 +77,21 @@ let search = function(start, end, reader, line) {
         case 1:
             return [start, end];
         default:
-            return getPathFinder().finding(start, end, reader, line).getPath();
+            return doubleAS.finding(start, end, reader, line).getPath();
     }
 };
 
 
 /*关于寻路算法的部分*/
-const inOpen = 1 << 1;
-const inClosed = 1 << 2;
-const notFound = 1 << 3;
-const forward = 1 << 4;
-const backward = 1 << 5;
+const doubleAS = {
 
-const RE = 10;
-const BE = 14;
-const coefficient = 2.5;
-
-const dir = [[0, -1], [-1, 0], [0, 1], [1, 0]];
-
-class doubleAS {
-    
-    constructor() {
-        
-    }
-
-    static addOpenList(source, target, open, direction) {
+    addOpenList(source, target, open, direction) {
         source.state = inOpen | direction;
         source.f = source.g + (Math.abs(source.x - target.x) + Math.abs(source.y - target.y)) * (source.count === 0 ? RE : RE * coefficient);
-        doubleAS.insertByBinarySort(source, open);
-    }
+        this.insertByBinarySort(source, open);
+    },
 
-    static removeFromOpen(point, open) {
+    removeFromOpen(point, open) {
         if (point.newG >= point.g)
             return;
 
@@ -86,20 +103,20 @@ class doubleAS {
                 return;
             }
         }
-    }
+    },
 
-    static getMinPoint(list) {
+    getMinPoint(list) {
         let p = list.pop();
         p.state = (p.state - inOpen) | inClosed;
 
         return p;
-    }
+    },
 
-    static isMeet(point, direction) {
+    isMeet(point, direction) {
         return (point.state & direction) !== direction && (point.state & notFound) !== notFound;
-    }
+    },
 
-    static calculatePath(node) {
+    calculatePath(node) {
         if (node === null) {
             return [];
         }
@@ -113,9 +130,9 @@ class doubleAS {
         nodes.unshift(node);
 
         return nodes
-    }
+    },
 
-    static insertByBinarySort(node, list) {
+    insertByBinarySort(node, list) {
         let high = list.length - 1,
             low = 0,
             mid;
@@ -136,7 +153,7 @@ class doubleAS {
         }
 
         list.splice(low, 0, node);
-    }
+    },
 
     finding(start, end, reader, line) {
         let list = [],
@@ -144,12 +161,12 @@ class doubleAS {
             current, bcurrent;
 
         this.reset(start, end, reader, line);
-        doubleAS.addOpenList(start, end, list, forward);
-        doubleAS.addOpenList(end, start, blist, backward);
+        this.addOpenList(start, end, list, forward);
+        this.addOpenList(end, start, blist, backward);
 
         while (list.length * blist.length > 0) {
-            current = doubleAS.getMinPoint(list);
-            bcurrent = doubleAS.getMinPoint(blist);
+            current = this.getMinPoint(list);
+            bcurrent = this.getMinPoint(blist);
 
             if (this.flag = this.search(current, end, list, forward, reader)) {
                 break;
@@ -161,19 +178,20 @@ class doubleAS {
         }
 
         return this;
-    }
+    },
 
     getPath() {
 
-        return this.flag ? doubleAS.calculatePath(this.forwardPoint).concat(doubleAS.calculatePath(this.backwardPoint).reverse()) : null;
-    }
+        return this.flag ? this.calculatePath(this.forwardPoint).concat(this.calculatePath(this.backwardPoint).reverse()) : null;
+    },
 
     reset(start, end, reader, line) {
         this.pool = new Map();
 
         if (line) {
-            let startNormal = getDirection(line.model.sourceNode.get('bounds'), line.getStartPoint()),
-                endNormal = getDirection(line.model.targetNode.get('bounds'), line.getEndPoint());
+            //
+            let startNormal = getDirection(getSourceBounds(line), line.getStartPoint()),
+                endNormal = getDirection(getTargetBounds(line), line.getEndPoint());
 
             //反向映射字典
             start.dir = Math.abs(2 * startNormal.x + startNormal.y + 1);
@@ -190,7 +208,7 @@ class doubleAS {
         reader.structure();
         this.flag = false;
 
-    }
+    },
 
     getNeighbors(point = throwIfMissing(), reader) {
         let result = [],
@@ -224,7 +242,7 @@ class doubleAS {
         }
 
         return result;
-    }
+    },
 
     calculateG(node, srnode) {
         let g, srg = srnode.g;
@@ -243,7 +261,7 @@ class doubleAS {
         } else {
             node.g = g;
         }
-    }
+    },
 
     search(point, target, open, direction, reader) {
         let neighbors = this.getNeighbors(point, reader),
@@ -252,11 +270,11 @@ class doubleAS {
         while (temp = neighbors.pop()) {
             this.calculateG(temp, point);
 
-            if (doubleAS.isMeet(temp, direction)) {
+            if (this.isMeet(temp, direction)) {
                 let bestPoint = temp;
                 if (temp.count > 0) {
                     neighbors.forEach((item) => {
-                        if (doubleAS.isMeet(item, direction) &&
+                        if (this.isMeet(item, direction) &&
                             item.count < bestPoint.count) {
                             bestPoint = item;
                         }
@@ -279,31 +297,22 @@ class doubleAS {
             }
 
             if ((temp.state & inOpen) === inOpen) {
-                doubleAS.removeFromOpen(temp, open);
+                this.removeFromOpen(temp, open);
             }
 
             if ((temp.state & notFound) === notFound) {
                 temp.parent = point;
-                doubleAS.addOpenList(temp, target, open, direction);
+                this.addOpenList(temp, target, open, direction);
             }
         }
         return false;
     }
-
 }
 
-/*获得单例寻路算法实例*/
-let getPathFinder = (function() {
-    let finder = new doubleAS();
-    
-    return function() {
-        return finder;
-    }
-})();
 
 
 /*关于路径优化的部分*/
-let optimizePath = function(path, line, reader) {
+const optimizePath = function(path, line, reader) {
     if (path === null) return null;
     
     /*去共点*/
@@ -316,7 +325,7 @@ let optimizePath = function(path, line, reader) {
     return smoothStrategy.smooth(path.length)(path, line, reader);
 };
 
-let removeCollinearPoint = function(path = throwIfMissing()) {
+const removeCollinearPoint = function(path = throwIfMissing()) {
     let i = 0;
     
     while (i < path.length - 2) {
@@ -349,8 +358,8 @@ let smoothStrategy = {
             return [source, target];
         }
 
-        let boundsOfSource = line.model.sourceNode.get('bounds'),
-            boundsOfTarget = line.model.targetNode.get('bounds');
+        let boundsOfSource = getSourceBounds(line),
+            boundsOfTarget = getTargetBounds(line);
 
         let sourceNormal = getDirection(boundsOfSource, source), targetNormal = getDirection(boundsOfTarget, target),
             vector = getVector(boundsOfTarget, boundsOfSource);
@@ -378,14 +387,14 @@ let smoothStrategy = {
         }
 
         //方向参考
-        let startNormal = getDirection(line.model.sourceNode.get('bounds'), s),
-            endNormal = getDirection(line.model.targetNode.get('bounds'), e),
+        let startNormal = getDirection(getSourceBounds(line), s),
+            endNormal = getDirection(getTargetBounds(line), e),
             abs_dir = getVector(e, s),
             rel_dir = {
                 x: path[1].x - path[0].x,
                 y: path[1].y - path[0].y
             },
-            horizontal = rel_dir.x === 0 ? 　0 : 1;
+            horizontal = rel_dir.x === 0 ? 0 : 1;
 
         //数学函数
         let {abs} = Math;
@@ -486,8 +495,8 @@ let smoothStrategy = {
             startNode = reader.absoluteToRelative(s),
             endNode = reader.absoluteToRelative(e),
             
-            startNormal = getDirection(line.model.sourceNode.get('bounds'), s), 
-            endNormal = getDirection(line.model.targetNode.get('bounds'), e), 
+            startNormal = getDirection(getSourceBounds(line), s),
+            endNormal = getDirection(getTargetBounds(line), e),
             
             start, end = e;
         
@@ -525,7 +534,7 @@ let smoothStrategy = {
 };
 
 /*简单路径方式*/
-let ManhattanPath = function(start = throwIfMissing(), end = throwIfMissing()) {
+const ManhattanPath = function(start = throwIfMissing(), end = throwIfMissing()) {
     let {abs} = Math, p1, p2;
     if (abs(start.x - end.x) > abs(start.y - end.y)) {
         p1 = {x: (start.x + end.x)/2, y: start.y};
@@ -540,18 +549,18 @@ let ManhattanPath = function(start = throwIfMissing(), end = throwIfMissing()) {
 
 
 /*计算向量*/
-let getVector = function(p1, p2) {
+const getVector = function(p1, p2) {
     let {abs, max} = Math;
     return {x: (p1.x - p2.x)/max(1, abs(p1.x - p2.x)),
             y: (p1.y - p2.y)/max(1, abs(p1.y - p2.y))};
 };
 
 /*叉乘*/
-let dotProduct = function(r1, r2) {
+const dotProduct = function(r1, r2) {
     return r1.x*r2.x + r1.y*r2.y;
 };
 
-let similarity = function(point, direction, node, reader) {
+const similarity = function(point, direction, node, reader) {
     let boundary, abs = Math.abs, max = Math.max, horizontal = abs(direction.x), gap;
     
     boundary = horizontal*(node.x + max(0, direction.x)) + (1 - horizontal)*(node.y + max(0, direction.y));
@@ -562,16 +571,11 @@ let similarity = function(point, direction, node, reader) {
     return gap >= 10 ? {x: point.x + 10*direction.x, y: point.y + 10*direction.y} : point;
 };
 
-const LEFT = {x: -1, y: 0};
-const RIGHT = {x: 1, y: 0};
-const UP = {x: 0, y: -1};
-const DOWN = {x:0, y: 1};
-
-let getDirection = function(bounds, point) {
-    let i, x = bounds[0], y = bounds[1], right = bounds[0] + bounds[2], bottom = bounds[1] + bounds[3],
-        direction = {x:LEFT.x, y:LEFT.y}, abs = Math.abs, distance = abs(x - point.x);
+const getDirection = function([bx, by, width, height], {x: px, y: py}) {
+    let i, right = bx + width, bottom = by + height,
+        direction = {x:LEFT.x, y:LEFT.y}, abs = Math.abs, distance = abs(bx - px);
     
-    i = abs(y - point.y);
+    i = abs(by - py);
     if (i <= distance) {
         distance = i;
         direction = {
@@ -580,7 +584,7 @@ let getDirection = function(bounds, point) {
         };
     }
     
-    i = abs(bottom - point.y);
+    i = abs(bottom - py);
     if (i <= distance) {
         distance = i;
         direction = {
@@ -589,7 +593,7 @@ let getDirection = function(bounds, point) {
         };
     }
     
-    i = abs(right - point.x);
+    i = abs(right - px);
     if (i < distance) {
         direction = {
             x: RIGHT.x,
@@ -803,7 +807,5 @@ export {ReaderListener}
  *
  */
 export default function createRouter() {
-    return function(line, reader) {
-        return route(line, reader);
-    }
+    return (line, reader)  => route(line, reader);
 }

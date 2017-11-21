@@ -53,9 +53,9 @@
     #ide_workbench {
         display: inline-block;
         width: 100%;
-        height: -moz-calc(100% - 60px);
-        height: -webkit-calc(100% - 60px);
-        height: calc(100% - 60px);
+        height: -moz-calc(100% - 65px);
+        height: -webkit-calc(100% - 65px);
+        height: calc(100% - 65px);
     }
 
     #ide_navigator {
@@ -135,10 +135,114 @@
                         open: false,
                     }]
                 },
-                menuData: menuData
+                menuData: menuData,
+                asyncLoadItem: function (item, level) {
+                    if (!level) {
+                        level = 1
+                    }
+                    IDE.socket.emit('getNaviItems', {
+                            type: self.domain,
+                            event: 'getNaviItems',
+                            data: {
+                                path: item.model.path,
+                                level: level
+                            }
+                        }, function (result) {
+                            if (result.state === 'success') {
+                                let oldChildren = item.model.children
+                                let newChildren = result.data
+                                if (!oldChildren || oldChildren.length == 0) {
+                                    item.model.children = result.data
+                                } else {
+                                    combine(newChildren, oldChildren, level)
+                                }
+                            } else {
+                                debug.error('refresh resources fail , ' + result)
+                            }
+                            //合并文件，不存在的文件删除，已存在的文件保留并对比其children。
+                            function combine(newChildren, oldChildren, level) {
+                                newChildren = newChildren || [];
+                                oldChildren = oldChildren || [];
+                                for (let i = 0; i < newChildren.length; i++) {
+                                    let newChd = newChildren[i];
+                                    let exist = false;
+                                    for (let j = 0; j < oldChildren.length; j++) {
+                                        let oldChd = oldChildren[j];
+                                        if (newChd.path === oldChd.path) {
+                                            exist = true;
+                                            oldChd['##keep##'] = true;
+                                            if ((level - 1) > 0) {
+                                                combine(newChd.children, oldChd.children, level - 1);
+                                            }
+                                            break;
+                                        }
+                                    }
+                                    if (!exist) {
+                                        newChd['##keep##'] = true;
+                                        oldChildren.push(newChd);
+                                    }
+                                }
+                                for (var i = 0; i < oldChildren.length; i++) {
+                                    var oldChd = oldChildren[i];
+                                    if (!oldChd['##keep##']) {
+                                        oldChildren.splice(i, 1);
+                                        i--;
+                                    }
+                                    delete oldChd['##keep##'];
+                                }
+                            }
+                        }
+                    )
+                },
+                afterDelete: function (item) {
+                },
+                click: function (item) {
+                },
+                dblclick: function () {
+                    let item = this;
+                    if (!item.model.isParent) {
+                        let editor = IDE.editorPart.getEditor(item.model);
+                        if (editor) {
+                            IDE.editorPart.showEditor(item.model);
+                            return;
+                        }
+                        IDE.editorPart.applyOpenEditorService('afa', item.model);
+                    }
+                },
+                rightClick: function (event) {
+                    let item = this;
+                    IDE.socket.emit('getNaviMenu', {
+                        type: self.domain,
+                        event: 'getNaviMenu',
+                        data: {path: item.model.path}
+                    }, function (result) {
+                        if (result) {
+                            if (result.state === 'success') {
+                                let newItems = navContextMenus.match(result.data,self.domain);
+                                IDE.contextmenu.setItems(newItems);
+                                if (IDE.contextmenu.isActive()) {
+                                    IDE.contextmenu.hide();
+                                }
+                                IDE.contextmenu.show(event.x, event.y, IDE.navigator.selection);
+                            } else {
+                                debug.error('getNaviMenu , ' + result);
+                            }
+                        }
+                    });
+                },
+                filter: function (item) {
+                    if (item.model.name) {
+                        if (item.model.name.startsWith(".")) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
             }
         },
-        methods: {},
+        methods: {
+
+        },
         created(){
         },
         mounted(){
@@ -152,6 +256,8 @@
             IDE.socket.getSocket('afa');
         },
         beforeCreate(){
+        },
+        created(){
             let self = this;
             window.viewRegistry = {
                 'navigator': {
@@ -186,131 +292,15 @@
                         });
                     },
                     data: {
-                        config: {
-                            width: '100%',
-                            check: false,
-                            async: true,
-                            callback: {
-                                asyncLoadItem: function (item, level) {
-                                    if (!level) {
-                                        level = 1
-                                    }
-                                    IDE.socket.emit('getNaviItems', {
-                                            type: self.domain,
-                                            event: 'getNaviItems',
-                                            data: {
-                                                path: item.model.path,
-                                                level: level
-                                            }
-                                        }, function (result) {
-                                            if (result.state === 'success') {
-                                                let oldChildren = item.model.children
-                                                let newChildren = result.data
-                                                if (!oldChildren || oldChildren.length == 0) {
-                                                    item.model.children = result.data
-                                                } else {
-                                                    combine(newChildren, oldChildren, level)
-                                                }
-                                            } else {
-                                                debug.error('refresh resources fail , ' + result)
-                                            }
-                                            //合并文件，不存在的文件删除，已存在的文件保留并对比其children。
-                                            function combine(newChildren, oldChildren, level) {
-                                                newChildren = newChildren || [];
-                                                oldChildren = oldChildren || [];
-                                                for (let i = 0; i < newChildren.length; i++) {
-                                                    let newChd = newChildren[i];
-                                                    let exist = false;
-                                                    for (let j = 0; j < oldChildren.length; j++) {
-                                                        let oldChd = oldChildren[j];
-                                                        if (newChd.path === oldChd.path) {
-                                                            exist = true;
-                                                            oldChd['##keep##'] = true;
-                                                            if ((level - 1) > 0) {
-                                                                combine(newChd.children, oldChd.children, level - 1);
-                                                            }
-                                                            break;
-                                                        }
-                                                    }
-                                                    if (!exist) {
-                                                        newChd['##keep##'] = true;
-                                                        oldChildren.push(newChd);
-                                                    }
-                                                }
-                                                for (var i = 0; i < oldChildren.length; i++) {
-                                                    var oldChd = oldChildren[i];
-                                                    if (!oldChd['##keep##']) {
-                                                        oldChildren.splice(i, 1);
-                                                        i--;
-                                                    }
-                                                    delete oldChd['##keep##'];
-                                                }
-                                            }
-                                        }
-                                    )
-                                },
-                                delete: function (item) {
-                                    let editor = IDE.editorPart.getEditor(item);
-                                    if (editor) {
-                                        IDE.editorPart.closeEditor(item);
-                                    }
-                                    let def = IDE.socket.emitAndGetDeferred('deleteFile', {
-                                        type: self.domain,
-                                        path: item.model.path
-                                    }).done(function (result) {
-                                        item.getParent().refresh();
-                                    }).fail(function (error) {
-                                        self.$notify.error({
-                                            title: '错误',
-                                            message: 'delete resource fail , ' + error.errorMsg
-                                        });
-                                        debug.error('delete resource fail , ' + error.errorMsg);
-                                    });
-                                },
-                                click: function (item) {
-                                },
-                                dblclick: function () {
-                                    let item = this;
-                                    if (!item.model.isParent) {
-                                        let editor = IDE.editorPart.getEditor(item.model);
-                                        if (editor) {
-                                            IDE.editorPart.showEditor(item.model);
-                                            return;
-                                        }
-                                        IDE.editorPart.applyOpenEditorService('afa', item.model);
-                                    }
-                                },
-                                rightClick: function (event) {
-                                    let item = this;
-                                    IDE.socket.emit('getNaviMenu', {
-                                        type: self.domain,
-                                        event: 'getNaviMenu',
-                                        data: {path: item.model.path}
-                                    }, function (result) {
-                                        if (result) {
-                                            if (result.state === 'success') {
-                                                let newItems = navContextMenus.match(result.data,self.domain);
-                                                IDE.contextmenu.setItems(newItems);
-                                                if (IDE.contextmenu.isActive()) {
-                                                    IDE.contextmenu.hide();
-                                                }
-                                                IDE.contextmenu.show(event.x, event.y, IDE.navigator.selection);
-                                            } else {
-                                                debug.error('getNaviMenu , ' + result);
-                                            }
-                                        }
-                                    });
-                                }
-                            },
-                            filter: function (item) {
-                                if (item.model.name) {
-                                    if (item.model.name.startsWith(".")) {
-                                        return true;
-                                    }
-                                }
-                                return false;
-                            }
-                        },
+                        width: '100%',
+                        check: false,
+                        async: true,
+                        asyncLoadItem:this.asyncLoadItem,
+                        afterDelete:this.afterDelete,
+                        click:this.click,
+                        dblclick:this.dblclick,
+                        rightClick:this.rightClick,
+                        filter:this.filter
                     },
                     image: "/assets/image/nav-folder.png",
                     actions: [

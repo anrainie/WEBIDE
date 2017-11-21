@@ -1,7 +1,7 @@
 /*平行组件*/
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
+import * as options from "../editor/commonOptions";
 import * as props from "../propsName";
 
 const defaultPropData = Object.assign({}, props.commonNodeProp, {
@@ -69,17 +69,17 @@ const Parallel = {
     linkable: true,
     selectable: true,
     anchor: [
-        {id: 'N', dir: 'n', offset: 0},
-        {id: '-1', dir: 's', offset: 0},
-        {id: 'E', dir: 'e', offset: 0}
+        {id: 'N', dir: 'n', offset: 0, ...options.getAnchorOptions('in')},
+        {id: '-1', dir: 's', offset: 0, ...options.getAnchorOptions('out')},
+        {id: 'E', dir: 'w', offset: -80, ...options.getAnchorOptions('in')}
     ],
-    refresh,
+    refresh: options.refresh,
 
     policies: {
-        'doubleclick': openPropEditor,
-        'despText': $AG.policy.TextPolicy('Desp', location),
-        'idText': $AG.policy.TextPolicy('id', idLocation),
-        'pin': terminalPolicy({isListen: true}),
+        'doubleclick': options.openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', options.location),
+        'idText': $AG.policy.TextPolicy('id', options.idLocation),
+        'pin': options.terminalPolicy({isListen: true}),
     },
 
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),

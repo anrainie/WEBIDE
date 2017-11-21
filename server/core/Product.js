@@ -3,7 +3,7 @@
  */
 const dbConstants = require('../constants/DBConstants');
 const productDao = require('../dao/ProductDao');
-const timeout = 10 * 1000;
+const tools = require('../utils/tools');
 
 class Product{
     
@@ -38,12 +38,15 @@ class Product{
         if(!this.socket.connected && callback) {
             callback({state: "error", errorMsg:"Product is disconnected"});
         }else {
-            let callbackId = IDE.genUUID();
-            let callbackSuccess = false;
-            reqData.callbackId = callbackId;
+            let callbackId = reqData.callbackId = tools.genUUID(),
+                callbackSuccess = false,
+                timeout = reqData.timeout,
+                frontEmitTime = reqData.emitTime,
+                newTimeout = timeout - (new Date().getTime() - frontEmitTime);
+
+            this.socket.emit(eventId, reqData);
 
             IDE.consoleLogger.debug(`product emit ${reqData.event}`);
-            this.socket.emit(eventId, reqData);
 
             if (callback) {
                 let cb = (respData) => {
@@ -60,7 +63,7 @@ class Product{
 
                         IDE.consoleLogger.error(`product emit ${eventId} ,but callback timeout ${callbackId}`);
                     }
-                }, timeout);
+                }, newTimeout);
             }
         }
     }
@@ -128,7 +131,7 @@ class Product{
     clear() {
         let p_u = IDE.DB.getCollection(dbConstants.PRODUCT_USER);
         p_u.findAndRemove({id:this.id});
-        IDE.ideLogger.info(`clear product ${this.ip} - ${this.type}`)
+        IDE.fileLogger.info(`clear product ${this.ip} - ${this.type}`)
     }
 
 }

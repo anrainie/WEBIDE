@@ -1,7 +1,7 @@
 /*内部场景调用*/
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, closeNodeEditor, terminalPolicy, idLocation, location} from "../editor/commonOptions";
+import * as options from "../editor/commonOptions";
 import * as props from "../propsName"
 
 const defaultPropData = Object.assign({}, props.commonStepProp, {
@@ -11,10 +11,11 @@ const defaultPropData = Object.assign({}, props.commonStepProp, {
         [props.Size]: '160,60',
     },
     [props.Desp]: '内部场景调用',
-    [props.RefImpl]: '内部场景调用',
+    [props.RefImpl]: undefined,
+    [props.ToolTip]: '场景同步调用',
     [props.Implementation]: {
         [props.Usage]: '0',
-        [props.Node]: null,
+        [props.Node]: undefined,
     }
 });
 
@@ -29,11 +30,11 @@ const ServiceInvokdEntered = {
     url: '/assets/image/editor/event_component_ServiceInvokdEntered.gif',
     type: $AG.IMAGE,
     anchor: [
-        {id: 'N', dir: 'n', offset: 0},
-        {id: '0', dir: 's', offset: -25},
-        {id: '1', dir: 's', offset: 25},
-        {id: 'E', dir: 'e', offset: 0},
-        {id: 'W', dir: 'w', offset: 0}
+        {id: 'N', dir: 'n', offset: 0, ...options.getAnchorOptions('in')},
+        {id: '0', dir: 's', offset: -25, ...options.getAnchorOptions('out')},
+        {id: '1', dir: 's', offset: 25, ...options.getAnchorOptions('out')},
+        {id: 'E', dir: 'e', offset: 0, ...options.getAnchorOptions('in')},
+        {id: 'W', dir: 'w', offset: 0, ...options.getAnchorOptions('in')},
     ],
     size: [160, 60],
 
@@ -41,14 +42,14 @@ const ServiceInvokdEntered = {
     canDrag: true,
     linkable: true,
     selectable: true,
-    refresh,
+    refresh: options.refresh,
 
     policies: {
-        'doubleclick': openPropEditor,
-        'despText': $AG.policy.TextPolicy('Desp', location),
-        'nodeEditor': closeNodeEditor,
-        'pin': terminalPolicy(),
-        'idText': $AG.policy.TextPolicy('id', idLocation)
+        'doubleclick': options.openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', options.location),
+        'nodeEditor': options.closeNodeEditor,
+        'pin': options.terminalPolicy(),
+        'idText': $AG.policy.TextPolicy('id', options.idLocation)
     },
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),
 };

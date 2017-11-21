@@ -5,7 +5,7 @@ import VueRouter from './router/routes'
 import store from './store/store'
 import debug from '../src/utils/debug'
 
-window.debug = debug;
+window.debug = debug();
 
 //vue实例
 var app = new Vue({

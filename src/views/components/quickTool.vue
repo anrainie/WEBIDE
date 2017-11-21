@@ -1,14 +1,10 @@
 <template>
     <div class="quickBar">
-        <span class="item tool-icon icon-search"></span>
-        <span class="item tool-icon icon-info"></span>
-        <span class="item tool-icon icon-preference"></span>
-        <span class="item tool-icon icon-user"></span>
+        <span class="item tool-icon" style="background-image: url(assets/image/user.png)"></span>
+        <span class="item tool-icon" style="background-image: url(assets/image/logout.png)"></span>
     </div>
 </template>
 <style>
-    @import "../../asset/style/fontStyle.css";
-
     .quickBar{
         background-color: #000000;
         display: inline-block;
@@ -21,10 +17,17 @@
     }
 
     .tool-icon{
-        font-size: 17px;
+        background-repeat: no-repeat;
         margin-left: 10px;
+        display: inline-block;
+        width:16px;
+        height: 16px;
+        margin-top: 5px;
     }
 
+    .tool-icon:hover{
+        background-color:gray;
+    }
 </style>
 <script>
 

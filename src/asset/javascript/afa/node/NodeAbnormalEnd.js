@@ -1,7 +1,7 @@
 /*异常结束*/
 
 import {$AG} from "anrajs";
-import {refresh, openPropEditor, idLocation, location} from "../editor/commonOptions";
+import * as options from "../editor/commonOptions";
 import * as props from "../propsName";
 
 const defaultPropData = Object.assign({}, props.commonNodeProp, {
@@ -36,17 +36,16 @@ const NodeAbnormalEnd = {
     linkable: true,
     selectable: true,
     anchor: [
-        {id: 'N', dir: 'n', offset: 0},
-        {id: '1', dir: 's', offset: 0},
-        {id: 'E', dir: 'e', offset: 0},
-        {id: 'W', dir: 'w', offset: 0},
+        {id: 'N', dir: 'n', offset: 0, ...options.getAnchorOptions('in')},
+        {id: 'E', dir: 'e', offset: 0, ...options.getAnchorOptions('in')},
+        {id: 'W', dir: 'w', offset: 0, ...options.getAnchorOptions('in')},
     ],
-    refresh,
+    refresh: options.refresh,
 
     policies: {
-        'doubleclick': openPropEditor,
-        'despText': $AG.policy.TextPolicy('Desp', location),
-        'idText': $AG.policy.TextPolicy('id', idLocation)
+        'doubleclick': options.openPropEditor,
+        'despText': $AG.policy.TextPolicy('Desp', options.location),
+        'idText': $AG.policy.TextPolicy('id', options.idLocation)
     },
 
     defaultData: Object.assign({}, defaultPropData, defaultEditorData),

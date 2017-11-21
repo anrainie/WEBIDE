@@ -64,9 +64,11 @@ function IDESocket() {
         });
 
         socket.on('lockTimeout', function (data) {
+            let paths = data.split("/");
+            let name = paths[paths.length - 1];
             ElementUI.Notification.error({
                 title: '提示',
-                message: '文件锁超时被释放,' + data
+                message: '文件锁超时被释放,' + name
             });
         });
         return def.promise();
@@ -74,15 +76,15 @@ function IDESocket() {
 }
 
 
-IDESocket.prototype.emit = function (eventId, data, callback,timeout) {
+IDESocket.prototype.emit = function (eventId,data,callback,timeout = this.timeout) {
     if(timeout && !$.isNumeric(timeout)){
         throw new Error("socket timeout must be a number" + timeout);
-    }else{
-        timeout = this.timeout;
     }
 
     data = data || {};
     data.event = data.event || eventId;
+    data.timeout = this.timeout;
+    data.emitTime = new Date().getTime();
 
     debug.info("IDESocket emit,event:" + data.event);
 
@@ -102,21 +104,21 @@ IDESocket.prototype.emit = function (eventId, data, callback,timeout) {
         } else {
             ElementUI.Notification.error({
                 title: '提示',
-                message: 'node socket is disconnect'
+                message: 'node socket disconnect'
             });
         }
     });
 }
 
-IDESocket.prototype.emitAndGetDeferred = function (eventId, data,timeout) {
-    if(timeout && !$.isNumeric(timeout)){
-        throw new Error("socket timeout must be a number" + timeout);
-    }else{
-        timeout = this.timeout;
+IDESocket.prototype.emitAndGetDeferred = function (eventId,data,timeout = this.timeout) {
+    if(!$.isNumeric(timeout)){
+        throw new TypeError("socket timeout must be a number" + timeout);
     }
 
     data = data || {};
     data.event = data.event || eventId;
+    data.timeout = this.timeout;
+    data.emitTime = new Date().getTime();
 
     debug.info("IDESocket emit,event:" + data.event);
 

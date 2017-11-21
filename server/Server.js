@@ -32,19 +32,30 @@ class Server {
             store: sessionStore
         });
         this.app.use(this.session);
-        require('./route/routes')(this.app);
+        this.app.use('/',require('./route/noauth.router')());
+        this.app.use('/product',require('./route/product.router')());
+        this.app.use('/user',require('./route/user.router')());
 
         //初始化IDE
         global.IDE = new _IDE(this.config,this.http,this.session);
-        IDE.init(()=>{
-            IDE.defaultLogger.info("WebIDE start successful!");
+        IDE.init((err)=>{
+            if(err) {
+                throw err
+            }
+            IDE.cfLogger.info("WebIDE start successful!");
         });
 
         // ### AUTO LEVEL DETECTION
         // http responses 3xx, level = WARN
         // http responses 4xx & 5xx, level = ERROR
         // else.level = INFO
-        //this.app.use(IDE.logger.connectLogger(IDE.defaultLogger,{ level: 'ERROR' }));
+        //this.app.use(IDE.logger.connectLogger(IDE.cfLogger,{ level: 'ERROR' }));
+
+        //错误处理中间件必须定义在最后
+        this.app.use(function(err, req, res, next) {
+            res.status(500).send({state:'error',errorMsg:'系统错误'});
+            IDE.cfLogger.error(err);
+        });
     }
 
     use(obj){

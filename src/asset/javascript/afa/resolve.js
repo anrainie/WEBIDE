@@ -1,24 +1,25 @@
 /*两个函数，分别解析data和line*/
-import StepBaseCfg from "./editor/fcEditor"
-import NodeBaseCfg from "./editor/bcptEditor"
+import StepBaseCfg from "./editor/fcEditor";
+import NodeBaseCfg from "./editor/bcptEditor";
+import * as props from "./propsName";
 
 /*用于参数忽略的时候*/
 function throwIfMissing() {
     throw new Error('Missing parameter');
 }
 
-var resolveEditorData = function(nodesConfig) {
+const resolveEditorData = function(nodesConfig) {
     let data, location, size;
     let {values, assign} = Object;
 
     try {
         data = values(nodesConfig).map((node) => {
-            location = node.Constraint.Location.split(',');
-            size = node.Constraint.Size.split(',');
+            location = node[props.Constraint][props.Location].split(',');
+            size = node[props.Constraint][props.Size].split(',');
 
             return assign({
-                id: node.Id,
-                type: node.Type,
+                id: node[props.ID],
+                type: node[props.Type],
                 bounds: [
                     parseInt(location[0]),
                     parseInt(location[1]),
@@ -33,7 +34,7 @@ var resolveEditorData = function(nodesConfig) {
     return data;
 };
 
-var resolveEditorLine = function(nodesConfig) {
+const resolveEditorLine = function(nodesConfig) {
     var line = [], {values} = Object, connection;
 
     try {
@@ -48,12 +49,12 @@ var resolveEditorLine = function(nodesConfig) {
                 connection.forEach((item) => {
                     line.push({
                     //id问题
-                    id: Id +　'.' + item.SourceTerminal + '_' + item.targetId + '.' + item.TargetTerminal,
+                    id: Id +　'.' + item[props.SourceTerminal] + '_' + item[props.targetId] + '.' + item[props.TargetTerminal],
                     source: Id,
                     type: 0,
-                    target: item.targetId,
-                    exit: item.SourceTerminal,
-                    entr: item.TargetTerminal
+                    target: item[props.targetId],
+                    exit: item[props.SourceTerminal],
+                    entr: item[props.TargetTerminal],
                 })})
             }
         })
@@ -101,7 +102,7 @@ export const nodeInput2Config = function (input) {
 
             /*???*/
             extraConfig.data.forEach((item) => {
-                if (item.type == '11' && item.Target) {
+                if (item.type == '11' && item[props.Target]) {
                     item.type = '111';
                 }
             });
@@ -120,11 +121,16 @@ export const commonDoSave = function (editor = throwIfMissing()) {
 
     //更新节点位置
     nodeStore().update(function () {
-        let {Constraint, bounds, id} = this;
-        Constraint.Location = [bounds[0], bounds[1]].toString();
-        this.Id = id;
-        this.UUID = editor.rootEditPart.model.children[id].hashCode();
-        this.Type = this.type == '111' ? '11' : this.type;
+        let {bounds, id} = this;
+        Object.assign(this, {
+            [props.Constraint]: {
+                [props.Location]: [bounds[0], bounds[1]].toString(),
+                [props.Size]: [bounds[2], bounds[3]].toString()
+            },
+            [props.ID]: id,
+            [props.UUID]: editor.rootEditPart.model.children[id].hashCode(),
+            [props.Type]: this.type == '111' ? '11' : this.type
+        });
 
         return this;
     });
@@ -136,30 +142,180 @@ export const commonDoSave = function (editor = throwIfMissing()) {
     lineStore().each(({source, target, exit, entr}) => {
         let hasSourceConnections, connect;
 
-        hasSourceConnections = nodeStore({Id: source}).filter({SourceConnections: {isUndefined: false}}).count() === 1;
+        hasSourceConnections = nodeStore({[props.ID]: source}).filter({[props.SourceConnections]: {isUndefined: false}}).count() === 1;
         connect = {
-            targetId: target,
-            SourceTerminal: exit,
-            TargetTerminal: entr
+            [props.targetId]: target,
+            [props.SourceTerminal]: exit,
+            [props.TargetTerminal]: entr
         };
 
         if (!hasSourceConnections) {
             nodeStore({Id: source}).update({
-                SourceConnections: {
-                    Connection: [
+                [props.SourceConnections]: {
+                    [props.Connection]: [
                         connect
                     ]
                 }
             });
         } else {
-            let {SourceConnections: {Connection: storeConnect}} = nodeStore({Id: source}).first();
+            let {[props.SourceConnections]: {[props.Connection]: storeConnect}} = nodeStore({[props.Id]: source}).first();
 
             storeConnect.push(connect);
         }
     });
 
     //没有连线则改为空字符串
-    nodeStore({SourceConnections: {isUndefined: true}}).update({SourceConnections: ""});
+    nodeStore({[props.SourceConnections]: {isUndefined: true}}).update({[props.SourceConnections]: ""});
 
     editor.cmdStack.markSaveLocation();
 };
+
+export const saveStep = function (step = throwIfMissing(), nodes = throwIfMissing()) {
+    step.store.node({
+        [props.Type]: ["5", "7", "4"]
+    }).each((record) => {
+        if (nodes.has(record[props.UUID])) {
+            let editor = nodes.get(record[props.UUID]);
+            commonDoSave(editor)
+
+            try {
+                record[props.Implementation][props.Node] = editor.getSaveData();
+            } catch (e) {
+                record[props.Implementation] = {
+                    Node: editor.getSaveData()
+                }
+            }
+        }
+    });
+    commonDoSave(step);
+    return step.getSaveData();
+}
+
+export const saveNode = function (node = throwIfMissing()) {
+    commonDoSave(node);
+    return node.getSaveData();
+}
+
+const nodeVerification = {
+    hasAloneNode(editor) {
+        let children = Object.values(editor.rootModel.children),
+            result = {
+                isTrue: true,
+                message: '',
+            };
+
+        if (children && children.length > 0) {
+            for (let child of children) {
+                if ((child.sourceLines == null || child.sourceLines.count() == 0) &&
+                    (child.targetLines == null || child.targetLines.count() == 0)) {
+                    result.isTrue = false;
+                    result.message = '孤儿节点\n';
+                    break;
+                }
+            }
+        }
+
+        return result;
+    },
+    hasStartNode(editor) {
+
+        if (editor.store.node().get().length == 0) {
+            return {
+                isTrue: true,
+                message: '',
+            };
+        }
+
+        return editor.store.node({[props.Type]: {is: '2'}}).get().length == 0 ?
+            {
+                isTrue: false,
+                message: '没有开始节点\n',
+            } :
+            {
+                isTrue: true,
+                message: '',
+            };
+    },
+    hasEndNode(editor) {
+        if (editor.store.node().get().length == 0) {
+            return {
+                isTrue: true,
+                message: '',
+            };
+        }
+
+        return editor.store.node({[props.Type]: ['3', '4', '14']}).get().length == 0 ?
+            {
+                isTrue: false,
+                message: '没有结束节点\n',
+            } :
+            {
+                isTrue: true,
+                message: '',
+            };
+    }
+};
+
+export const validateNode = function (editor = throwIfMissing()) {
+    let result = {
+        isTrue: true,
+        message: '',
+        tooltip: '保存错误',
+    };
+
+    Object.values(nodeVerification).reduce((pre, next) => {
+        let verification = next(editor);
+        pre.isTrue &= verification.isTrue;
+        pre.message += verification.message;
+
+        return pre;
+    }, result);
+
+    return result;
+}
+
+const stepVerification = {
+    hasAloneNode(editor) {
+        let children = Object.values(editor.rootModel.children) ,
+            result = {
+                isTrue: true,
+                message: '',
+            };
+
+        if (children && children.length > 1) {
+            for (let child of children) {
+                if ((child.sourceLines == null || child.sourceLines.count() == 0) &&
+                    (child.targetLines == null || child.targetLines.count() == 0)) {
+                    result.isTrue = false;
+                    result.message = '孤儿节点\n';
+                    break;
+                }
+            }
+        }
+
+        return result;
+    }
+}
+
+export const validateStep = function (editor = throwIfMissing(), nodeEditors = throwIfMissing()) {
+    let result = {
+        isTrue: true,
+        message: '',
+        tooltip: '保存错误',
+    };
+
+    for (let item of nodeEditors) {
+        let verification = validateNode(item);
+        result.isTrue &= verification.isTrue;
+        result.message += verification.message;
+    }
+
+    Object.values(stepVerification).reduce((pre, next) => {
+        let verification = next(editor);
+        pre.isTrue &= verification.isTrue;
+        pre.message += verification.message;
+        return pre;
+    }, result);
+
+    return result;
+}

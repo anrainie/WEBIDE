@@ -3,7 +3,7 @@
         <div style="width: 8px;height: 15px;float: left">
             <div v-show="isFolder && getProp('children') && getProp('children').length > 0" @click='toggle' :class="[open?'down-arrow':'right-arrow']"></div>
         </div>
-        <input v-show="config.check" type="checkbox" v-model="checked" class="item-checkbox" @click="setCheck(true)">
+        <input v-show="this.check" type="checkbox" v-model="checked" class="item-checkbox" @click="setCheck(true)">
         <div class="item-body"
              :class="[selected?'item-selected':'']"
              @dblclick.prevent="handleDbClick"
@@ -13,8 +13,23 @@
             <span class="item-title">{{getTitle()}}</span>
             <span class="item-desp">{{getProp('desp')}}</span>
         </div>
-        <div class="item-children" v-show="open" v-if='isFolder' >
-            <item v-for="child in children" :model='child,config,msgHub' :props="props" :key="child.path" :ref="getProp('label',child)">
+
+        <div class="item-children" v-if='isFolder' v-show="open">
+            <item v-for="child in children"
+                  :async="async"
+                  :check="check"
+                  :rightClick="rightClick"
+                  :filter="filter"
+                  :dblclick="dblclick"
+                  :click="click"
+                  :asyncLoadItem="asyncLoadItem"
+                  :afterDelete="afterDelete"
+                  :sorter="sorter"
+                  :model='child'
+                  :msgHub="msgHub"
+                  :props="props"
+                  :key="child.path"
+                  :ref="getProp('label',child)">
             </item>
         </div>
     </div>
@@ -25,9 +40,41 @@
         name: 'item',
         props: {
             model:null,
-            config:null,
             msgHub:null,
-            props:null
+            props:null,
+            async:{
+                type:Boolean,
+                default:function () {
+                    return false
+                }
+            },
+            check:{
+                type:Boolean,
+                default:function(){
+                    return false
+                }
+            },
+            asyncLoadItem:{
+                type:Function
+            },
+            afterDelete:{
+                type:Function
+            },
+            click:{
+                type:Function
+            },
+            dblclick:{
+                type:Function
+            },
+            rightClick:{
+                type:Function
+            },
+            filter:{
+                type:Function
+            },
+            sorter:{
+                type:Function
+            }
         },
         components: {},
         data() {
@@ -46,7 +93,7 @@
             },
             children:function () {
                 return (this.model.children || []).sort((a,b)=>{
-                    return this.config.sorter(a,b);
+                    return this.sorter(a,b);
                 });
             }
         },
@@ -90,7 +137,6 @@
                 if (this.isFolder) {
                     this.open = !this.open;
                 }
-
             },
             collapse:function () {
                 if (this.isFolder) {
@@ -99,10 +145,9 @@
             },
             loadItems(){
                 var self = this;
-                var asyncConfig = this.config.async;
-                if(asyncConfig  && !this.loaded) {
-                    if(this.config.callback.asyncLoadItem){
-                        this.config.callback.asyncLoadItem(this);
+                if(this.async && !this.loaded) {
+                    if(this.asyncLoadItem){
+                        this.asyncLoadItem.call(this,this);
                     }else{
                         console.error("tree's config don't have asyncLoadItem function");
                     }
@@ -111,10 +156,9 @@
             },
             refresh(level){
                 var self = this;
-                var asyncConfig = this.config.async;
-                if(asyncConfig) {
-                    if(this.config.callback.asyncLoadItem){
-                        this.config.callback.asyncLoadItem(this,level);
+                if(this.async) {
+                    if(this.asyncLoadItem){
+                        this.asyncLoadItem.call(this,this,level);
                     }else{
                         console.error("tree's config don't have asyncLoadItem function");
                     }
@@ -162,7 +206,7 @@
             },
             getCheckedItems:function () {
                 var checkedItems = [];
-                if(this.config.check){
+                if(this.check){
                     var children = this.getChildren();
                     for (var i = 0; i < children.length; i++) {
                         var child = children[i];
@@ -179,14 +223,14 @@
             },
             handleClick:function (event) {
                 this.selected = !this.selected;
-                if (this.config.callback.click) {
-                    this.config.callback.click.call(this,this);
+                if (this.click) {
+                    this.click.call(this,this);
                 }
                 this.msgHub.$emit('setSelected', this, event);
             },
             handleDbClick:function () {
-                if(this.config.callback.dblclick){
-                    this.config.callback.dblclick.call(this);
+                if(this.dblclick){
+                    this.dblclick.call(this);
                 }
                 if(this.isFolder){
                     this.toggle();
@@ -194,8 +238,8 @@
             },
             handleContextmenu:function (event) {
                 this.handleClick();
-                if(this.config.callback.rightClick){
-                    this.config.callback.rightClick.call(this,event);
+                if(this.rightClick){
+                    this.rightClick.call(this,event);
                 }
             },
             setEnable(enable){
@@ -203,8 +247,8 @@
             }
         },
         mounted:function () {
-            if(this.config.filter){
-                if(this.config.filter(this)){
+            if(this.filter){
+                if(this.filter(this)){
                     this.setEnable(false);
                 }
             }

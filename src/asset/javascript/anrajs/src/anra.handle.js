@@ -91,6 +91,7 @@ anra.gef.LineHandle = anra.Handle.extend(anra.svg.Circle).extend({
         } else if (this.type == constants.REQ_RECONNECT_TARGET) {
             anchor = this.editPart.getTargetAnchor();
         } else {
+            //TODO
             console.error('chuan ru type cuo wu')
         }
         
@@ -122,12 +123,14 @@ anra.gef.LineHandle = anra.Handle.extend(anra.svg.Circle).extend({
         
         this.setBounds({x:p.x, y:p.y, width:w, height:w}, true);
     },
-    dragStart: function() {
-        var tool = new anra.gef.LinkLineTool();
-        tool.linePart = this.editPart;
-        tool.type = this.type;
-        this.editPart.getRoot().editor.setActiveTool(tool);
-        return true;
+    dragStart: function(e) {
+        if (e.prop.drag == this) {
+            var tool = new anra.gef.LinkLineTool();
+            tool.linePart = this.editPart;
+            tool.type = this.type;
+            this.editPart.getRoot().editor.setActiveTool(tool);
+            return true;
+        }
     }
 });
 

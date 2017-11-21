@@ -8,20 +8,22 @@
                     :editorid="stepEditorID"
                     v-show="stepVisible"
                     ref="stepEditor"
+                    :input-style="stepWidth"
                     :editor-config="stepEditorCfg"
                     :bind-event="stepBindEvent"
                     :save="saveHandle"
                     :open-palette-event="stepPaletteOpenEvent"
-                    @dblclickcanvas="stepDoubleClickCanvas"></flow-Editor>
+                    @dblclickcanvas="stepDoubleClickCanvas"
+                    :inithandle="initHandle"></flow-Editor>
 
-            <!--<div class="split-editor" ref="split"></div>-->
+            <div class="split-editor" v-bind:style="{width: splitWidth + 'px'}" v-show = "stepVisible" ref="split"></div>
 
             <flow-Editor
                     :editorid="nodeEditorID"
                     v-if="nodeExist"
                     v-show="nodeVisible"
                     ref="nodeEditor"
-                    :input-style="{width: 'calc(50% - 4px)'}"
+                    :input-style="nodeWidth"
                     :editor-config="nodeEditorCfg"
                     :bind-event="nodeBindEvent"
                     :save="saveHandle"
@@ -46,17 +48,17 @@
         height: 100%;
         float: left;
         cursor: ew-resize;
-        background: black;
+        background: white;
     }
 </style>
 <script type="text/javascript">
     import flowEditor from "../../components/editor/flowEditor/flowEditor.vue"
     import editorContainer from '../../components/editorContainer.vue'
-    import {stepInput2Config, nodeInput2Config, commonDoSave} from '../../../asset/javascript/afa/resolve';
+    import {stepInput2Config, nodeInput2Config, saveStep, validateStep} from '../../../asset/javascript/afa/resolve';
     import * as Constants from 'Constants'
     import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
-    import constants from 'anrajs'
+    import {$AG} from 'anrajs'
 
     const packUrl = "/assets/image/editor/folder_catelog.gif";
     const comUrl = "/assets/image/editor/palette_component_businessComponent.gif";
@@ -67,8 +69,9 @@
         data() {
             let self = this;
             return {
-                width: 50,
-                nodeVisible: false,
+                splitWidth: 4,
+                offset: 0,
+                nodeVisible: true,
                 nodeExist: false,
                 stepVisible: true,
                 nodeEditorInput: null,
@@ -90,12 +93,12 @@
                     [Constants.OPEN_NODE_EDITOR](model) {
                         if (self.$refs["stepEditor"] === null) return;
 
-                        let onlyStepEditor = self.$refs["stepEditor"]["style"]["width"] == "100%"
+                        let onlyStepEditor = self.stepVisible & !self.nodeVisible;
 
                         /*全频左编辑器*/
                         if (onlyStepEditor) return;
 
-                        let uuid = model.get("UUID");
+                        let uuid = model.get("UUID") || model.hashCode();
 
                         if (self.nodeExist) {
                             let sameEditor = uuid == self.$refs["nodeEditor"]["editor"]["storeId"];
@@ -144,14 +147,39 @@
                         self.showproperties = true;
                     }
                 },
+                initHandle(editor) {
+                    let listener = new $AG.EditPartListener();
+                    editor.rootEditPart.addEditPartListener(Object.assign(listener, {
+                        removingChild(child) {
+                            if (!self.nodeVisible)  return;
+
+                            let type = child.model.get('type');
+
+                            if (type != '5' && type != '7' && type != '4') return;
+
+                            let uuid = child.model.get('UUID') || child.model.hashCode();
+
+                            if (self.$refs['nodeEditor'].editor.storeId == uuid) {
+                                self.$refs["nodeEditor"].removeContent();
+                                self.nodeEditorBuffer.delete(uuid);
+                                self.nodeVisible = false;
+                                self.nodeExist = self.nodeEditorBuffer.size > 0;
+                            }
+                        }
+                    }));
+                },
             }
         },
         computed: {
             stepWidth() {
-
+                return {
+                    width: this.nodeVisible ? `calc(50% - ${this.splitWidth/2 + this.offset}px)` : '100%'
+                }
             },
             nodeWidth() {
-
+                return {
+                    width: this.stepVisible ? `calc(50% - ${this.splitWidth/2 - this.offset}px)` : '100%'
+                }
             },
             saveHandle() {
                 return () => {
@@ -187,19 +215,18 @@
                                     if (type == path) {
 
                                         group.forEach((packageCom) => {
+
                                             children.push({
                                                 name: packageCom.desp,
                                                 url: packUrl,
-                                                items: packageCom.children.map((com) => {
-                                                    return {
-                                                        name: com.desp,
-                                                        url: comUrl,
-                                                        data: Object.assign({}, com.Component, {
-                                                            type: '4',
-                                                            size: [160, 46]
-                                                        }),
-                                                    }
-                                                })
+                                                items: packageCom.children.map((com) => ({
+                                                    name: com.desp,
+                                                    url: comUrl,
+                                                    data: Object.assign({}, com.Component, {
+                                                        type: '4',
+                                                        size: [160, 46]
+                                                    }),
+                                                }))
                                             })
                                         })
 
@@ -216,7 +243,7 @@
                                                             return {
                                                                 name: com.desp,
                                                                 url: comUrl,
-                                                                data: Object.assign({}, com.Component, {type: '4', size: [160,46]}),
+                                                                data: Object.assign({}, Object.assign(com.Component, {RefImp: com.target}), {type: '4', size: [160,46]}),
                                                             }
                                                         })
                                                     });
@@ -292,11 +319,13 @@
         mounted() {
             //prop传值在组件生成之后，延迟data初始化，input副本避免改变而进行多余的执行
             this.stepEditorInput = defaultsDeep({}, this.input);
-            console.log(x)
-            //this.activateResize();
+            this.activateResize();
         },
         updated() {
             this.updateNodeEditorBuffer();
+        },
+        beforeDestroy() {
+            this.nodeEditorBuffer.clear();
         },
         methods: {
             isDirty() {
@@ -309,35 +338,25 @@
                 return [...this.nodeEditorBuffer.values()].reduce((pre, next) => pre | next.isDirty(), dirty)
             },
             save() {
-                let stepEditor = this.$refs["stepEditor"].editor, self = this;
+                if (this.saveVerification()) {
+                    this.setStepFromInput(saveStep(this.$refs["stepEditor"].editor, this.nodeEditorBuffer));
+                    this.msgHub.$emit('dirtyStateChange', this.file, false);
+                    return true;
+                }
 
-                /*处理Node和Step的关系*/
-                let nodeStore = stepEditor.store.node;
+                return false;
+            },
+            saveVerification() {
+                let result = validateStep(this.$refs["stepEditor"].editor, this.nodeEditorBuffer.values());
 
-                nodeStore({
-                    Type: ["5", "7", "4"]
-                }).each((record) => {
-                    if (self.nodeEditorBuffer.has(record["UUID"])) {
-                        let editor = self.nodeEditorBuffer.get(record["UUID"]);
-                        commonDoSave(editor)
+                if (!result.isTrue) {
+                    this.$alert(result.message, result.tooltip, {
+                        confirmButtonText: 'OK',
+                        type: 'error',
+                    });
+                }
 
-                        try {
-                            record["Implementation"]["Node"] = editor.getSaveData();
-                        } catch (e) {
-                            record["Implementation"] = {
-                                Node: editor.getSaveData()
-                            }
-                        }
-                    }
-                });
-
-                /*step保存*/
-                commonDoSave(stepEditor);
-                this.nodeEditorBuffer.clear();
-                if (!this.nodeVisible) this.nodeVisible = this.nodeExist = false;
-                this.setStepFromInput(stepEditor.getSaveData());
-                this.msgHub.$emit('dirtyStateChange', this.file, false);
-                return true;
+                return result.isTrue;
             },
             focus() {
 
@@ -346,17 +365,11 @@
 
             },
 
-            stepDoubleClickCanvas(style) {
-                style['width'] = style['width'] == "100%" ? "50%" : "100%";
+            stepDoubleClickCanvas() {
+                this.nodeVisible = !this.nodeVisible;
             },
-            nodeDoubleClickCanvas(style) {
-                if (style['width'] == "100%") {
-                    style['width'] = "50%";
-                    this.stepVisible = true;
-                } else {
-                    style['width'] = "100%";
-                    this.stepVisible = false;
-                }
+            nodeDoubleClickCanvas() {
+                if (this.nodeExist) this.stepVisible = !this.stepVisible;
             },
 
             updateNodeEditorBuffer() {
@@ -411,18 +424,19 @@
                 }
             },
             activateResize() {
-                let split = this.$refs['split'], isMove = false, _x;
+                let split = this.$refs['split'], isMove = false, _x, currenOffset, limitWdith;
 
                 $(split).mousedown((e) => {
                     isMove = true;
-                    _x= e.pageX - split.offsetLeft;
+                    _x = e.pageX;
+                    currenOffset = this.offset;
+                    limitWdith = ~~((this.$el.clientWidth - this.splitWidth) / 2);
                 });
 
-                $(document).mousemove(function(e){
+                $(document).mousemove((e) => {
                     if(isMove){
-                        var x= e.pageX - _x;
-                        console.log(x)
-                        $(split).css("left", x);
+                        let tempOff = currenOffset + _x - e.pageX;
+                        this.offset = tempOff < -limitWdith ? -limitWdith : tempOff > limitWdith ? limitWdith : tempOff;
                     }
                 }).mouseup(function(){
                     isMove = false;

@@ -1,5 +1,5 @@
 <template>
-    <div :id="editorid" class="editor" v-bind:style="style">
+    <div :id="editorid" class="editor" v-bind:style="inputStyle">
         <palette :editor='editor' ref='palette' :open-palette-event="openPaletteEvent"></palette>
     </div>
 </template>
@@ -64,13 +64,19 @@
 
             openPaletteEvent: {
                 type: Function
+            },
+
+            inithandle: {
+                type: Function,
+                default() {
+                    return null;
+                }
             }
         },
 
         data() {
             return {
                 editor: null,
-                style: this.inputStyle
             }
         },
 
@@ -101,6 +107,8 @@
                 this.bindEventToEditor();
                 this.activateChangeWidth();
                 this.activateKeyManager();
+
+                this.inithandle && this.inithandle(this.editor);
 //                window.addEventListener('keydown', $AG.Platform.globalKeyDown);
 //                window.addEventListener('keyup', $AG.Platform.globalKeyUp);
 
@@ -128,7 +136,7 @@
                 if (this.$vnode.componentOptions.listeners && this.$vnode.componentOptions.listeners['dblclickcanvas']) {
                     this.editor.canvas.element.addEventListener('dblclick', function (e) {
                         if (e.target.isEqualNode(this) || e.target.parentNode.isEqualNode(this)) {
-                            self.$emit('dblclickcanvas', self.style);
+                            self.$emit('dblclickcanvas');
                         }
                         return false;
                     });

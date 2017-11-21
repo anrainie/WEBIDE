@@ -1,7 +1,7 @@
 <template>
 
     <editor-Container :editor="this" :domain="domain">
-        <div slot="editor-content">
+            <div slot="editor-content">
 
             <flow-Editor v-if="nodeEditorInput"
                          :editorid="nodeEditorID"
@@ -24,7 +24,7 @@
 <script type="text/javascript">
     import flowEditor from "../../components/editor/flowEditor/flowEditor.vue"
     import editorContainer from '../../components/editorContainer.vue'
-    import {nodeInput2Config, commonDoSave} from '../../../asset/javascript/afa/resolve';
+    import {nodeInput2Config, saveNode} from '../../../asset/javascript/afa/resolve';
     import * as Constants from 'Constants'
     import propDialog from '../dialog/propDialog.vue'
     import {defaultsDeep} from 'lodash'
@@ -122,9 +122,7 @@
                 return this.$refs["editor"].editor.isDirty();
             },
             save() {
-                commonDoSave(this.$refs["editor"].editor);
-                console.log(this.$refs["editor"].editor.getSaveData())
-                this.setNodeFromInput(this.$refs["editor"].editor.getSaveData());
+                this.setNodeFromInput(saveNode(this.$refs["editor"].editor));
                 this.msgHub.$emit('dirtyStateChange', this.file, false);
                 return true;
             },
@@ -135,7 +133,7 @@
 
             },
             setNodeFromInput(node) {
-                this.input.Component.Implementation.Node = node;
+                Object.assign(this.input.Component, {Implementation: {Node: node}});
             }
         },
         components: {

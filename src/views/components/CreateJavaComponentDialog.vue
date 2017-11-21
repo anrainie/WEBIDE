@@ -5,13 +5,15 @@
                 <el-collapse-item title="基本信息" name="1">
                     <el-form :model="form">
                         <el-form-item label="包名" :label-width="labelWidth">
-                            <el-input v-model="form.pkg.value"></el-input>
+                            <el-input v-model="form.pkg.value"  :disabled="true"></el-input>
                         </el-form-item>
                         <el-form-item label="分组名" :label-width="labelWidth">
                             <el-input v-model="form.category.value"></el-input>
                         </el-form-item>
                         <el-form-item label="类名" :label-width="labelWidth">
-                            <el-input v-model="form.clzName.value"></el-input>
+                            <el-input v-model="form.clzName.value">
+                                <template slot="prepend">{{classPrefix}}</template>
+                            </el-input>
                         </el-form-item>
                         <el-form-item label="描述" :label-width="labelWidth">
                             <el-input v-model="form.desp.value"></el-input>
@@ -37,6 +39,10 @@
 
         </el-collapse>
 
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="handleOk">确 定</el-button>
+        </span>
     </el-dialog>
 </template>
 <style>
@@ -87,6 +93,18 @@
                         break;
                 }
                 return prefix.join(".");
+            },
+            classPrefix(){
+                switch (this.parentResource.model.level){
+                    case 'Platform':
+                        return 'P_';
+                    case 'Bank':
+                        return 'B_';
+                    case 'App':
+                        return "A_";
+                    case 'Product':
+                        return "PD_";
+                }
             }
         },
         data(){
@@ -118,7 +136,36 @@
                 this.dialogVisible = true;
             },
             close(){
-
+                this.$el.parentNode.removeChild(this.$el);
+            },
+            validate(){
+                return true;
+            },
+            handleOk(){
+                if(this.validate()) {
+                    let def =  IDE.socket.emitAndGetDeferred("createJavaCptFile",{
+                        type:IDE.type,
+                        parent:this.parentResource.model.path,
+                        pkgName:this.form.pkg.value,
+                        category:this.form.category.value,
+                        clzName:this.classPrefix + this.form.clzName.value,
+                        desp:this.form.desp.value,
+                        level:this.parentResource.model.level,
+                        acpects:this.form.acpects.value
+                    });
+                    def.done((result)=>{
+                        this.dialogVisible = false;
+                        IDE.navigator.refresh(this.parentResource.model.path);
+                        setTimeout(()=>{
+                            this.$destroy();
+                        },1000);
+                    }).fail((result)=>{
+                        this.$notify.error({
+                            title: '错误',
+                            message: result.errorMsg
+                        });
+                    });
+                }
             }
         },
         mounted(){

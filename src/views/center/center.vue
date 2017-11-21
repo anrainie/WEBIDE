@@ -2,56 +2,48 @@
     <div class="ide-entrys">
         <div class="entrys">
             <router-link :to="'afa'" class="entry">
-                <p>AFA</p>
+                <span>
+                    <p>AFA</p>
+                    <el-button type="text" @click="toggleProductArea($event,'afa')">选择产品</el-button>
+                </span>
             </router-link>
             <router-link :to="'afe'" class="entry">
-                <p>AFE</p>
+               <span>
+                    <p>AFE</p>
+                    <el-button type="text" @click="toggleProductArea($event,'afe')">选择产品</el-button>
+                </span>
             </router-link>
+            <div class="productArea">
+                <el-table height="200" :data="alternativeProducts" style="width:600px;height:200px;left:50%;margin-left:-300px;">
+                    <el-table-column property="name" label="名称" width="150"></el-table-column>
+                    <el-table-column property="type" label="类型" width="150"></el-table-column>
+                    <el-table-column property="ip" label="IP地址" width="200"></el-table-column>
+                    <el-table-column fixed="right" label="操作" width="100">
+                        <template scope="scope">
+                            <el-button @click="selectProduct(scope.$index, scope.row)" type="text" size="small">选择</el-button>
+                        </template>
+                    </el-table-column>
+                </el-table>
+            </div>
         </div>
         <div class="product-toolbar">
             <el-button type="text" @click="openServicesDialog()">后台服务编辑</el-button>
         </div>
         <el-dialog title="后台服务列表" custom-class="servicesDialog" :visible.sync="servicesDialogVisible">
-            <!-- <el-button style="float: right;margin-bottom: 5px;margin-right: 5px;" type="text" @click="openProductDialog()">新增</el-button> -->
             <el-table :data="products">
                 <el-table-column property="name" label="名称" width="150"></el-table-column>
                 <el-table-column property="type" label="类型" width="150"></el-table-column>
                 <el-table-column property="ip" label="IP地址" width="200"></el-table-column>
                 <el-table-column fixed="right" label="操作" width="100">
                     <template scope="scope">
-                        <!-- <el-button @click="modifyProduct(scope.$index, scope.row)" type="text" size="small">修改 </el-button> -->
                          <el-button @click="clearProduct(scope.$index, scope.row)" type="text" size="small">清理</el-button>
                      </template>
                  </el-table-column>
              </el-table>
          </el-dialog>
-
-         <el-dialog titile="填写后台服务信息" size="tiny" :visible.sync="productDialogVisible">
-             <el-form :model="productForm" label-width="60px">
-                 <el-form-item label="名称">
-                     <el-input v-model="productForm.name"></el-input>
-                 </el-form-item>
-                 <el-form-item label="类型">
-                     <el-select v-model="productForm.type" placeholder="请选择服务类型">
-                         <el-option label="AFA" value="afa"></el-option>
-                         <el-option label="AFE" value="afe"></el-option>
-                     </el-select>
-                 </el-form-item>
-                 <el-form-item label="IP地址">
-                     <el-input v-model="productForm.ip"></el-input>
-                 </el-form-item>
-                 <el-form-item label="port">
-                     <el-input v-model="productForm.port"></el-input>
-                 </el-form-item>
-             </el-form>
-             <span slot="footer" class="dialog-footer">
-                     <el-button @click="resetProductDialog">取 消</el-button>
-                     <el-button type="primary" @click="addProduct">确 定</el-button>
-             </span>
-         </el-dialog>
      </div>
  </template>
- <style>
+ <style scoped>
      .ide-entrys{
          width: 100%;
          height: 100%;
@@ -64,6 +56,15 @@
      .entrys {
          position: relative;
          top: 20%;
+     }
+
+     .productArea{
+         margin-top: 20px;
+         width: 100%;
+         height: 200px;
+         background-color: white;
+         opacity: 0.9;
+         text-align: center;
      }
 
      .entry {
@@ -87,8 +88,7 @@
      }
 
      .entry p {
-         position: relative;
-         top: 30%;
+         margin-top: 20%;
          color: black;
          text-decoration: none;
          font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -107,71 +107,50 @@
                  servicesDialogVisible:false,
                  productDialogVisible:false,
                  products:[],
-                 productForm:{
-                     name:null,
-                     type:null,
-                     ip:null,
-                     port:null,
-                     modify:false
-                 }
+                 selectedProduct:null,
+                 alternativeProducts:[],
              }
          },
+         mounted(){
+             this.$productArea = $('.productArea');
+             this.$productArea.toggle();
+             this.loadAllProduct();
+         },
          methods: {
+             toggleProductArea($event,type){
+                 if(!this.selectedProduct) {
+                     this.$productArea.show("slow");
+                     this.selectedProduct = type;
+                     this.changeAlternativeProducts(type);
+                 }else if(this.selectedProduct === type){
+                     this.$productArea.hide("slow");
+                     this.selectedProduct = null;
+                 }else if(this.selectedProduct != type){
+                     this.selectedProduct = type;
+                     this.changeAlternativeProducts(type);
+                 }
+                 $event.preventDefault();
+             },
+             changeAlternativeProducts(type){
+                 this.alternativeProducts.splice(0,this.alternativeProducts.length);
+                 this.products.forEach((value,index) => {
+                     if(value.type === type){
+                         this.alternativeProducts.push(value);
+                     }
+                 })
+             },
+             selectProduct(index,product){
+                 IDE.post('/user/changeProduct',{ideType:this.selectedProduct,pid:product.id}).done( (result) => {
+                     this.$notify.success({message:'选择成功', title:'成功'});
+                 }).fail((result) => {
+                     this.$notify.error({message:result.errorMsg, title:'错误'});
+                 });
+             },
              openServicesDialog(){
                  this.servicesDialogVisible = true;
-                 this.loadAllProduct();
              },
              openProductDialog(){
                  this.productDialogVisible = true;
-             },
-             resetProductDialog(){
-                 this.productDialogVisible = false;
-                 this.productForm = {
-                     name:null,
-                     type:null,
-                     ip:null,
-                     port:null,
-                     modify:false
-                 }
-             },
-             addProduct(){
-                 var self = this;
-                 if(this.productForm.modify){
-                     this.$confirm('更新操作会重启系统内部服务！', '警告', {
-                         confirmButtonText: '确定',
-                         cancelButtonText: '取消',
-                         type: 'warning',
-                     }).then(function(){
-                         $.post('/product/update',self.productForm,function (result) {
-                             if(result.state === 'success'){
-                                 self.loadAllProduct();
-                             }else{
-                                 self.$notify.error({
-                                     title: '提示',
-                                     message: '更新失败'
-                                 });
-                             }
-                             self.resetProductDialog();
-                         });
-                     });
-                 }else {
-                     $.post('/product/add', this.productForm, function (result) {
-                         self.resetProductDialog();
-                         if (result.state === 'success') {
-                             self.$notify({
-                                 title: '提示',
-                                 message: '添加成功'
-                             });
-                             self.loadAllProduct();
-                         } else if (result.state === 'error') {
-                             self.$notify({
-                                 title: '提示',
-                                 message: '添加失败：' + result.errorMsg
-                             });
-                         }
-                         self.resetProductDialog();
-                     });
-                 }
              },
              loadAllProduct(){
                  let self = this;
@@ -180,12 +159,6 @@
                          self.products = result.data;
                      }
                  });
-             },
-             modifyProduct(index,product){
-                 let self = this;
-                 this.openProductDialog();
-                 this.productForm = product;
-                 this.productForm.modify = true;
              },
              clearProduct(index,product){
                  let self = this;
