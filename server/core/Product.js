@@ -41,12 +41,12 @@ class Product{
             let callbackId = reqData.callbackId = tools.genUUID(),
                 callbackSuccess = false,
                 timeout = reqData.timeout,
-                frontEmitTime = reqData.emitTime,
+                frontEmitTime = reqData.time,
                 newTimeout = timeout - (new Date().getTime() - frontEmitTime);
 
             this.socket.emit(eventId, reqData);
 
-            IDE.consoleLogger.debug(`product emit ${reqData.event}`);
+            IDE.consoleLogger.debug(`product[${this.id}] emit ${reqData.event}`);
 
             if (callback) {
                 let cb = (respData) => {
@@ -59,7 +59,7 @@ class Product{
                 setTimeout(() => {
                     if (!callbackSuccess) {
                         this.socket.removeListener(callbackId,cb);
-                        callback({state: "error", errorMsg: "Product callback timeout"});
+                        callback({state: "error", errorMsg: `Product[${this.id}] 返回超时`});
 
                         IDE.consoleLogger.error(`product emit ${eventId} ,but callback timeout ${callbackId}`);
                     }
@@ -114,6 +114,7 @@ class Product{
 
     addClient (id,client) {
         this.clients.set(id,client);
+        console.info('clients : ' + this.clients.size)
     }
 
     removeClient (id) {

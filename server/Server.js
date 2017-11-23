@@ -23,15 +23,20 @@ class Server {
         this.app.use(bodyParser.urlencoded({extended: true}));
 
         //session
-        var sessionStore = new expressSession.MemoryStore({reapInterval: 60000 * 10});
+        this.sessionStore = new expressSession.MemoryStore();
         this.session = expressSession({
+            secret: 'webide',
+            cookie: ('name', 'value', {
+                maxAge: 60 * 60 * 10000,
+                httpOnly:true,
+                path:'/'
+            }),
             resave: true,
             saveUninitialized: true,
-            secret: 'agree',
-            key: 'ide',
-            store: sessionStore
+            store: this.sessionStore,
         });
         this.app.use(this.session);
+
         this.app.use('/',require('./route/noauth.router')());
         this.app.use('/product',require('./route/product.router')());
         this.app.use('/user',require('./route/user.router')());
@@ -56,6 +61,13 @@ class Server {
             res.status(500).send({state:'error',errorMsg:'系统错误'});
             IDE.cfLogger.error(err);
         });
+
+        //因为使用的是expressSession.MemoryStore，所以需要十分钟清理一次session，防止内存泄露
+        setInterval(() => {
+            // 1.15.1 版本的all方法里的getSession()会自动清除过时session。
+            this.sessionStore.all((err, sessions) => {});
+        },10 * 60 * 1000);
+
     }
 
     use(obj){

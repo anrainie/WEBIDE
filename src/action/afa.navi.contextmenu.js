@@ -720,8 +720,14 @@ function compileService(selection) {
                 for (let i = 0; i < selection.length; i++) {
                     selection[i].refresh(3);
                 }
-            } else {
+            } else if($.isArray(result.errorMsg)){
                 showCompileError(result.errorMsg);
+            }else{
+                that.$notify({
+                    title: '编译',
+                    message: `编译失败，${result.errorMsg}`,
+                    type: 'error'
+                });
             }
         });
     }
@@ -761,8 +767,14 @@ function compileBcpt(selection) {
                 for (let i = 0; i < selection.length; i++) {
                     selection[i].refresh(3);
                 }
-            } else {
+            } else if($.isArray(result.errorMsg)){
                 showCompileError(result.errorMsg);
+            }else{
+                that.$notify({
+                    title: '编译',
+                    message: `编译失败，${result.errorMsg}`,
+                    type: 'error'
+                });
             }
         });
     }

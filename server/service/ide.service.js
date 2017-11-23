@@ -56,19 +56,16 @@ module.exports = {
                         if (respData.state === 'success') {
                             cb(respData);
                         } else if (respData.state === 'error') {
-                            switch (respData.code) {
-                                case 1:
-                                    if (reqData.uid == respData.lock.uid) {
-                                        //相同用户重复加锁
-                                        respData.state = 'success';
-                                        break;
+                            if(respData.lock) {
+                                if (reqData.uid == respData.lock.uid) {
+                                    //相同用户重复加锁
+                                    respData.state = 'success';
+                                }else{
+                                    let user = userDao.findUser({'id': respData.lock.uid});
+                                    if (user) {
+                                        respData.errorMsg = '文件正在被用户[' + user.username + ']编辑';
                                     }
-                                    if (respData.lock.uid) {
-                                        let user = userDao.findUser({'id': respData.lock.uid});
-                                        if (user) {
-                                            respData.errorMsg = '文件正在被用户[' + user.username + ']编辑';
-                                        }
-                                    }
+                                }
                             }
                             cb(respData);
                         }
@@ -86,6 +83,16 @@ module.exports = {
                         if (respData.state === 'success') {
                             cb(respData);
                         } else if (respData.state === 'error') {
+                            if(respData.lock){
+                                let user = userDao.findUser({'id': respData.lock.uid});
+                                if (user) {
+                                    respData.errorMsg = `文件被用户[${user.username}]独占`;
+                                }else{
+                                    respData.errorMsg = `文件被用户[${respData.lock.uid}]独占`;
+                                }
+                            }else{
+                                respData.errorMsg = '文件未被上锁';
+                            }
                             cb(respData);
                         }
                     });
