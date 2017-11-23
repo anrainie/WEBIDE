@@ -15,7 +15,7 @@ const JAVA_KEYWORD_LIST = [ "abstract", "assert",
     "this", "throw", "throws", "transient", "try", "void", "volatile",
     "while", "goto" ];
 
-module.exports  = {
+module.exports  = Object.freeze({
     deepParseJson:function(str){
         return JSON.parse(str,function (k,v) {
             if(typeof v === 'string' && v.charAt(0) === '{' && v.charAt(v.length) === '}'){
@@ -51,4 +51,4 @@ module.exports  = {
         let r = /^[A-Za-z_]+[A-Za-z_$\\d]+/;
         return r.test(str);
     }
-}
+})

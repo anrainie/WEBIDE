@@ -83,6 +83,8 @@ IDESocket.prototype.emit = function (eventId,data,callback,timeout = this.timeou
 
     data = data || {};
     data.event = data.event || eventId;
+    data.timeout = this.timeout;
+    data.time = new Date().getTime();
 
     debug.info("IDESocket emit,event:" + data.event);
 
@@ -96,9 +98,10 @@ IDESocket.prototype.emit = function (eventId,data,callback,timeout = this.timeou
             });
             setTimeout(()=>{
                 if(!success){
-                    callback({state:'error',errorMsg:'emit callback timeout :' + eventId});
+                    callback({state:'error',errorMsg:'node返回超时 :' + eventId});
+                    success = true;
                 }
-            },timeout);
+            },timeout + 300);
         } else {
             ElementUI.Notification.error({
                 title: '提示',
@@ -109,12 +112,14 @@ IDESocket.prototype.emit = function (eventId,data,callback,timeout = this.timeou
 }
 
 IDESocket.prototype.emitAndGetDeferred = function (eventId,data,timeout = this.timeout) {
-    if(timeout && !$.isNumeric(timeout)){
-        throw new Error("socket timeout must be a number" + timeout);
+    if(!$.isNumeric(timeout)){
+        throw new TypeError("socket timeout must be a number" + timeout);
     }
 
     data = data || {};
     data.event = data.event || eventId;
+    data.timeout = this.timeout;
+    data.time = new Date().getTime();
 
     debug.info("IDESocket emit,event:" + data.event);
 
@@ -136,9 +141,10 @@ IDESocket.prototype.emitAndGetDeferred = function (eventId,data,timeout = this.t
             });
             setTimeout(()=>{
                 if(!success){
-                    def.reject({state:'error',errorMsg:'emit callback timeout :' + eventId});
+                    def.reject({state:'error',errorMsg:'node返回超时 :' + eventId});
+                    success = true;
                 }
-            },timeout);
+            },timeout + 300);
         }
     });
     return def.promise();

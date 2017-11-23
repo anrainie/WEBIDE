@@ -1,7 +1,7 @@
 <template>
     <editor-Container :editor="this">
         <div slot="editor-content" class="verifyFileEditor">
-            <tree ref="tree" class="left-side split split-horizontal" :model="treeModel" :config="treeConfig"></tree>
+            <tree ref="tree" class="left-side split split-horizontal" :model="treeModel" :click="click" :rightClick="rightClick"></tree>
             <div class="right-side split split-horizontal">
                 <el-card v-if="selected.type === 'verifyType'" class="box-card">
                     <div slot="header" class="clearfix">
@@ -119,12 +119,8 @@
                 functionFormatLib: null,
                 inputJo: null,
                 treeModel: [],
-                treeConfig: {
-                    callback: {
-                        click: this.setSelected,
-                        rightClick: this.openContextMenu,
-                    }
-                },
+                click: this.setSelected,
+                rightClick: this.openContextMenu,
                 menuItems: [],
                 menuConfig: {}
             };

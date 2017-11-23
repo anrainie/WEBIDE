@@ -23,28 +23,51 @@ class Server {
         this.app.use(bodyParser.urlencoded({extended: true}));
 
         //session
-        var sessionStore = new expressSession.MemoryStore({reapInterval: 60000 * 10});
+        this.sessionStore = new expressSession.MemoryStore();
         this.session = expressSession({
+            secret: 'webide',
+            cookie: ('name', 'value', {
+                maxAge: 60 * 60 * 10000,
+                httpOnly:true,
+                path:'/'
+            }),
             resave: true,
             saveUninitialized: true,
-            secret: 'agree',
-            key: 'ide',
-            store: sessionStore
+            store: this.sessionStore,
         });
         this.app.use(this.session);
-        require('./route/routes')(this.app);
+
+        this.app.use('/',require('./route/noauth.router')());
+        this.app.use('/product',require('./route/product.router')());
+        this.app.use('/user',require('./route/user.router')());
 
         //初始化IDE
         global.IDE = new _IDE(this.config,this.http,this.session);
-        IDE.init(()=>{
-            IDE.defaultLogger.info("WebIDE start successful!");
+        IDE.init((err)=>{
+            if(err) {
+                throw err
+            }
+            IDE.cfLogger.info("WebIDE start successful!");
         });
 
         // ### AUTO LEVEL DETECTION
         // http responses 3xx, level = WARN
         // http responses 4xx & 5xx, level = ERROR
         // else.level = INFO
-        //this.app.use(IDE.logger.connectLogger(IDE.defaultLogger,{ level: 'ERROR' }));
+        //this.app.use(IDE.logger.connectLogger(IDE.cfLogger,{ level: 'ERROR' }));
+
+        //错误处理中间件必须定义在最后
+        this.app.use(function(err, req, res, next) {
+            res.status(500).send({state:'error',errorMsg:'系统错误'});
+            IDE.cfLogger.error(err);
+        });
+
+        //因为使用的是expressSession.MemoryStore，所以需要十分钟清理一次session，防止内存泄露
+        setInterval(() => {
+            // 1.15.1 版本的all方法里的getSession()会自动清除过时session。
+            this.sessionStore.all((err, sessions) => {});
+        },10 * 60 * 1000);
+
     }
 
     use(obj){

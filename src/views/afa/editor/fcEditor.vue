@@ -206,6 +206,7 @@
                         }
                     }, (result) => {
                         if (result.state == "success") {
+
                             try {
                                 let children = [];
 

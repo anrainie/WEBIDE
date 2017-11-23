@@ -6,26 +6,23 @@ const path = require('path');
 const dbKeys = require('../constants/DBConstants');
 const userDao = require('../dao/UserDao');
 const productDao = require('../dao/ProductDao');
+const express = require('express');
+const tools = require('../utils/tools');
 
-module.exports = function (app) {
-    app.use(function (req, res, next) {
-        var _user = req.session.user
+module.exports = function () {
 
-        app.locals.user = _user
-
-        next();
-
-    });
+    var  router = express.Router();
 
     if(process.env.NODE_ENV === 'production') {
-        app.get('*', function (req, res) {
+        router.get('*', function (req, res) {
             const html = fs.readFileSync(path.resolve(__dirname, '../../dist/index.html'), 'utf-8')
             res.send(html)
         });
     }
 
+
     // 注册
-    app.post('/user/signup', function (req, res) {
+    router.post('/user/signup', function (req, res) {
         var newUser = req.body;
         var u = userDao.findUser({username: newUser.username});
         if (u) {
@@ -35,7 +32,7 @@ module.exports = function (app) {
             });
         } else {
             newUser.createTime = newUser.updateTime = new Date();
-            newUser.id = IDE.genUUID();
+            newUser.id = tools.genUUID();
             userDao.save(newUser, function (err) {
                 if (!err) {
                     res.json({
@@ -53,8 +50,9 @@ module.exports = function (app) {
 
         }
     });
+
     // 登录
-    app.post('/user/signin', function (req, res) {
+    router.post('/user/signin', function (req, res) {
         // console.log("Sign in session id = "+req.session.id);
         var _user = req.body;
         var username = _user.username;
@@ -96,55 +94,5 @@ module.exports = function (app) {
         }
     });
 
-    app.post('/product/list', function (req, res) {
-        let ps = IDE.Servlet.getAllProducts();
-        let result = [];
-        ps.forEach(function (p) {
-            result.push({
-                id:p.id,
-                name:p.name,
-                type:p.type,
-                ip:p.ip
-            })
-        });
-        res.json({
-            state: 'success',
-            data: result
-        });
-    });
-
-    app.post('/product/clear', function (req, res) {
-        let id = req.body.id;
-        let product = IDE.Servlet.getProduct(id);
-        if (product != null) {
-            IDE.Servlet.clearProduct(product);
-            res.json({
-                state: 'success',
-                data: '删除成功'
-            });
-        }else{
-            res.json({
-                state: 'error',
-                errorMsg: '无法找到该服务'
-            });
-        }
-    });
-
-    app.post('/user/changeProduct',function (req,res) {
-        if(req.session.user) {
-            let uid = req.session.user.id,
-                pid = req.body.pid,
-                ideType = req.body.ideType;
-            let p_u = IDE.DB.getCollection(dbKeys.PRODUCT_USER);
-            p_u.findAndRemove({uid,ideType});
-            p_u.insert({
-                'uid': uid,
-                'pid': pid,
-                'ideType':ideType,
-                'createTime': new Date()
-            });
-            res.json({state:'success',data:'选择成功'});
-        }
-    })
-
+    return router;
 }

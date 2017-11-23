@@ -1,14 +1,14 @@
 <template>
     <editor-Container :editor="this" :editoractions="actions">
         <monacoeditor slot="editor-content"
-                :width="width"
-                :height="width"
-                language="java"
-                :code="input"
-                :options="options"
-                @mounted="onMounted"
-                @codeChange="onCodeChange"
-                srcPath=""
+                      :width="width"
+                      :height="width"
+                      language="java"
+                      :code="input"
+                      :options="options"
+                      @mounted="onMounted"
+                      @codeChange="onCodeChange"
+                      srcPath=""
         >
         </monacoeditor>
     </editor-Container>
@@ -23,12 +23,12 @@
 
     // use in component
     export default {
-        props: ['input', 'file', 'msgHub','domain'],
+        props: ['input', 'file', 'msgHub', 'domain'],
         data() {
             return {
                 options: {
                     selectOnLineNumbers: false,
-                    automaticLayout:true,
+                    automaticLayout: true,
                 },
                 width: '100%',
                 height: '100%',
@@ -45,48 +45,43 @@
         },
         methods: {
             onMounted(editor) {
-                window.java=this;
-                editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.US_SLASH, function (e) {
-                    alert("提示啦", e);
+                window.java = this;
+                let remote = false;
+                editor.addCommand(monaco.KeyMod.Alt | monaco.KeyCode.US_SLASH, (e) => {
+                    editor.trigger('triggerSuggest', 'editor.action.triggerSuggest', {});
+                    remote = true;
                 });
                 this.editor = editor;
                 monaco.languages.registerCompletionItemProvider('java', {
-                    triggerCharacters: ['∮', '.'],
+                    triggerCharacters: ['.'],
                     provideCompletionItems(model, position){
-                        var textUntilPosition = model.getValueInRange({
-                            startLineNumber: 1,
-                            startColumn: 1,
-                            endLineNumber: position.lineNumber,
-                            endColumn: position.column
+                        if (remote) {
+//                            return ['test'];
+//                            remote=false;
+                        }
+
+                        return new Promise(function (resolve, reject) {
+                            Promise.all([
+                                {
+                                    label: 'simpleText',
+                                }, {
+                                    label: 'testing',
+                                    insertText: {
+                                        value: 'testing(${1:condition})'
+                                    }
+                                }
+                            ]).then(function (results) {
+                                var suggestions = Array.prototype.concat.apply([
+                                    {
+                                        label: 'asdfasf',
+                                        kind: monaco.languages.CompletionItemKind.Text,
+                                    }
+                                ], results);
+//                                resolve(suggestions);
+                            }).catch(err => {
+                                reject(err);
+                            });
                         });
-                        console.log(model.getOffsetAt(position));
-                        return [{
-                            label: "∮",
-                            kind: monaco.languages.CompletionItemKind.Snippet,
-                            insertText: {
-                                value: [
-                                    'if (${1:condition}) {',
-                                    '\t$0',
-                                    '} else {',
-                                    '\t',
-                                    '}'
-                                ].join('\n')
-                            },
-                            documentation: '测试'
-                        }, {
-                            label: '∮',
-                            kind: monaco.languages.CompletionItemKind.Snippet,
-                            insertText: {
-                                value: [
-                                    'if (${1:condition}) {',
-                                    '\t$0',
-                                    '} else {',
-                                    '\t',
-                                    '}'
-                                ].join('\n')
-                            },
-                            documentation: 'If-Else Statement'
-                        }];
                     }
                 });
             },
