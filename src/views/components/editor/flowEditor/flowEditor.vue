@@ -23,13 +23,7 @@
 
     const selectIcon = 'el-icon-date';
     const lineIcon = 'el-icon-share';
-    const lineTool = new $AG.LineTool({
-        id: 3,
-        type: 0,
-        target: 5,
-        entr: 7,
-        exit: 6
-    });
+    const linkToolMap = new WeakMap();
 
     export default {
         name: 'flowEditor',
@@ -77,6 +71,7 @@
         data() {
             return {
                 editor: null,
+                keyManager: new keyMananger('global'),
             }
         },
 
@@ -87,10 +82,24 @@
                 this.initEditor(newConfig);
             }
         },
+
         methods: {
 
             switchTool (editor){
-                let t = this.$refs.palette.$el.getElementsByClassName('swtichToolBtn')[0];
+                let t = this.$refs.palette.$el.getElementsByClassName('swtichToolBtn')[0], lineTool;
+
+                if (linkToolMap.has(editor)) {
+                    lineTool = linkToolMap.get(editor);
+                } else {
+                    lineTool = new $AG.LineTool({
+                        id: 3,
+                        type: 0,
+                        target: 5,
+                        entr: 7,
+                        exit: 6
+                    });
+                    linkToolMap.set(editor, lineTool);
+                }
 
                 if (t.classList.contains(selectIcon)) {
                     t.classList.remove(selectIcon);
@@ -99,7 +108,7 @@
                 } else {
                     t.classList.remove(lineIcon);
                     t.classList.add(selectIcon);
-                    editor.setActiveTool(editor.getDefaultTool())
+                    editor.setActiveTool(editor.getDefaultTool());
                 }
             },
             initEditor(config) {
@@ -153,29 +162,42 @@
 
             activateKeyManager() {
                 //注册快捷键
-                let ed = this.editor;
-                this.keyManager = new keyMananger('global');
+                let host = this;
 
                 this.keyManager.watchPage(this.$el, {
                     keydown (e) {
-                        let handle = ed.actionRegistry.keyHandle(e);
+                        let handle = host.editor.actionRegistry.keyHandle(e);
                         if (handle) {
                             $AG.Platform.globalKeyDown(e);
                             return false;
                         }
                     },
                     keyup (e) {
-                        let handle = ed.actionRegistry.keyHandle(e);
+                        let handle = host.editor.actionRegistry.keyHandle(e);
                         if (handle) {
                             $AG.Platform.globalKeyUp(e);
                             return false;
                         }
                     }
+                });
+
+                let isSelected = false;
+
+                $(document).on(`click.${this.editorid}`, {host: this}, ({data: {host}}) => {
+                    host.keyManager.active(isSelected ? host.$el : null);
+                    isSelected = false;
+                })
+
+                $(this.$el).click((e) => {
+                    isSelected = true;
                 })
             },
 
             deactivateKeyManager() {
+                $(document).off(`click.${this.editorid}`);
+                $(this.$el).off('click', '**');
                 this.keyManager.unwatchPage(this.$el);
+                this.keyManager = null;
             }
         },
 

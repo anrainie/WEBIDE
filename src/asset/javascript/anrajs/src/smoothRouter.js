@@ -15,33 +15,38 @@ const RIGHT = {x: 1, y: 0};
 const UP = {x: 0, y: -1};
 const DOWN = {x:0, y: 1};
 
-
-
 function throwIfMissing() {
   throw new Error('Missing parameter');
 }
 
-function getSourceBounds(line) {
-    try {
-        return line.model.sourceNode.get('bounds');
-    } catch (e) {
-        return [0, 0, 0, 0];
+function getSourceNormal(line = throwIfMissing()) {
+    let source = line.getStartPoint();
+
+    if (line.model.sourceNode) {
+        return getDirection(line.model.sourceNode.get('bounds'), source);
     }
+
+    let target = line.getEndPoint(), offsetX = source.x - target.x, offsetY = source.y - target.y;
+
+    return Math.abs(offsetX) > Math.abs(offsetY) ? {x: offsetX/Math.max(1, Math.abs(offsetX)), y: 0} : {x: 0, y: offsetY/Math.max(1, Math.abs(offsetY))};
 }
 
-function getTargetBounds(line) {
-    try {
-        return line.model.targetNode.get('bounds');
-    } catch (e) {
-        return [0, 0, 0, 0];
+function getTargetNormal(line = throwIfMissing()) {
+    let target = line.getEndPoint();
+
+    if (line.model.targetNode) {
+        return getDirection(line.model.targetNode.get('bounds'), target);
     }
+
+    let source = line.getStartPoint(), offsetX = target.x - source.x, offsetY = target.y - source.y;
+
+    return Math.abs(offsetX) > Math.abs(offsetY) ? {x: offsetX/Math.max(1, Math.abs(offsetX)), y: 0} : {x: 0, y: offsetY/Math.max(1, Math.abs(offsetY))};
 }
 
 /**
  * 路由主体
  */
 const route = function(line, reader = throwIfMissing()) {
-    
     if (line.points === null || line.points.length < 2) {
         return null;
     }
@@ -190,8 +195,8 @@ const doubleAS = {
 
         if (line) {
             //
-            let startNormal = getDirection(getSourceBounds(line), line.getStartPoint()),
-                endNormal = getDirection(getTargetBounds(line), line.getEndPoint());
+            let startNormal = getSourceNormal(line),
+                endNormal = getTargetNormal(line);
 
             //反向映射字典
             start.dir = Math.abs(2 * startNormal.x + startNormal.y + 1);
@@ -358,22 +363,22 @@ let smoothStrategy = {
             return [source, target];
         }
 
-        let boundsOfSource = getSourceBounds(line),
-            boundsOfTarget = getTargetBounds(line);
-
-        let sourceNormal = getDirection(boundsOfSource, source), targetNormal = getDirection(boundsOfTarget, target),
-            vector = getVector(boundsOfTarget, boundsOfSource);
-
-        let bendPoint;
+        let sourceNormal = getSourceNormal(line),
+            targetNormal = getTargetNormal(line),
+            vector = getVector(target, source),
+            bendPoint;
 
         /*根据向量情况选取拐点*/
         if (dotProduct(sourceNormal, vector) > 0) {
-            bendPoint = sourceNormal.x*vector.x > 0 ? {x: source.x, y: target.y} : {x: target.x, y: source.y};
-        } else if (dotProduct(targetNormal, vector)) {
-            bendPoint = targetNormal.x*vector.x > 0 ? {x: target.x, y: source.y} : {x: source.x, y: target.y};
-        } else {
-            bendPoint = sourceNormal.x === 0 ? {x: source.x, y: target.y} : {x: target.x, y: source.y};
+            bendPoint = sourceNormal.x*vector.x > 0 ? {x: target.x, y: source.y} : {x: source.x, y: target.y};
+        } else if (dotProduct(targetNormal, vector) < 0) {
+            bendPoint = targetNormal.x*vector.x < 0 ? {x: source.x, y: target.y} : {x: target.x, y: source.y};
         }
+        /*依据距离选择*/
+        else {
+            bendPoint = Math.abs(source.x - target.x) > Math.abs(source.y - target.y) ? {x: target.x, y: source.y} : {x: source.x, y: target.y};
+        }
+
 
        return [source, bendPoint, target];
     },
@@ -387,8 +392,8 @@ let smoothStrategy = {
         }
 
         //方向参考
-        let startNormal = getDirection(getSourceBounds(line), s),
-            endNormal = getDirection(getTargetBounds(line), e),
+        let startNormal = getSourceNormal(line),
+            endNormal = getTargetNormal(line),
             abs_dir = getVector(e, s),
             rel_dir = {
                 x: path[1].x - path[0].x,
@@ -495,8 +500,8 @@ let smoothStrategy = {
             startNode = reader.absoluteToRelative(s),
             endNode = reader.absoluteToRelative(e),
             
-            startNormal = getDirection(getSourceBounds(line), s),
-            endNormal = getDirection(getTargetBounds(line), e),
+            startNormal = getSourceNormal(line),
+            endNormal = getTargetNormal(line),
             
             start, end = e;
         

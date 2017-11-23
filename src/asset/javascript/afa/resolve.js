@@ -115,7 +115,7 @@ export const nodeInput2Config = function (input) {
 }
 
 /*将位置和连线信息更新至taffyDB中*/
-export const commonDoSave = function (editor = throwIfMissing()) {
+const commonDoSave = function (editor = throwIfMissing()) {
     let nodeStore = editor.store.node,
         lineStore = editor.store.line;
 
@@ -158,7 +158,7 @@ export const commonDoSave = function (editor = throwIfMissing()) {
                 }
             });
         } else {
-            let {[props.SourceConnections]: {[props.Connection]: storeConnect}} = nodeStore({[props.Id]: source}).first();
+            let {[props.SourceConnections]: {[props.Connection]: storeConnect}} = nodeStore({[props.ID]: source}).first();
 
             storeConnect.push(connect);
         }

@@ -324,6 +324,7 @@
             this.updateNodeEditorBuffer();
         },
         beforeDestroy() {
+            this.deactivateResize();
             this.nodeEditorBuffer.clear();
         },
         methods: {
@@ -376,6 +377,26 @@
                     let currentUuid = this.$refs["nodeEditor"]["editor"]["storeId"];
                     if (!this.nodeEditorBuffer.has(currentUuid))
                         this.nodeEditorBuffer.set(currentUuid, this.$refs["nodeEditor"]["editor"]);
+                }
+            },
+
+            updateKeyManager() {
+                try {
+                    if (this.stepVisible & this.nodeExist & this.nodeVisible) {
+
+
+                        return;
+                    }
+
+                    this.$refs['stepEditor'].keyManager.active(this.stepVisible ?
+                        this.$refs['stepEditor'].$el : null);
+
+                    if (this.nodeExist) {
+                        this.$refs['nodeEditor'].keyManager.active(this.nodeVisible ?
+                            this.$refs['nodeEditor'].$el : null);
+                    }
+                } catch (e) {
+
                 }
             },
 
@@ -432,14 +453,15 @@
                     limitWdith = ~~((this.$el.clientWidth - this.splitWidth) / 2);
                 });
 
-                $(document).mousemove((e) => {
+                $(document).on(`mousemove.resize`, (e) => {
                     if(isMove){
                         let tempOff = currenOffset + _x - e.pageX;
                         this.offset = tempOff < -limitWdith ? -limitWdith : tempOff > limitWdith ? limitWdith : tempOff;
                     }
-                }).mouseup(function(){
-                    isMove = false;
-                });
+                }).on(`mouseup.resize`, () => {isMove = false});
+            },
+            deactivateResize() {
+                $(document).off('.resize');
             }
         },
         components: {
