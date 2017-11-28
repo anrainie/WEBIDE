@@ -57,16 +57,30 @@
                 }
             },
             prefix(){
+                let _package = [];
+                let curr = this.parentResource;
+                while(curr.model.resId == 'package'){
+                    _package.unshift(curr.model.name);
+                    curr = curr.getParent();
+                }
                 switch (this.parentResource.model.level){
                     case 'Platform':
+                        if(_package.length > 1)
+                            return _package.join('.') +".";
                         return 'tc.platform.';
                     case 'Bank':
+                        if(_package.length > 1)
+                            return _package.join('.')+".";
                         return 'tc.bank.';
                     case 'App':
+                        if(_package.length > 2)
+                            return _package.join('.')+".";
                         let project = IDE.navigator.upSearchItem(this.parentResource,resKey.project);
                         let application = IDE.navigator.upSearchItem(this.parentResource,resKey.application);
                         return "tc." + project.model.name + "." + application.model.name + ".";
                     case 'Product':
+                        if(_package.length > 2)
+                            return _package.join('.')+".";
                         let solution = IDE.navigator.upSearchItem(this.parentResource,resKey.solution);
                         let product = IDE.navigator.upSearchItem(this.parentResource,resKey.product);
                         return "tc." + solution.model.name + "." + product.model.name + ".";

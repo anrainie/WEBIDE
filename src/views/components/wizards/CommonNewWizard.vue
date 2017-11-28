@@ -1,23 +1,13 @@
 <template>
     <el-dialog
-            :title="wizardtitle"
+            :title="'新建'+resName"
             :visible.sync="dialogFormVisible" @close="close">
-        <!--<div>{{pagetitle}}</div>-->
-        <!--<div>{{pagedesc}}</div>-->
         <el-form>
-            <el-form-item :label="namelabel.label" :label-width="labelWidth">
-                <el-input v-model="name" auto-complete="off">{{namelabel.value}}</el-input>
+            <el-form-item :label="resName + '名称'" :label-width="labelWidth">
+                <el-input v-model="name"></el-input>
             </el-form-item>
-            <!-- <el-form-item :label-width="labelWidth">
-                 <el-cascader>
-                        <:options="reference">
-                        <v-model="selectedOptions">
-                        @change="handleChange">
-                </el-cascader>
-             -->
-            <!--</el-form-item>-->
-            <el-form-item :label="desclabel.label" :label-width="labelWidth">
-                <el-input v-model="desc" auto-complete="off">{{desclabel.value}}</el-input>
+            <el-form-item :label="resName + '描述'" :label-width="labelWidth">
+                <el-input v-model="desc"></el-input>
             </el-form-item>
         </el-form>
         <div slot="footer" class="dialog-footer">
@@ -27,7 +17,6 @@
     </el-dialog>
 </template>
 <script>
-
     export default {
         data() {
             return {
@@ -35,33 +24,20 @@
                 dialogFormVisible: true,
                 template: false,
                 labelWidth: '140px',
-                name: '',
-                desc: '',
-                resourceId: '',
-                path: '',
-                type: '',
-                wizardtitle: '',
-                pagetitle: '',
-                pagedesc: '',
-                namelabel: {
-                    label: '',
-                    value: ''
-                },
-                catelog: '',
-                group: {
-                    label: '',
-                    value: ''
-                },
-                reference: {
-                    label: '',
-                    value: ''
-                },
-                desclabel: {
-                    label: '',
-                    value: ''
-                },
-                refLabel: ''
+                name:'',
+                desc:'',
             }
+        },
+        props:{
+            parent:{
+                type:String,
+            },
+            resId:{
+                type:String,
+            },
+            resName:{
+                type:String,
+            },
         },
         component: {},
         methods: {
@@ -75,9 +51,8 @@
                         type: self.domain,
                         event: 'createNewResource',
                         data: {
-                            path: this.path,
-                            resourceId: this.resourceId,
-                            type: this.type,
+                            path: this.parent,
+                            resourceId: this.resId,
                             name: this.name,
                             description: this.desc
                         }
@@ -103,20 +78,6 @@
                         }
                     });
                 }
-            },
-            handleBroswer(){
-                //获取相关引用
-              var self = this;
-                IDE.socket.emit("getWizardReference", {
-                    type: self.domain,
-                    event: 'getWizardReference',
-                    data: {path: this.path, resourceId: this.resourceId}
-                }, function (data) {
-                    if (result.state === 'success') {
-
-                    }
-                });
-
             },
             close(){
                 this.$el.parentNode.removeChild(this.$el);

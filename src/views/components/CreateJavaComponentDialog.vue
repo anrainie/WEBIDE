@@ -69,7 +69,7 @@
                 switch (this.parentResource.model.level){
                     case 'Platform':
                         if(prefix.length < 2){
-                            prefix = ['tc','platfrom'];
+                            prefix = ['tc','platform'];
                         }
                         break;
                     case 'Bank':
