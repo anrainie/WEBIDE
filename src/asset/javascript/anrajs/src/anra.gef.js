@@ -1412,6 +1412,8 @@ anra.gef.LinkLineTool = anra.gef.Tool.extend({
                 this.sourceGuideAnchor.setBounds({x: anchor.x - 10, y: anchor.y - 10, width: 20, height: 20});
                 this.editor.rootEditPart.getFeedbackLayer().addChild(this.sourceGuideAnchor);
                 this.editor.rootEditPart.getFeedbackLayer().addChild(this.targetGuideAnchor);
+                //指向实际节点的model，如果修改了会产生问题
+                this.guideLine.model = {sourceNode: this.sourceEditPart.model, targetNode: null};
                 this.guideLine.setSourceAnchor(anchor);
                 this.guideLine.disableEvent();
             }
@@ -1881,6 +1883,8 @@ anra.gef.DeleteLineCommand = anra.Command.extend({
         this.line.attachSource(true);
         this.line.attachTarget(true);
         this.line.activate();
+        //TODO 线的被选行为
+        this.root.setSelection(this.line);
     }
 });
 
@@ -2666,6 +2670,7 @@ anra.FigureUtil = {
         if (editPart instanceof anra.gef.LineEditPart) {
             ghost.setSourceAnchor(editPart.figure.sourceAnchor);
             ghost.setTargetAnchor(editPart.figure.targetAnchor);
+            if (editPart.figure.points) ghost.points = [...editPart.figure.points];
         }
 
         ghost.setOpacity(0.5);
@@ -2683,12 +2688,14 @@ anra.FigureUtil = {
         if (editPart.getModelSourceLines().length +　editPart.getModelTargetLines().length == 0) {
             return {
                 node: nodeGhost,
-                line: [],
+                sourceLines: [],
+                targetLines: [],
             };
         }
 
-        let sourceLineGhost = editPart.sConns.map(linePart => [anra.FigureUtil.createGhostFigure(linePart), linePart.model.get('exit')]),
+        /*let sourceLineGhost = editPart.sConns.map(linePart => [anra.FigureUtil.createGhostFigure(linePart), linePart.model.get('exit')]),
             targetLineGhost = editPart.tConns.map(linePart => [anra.FigureUtil.createGhostFigure(linePart), linePart.model.get('entr')]);
+
         //通过setBounds刷新线的位置
 
         nodeGhost.setBounds = function(b) {
@@ -2710,10 +2717,30 @@ anra.FigureUtil = {
 
         return {
             node: nodeGhost,
+            sourceLine: sourceLineGhost.map(([line, anchor]) => line),
+            targetLine: targetLineGhost.map(([line, anchor]) => line),
             line: sourceLineGhost.map(([line, anchor]) => line).concat(
                 targetLineGhost.map(([line, anchor]) => line)
             ),
-        };
+        };*/
+
+        let sourceLineGhost = editPart.sConns.map(linePart => {
+            let ghost = anra.FigureUtil.createGhostFigure(linePart);
+            //实际
+            ghost.model = linePart.model;
+            return ghost;
+            }),
+            targetLineGhost = editPart.tConns.map(linePart => {
+                let ghost =  anra.FigureUtil.createGhostFigure(linePart);
+                ghost.model = linePart.model;
+                return ghost;
+            });
+
+        return {
+            node: nodeGhost,
+            sourceLines: sourceLineGhost,
+            targetLines: targetLineGhost,
+        }
     }
 };
 

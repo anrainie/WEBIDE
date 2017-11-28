@@ -61,14 +61,20 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
     ID: 'layoutPolicy',
     listener: null,
     feedbackMap: null,
+    noRouteLines: null,
+    needRouteLines: null,
+    initialBounds: null,
     constructor: function () {
         this.feedbackMap = new Map();
+        this.noRouteLines = new Map();
+        this.needRouteLines = new Map();
+        this.initialBounds = new Map();
     },
-    refreshFeedback: function (feedback, request, offsetX, offsetY) {
+    refreshFeedback: function (feedback, request, offsetX = 0, offsetY = 0) {
         if (feedback != null) {
             feedback.setBounds({
-                x: request.event.x + (offsetX == null ? 0 : offsetX),
-                y: request.event.y + (offsetY == null ? 0 : offsetY)
+                x: request.event.x + offsetX,
+                y: request.event.y + offsetY,
             });
         }
     },
@@ -81,15 +87,26 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
     },
     eraseLayoutTargetFeedback: function (request) {
         //TODO
+        /*bounds重新设置回去*/
+        if (this.initialBounds) {
+            this.initialBounds.forEach((bounds, model) => model.set('bounds', bounds));
+            this.initialBounds.clear();
+        }
+
+        if (this.needRouteLines) {
+            this.needRouteLines.forEach((line) => this.getLineLayer().removeChild(line));
+            this.needRouteLines.clear();
+        }
+
+        if (this.noRouteLines) {
+            this.noRouteLines.forEach((line) => this.getLineLayer().removeChild(line));
+            this.needRouteLines.clear();
+        }
+
         this.editParts = null;
         var values = this.feedbackMap.values();
         for (var i = 0, len = values.length; i < len; i++) {
             this.removeFeedback(values[i]);
-        }
-
-        if (this.feedbackLines) {
-            this.feedbackLines.forEach(line => this.getLineLayer().removeChild(line));
-            this.feedbackLines = null;
         }
 
         this.feedbackMap.clear();
@@ -106,16 +123,62 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
         if (editParts instanceof Array) {
             var ox = request.target.bounds.x,
                 oy = request.target.bounds.y;
-            for (var i = 0, len = editParts.length; i < len; i++) {
-                feedback = this.getFeedback(editParts[i]);
-                this.refreshFeedback(feedback, request, editParts[i].figure.bounds.x - ox, editParts[i].figure.bounds.y - oy);
-            }
+            //node
+            this.editParts.map(ep => this.getFeedback(ep)).forEach((f, i) =>{
+
+                this.refreshFeedback(f, request, editParts[i].figure.bounds.x - ox, editParts[i].figure.bounds.y - oy);
+
+                //刷新实际model, 但是不刷新实际视图
+                editParts[i].model.set('bounds', [
+                    f.bounds.x,
+                    f.bounds.y,
+                    f.bounds.width,
+                    f.bounds.height,
+                ]);
+            });
+
+            this.noRouteLines.forEach(line => {
+                /*保证线的形状不变*/
+                if (line.points) {
+                    line.points.forEach(function (item, index, input) {
+                        input[index] = {
+                            x: line.initalPoints[index].x - ox + request.event.x,
+                            y: line.initalPoints[index].y - oy + request.event.y,
+                        };
+                    })
+
+                    if (line.sourceAnchor && line.targetAnchor)
+                        line.setAttribute({
+                            d: line.compute()
+                        });
+                    line.fireRepaintListener();
+                } else {
+                    line.paint();
+                }
+            });
         } else if (editParts instanceof anra.gef.NodeEditPart && (editParts.dragTracker || request.type == constants.REQ_CREATE)) {
             feedback = this.getFeedback(editParts);
             feedback.offsetX = request.event.offsetX || feedback.offsetX;
             feedback.offsetY = request.event.offsetY || feedback.offsetY;
             this.refreshFeedback(feedback, request, feedback.offsetX, feedback.offsetY);
+            editParts.model.set('bounds', [
+                feedback.bounds.x,
+                feedback.bounds.y,
+                feedback.bounds.width,
+                feedback.bounds.height,
+            ])
         }
+
+        //line
+        this.needRouteLines.forEach(line => {
+            if (this.feedbackMap.has(line.model.sourceNode)) {
+                line.setSourceAnchor(this.feedbackMap.get(line.model.sourceNode).getSourceAnchorByTerminal(line.model.get('exit')));
+            } else if (this.feedbackMap.has(line.model.targetNode)) {
+                line.setTargetAnchor(this.feedbackMap.get(line.model.targetNode).getSourceAnchorByTerminal(line.model.get('entr')));
+            }
+
+            line.paint();
+        });
     },
     getLayoutEditParts: function (request) {
         if (constants.REQ_CREATE == request.type) {
@@ -151,10 +214,32 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
             let ghostAndLine = this.createFeedback(ep);
             ghost = ghostAndLine.node;
 
+            //node
             this.addFeedback(ghost);
-            ghostAndLine.line.forEach(line => this.getLineLayer().addChild(line));
-            this.feedbackLines = this.feedbackLines ? this.feedbackLines.concat(ghostAndLine.line) : [].concat(ghostAndLine.line);
             this.feedbackMap.put(ep.model, ghost);
+            this.initialBounds.put(ep.model, ep.model.get('bounds'));
+
+            ghostAndLine.sourceLines.forEach(line => {
+                if (this.feedbackMap.has(line.model.targetNode)) {
+                    this.noRouteLines.put(line.model, this.needRouteLines.get(line.model));
+                    this.noRouteLines.get(line.model).initalPoints = [...line.points];
+                    this.needRouteLines.remove(line.model);
+                } else {
+                    this.needRouteLines.put(line.model, line);
+                    this.getLineLayer().addChild(line, true);
+                }
+            })
+
+            ghostAndLine.targetLines.forEach((line) => {
+                if (this.feedbackMap.has(line.model.sourceNode)) {
+                    this.noRouteLines.put(line.model, this.needRouteLines.get(line.model));
+                    this.noRouteLines.get(line.model).initalPoints = [...line.points];
+                    this.needRouteLines.remove(line.model);
+                } else {
+                    this.needRouteLines.put(line.model, line);
+                    this.getLineLayer().addChild(line, true);
+                }
+            });
         }
         return ghost;
     },
@@ -172,6 +257,12 @@ anra.gef.LayoutPolicy = anra.gef.AbstractEditPolicy.extend({
         return null;
     },
     getMoveCommand: function (request) {
+
+        if (this.initialBounds) {
+            this.initialBounds.forEach((bounds, model) => model.set('bounds', bounds));
+            this.initialBounds.clear();
+        }
+
         var target = this.editParts;
         if (target instanceof anra.gef.NodeEditPart && target.dragTracker){
             var feedback = this.getFeedback(target);

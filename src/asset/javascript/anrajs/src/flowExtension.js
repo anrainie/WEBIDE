@@ -55,15 +55,17 @@ $AG.Editor.prototype.createNodeWithPalette = function(data = throwIfMissing()) {
     let editor = this, tool = new anra.gef.CreationTool();
 
     return function () {
-        let node = new $AG.Node();
-        node.props = defaultsDeep({}, {
-            id: editor.createID()   ,
-            bounds: [0, 0, data.size[0], data.size[1]],
-        }, data);
-        tool.model = node;
+        if (editor.getDefaultTool() == editor.getActiveTool()) {
+            let node = new $AG.Node();
+            node.props = defaultsDeep({}, {
+                id: editor.createID()   ,
+                bounds: [0, 0, data.size[0], data.size[1]],
+            }, data);
+            tool.model = node;
 
-        editor.setActiveTool(tool);
-        return true;
+            editor.setActiveTool(tool);
+            return true;
+        }
     }
 };
 

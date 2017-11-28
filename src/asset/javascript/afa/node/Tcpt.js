@@ -19,7 +19,7 @@ const Tcpt = {
 
     policies: {
         'doubleclick': options.openPropEditor,
-        'despText': $AG.policy.TextPolicy('Desp', options.ocation),
+        'despText': $AG.policy.TextPolicy('Desp', options.location),
         'idText': $AG.policy.TextPolicy('id', options.idLocation),
     }
 }

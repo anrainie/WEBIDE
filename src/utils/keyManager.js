@@ -49,8 +49,10 @@ const keyMananger = function (type) {
 
     if (type == 'global') {
         this.active = (el) => {
-            if (el == null)
+            if (el == null) {
                 a = null;
+                return;
+            }
             if (el.__watchId && pages[el.__watchId - 1] == el) {
                 a = el.__keyHandle;
             }
@@ -72,10 +74,19 @@ const keyMananger = function (type) {
         this.unwatchPage = (el) => {
             if (el.__watchId && pages[el.__watchId - 1] == el) {
                 $(el).unbind('click', el.__bindClick);
+                if (a == el.__keyHandle) a = null;
                 pages.splice(el.__watchId - 1, 1);
+                /*delete  el._watchId;
+                delete  el._keyHandle;*/
+                el._watchId = el._keyHandle = undefined;
             }
         };
 
+        //因为keyManager持有DOM节点引用
+        this.unwatchAllPage = () => {
+            pages.forEach((el) => this.unwatchPage(el));
+            a = null;
+        };
 
         $(document).keydown((e) => {
             if (this.keydown(e) === false)
