@@ -3,6 +3,8 @@
  */
 import io from 'socket.io-client';
 import ElementUI from 'element-ui';
+import tools from '../utils/tools';
+
 function IDESocket() {
     this.sockets = {};
     this.timeout = 15 * 1000;
@@ -82,6 +84,7 @@ IDESocket.prototype.emit = function (eventId,data,callback,timeout = this.timeou
     }
 
     data = data || {};
+    data.id = tools.genUUID();
     data.event = data.event || eventId;
     data.timeout = this.timeout;
     data.time = new Date().getTime();
@@ -117,6 +120,7 @@ IDESocket.prototype.emitAndGetDeferred = function (eventId,data,timeout = this.t
     }
 
     data = data || {};
+    data.id = tools.genUUID();
     data.event = data.event || eventId;
     data.timeout = this.timeout;
     data.time = new Date().getTime();

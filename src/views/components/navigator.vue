@@ -48,6 +48,17 @@
                     }
                     children = newChildren;
                 }
+            },
+            getResourceIDPath(item){
+                let resourceIDPath = [];
+                resourceIDPath.unshift(item.model.resId);
+
+                var parent = item.getParent();
+                while(parent && parent != this){
+                    resourceIDPath.unshift(parent.model.resId);
+                    parent = parent.getParent();
+                }
+                return resourceIDPath.join("/");
             }
         },
         mounted(){

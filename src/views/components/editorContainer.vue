@@ -172,6 +172,7 @@
         },
         beforeDestroy(){
             this.release();
+            this.editor = null;
         },
         mounted(){
             this.$editorHeader = $(this.$el).find(".editor-header");

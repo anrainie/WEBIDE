@@ -82,8 +82,8 @@
     import editorPage from "../components/editorPart.vue";
     import contextMenu from "../components/contextMenu.vue";
     import toolbar from "../components/toolbar.vue"
-    import navContextMenus from '../../action/afa.navi.contextmenu';
     import menuData from '../../action/afa.menu';
+    import treeStructure from '../../action/afa.tree.structure';
     export default{
         data(){
             let self = this;
@@ -211,6 +211,15 @@
                 },
                 rightClick: function (event) {
                     let item = this;
+                    let resourceIdPath = IDE.navigator.getResourceIDPath(item);
+                    var menu = treeStructure.generateMenu(resourceIdPath);
+                    IDE.contextmenu.setItems(menu);
+                    if (IDE.contextmenu.isActive()) {
+                        IDE.contextmenu.hide();
+                    }
+                    IDE.contextmenu.show(event.x, event.y, IDE.navigator.selection);
+
+                   /* let item = this;
                     IDE.socket.emit('getNaviMenu', {
                         type: self.domain,
                         event: 'getNaviMenu',
@@ -229,6 +238,7 @@
                             }
                         }
                     });
+                    */
                 },
                 filter: function (item) {
                     if (item.model.name) {

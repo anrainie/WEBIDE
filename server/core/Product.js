@@ -38,7 +38,7 @@ class Product{
         if(!this.socket.connected && callback) {
             callback({state: "error", errorMsg:"Product is disconnected"});
         }else {
-            let callbackId = reqData.callbackId = tools.genUUID(),
+            let callbackId = reqData.callbackId = reqData.id,
                 callbackSuccess = false,
                 timeout = reqData.timeout,
                 frontEmitTime = reqData.time,
