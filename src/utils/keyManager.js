@@ -78,13 +78,17 @@ const keyMananger = function (type) {
                 pages.splice(el.__watchId - 1, 1);
                 /*delete  el._watchId;
                 delete  el._keyHandle;*/
-                el._watchId = el._keyHandle = undefined;
+                el._watchId = null;
+                el._keyHandle = null;
             }
         };
 
         //因为keyManager持有DOM节点引用
         this.unwatchAllPage = () => {
-            pages.forEach((el) => this.unwatchPage(el));
+            while(pages.length > 0) {
+                this.unwatchPage(pages[0]);
+            }
+            //pages.forEach((el) => this.unwatchPage(el));
             a = null;
         };
 

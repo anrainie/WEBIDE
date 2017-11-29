@@ -731,7 +731,6 @@ anra.SVG = Composite.extend(anra._Display).extend(anra._EventTable).extend({
         this.dispatcher = new anra.svg.EventDispatcher(this);
         var d = this.dispatcher;
         var t = this;
-        var div = this.element;
         d.setMouseTarget(t);
 //TODO
         this.element.oncontextmenu = function (event) {
@@ -791,7 +790,7 @@ anra.SVG = Composite.extend(anra._Display).extend(anra._EventTable).extend({
             d.dispatchMouseUp(event);
             return false;
         };
-        anra.Platform.regist(anra.Platform.DISPLAY, this);
+        anra.Platform.regist();
         anra.Platform.focus = this;
 
         this.defs = new anra.svg.DefineArea();

@@ -68,7 +68,8 @@ module.exports = {
             assets: resolve('src/asset'),
             anrajs: resolve('src/asset/javascript/anrajs/index.js'),
             'vs$':'monaco-editor/min/vs',
-            Constants: resolve('src/utils/constants.js')
+            keyManager: resolve('src/utils/keyManager.js'),
+            Constants: resolve('src/utils/constants.js'),
         }
     },
     babel: {

@@ -125,6 +125,15 @@ anra.Store = {
     },
     get: function (id, key) {
         return key != null ? this._storeMap[id][key] : this._storeMap[id];
+    },
+    remove(id) {
+        if (id && this._storeMap[id]) {
+            this._storeMap[id].node().remove();
+            this._storeMap[id].line().remove();
+            this._storeMap[id].node = null;
+            this._storeMap[id].line = null;
+            delete this._storeMap[id];
+        }
     }
 };
 
@@ -163,34 +172,17 @@ anra.ImageRegistry = new anra.ImageRegistry();
  *全局使用
  */
 anra.Platform = {
-    pool: new Map(),
     ready: false,
     focus: null,
-    displayList: [],
-    regist: function (key, object) {
-        var list = this.pool.get(key);
-        if (list == null) {
-            list = [];
-            this.pool.set(key, list);
-        }
-        list.push(object);
+    regist: function () {
         if (!this.ready)
             this.init();
     },
+    unregist(display){
+        if (display && display == anra.Platform.focus) anra.Platform.focus = null;
+    },
     init: function () {
         //TODO 全局事件
-        // var p = this;
-        // window.addEventListener('keydown', function (event) {
-        //     var d = p.focus;
-        //     if (d != null && d.dispatcher != null)
-        //         d.dispatcher.dispatchKeyDown(event);
-        // });
-        //
-        // window.addEventListener('keyUp', function (event) {
-        //     var d = p.focus;
-        //     if (d != null && d.dispatcher != null)
-        //         d.dispatcher.dispatchKeyUp(event);
-        // });
         this.ready = true;
     },
     globalKeyDown: function (event) {
@@ -203,18 +195,8 @@ anra.Platform = {
         if (d != null && d.dispatcher != null)
             d.dispatcher.dispatchKeyUp(event);
     },
-    get: function (key) {
-        return this.pool.get(key);
-    },
-    unregist: function (key) {
-        this.pool.delete(key);
-    },
-    getCurrentScene: function () {
-        var canvas = this.get(this.DISPLAY);
-        return canvas.scenes[canvas.currentScene];
-    },
     getDisplay: function () {
-        return this.focus == null ? this.get(this.DISPLAY)[0] : this.focus;
+        return this.focus;
     },
     error: function (e) {
         this.getDisplay().error(e);

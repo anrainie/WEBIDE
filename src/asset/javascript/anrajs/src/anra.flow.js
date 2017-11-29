@@ -337,7 +337,7 @@ $AG.Node.addChildren = function (parentModel, data, config) {
 $AG.ConnectionPolicy = anra.gef.ConnectionPolicy.extend({});
 
 $AG.LineTool = anra.gef.LinkLineTool.extend({
-    constructor: function (m) {
+    constructor: function (m = {type: 0}) {
         var line = $AG.Line.create(m);
         anra.gef.LinkLineTool.prototype.constructor.call(this, line);
     }

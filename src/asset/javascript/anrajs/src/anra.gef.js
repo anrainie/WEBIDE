@@ -2328,6 +2328,19 @@ anra.gef.Editor = Base.extend({
     },
     createTopDragTracker: function () {
         return new anra.gef.TopDragTracker(this);
+    },
+    dispose() {
+        anra.Store.remove(this.storeId);
+        anra.Platform.unregist(this.canvas);
+        if (this.element) {
+            this.element.removeChild(this.canvas.element);
+            this.element = null;
+        }
+        this.rootEditPart.selection = null;
+        this.rootEditPart.editor = null;
+        this.rootEditPart.getLayoutPolicy().editPart = null;
+        this.selection = null;
+
     }
 });
 
