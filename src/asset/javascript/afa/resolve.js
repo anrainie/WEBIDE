@@ -80,7 +80,7 @@ export const stepInput2Config = function (input) {
         }
 
         if (input.Root.Regulation && input.Root.Regulation.Step) {
-            extraConfig.data = resolveEditorData([].concat(input.Root.Regulation.Step), StepBaseCfg.children);
+            extraConfig.data = resolveEditorData([].concat(input.Root.Regulation.Step));
             extraConfig.line = resolveEditorLine([].concat(input.Root.Regulation.Step));
         }
 
@@ -97,7 +97,7 @@ export const nodeInput2Config = function (input) {
         extraConfig.uuid = input.UUID;
 
         if (input.Node) {
-            extraConfig.data = resolveEditorData([].concat(input.Node), NodeBaseCfg.children);
+            extraConfig.data = resolveEditorData([].concat(input.Node));
             extraConfig.line = resolveEditorLine([].concat(input.Node));
 
             /*???*/

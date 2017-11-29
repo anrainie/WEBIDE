@@ -44,12 +44,6 @@
             eventsOnEditor: {
                 type: Object
             },
-            save: {
-                type: Function
-            },
-            openPaletteEvent: {
-                type: Function
-            },
             actions: {
                 type: [Array, Object],
                 default() {

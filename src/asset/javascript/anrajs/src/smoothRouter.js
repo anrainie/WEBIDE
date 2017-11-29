@@ -420,7 +420,7 @@ let smoothStrategy = {
                 startNormal.x = rel_dir.x;
                 startNormal.y = rel_dir.y;
 
-                coff = ((horizontal * (s.y - e.y) + (1 - horizontal) * (s.x - e.x))) * (endNormal.x + endNormal.y);
+                coff = (horizontal * (s.y - e.y) + (1 - horizontal) * (s.x - e.x)) * (endNormal.x + endNormal.y);
                 //coff = max(0, coff/abs(coff));// 
                 coff = coff === 1 ? 1 : 0;
             } else {
@@ -428,7 +428,7 @@ let smoothStrategy = {
                 endNormal.x = 0 - rel_dir.x;
                 endNormal.y = 0 - rel_dir.y;
 
-                coff = ((horizontal * (e.y - s.y) + (1 - horizontal) * (e.x - s.x))) * (startNormal.x + startNormal.y);
+                coff = (horizontal * (e.y - s.y) + (1 - horizontal) * (e.x - s.x)) * (startNormal.x + startNormal.y);
 
                 //coff = abs(min(0, coff/abs(coff)));// 
                 coff = coff === 1 ? 0 : 1;
