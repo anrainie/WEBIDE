@@ -36,25 +36,87 @@ const dotProduct = function(r1, r2) {
     return r1.x*r2.x + r1.y*r2.y;
 };
 
+const similarity = function (point, direction) {
+    if (direction.x != 0) return point.x +  minGap*direction.x/Math.abs(direction.x);
+    else return point.y + minGap*direction.y/Math.abs(direction.y)
+}
+
 
 export default function route(line) {
+    if (line.points === null || line.points.length < 2) {
+        return null;
+    }
 
-    let sourceNormal = getSourceNormal(line),
+    let source = line.getStartPoint(),
+        target = line.getEndPoint(),
+        sourceNormal = getSourceNormal(line),
         targetNormal = getTargetNormal(line),
-        vector = getVector(line.getEndPoint(), line.getStartPoint()),
-        result;
+        direction = getVector(target, source),
+        average = {x: (source.x + target.x)/2 , y: (source.y + target.y)/2},
+        horizontal = sourceNormal.y == 0,
+        result = [], i;
 
-    //以sourceNormal为基准
-    let dot = dotProduct(sourceNormal, targetNormal);
+    result.push(horizontal ? source.x : source.y);
+    horizontal = !horizontal;
 
-    //same
-    if (dot == 1) {
+    if (dotProduct(sourceNormal, targetNormal) == 0) {
+        if (dotProduct(sourceNormal, direction) >= 0 &&
+            dotProduct(targetNormal, direction) <= 0) {
+            //0
+        } else {
 
-        
+            if (direction(sourceNormal, direction) < 0) {
+                i = similarity(source, sourceNormal);
+            } else {
+                i = horizontal ? average.y : average.x;
+            }
 
-    } else if (dot == 0) {
+            result.push(i);
+            horizontal = !horizontal;
 
+            if (dotProduct(targetNormal, direction) > 0) {
+                i = similarity(target, targetNormal);
+            } else {
+                i = horizontal ? average.y : average.x;
+            }
+
+            result.push(i);
+            horizontal = !horizontal;
+
+        }
     } else {
 
+        if (dotProduct(sourceNormal, targetNormal) > 0) {
+
+            if (dotProduct(sourceNormal, direction) >= 0) {
+                i = similarity(source, sourceNormal);
+            } else {
+                i = similarity(target, targetNormal);
+            }
+
+            result.push(i);
+            horizontal = !horizontal;
+        } else {
+            if (dotProduct(sourceNormal, direction) < 0) {
+                i = similarity(source, sourceNormal);
+                result.push(i);
+                horizontal = !horizontal;
+            }
+
+            i = horizontal ? average.y : average.x;
+            result.push(i);
+            horizontal = !horizontal;
+
+            if (dotProduct(sourceNormal, direction) < 0) {
+                i = similarity(target, targetNormal);
+
+                result.push(i);
+                horizontal = !horizontal;
+            }
+        }
     }
+
+    result.push(horizontal ? target.y : target.x);
+
+    //process
 }
